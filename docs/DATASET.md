@@ -16,6 +16,8 @@ Cập nhật 29/08/2026. Mọi file nằm trong `data/`.
 | `carry.csv` | 2b | Chênh lệch lãi suất — tín hiệu hướng đi chưa khai thác |
 | `fred_rates.csv` | 2b | Lãi suất gốc, để tự tính carry cho cặp khác |
 | `dukas_volume.csv` | — | Chưa tầng nào dùng |
+| `rv_adv.csv` | **2** | RV + quarticity + bipower + semivariance 5 phút — đầu vào của `volfc.py` |
+| `panel2_6pairs.csv` | **3, 4, 6** | Panel rủi ro ĐANG DÙNG, dựng bằng dự báo mới |
 
 ## 2. Chi tiết từng file
 
@@ -246,15 +248,20 @@ số đo và giả định phải được phát biểu khác nhau.
 
 ### **Đầu ra mô hình — KHÔNG phải số đo**
 
-**`sig` trong `panel_6pairs.csv`** là dự báo của MA20-Garman-Klass, đã
-dịch một phiên. Tương quan với biến động thực đo cùng ngày chỉ **0,511**
-— tức nó giải thích khoảng 26% phương sai. Đây là một *dự báo*, và toàn
-bộ `zT`, `zL`, `zH` được chuẩn hóa bằng nó.
+**`sig`** là một *dự báo*, không phải số đo, và toàn bộ `zT`, `zL`, `zH`
+được chuẩn hóa bằng nó — nên mọi kết luận của tầng 3 và 4 đứng trên chất
+lượng của nó.
 
-Hệ quả: mọi kết luận của tầng 3 và 4 đứng trên chất lượng của dự báo
-này. Và MA20-GK không phải lựa chọn duy nhất đúng — GARCH(1,1)-t ngang
-bằng về mặt thống kê (Diebold–Mariano 0/6 cặp). Muốn biết kết luận có
-phụ thuộc lựa chọn không thì phải dựng lại panel bằng GARCH-t.
+| | panel cũ (`panel_6pairs.csv`) | panel mới (`panel2_6pairs.csv`) |
+|---|---|---|
+| mô hình | MA20-Garman-Klass, dịch 1 phiên | tổ hợp STHARQ+HARQ+SHAR (`src/volfc.py`) |
+| tương quan với biến động thực | 0,435–0,647 | **0,522–0,720** |
+| QLIKE ngoài mẫu | 0,2161 | **0,1645** |
+| số hàng | 29.843 | 21.596 (phiên Chủ nhật đã gộp; đệm 250 phiên) |
+
+Panel cũ giữ lại để đối chiếu, **không dùng cho kết quả mới**. Xem
+`docs/TANG2_BIENDONG.md` về vì sao kết luận cũ ("HAR thua mọi mô hình
+đơn giản") là sai.
 
 ### Giả định thuần túy — không đo được từ dữ liệu
 

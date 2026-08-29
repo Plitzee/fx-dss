@@ -1,15 +1,4 @@
-# Du lieu tho — tai lai bang script trong collect/, KHONG dua vao git.
-# histdata_tick co file 286MB, vuot gioi han cung 100MB/file cua GitHub.
-histdata_raw/
-histdata_seal/
-histdata_tick/
-dukas_data/
-dukas_h1_data/
-tick_cache/
-dukas_cache/
-fx_clean/
-*.bi5
-*.zip
 __pycache__/
 *.pyc
-.ipynb_checkpoints/
+volbake.npy
+cvar_results.json
