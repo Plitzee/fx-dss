@@ -1,0 +1,71 @@
+{
+ "OLS HAR (khớp năm)": {
+  "qlike_valid": 0.11782294174402147,
+  "qlike_test": 0.15932733460517476
+ },
+ "Ridge (toàn bộ đặc trưng)": {
+  "qlike_valid": 0.11645312724794571,
+  "qlike_test": 0.15897987571263128
+ },
+ "Random Forest": {
+  "qlike_valid": 0.13127597323740883,
+  "qlike_test": 0.17398356628248485
+ },
+ "LightGBM (L2 trên log)": {
+  "qlike_valid": 0.11870379763280298,
+  "qlike_test": 0.16178954890273453
+ },
+ "LightGBM (QLIKE trực tiếp)": {
+  "qlike_valid": 0.11635068173203184,
+  "qlike_test": 0.1592926830409165
+ },
+ "MLP": {
+  "qlike_valid": 0.14401623219951276,
+  "qlike_test": 0.18928441259386505
+ },
+ "LSTM (khớp năm)": {
+  "qlike_valid": 0.11405903599487675,
+  "qlike_test": 0.15724106189902878
+ },
+ "GRU (khớp năm)": {
+  "qlike_valid": 0.12004595563755564,
+  "qlike_test": 0.15633674831886926
+ },
+ "Transformer (PatchTST rút gọn) (khớp năm)": {
+  "qlike_valid": 0.12253261759238425,
+  "qlike_test": 0.16518666054413633
+ },
+ "HAR vòng 7 (khớp mỗi phiên)": {
+  "qlike_valid": 0.11621365264363104,
+  "qlike_test": 0.1585059377384938
+ },
+ "HAR gốc (khớp mỗi phiên)": {
+  "qlike_valid": 0.12811083232410447,
+  "qlike_test": 0.1726373561176974
+ },
+ "MA20-GK (nền cũ)": {
+  "qlike_valid": 0.16543799879579113,
+  "qlike_test": 0.21721424637640896
+ },
+ "Tổ hợp HAR v7 + GRU": {
+  "qlike_valid": 0.1131635530437301,
+  "qlike_test": 0.15562018029995747
+ },
+ "Tổ hợp HAR v7 + GRU + LSTM": {
+  "qlike_valid": 0.11394761280526827,
+  "qlike_test": 0.1549509570981224
+ },
+ "_mcs": [
+  "OLS HAR (khớp năm)",
+  "Ridge (toàn bộ đặc trưng)",
+  "Random Forest",
+  "LightGBM (L2 trên log)",
+  "LightGBM (QLIKE trực tiếp)",
+  "LSTM (khớp năm)",
+  "GRU (khớp năm)",
+  "Transformer (PatchTST rút gọn) (khớp năm)",
+  "HAR vòng 7 (khớp mỗi phiên)",
+  "Tổ hợp HAR v7 + GRU",
+  "Tổ hợp HAR v7 + GRU + LSTM"
+ ]
+}
