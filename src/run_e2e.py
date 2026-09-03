@@ -52,6 +52,13 @@ from sizing import RUIN_LEVEL
 N = 20
 FRAC_QUET = (1.0, 0.5, 0.25, 0.125)
 
+# Bao nhieu vi the coi nhu mo CUNG LUC khi dinh co — tuc CO ap k_danh_muc
+# lien cap hay khong. Mac dinh 1 GIU DUNG quy uoc lan chay dau (khong ap)
+# de con tai lap duoc so cu trong docs/TOANMACH_E2E.md giới hạn 1.
+# Dat E2E_SO_VI_THE=6 de chay CHAN TREN bi quan nhat: luon dinh co nhu the
+# ca 6 cap dang mo cung luc. Xem docs/GIAIDOAN0_KETQUA.md muc 3.
+SO_VI_THE = int(os.environ.get("E2E_SO_VI_THE", "1"))
+
 
 def chay_mot_cap(g, idx_nam, cr_full, f_v, V, nguong, c_thoat, slip, sig_v):
     """Di lien tuc qua CHINH XAC cac ngay idx_nam (mang chi so, lien tiep
@@ -105,7 +112,7 @@ def chay_frac(pan, tr, doan_mask, frac, mau, nguong, sig_v, slip, nu, sizer):
             cutoff = pd.Timestamp(f"{nam}-01-01")
             m = g.Date.values < cutoff
             cr_nam = float(np.median(cr_full[m])) if m.sum() >= 30 else cr_du_phong
-            f_v = frac * sizer.size(sig_v, cr_nam, nu, dd=0.0, so_vi_the=1)
+            f_v = frac * sizer.size(sig_v, cr_nam, nu, dd=0.0, so_vi_the=SO_VI_THE)
             V, _ = O.giai(mau, sig_v, cr_nam, c_thoat, slip, N=N, seed=1, f_v=f_v)
             idx_nam = idx[np.asarray(doan_mask)[idx] & (g.Date.dt.year.values == nam)]
             if len(idx_nam) == 0:
@@ -116,6 +123,11 @@ def chay_frac(pan, tr, doan_mask, frac, mau, nguong, sig_v, slip, nu, sizer):
 
     khung = pd.concat(theo_cap, axis=1).fillna(0.0).sort_index()
     return khung.mean(axis=1)   # danh muc dong deu 1/6 moi cap
+
+
+def _ten_out():
+    return ("ketqua_e2e.json" if SO_VI_THE <= 1
+            else f"ketqua_e2e_k{SO_VI_THE}.json")
 
 
 def thong_ke(r_ngay, ten):
@@ -153,7 +165,14 @@ def main():
     print("=" * 100)
     print("TẦNG 6b — KIỂM TRA TOÀN MẠCH (tầng 2→3→4→5→6b), CHẠY LIÊN TỤC THEO NGÀY")
     print("=" * 100)
-    print("danh mục 6 cặp, vốn chia đều 1/6 mỗi cặp, không có k_danh_mục liên cặp (xem giới hạn)")
+    if SO_VI_THE <= 1:
+        print("danh mục 6 cặp, vốn chia đều 1/6 mỗi cặp, không có k_danh_mục "
+              "liên cặp (xem giới hạn)")
+    else:
+        from position_sizing import k_danh_muc as _kdm
+        print(f"danh mục 6 cặp, CÓ áp k_danh_mục với so_vi_the={SO_VI_THE} "
+              f"(hệ số {_kdm(SO_VI_THE):.3f} ở chế độ thường, chặt hơn ở vùng "
+              f"căng thẳng) — CHẶN TRÊN bi quan")
     print(f"quét phần Kelly (đầy đủ → 1/8) trên ĐOẠN KIỂM ĐỊNH + KIỂM TRA gộp "
           f"({int(doan_ca.sum()):,} phiên/cặp)\n")
     print(f"{'phần Kelly':<28}{'TB (bp/ngày)':>10}{'Sharpe':>10}{'sụt giảm tối đa':>12}"
@@ -181,8 +200,8 @@ def main():
         kte = thong_ke(r_te, "kiểm tra")
         print("-" * 100)
         json.dump({"frac_chon": frac_chon, "quet": ket, "kiem_dinh": kva, "kiem_tra": kte},
-                   open(os.path.join(OUT, "ketqua_e2e.json"), "w"), indent=1, ensure_ascii=False)
-        print("\nđã ghi output/ketqua_e2e.json")
+                   open(os.path.join(OUT, _ten_out()), "w"), indent=1, ensure_ascii=False)
+        print(f"\nđã ghi output/{_ten_out()}")
     else:
         print("KHÔNG có frac nào trong bộ quét vừa dương vừa không cháy tài khoản — toàn mạch")
         print("chưa sẵn sàng vận hành liên tục với carry-Kelly, dù đã chiết khấu.")
