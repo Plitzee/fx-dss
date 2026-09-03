@@ -170,7 +170,25 @@ vốn được cộng bình quân như thể độc lập. Chính docstring củ
 `docs/TOANMACH_E2E.md` giới hạn 1 đều đã ghi đây là "giới hạn quan trọng nhất".
 Bản vá ở tầng 4 không tự chảy xuống đây được, vì đòn bẩy nuôi vào bài toán quy
 hoạch động vốn quyết định mở/đóng, mà số cặp đang mở lại phụ thuộc ngược lại
-quyết định đó — một vòng lặp. Chưa làm.
+quyết định đó — một vòng lặp.
+
+**ĐÃ ĐO 04/09/2026 — và kết quả ngược trực giác.** Chạy chặn trên bi quan nhất
+(`E2E_SO_VI_THE=6`, luôn định cỡ như cả 6 cặp đang mở): **mọi chỉ số tốt lên** —
+TB 0,25 → 0,33 bp/ngày, Sharpe 0,19 → 0,46, sụt giảm tối đa 5,8% → 2,9%, CVaR5%
+−50,5 → −27,0 bp, vốn cuối 1,027 → 1,037, và vẫn không cháy tài khoản ở mọi
+phần Kelly.
+
+Nguyên nhân đo được, không phải suy đoán: trong `position_sizing.size()`,
+`k_danh_mục` nhân vào **trần rủi ro** chứ không nhân vào Kelly, nên nó là nhát
+cắt **có chọn lọc** — chỉ cắt đúng những ngày trần đang là ràng buộc, tức những
+ngày đòn bẩy cao nhất. Tỷ lệ `f(k=6)/f(k=1)` đi từ **1,000** (carry nhỏ, Kelly
+buộc) đến **0,228** (carry lớn, trần buộc). Khác hẳn hạ `frac`, vốn cắt đều tay
+mọi ngày. Đầy đủ ở `docs/TOANMACH_E2E.md`, mục "Chặn trên".
+
+Kèm một chi tiết phải ghi: ρ vùng căng thẳng **không kích hoạt** trên đường đi
+này — `s_stress` = 0,00820 so với σ̂ đại diện chế độ cao nhất chỉ 0,00655 — nên
+bản vá ở mục này **không đóng góp gì** vào bảng E2E. Nó chỉ bén ở những đường đi
+truyền σ̂ ngày thật: phiếu quyết định và giao diện.
 
 ---
 
