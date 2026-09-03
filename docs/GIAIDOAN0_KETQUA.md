@@ -148,9 +148,29 @@ Nghĩa là hệ số danh mục hiện tại cho phép đòn bẩy **cao hơn m�
 lỗ hổng phạm vi thứ ba của trần rủi ro, cùng loại với hai lỗ hổng đã vá ở
 `TANG4_DANHMUC.md`.
 
-**Đề nghị vá:** cho ρ phụ thuộc phân vị biến động thay vì hằng số — dùng ρ đo
-trên top 5% cho những ngày σ̂ rơi vào top 5%. Chưa làm; ghi vào việc tồn của
-giai đoạn tiếp theo.
+**ĐÍNH CHÍNH 03/09/2026 — bản vá đã có sẵn, tôi báo sai ở bản đầu.**
+`src/position_sizing.py` **đã** cài đúng cách vá này, trong phần sửa chưa commit:
+`RHO_CANG_THANG = 0,55`, ngưỡng `NGUONG_CANG_THANG_PCTL = 0,95` chốt trên đoạn
+huấn luyện, và `_rho_hieu_dung()` nâng ρ khi σ̂ chạm ngưỡng đó. Chú thích trong
+mã trích dẫn đúng `run_corr_regime.py` và đúng những con số ở bảng trên. Tự kiểm
+đạt: `hệ số danh mục (k=6): bình thường 0,228 (ρ=0,44) → vùng căng thẳng 0,211
+(ρ=0,55)`.
+
+Tôi kết luận nhầm vì đã grep `docs/` chứ không đọc mã: thứ thiếu là **tài liệu**,
+không phải bản vá. Nay tài liệu là mục này.
+
+Một khe hở nhỏ còn lại, có chủ đích: 0,55 nằm **giữa** 0,544 (top 5%) và 0,594
+(top 1%) — chú thích trong mã ghi rõ là làm tròn giữa hai mức đo. Với riêng
+những ngày top 1% thì nó vẫn lỏng hơn số đo một chút.
+
+**Lỗ hổng THẬT nằm chỗ khác — `run_e2e.py` dòng 108 truyền `so_vi_the=1`.**
+Nghĩa là bài kiểm tra toàn mạch — nguồn của con số tiêu đề "không cháy tài khoản
+ở mọi cấu hình, vốn cuối 1,004–1,027" — **chưa hề áp hệ số danh mục**. Sáu khoang
+vốn được cộng bình quân như thể độc lập. Chính docstring của script (dòng 25) và
+`docs/TOANMACH_E2E.md` giới hạn 1 đều đã ghi đây là "giới hạn quan trọng nhất".
+Bản vá ở tầng 4 không tự chảy xuống đây được, vì đòn bẩy nuôi vào bài toán quy
+hoạch động vốn quyết định mở/đóng, mà số cặp đang mở lại phụ thuộc ngược lại
+quyết định đó — một vòng lặp. Chưa làm.
 
 ---
 
