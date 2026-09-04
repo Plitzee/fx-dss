@@ -478,6 +478,26 @@ def calibration():
             "test_tu": str(TEST_TU.date()), "bang": json.load(open(f, encoding="utf-8"))}
 
 
+@app.get("/models")
+def models():
+    """Chi so cua CAC TANG MO HINH — de giao dien hien duoc, khong phai van xuoi.
+
+      chi_so_sigma : QLIKE, MAE, RMSE, CRPS, PIT, do phu  (src/chiso_mohinh.py)
+      ba_lop       : ML/DL/hoc truc tuyen tren ba lop      (src/run_ml3.py)
+      quy_luat     : pheu khai pha quy luat                (src/run_quyluat.py)
+      bien_dong_14 : 14 mo hinh du bao phuong sai          (vong 7)
+    """
+    import json
+    ra = {}
+    for khoa, ten in (("chi_so_sigma", "chiso_mohinh.json"),
+                      ("ba_lop", "ml3.json"),
+                      ("quy_luat", "quyluat.json"),
+                      ("bien_dong_14", "ketqua_ml_dl.json")):
+        f = os.path.join(ROOT, "output", ten)
+        ra[khoa] = json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None
+    return ra
+
+
 @app.get("/events")
 def events(tu: str = Query("2024-01-01")):
     f = os.path.join(D, "cb_dates.csv")

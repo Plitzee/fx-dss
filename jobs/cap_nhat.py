@@ -77,6 +77,7 @@ def chup_ban_tinh(day_du=True):
          "su_kien": g("/events?tu=2018-01-01").get("su_kien", []),
          "hieu_chuan": g("/calibration").get("bang", {}),
          "so_dubao": {h: g(f"/journal?h={h}") for h in HS},
+         "mo_hinh": g("/models"),
          "chi_phi_gio": {}, "tom_tat": {}}
 
     tong = 0

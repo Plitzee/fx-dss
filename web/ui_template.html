@@ -218,6 +218,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
   <div class="nav">
     <button data-p="chart" class="on">Biểu đồ</button>
     <button data-p="cal">Hiệu chuẩn</button>
+    <button data-p="mo">Mô hình</button>
     <button data-p="ev">Sự kiện</button>
     <button data-p="about">Về hệ thống</button>
   </div>
@@ -271,6 +272,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
   </div>
 
   <div class="page" id="p-cal"></div>
+  <div class="page" id="p-mo"></div>
   <div class="page" id="p-ev"></div>
   <div class="page" id="p-about"></div>
 </div>
@@ -699,6 +701,105 @@ function paintCal(){
     <div class="note warn"><b>24/24 ô có AUC phủ 0,50.</b> Không nền nào phân biệt được hướng đi ở bất kỳ tầm hạn nào. Cùng chiều với 0/351 mẫu hướng sống sót kiểm định bội ở giai đoạn 0.</div></div>`;
 }
 
+/* Tab MÔ HÌNH — chỉ số của từng tầng, lấy từ chính các lần chạy đã ghi.
+   Không có số nào gõ tay ở đây; mọi thứ đến từ output/*.json qua /models. */
+function paintMo(){
+  const M = (DATA.meta||{}).mo_hinh || (DATA.mo_hinh||{});
+  if(!M || !M.chi_so_sigma){
+    $("#p-mo").innerHTML = '<div class="card sec"><h2>Chưa có chỉ số mô hình</h2>'
+      + '<p class="lead">Chạy <code>python src/chiso_mohinh.py</code>, <code>src/run_ml3.py</code> '
+      + 'và <code>src/run_quyluat.py</code> rồi <code>python jobs/cap_nhat.py</code>.</p></div>';
+    return;
+  }
+  const s = M.chi_so_sigma, ba = M.ba_lop, ql = M.quy_luat, b14 = M.bien_dong_14;
+  const f = (v,n) => (v==null||!isFinite(v)) ? "—" : Number(v).toFixed(n);
+
+  // ── tầng σ̂ ──
+  let r1 = "";
+  for(const [p,d] of Object.entries(s.cap||{}))
+    for(const [doan,k] of Object.entries(d))
+      r1 += `<tr><td><b>${p}</b></td><td>${doan}</td><td class="n">${k.n}</td>`
+         + `<td class="n">${f(k.qlike,4)}</td><td class="n">${f(k.mae_sigma_pip,2)}</td>`
+         + `<td class="n">${f(k.rmse_sigma_pip,2)}</td><td class="n">${f(k.mae_abs_r_pip,2)}</td>`
+         + `<td class="n"><b>${f(k.crps_pip,2)}</b></td>`
+         + `<td class="n ${k.pit_ks_p<0.01?"neg":""}">${f(k.pit_ks_p,4)}</td>`
+         + `<td class="n">${f(100*k.do_phu_90,1)}%</td></tr>`;
+  let rg = "";
+  for(const [doan,k] of Object.entries(s.gop||{}))
+    rg += `<tr><td><b>GỘP</b></td><td>${doan}</td><td class="n">${k.n}</td>`
+       + `<td class="n"><b>${f(k.qlike,4)}</b></td><td class="n">${f(k.mae_sigma_pip,2)}</td>`
+       + `<td class="n">${f(k.rmse_sigma_pip,2)}</td><td class="n">${f(k.mae_abs_r_pip,2)}</td>`
+       + `<td class="n"><b>${f(k.crps_pip,2)}</b></td><td class="n">—</td>`
+       + `<td class="n">${f(100*k.do_phu_90,1)}%</td></tr>`;
+
+  // ── ba lớp ──
+  let r2 = "";
+  for(const mt of ["P","R"]){
+    const t = (ba||{})[mt]; if(!t) continue;
+    for(const [ten,k] of Object.entries(t.kiem_tra||{})){
+      const win = k.bss_lo>0, sb = k.suy_bien;
+      r2 += `<tr><td><b>${mt}</b></td><td>${ten}${sb?' <span class="neg">⚠ hằng số</span>':''}</td>`
+         + `<td class="n">${f(k.log,4)}</td><td class="n">${f(k.brier,4)}</td>`
+         + `<td class="n ${k.bss>0?"pos":(k.bss<0?"neg":"")}">${k.bss>=0?"+":""}${f(k.bss,4)}</td>`
+         + `<td class="n">[${k.bss_lo>=0?"+":""}${f(k.bss_lo,4)}; ${k.bss_hi>=0?"+":""}${f(k.bss_hi,4)}]${win?" ✓":""}</td>`
+         + `<td class="n">${f(k.ece,4)}</td><td class="n">${f(k.mce,4)}</td>`
+         + `<td class="n">${f(k.auc,3)}</td></tr>`;
+    }
+  }
+
+  // ── 14 mô hình biến động ──
+  let r3 = "";
+  if(b14){
+    const mcs = new Set(b14._mcs||[]);
+    const rows = Object.entries(b14).filter(([k])=>k!=="_mcs")
+      .map(([k,v])=>[k, v.qlike_test]).sort((a,b)=>a[1]-b[1]);
+    const base = (b14["HAR vòng 7 (khớp mỗi phiên)"]||{}).qlike_test;
+    for(const [k,q] of rows)
+      r3 += `<tr><td>${k}</td><td class="n">${f(q,4)}</td>`
+         + `<td class="n ${q<base?"pos":(q>base?"neg":"")}">${q>base?"+":""}${f(100*(q/base-1),1)}%</td>`
+         + `<td class="n">${mcs.has(k)?"có":"—"}</td></tr>`;
+  }
+
+  // ── phễu quy luật ──
+  const P = ql||{};
+  const pheu = [["không gian giả thuyết (liệt kê đầy đủ)",P.khong_gian],
+                ["đủ số lần khớp",P.du_khop],["thô p<0,05 (chưa hiệu chỉnh)",P.tho],
+                ["sống sót Westfall–Young",P.wy],
+                ["còn tin riêng sau đối chứng có điều kiện",P.sau_dieu_kien],
+                ["chuyển giao được (bỏ-một-cặp)",P.sau_lopo],
+                ["tái lập trên kiểm tra",P.xac_nhan]]
+    .filter(x=>x[1]!=null)
+    .map(x=>`<tr><td>${x[0]}</td><td class="n"><b>${x[1].toLocaleString("vi")}</b></td></tr>`).join("");
+
+  $("#p-mo").innerHTML = `
+  <div class="card sec">
+    <h2>Tầng σ̂ — dự báo biến động</h2>
+    <p class="lead">Ba chỉ số đo ba thứ khác nhau. <b>QLIKE</b> chấm dự báo phương sai, bất đối xứng — phạt nặng khi dự báo <em>thiếu</em> biến động; đây là chỉ số chính. <b>MAE/RMSE</b> là sai số của σ̂ so với biến động thực hiện, tính bằng pip — dễ đọc nhưng không phải quy tắc chấm điểm chính đáng. <b>CRPS</b> chấm cả <em>phân phối</em> dự báo của lợi suất ngày, và đây mới là thứ đánh giá đúng dải tin cậy mà giao diện in ra.</p>
+    <div class="tw"><table><thead><tr><th>cặp</th><th>đoạn</th><th class="n">n</th><th class="n">QLIKE</th><th class="n">MAE σ̂ (pip)</th><th class="n">RMSE</th><th class="n">MAE |r|</th><th class="n">CRPS (pip)</th><th class="n">PIT p</th><th class="n">phủ 90%</th></tr></thead><tbody>${rg}${r1}</tbody></table></div>
+    <div class="note warn"><b>PIT p thấp là thật, không phải lỗi.</b> USDJPY bác bỏ giả định Student-t (p ≈ 0,002–0,004) trong khi độ phủ 90% vẫn đạt. Đúng bài học của <code>docs/CHISO_DANHGIA.md</code>: <b>độ phủ thôi thì chưa đủ</b> — một mô hình có thể phủ đúng mà hình dạng phân phối vẫn sai.</div>
+  </div>
+
+  <div class="card sec" style="margin-top:12px">
+    <h2>Ba ô — ML / DL / học trực tuyến</h2>
+    <p class="lead">Chấm trên <b>đoạn kiểm tra, một lần</b>. BSS so khí hậu học, KTC bootstrap khối. Dấu ✓ = khoảng tin cậy không phủ 0.</p>
+    <div class="tw"><table><thead><tr><th>mục tiêu</th><th>mô hình</th><th class="n">log</th><th class="n">Brier</th><th class="n">BSS</th><th class="n">KTC 95%</th><th class="n">ECE</th><th class="n">MCE</th><th class="n">AUC hướng</th></tr></thead><tbody>${r2}</tbody></table></div>
+    <div class="note"><b>Đọc bảng.</b> LightGBM và GRU <b>âm rõ</b> trên cả hai mục tiêu — phi tuyến thua có ý nghĩa, dù được cho cùng tập thông tin cộng 22 độ trễ thô. Tổ hợp <b>học trực tuyến</b> tốt nhất, và nó tự đưa trọng số của hai mô hình đó về 0.</div>
+  </div>
+
+  <div class="card sec" style="margin-top:12px">
+    <h2>Khai phá quy luật — phễu</h2>
+    <div class="tw"><table><tbody>${pheu}</tbody></table></div>
+    <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂ và TSMOM thì còn ${P.sau_dieu_kien||0}.</div>
+  </div>
+
+  ${r3 ? `<div class="card sec" style="margin-top:12px">
+    <h2>14 mô hình dự báo biến động (vòng 7)</h2>
+    <p class="lead">QLIKE trên đoạn kiểm tra, cùng giao thức 70/15/15. Cột MCS = có nằm trong Model Confidence Set ở α = 0,10 không.</p>
+    <div class="tw"><table><thead><tr><th>mô hình</th><th class="n">QLIKE</th><th class="n">so HAR v7</th><th class="n">MCS</th></tr></thead><tbody>${r3}</tbody></table></div>
+    <div class="note">Tổ hợp học sâu hơn HAR 1,8–2,2% nhưng <b>không được đưa vào sản xuất</b>: lợi thế nằm ở chế độ <em>êm</em> chứ không ở đuôi, p = 0,081 cho tổ hợp ba mô hình, và MCS giữ lại 11/14 — tức phần lớn không phân biệt được nhau.</div>
+  </div>` : ""}`;
+}
+
 function paintEv(){
   const P = DATA.cap[state.pair];
   const set = new Set(P.ngay);
@@ -760,7 +861,8 @@ function boot(){
     document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
     $("#p-"+b.dataset.p).classList.add("on");
-    if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="ev") paintEv(); if(b.dataset.p==="about") paintAbout();
+    if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="mo") paintMo();
+    if(b.dataset.p==="ev") paintEv(); if(b.dataset.p==="about") paintAbout();
     if(b.dataset.p==="chart" && chart) veCuaSo(); };
   $("#theme").onclick = async ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
     buildChart(); await paintChart(); paintBoxes(); veCuaSo(); };
@@ -782,7 +884,7 @@ async function napMeta(){
   const M = await (await fetch(GOC + "/data/meta.json", {cache:"no-cache"})).json();
   DATA = {meta:{cap:M.cap, valid_tu:M.valid_tu, test_tu:M.test_tu,
                 canh_bao:M.canh_bao, cap_nhat_luc:M.cap_nhat_luc,
-                tom_tat:M.tom_tat, moc_noi:M.moc_noi},
+                tom_tat:M.tom_tat, moc_noi:M.moc_noi, mo_hinh:M.mo_hinh},
           cap:{}, su_kien:M.su_kien||[], hieu_chuan:M.hieu_chuan||{},
           so_dubao:M.so_dubao||{}, _chiphi:M.chi_phi_gio||{}};
   return DATA;
