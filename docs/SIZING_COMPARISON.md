@@ -112,3 +112,75 @@ Không dùng fuzzy. Không dùng RL ở tầng quyết định.
 **Giữ toàn bộ thí nghiệm RL trong luận văn.** Ba cấu hình (REINFORCE, PPO,
 CVaR-PPO) thất bại theo cùng một cơ chế là một kết quả âm có giá trị, và nó
 trả lời được câu *vì sao* — không phải một nhánh chết.
+
+## Bổ sung 03/09/2026 — bandit ngữ cảnh có tìm ra điều kiện hoá không?
+
+### Câu hỏi
+
+Giả thuyết trong tài liệu (mục 3) là RL thất bại vì **credit assignment** —
+lợi ích của việc giảm cỡ nằm sâu trong đuôi hiếm (0,07% đường đi), quá xa về
+tương lai để policy-gradient qua GAE/lọc đuôi trên 250 bước nhìn thấy. Nếu
+đúng, một phương pháp **bỏ hẳn credit assignment qua thời gian** — coi mỗi
+ngày là một lượt chơi độc lập, học tham lam từ phần thưởng tức thời — có nên
+tìm ra điều kiện hoá **tốt hơn** RL không, dù nó là một mô hình yếu hơn hẳn
+(không thấy được toàn bộ đường đi)?
+
+### Thiết kế
+
+`src/compare_bandit.py`: bandit ngữ cảnh dạng bảng, 15 ô ngữ cảnh (3 bậc biến
+động tương đối × 5 bậc sụt giảm — đúng 5 mốc 0/5/10/20/30% mà bảng RL đã
+dùng), 11 mức hành động k ∈ [0,5; 1,5] (đúng khoảng PPO/CVaR-PPO), cập nhật
+bằng trung bình mẫu cộng dồn (epsilon-greedy 1,0→0,03), cùng môi trường
+`rl_env.SizingEnv`, cùng phần thưởng `pnl_log`, cùng 6 cặp × 3 seed × đoạn
+kiểm tra 30% với PPO/CVaR-PPO.
+
+### Kết quả
+
+| | tăng trưởng | phá sản TB | phá sản tệ nhất |
+|---|---|---|---|
+| Trần trơn (k=1) | 7,41% | 0,14% | 0,38% |
+| Điều kiện hoá tay | 7,40% | **0,00%** | **0,00%** |
+| **Bandit ngữ cảnh** | **7,76%** | 1,09% | 2,25% |
+
+| | dd=0% | dd=5% | dd=10% | dd=20% | dd=30% | **biên độ** |
+|---|---|---|---|---|---|---|
+| Điều kiện hoá tay | 1,440 | 1,263 | 1,085 | 0,731 | 0,554 | **0,886** |
+| **Bandit ngữ cảnh** | 1,311 | 1,356 | 1,322 | 1,256 | 1,211 | **0,144** |
+| PPO thường | — | — | — | — | — | 0,018 |
+| CVaR-PPO | — | — | — | — | — | 0,030 |
+
+### Đọc kết quả
+
+**Giả thuyết credit-assignment được củng cố, không bị bác bỏ.** Bỏ hẳn việc
+lan truyền phần thưởng qua nhiều bước — chính thứ PPO/CVaR-PPO cố làm bằng
+GAE và lọc đuôi — cho biên độ điều kiện hoá **4,8–8 lần lớn hơn** RL (0,144 so
+với 0,018–0,030). Cùng một phần thưởng, cùng một môi trường: khác biệt duy
+nhất là bandit không phải giải bài toán "quy công cho hành động nào, ở bước
+nào, trong 250 bước" — nó chỉ hỏi "hành động này, ở đúng ngữ cảnh này, trung
+bình cho gì". Bài toán tín dụng dài hạn — chứ không phải bản thân tín hiệu
+đuôi hiếm — mới là thứ chặn RL.
+
+**Nhưng bandit vẫn thua xa quy tắc tay, và thua ở đúng chỗ quan trọng nhất.**
+Biên độ 0,144 chỉ bằng **16%** của 0,886, và hướng cũng **không đơn điệu**
+(tăng nhẹ từ dd=0% sang dd=5% rồi mới giảm — quy tắc tay giảm dần đều ngay từ
+đầu). Quan trọng hơn: bandit có **tăng trưởng cao nhất** (7,76%) nhưng **phá
+sản tệ nhất** (1,09% trung bình, 2,25% tệ nhất) — đắt đổi lấy tăng trưởng
+bằng rủi ro đuôi, đúng thứ hệ thống này không được phép làm. Lý do hợp lý:
+phần thưởng tức thời `pnl_log` chỉ phạt phá sản **đúng ngày nó xảy ra** (một
+lần, `RUIN_PEN`); bandit không có khái niệm "trạng thái này đang tích luỹ rủi
+ro cho tương lai" — nó thực sự đoản hạn theo đúng nghĩa đen của một bandit.
+
+### Kết luận
+
+**Không thay quy tắc tay.** Bandit ngữ cảnh là một cải tiến thật so với RL
+(bằng chứng ủng hộ giả thuyết credit-assignment), nhưng không phải một ứng
+viên thay thế: nó học *có* điều kiện hoá, nhưng vừa yếu vừa lệch đúng hướng
+gây rủi ro nhất (tăng trưởng đổi lấy đuôi). Kết luận cũ của tài liệu này vẫn
+đứng vững, giờ có thêm một điểm dữ liệu: **kiến thức miền không chỉ thắng
+RL, nó thắng cả một phương pháp học đơn giản hơn RL nhưng nhìn thấy tín hiệu
+rõ hơn.**
+
+**Tái lập:**
+```bash
+python src/compare_bandit.py EURUSD,GBPUSD,USDJPY,AUDUSD,USDCAD,USDCHF 150
+```

@@ -1,0 +1,98 @@
+# -*- coding: utf-8 -*-
+"""Dung thu muc trien khai Vercel tu cac thanh phan da co.
+
+Ket qua trong deploy/:
+  public/index.html   giao dien (ban TINH + goi /api/intraday cho khung noi ngay)
+  public/ui_data.json du bao da tinh san o may minh
+  api/intraday.py     ham serverless: nen noi ngay + chi bao
+  lib/chibao.py       ban sao src/chibao.py (Vercel chi dong goi thu muc du an)
+  requirements.txt    requests, pandas, numpy  (KHONG scipy)
+  vercel.json
+
+Chay:  python deploy/build.py
+Roi:   cd deploy && vercel deploy --prod
+"""
+import io
+import os
+import shutil
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+WEB = os.path.join(ROOT, "web")
+PUB = os.path.join(HERE, "public")
+LIB = os.path.join(HERE, "lib")
+
+# `outputDirectory` khai bao RO — khong dua vao viec Vercel tu doan, vi du an
+# nay khong dung framework nao. KHONG dat `maxDuration`: goi Hobby gioi han
+# thap hon con so tuy tien, ma ham nay do duoc 0,7-1,5s nen mac dinh la du.
+VERCEL = """{
+  "version": 2,
+  "outputDirectory": "public",
+  "headers": [
+    { "source": "/data/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600" }] }
+  ]
+}
+"""
+REQS = "requests>=2.31\npandas>=2.0\nnumpy>=1.26\n"
+BOQUA = "build.py\n__pycache__/\n*.pyc\n.vercel/\n"
+
+# Runtime Python moi cua Vercel KHONG tu do `api/*.py` nua — no doi mot
+# entrypoint khai bao ro. Lan deploy dau bao:
+#   "No python entrypoint found in default locations, but found potential
+#    entrypoints: api/intraday.py (variable: handler)"
+# va chi dung cach sua duoi day.
+PYPROJECT = """[project]
+name = "fx-dss"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["requests>=2.31", "pandas>=2.0", "numpy>=1.26"]
+
+[tool.vercel]
+entrypoint = "api.intraday:handler"
+"""
+
+
+def main():
+    os.makedirs(PUB, exist_ok=True)
+    os.makedirs(LIB, exist_ok=True)
+
+    # 1. chi bao — dung CHINH file o src/, khong viet lai (mot bo ma duy nhat)
+    shutil.copy2(os.path.join(ROOT, "src", "chibao.py"), os.path.join(LIB, "chibao.py"))
+
+    # 2. du lieu: tach theo cap, lich su DAY DU. Khong noi tuyen vao HTML nua —
+    #    11 MB nhoi vao mot trang thi khong mo noi.
+    src = os.path.join(WEB, "data")
+    if not os.path.isdir(src) or not os.path.exists(os.path.join(src, "meta.json")):
+        raise SystemExit("thiếu web/data/ — chạy `python jobs/cap_nhat.py` trước")
+    dst = os.path.join(PUB, "data")
+    shutil.rmtree(dst, ignore_errors=True)
+    shutil.copytree(src, dst)
+
+    # 3. trang: ban TINH (du bao nuong san) nhung API tro toi /api de lay khung
+    #    noi ngay. Hai nguon nay khong xung dot: du bao la dai luong NGAY, con
+    #    nen noi ngay chi de ve bieu do.
+    t = io.open(os.path.join(WEB, "ui_template.html"), encoding="utf-8").read()
+    html = t.replace("__DATA__", "null").replace("__API__", '"VERCEL"')
+    io.open(os.path.join(PUB, "index.html"), "w", encoding="utf-8", newline="\n").write(html)
+
+    io.open(os.path.join(HERE, "vercel.json"), "w", encoding="utf-8", newline="\n").write(VERCEL)
+    io.open(os.path.join(HERE, "requirements.txt"), "w", encoding="utf-8", newline="\n").write(REQS)
+    io.open(os.path.join(HERE, ".vercelignore"), "w", encoding="utf-8", newline="\n").write(BOQUA)
+    io.open(os.path.join(HERE, "pyproject.toml"), "w", encoding="utf-8", newline="\n").write(PYPROJECT)
+    # `api/` phai la goi Python thi "api.intraday:handler" moi nap duoc
+    io.open(os.path.join(HERE, "api", "__init__.py"), "w", encoding="utf-8").write("")
+    for t in (os.path.join(HERE, "api", "__pycache__"), os.path.join(LIB, "__pycache__")):
+        shutil.rmtree(t, ignore_errors=True)
+
+    mb = os.path.getsize(os.path.join(PUB, "index.html")) / 1048576
+    tong = sum(os.path.getsize(os.path.join(dst, f)) for f in os.listdir(dst)) / 1048576
+    print(f"  public/index.html    {mb*1024:5.0f} KB")
+    print(f"  public/data/         {tong:5.2f} MB ({len(os.listdir(dst))} tệp)")
+    print(f"  api/intraday.py + lib/chibao.py + vercel.json + requirements.txt")
+    print("\nTriển khai:  cd deploy && vercel deploy --prod")
+    print("TỰ KIỂM ĐẠT")
+
+
+if __name__ == "__main__":
+    main()

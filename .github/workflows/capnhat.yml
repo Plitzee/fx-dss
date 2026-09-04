@@ -1,0 +1,112 @@
+# Cập nhật định kỳ FX-DSS — tải dữ liệu, ghi sổ dự báo, dựng lại, triển khai.
+#
+# Chạy 06:10 UTC mỗi ngày (sau khi phiên Á đã mở đủ lâu để có thanh 5 phút).
+# Bấm tay được ở tab Actions → "Cập nhật FX-DSS" → Run workflow.
+#
+# CẦN MỘT BÍ MẬT: VERCEL_TOKEN (Settings → Secrets and variables → Actions).
+# Lấy ở https://vercel.com/account/tokens. Không có thì mọi bước vẫn chạy và
+# sổ dự báo vẫn được ghi, chỉ bỏ qua bước triển khai.
+#
+# LƯU Ý NIÊM PHONG: việc này tải dữ liệu 2026, mà toàn bộ 2026 nằm trong tập
+# khoá sổ của docs/KHOA_SO.md. Chỉ bật khi đã chốt cấu hình và ghi biên bản.
+
+name: Cập nhật FX-DSS
+
+on:
+  schedule:
+    # Bốn lần mỗi ngày, rải quanh giờ mở/đóng các phiên chính (UTC). Mô hình
+    # tầng 2 là mô hình NGÀY nên dự báo chỉ đổi một lần; chạy nhiều lần là để
+    # dữ liệu và biểu đồ không cũ quá vài giờ ở bất kỳ múi giờ nào. Sổ dự báo
+    # có chốt chống trùng nên chạy lại nhiều lần vẫn an toàn.
+    - cron: "10 1,7,13,19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capnhat
+  cancel-in-progress: false
+
+jobs:
+  capnhat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Cài phụ thuộc
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet \
+            numpy pandas scipy requests fastapi "uvicorn[standard]"
+
+      - name: Tự kiểm trước khi chạy
+        run: |
+          python src/chibao.py
+          python src/so_dubao.py
+          python src/diem3.py
+
+      - name: Tải dữ liệu hiện hành
+        run: python collect/live_fx.py
+
+      - name: Khởi động API
+        run: |
+          nohup python -m uvicorn api.main:app --host 127.0.0.1 --port 8899 \
+            --log-level warning > /tmp/api.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf --max-time 3 http://127.0.0.1:8899/health >/dev/null && exit 0
+            sleep 2
+          done
+          echo "API không lên được:"; cat /tmp/api.log; exit 1
+
+      - name: Ghi sổ dự báo, chấm điểm, dựng lại
+        run: python jobs/cap_nhat.py --khong-tai
+
+      - name: Dựng gói triển khai
+        run: python deploy/build.py
+
+      # Sổ dự báo là bản ghi DUY NHẤT và không tái tạo được — phải commit lại,
+      # nếu không mỗi lần chạy CI là mất hết. Chỉ commit sổ, không commit dữ
+      # liệu tải về (nó tái tạo được và nặng).
+      - name: Lưu sổ dự báo vào repo
+        run: |
+          git config user.name  "fx-dss bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f data/so_dubao/ || true
+          if git diff --cached --quiet; then
+            echo "sổ không đổi — không commit"
+          else
+            git commit -m "So du bao: cap nhat $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Triển khai Vercel
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm i -g vercel@latest
+          cd deploy
+          vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Tóm tắt
+        if: always()
+        run: |
+          echo "### Cập nhật $(date -u +%Y-%m-%d\ %H:%M) UTC" >> $GITHUB_STEP_SUMMARY
+          python - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import sys; sys.path.insert(0, "src")
+          import so_dubao as SD
+          db = SD.doc_dubao()
+          print(f"- sổ dự báo: **{len(db)}** dòng, đã chấm **{len(SD.ghep())}**")
+          for h in (1, 5, 20):
+              t = SD.thong_ke(h=h)
+              print(f"- h={h}: n={t['n']}" + (
+                  f" · ECE {t['ece']} · BSS {t['bss']:+.4f}" if t.get("du_mau")
+                  else " — đang tích luỹ"))
+          PY

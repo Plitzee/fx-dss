@@ -69,14 +69,20 @@ kích hoạt giữa khủng hoảng, thứ phải trả là đuôi.
 | `sizing.py`, `sizing2.py` | Quy tắc cơ sở và harness mô phỏng |
 | `compare_sizing.py` | So sánh 9 phương pháp trên biên hiệu quả |
 | `compare_rl.py` | PPO so với CVaR-PPO, kèm chẩn đoán điều kiện hóa |
+| `split.py` | **Chia huấn luyện/kiểm định/kiểm tra** — có tự kiểm |
+| `run_final_eval.py`, `run_final_eval2.py` | Chấm điểm cuối theo quy trình sạch |
+| `run_scores.py` | **Bộ chỉ số đầy đủ**: CRPS, pinball, log score, PIT+KS, Kupiec, Christoffersen, DQ, FZ0, Mincer–Zarnowitz |
+| `metrics.py` | Cài đặt các chỉ số trên — có tự kiểm |
 | `volfc.py` | **Tầng 2 dùng cái này** — tổ hợp STHARQ+HARQ+SHAR — có tự kiểm |
 | `build_panel2.py` | Dựng lại panel rủi ro bằng dự báo mới |
 | `run_volbake.py`, `run_volstats.py` | So 14 mô hình biến động; DM + MCS |
 | `carry_test.py` | Kiểm định carry — có tự kiểm ngưỡng đặt trước |
+| `huyh_patterns.py` | Kiểm chứng lại 3 mẫu ký hiệu của HuyH trên dữ liệu này |
+| `run_symbolic.py` | Thử đưa đặc trưng ký hiệu vào tầng 2 (kết luận: không dùng) |
 | `slippage_model.py` | Trượt giá qua stop, đo từ 60.617 lần chạm — có tự kiểm |
 | `decision_record.py` | **Tầng 6** — phiếu quyết định + khoảng conformal phân tầng — có tự kiểm |
 | `rl_env.py`, `rl_agent.py` | Môi trường và tác tử học tăng cường |
-| `metrics.py` | QLIKE, MSE, Model Confidence Set |
+
 | `run_guard.py` | Chạy walk-forward 6 cặp, chấm điểm trên cả hai mục tiêu |
 | `momentum_decay.py` | Suy giảm momentum qua 55 năm — có tự kiểm |
 | `cost_sensitivity.py` | Độ nhạy hoa hồng, chứng minh không load-bearing — có tự kiểm |
@@ -106,10 +112,39 @@ giao dịch không phải nguyên nhân — đã kiểm chứng bằng phân tí
 chạy từ 0,00 đến 0,70 pip, Sharpe chỉ dịch 0,015–0,076. Tái lập bằng
 `src/momentum_decay.py` và `src/cost_sensitivity.py`.
 
-Dự báo được **biến động**, và mô hình cầu kỳ CÓ đáng: tổ hợp
-STHARQ + HARQ + SHAR cho QLIKE 0,1645 so với 0,2161 của MA20-GK đang nuôi
-panel — tốt hơn 24%, Diebold–Mariano thắng 6/6 cặp ở p<0,05, có mặt trong
-Model Confidence Set ở 6/6 cặp. Cây tăng cường (GBM) thua mọi biến thể HAR.
+Dự báo được **biến động**, và mô hình cầu kỳ CÓ đáng. Con số dưới đây đo trên
+**đoạn kiểm tra sạch** (2023-11-20 → 2025-12-31) dưới quy trình 70/15/15, sau
+khi chọn cấu hình trên đoạn kiểm định — xem `docs/KETQUA_VONG7.md`:
+
+| | QLIKE trên kiểm tra |
+|---|---|
+| **HAR vòng 7** (thêm lịch NHTW riêng từng cặp) | **0,1585** |
+| HAR gốc (tổ hợp STHARQ+HARQ+SHAR) | 0,1726 |
+| MA20-GK (nền cũ) | 0,2172 |
+
+Cải thiện **27,0%** so với nền cũ và **8,2%** so với bản HAR trước đó.
+Diebold–Mariano thắng **6/6 cặp** so với MA20-GK và **4/6 cặp** so với HAR gốc
+(p<0,05). Model Confidence Set ở α=0,10 chỉ còn lại **một mình HAR vòng 7**.
+Hiệu chuẩn phân phối sạch 6/6 cặp trên cả bốn kiểm định (Kupiec, Christoffersen,
+DQ, PIT-KS). Cây tăng cường (GBM) và các mô hình học máy thua mọi biến thể HAR.
+
+**Cải tiến đến từ đâu.** Đã backtest 1.024 cấu hình trên đoạn kiểm định; đúng
+**một** trục có tác dụng: mỗi cặp chịu ngân hàng trung ương *của riêng đồng tiền
+đó* cộng FOMC, và đưa lịch họp thật của cả bảy ngân hàng (901 ngày, 2010–2026,
+`data/cb_dates.csv`) vào mô hình. Dùng chung một lịch ECB+FOMC cho cả 6 cặp chỉ
+ăn 3%; dùng đúng lịch của từng cặp ăn 8%. Bốn cải tiến khác có cơ sở tài liệu —
+khử chu kỳ nội tuần, co ngót hệ số về panel, biến RV chéo cặp, hiệu chuẩn
+Mincer–Zarnowitz — đều cho **kết quả âm**; chi tiết và lý do ở `docs/KETQUA_VONG7.md`.
+
+**Toàn bộ giá trị nằm ở chế độ căng.** Chấm điểm phân tầng theo ngũ phân vị biến
+động dự báo: MA20-GK có QLIKE Q5/Q1 = **1,82**, HAR vòng 7 là **1,01**. Khoảng
+cách giữa hai mô hình là +0,0122 ở chế độ êm nhất nhưng **+0,1609 ở chế độ căng
+nhất** — rộng gấp 13 lần. Trung bình gộp giấu kín đúng chỗ này.
+
+*Lịch sử con số này: 24% đo trên tập vừa dùng để chọn vừa dùng để báo cáo; dưới
+quy trình huấn luyện/kiểm định/kiểm tra 60/20/20 nó là 19,7%; nay dưới 70/15/15
+với lịch NHTW là 27,0%. Chênh 24% → 19,7% chính là phần lạc quan do rò rỉ lựa
+chọn — đã đo được thay vì ẩn.*
 
 *Kết luận cũ ở đây — "MA20-GK và GARCH-t cùng thắng mọi biến thể HAR ở
 p<0,01" — là **sai**, và sai vì một lỗi xử lý dữ liệu: phiên Chủ nhật của FX
@@ -124,6 +159,15 @@ vị đuôi của lợi suất đã chuẩn hóa, thứ bị chi phối bởi đ
 phải bởi mức phương sai. Dự báo biến động tốt hơn **không** tự động thành hệ
 thống quyết định tốt hơn.
 
+**Nhánh khai phá mẫu của HuyH ra cùng kết luận bằng phương pháp khác.** Chuỗi
+ký hiệu + mẫu tuần tự trên FRED daily, phễu lọc bốn bước (4.722 → 11 → 7 → 3):
+ba mẫu sống sót qua kiểm tra ngoài thời gian 2022–2026 **đều là mẫu biến động**,
+**không** mẫu hướng đi nào sống sót. Tôi kiểm chứng lại cả ba trên realized
+variance 5 phút: **3/3 tái lập**, lift còn cao hơn (1,69 · 1,32 · 1,69). Nhưng
+thêm đặc trưng ký hiệu vào STHARQ chỉ cải thiện QLIKE 0,15–0,49% và thắng 0/6
+cặp — mô hình liên tục đã bắt hết thông tin đó. Dùng làm **lời giải thích** trên
+phiếu quyết định, không dùng để dự báo. `docs/TICHHOP_HUYH.md`.
+
 **Carry cũng không phải tín hiệu hướng đi.** Sharpe sau chi phí trên đúng
 khoảng hệ thống vận hành (2010–2025) là **−0,05**; mẫu cân bằng 2002–2025 cho
 +0,09. Trước đó nó có thật: 1994–2000 là +1,05. Độ lệch −1,56, đúng đặc trưng
@@ -136,9 +180,31 @@ phân phối thật vào mô phỏng làm xác suất phá sản **tăng 2,5 l�
 0,92 đưa nó về mức cũ. Giờ trượt tệ nhất là 12–13h UTC, *không* trùng giờ
 spread đắt nhất (21h UTC). `src/slippage_model.py`.
 
+**Phiếu chỉ hiệu chuẩn cho một phiên — đã sửa.** Stop 2σ: đọc "5%" rồi giữ mười
+phiên thì thực tế là **50%**. Công thức phản xạ kéo dài được (lệch 1,3–1,7% ở
+h=5/10/20, lệch theo hướng lạc quan) nên chỉ cần in ra, và phiếu giờ có in.
+Quy tắc √h đúng trung bình (1,006–1,011) nhưng lệch tới ±14% theo chế độ biến
+động; hệ số hiệu chỉnh ước lượng trên tập huấn luyện giảm biên độ đó một nửa.
+`docs/TANG6_TAMHAN.md`.
+
+**Biến động phụ thuộc đường đi (Guyon–Lekeufack) đã thử và không dùng.** Cải
+thiện QLIKE 0,3%, nhất quán 5/6 cặp nhưng không cặp nào đạt p<0,05 — nhỏ hơn 80
+lần so với lần đổi mô hình trước. Đổi mô hình sản xuất vì một cải thiện không có
+ý nghĩa thống kê là đúng kiểu điều chỉnh mà `KHOA_SO.md` ngăn.
+
+**Trần rủi ro có hai lỗ hổng phạm vi, cả hai đã vá.** (a) Nó tính cho MỘT vị
+thế: mở 6 lệnh cùng hướng USD ở đúng cỡ khuyến nghị cho phá sản **73,6%** trong
+khi phiếu ghi 1%. Sáu cặp nhìn như tự phòng hộ (tương quan −0,09) nhưng đó là
+ảo giác của quy ước yết giá — quy về cùng chiều USD thì tương quan là **+0,44**.
+Luật `k_danh_mục = 1/√(k + k(k−1)ρ)` đưa mọi cấu hình về dưới 1%. (b) Bảo đảm
+"250 phiên" chỉ đúng nếu định cỡ lại **mỗi phiên**: đặt một lần rồi giữ cho
+1,95%, mỗi tháng cho 1,15%, mỗi phiên cho 0,41%. `docs/TANG4_DANHMUC.md`.
+
 **Học tăng cường không tìm ra điều kiện hóa theo trạng thái.** PPO và CVaR-PPO
 đều có sụt giảm trong vector trạng thái nhưng học ra hệ số gần như hằng số —
-biên độ 0,018 và 0,030, so với 0,800 của một quy tắc thiết kế tay. Huấn luyện
+biên độ 0,018 và 0,030, so với 0,800 của một quy tắc thiết kế tay. Chạy lại trên
+panel mới cho cùng kết luận (biên độ 0,045 và 0,026), và PPO còn học **sai
+hướng**: hệ số TĂNG khi sụt giảm sâu hơn (1,013 ở đỉnh → 1,057 khi lỗ 30%). Huấn luyện
 lâu hơn làm biên độ **nhỏ đi**. Quy tắc tay cho phá sản thấp hơn 26 lần ở cùng
 tăng trưởng. Fuzzy Mamdani không hơn một tích hai hệ số tuyến tính (+0,08%).
 Chi tiết: `docs/SIZING_COMPARISON.md`.
@@ -153,7 +219,13 @@ khi tài khoản đang lỗ — giới hạn đã đo, in thẳng trên phiếu.
 Bản đang dùng là **conformal thích ứng theo tầng** (ACI của Gibbs–Candès 2021
 ghép với phân tầng Mondrian): lệch tối đa theo chế độ 1,2% so với 2,4–3,2% của
 năm phương án còn lại, và điểm khoảng cũng tốt nhất.
-Chi tiết: `docs/TANG6_HIEU_CHUAN.md`, `docs/BAOCAO_29082026.md`.
+**Chấm bằng quy tắc chấm điểm chính đáng thì cách dựng đuôi gần như không quan
+trọng — chất lượng σ̂ mới quan trọng.** CRPS trên đoạn kiểm tra: Gauss 26,28 ·
+Student-t 26,22 · Mondrian 2 26,23 pip; nhưng dùng σ̂ **cũ** thì 26,33 và điểm
+khoảng xấu hơn 1,5%. Ngược lại, PIT + Kolmogorov–Smirnov **bác bỏ giả định
+chuẩn ở p = 0,0001** trong khi chính nó vượt qua mọi backtest VaR — bằng chứng
+rằng độ phủ thôi thì chưa đủ. Chi tiết: `docs/CHISO_DANHGIA.md`,
+`docs/TANG6_HIEU_CHUAN.md`, `docs/DANHGIA_CUOI.md`.
 
 ## Chưa làm
 

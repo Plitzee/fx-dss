@@ -1,0 +1,8 @@
+*.pyc
+.next/
+.vercel/
+__pycache__/
+node_modules*/
+ui.html
+ui_data.json
+ui_live.html

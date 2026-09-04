@@ -1,0 +1,16 @@
+====================================================================================================
+MẪU HÌNH TRÊN NỀN GIÁ (hướng tăng/giảm) — trực tiếp trả lời câu hỏi 'pattern nến'
+====================================================================================================
+trạng thái: tercile lợi suất ngày (XUỐNG/ĐI NGANG/LÊN), ngưỡng chốt trên huấn luyện
+không gian giả thuyết: W ∈ (2, 3, 4) → 351 giả thuyết (giống hệt khuôn khổ SAX biến động)
+
+351 giả thuyết đủ số khớp (≥20)
+
+null khối 2 ngày — max|z|:  90% 3.65   95% 3.86   99% 4.29
+
+Sống sót Westfall-Young (p<0,05) trên 351 giả thuyết: 0/351
+→ KHÔNG mẫu hướng nào sống sót hiệu chỉnh bội — đúng như dự đoán từ Hutchinson (2022).
+
+Đối chiếu: tầng 1 (momentum EWMA, dạng đơn giản nhất của 'xu hướng') cũng cho Sharpe âm 2010-2025. Hai phép thử ĐỘC LẬP, cùng kết luận.
+
+TỰ KIỂM ĐẠT

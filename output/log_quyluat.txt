@@ -1,0 +1,44 @@
+================================================================================================================
+GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT
+================================================================================================================
+6 cặp · 25,942 hàng
+KHÔNG GIAN GIẢ THUYẾT: 630 vị từ × 3 lớp = 1,890 giả thuyết — liệt kê đầy đủ, biết trước
+phát hiện 21,606 hàng · xác nhận 4,330 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 4.58 · 95% 4.83 · 99% 5.41
+      588/630 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 9 / thô p<0,05: 1186 (nếu toàn nhiễu kỳ vọng 88)
+
+[2/4] Đối chứng có điều kiện (|t| > 3.0 sau khi khử log σ̂ và TSMOM)…
+      0/9 còn tin riêng sau khi điều kiện hoá
+
+      vị từ sống sót W-Y                                lớp             n   lift      z     b|đk   t|đk
+      σ̂ cao                                            đi ngang     6559  0.482 -28.02   0.0038   0.47
+      σ̂ vừa                                            đi ngang     6119  0.608 -20.47  -0.0041  -0.75
+      σ̂ cao                                            tăng         6559  1.246  14.68   0.0128   1.25
+      σ̂ thấp                                           đi ngang     5622  0.715 -14.27   0.0047   0.61
+      σ̂ cao                                            giảm         6559  1.216  12.52  -0.0166  -1.64
+      σ̂ vừa                                            tăng         6119  1.174  10.07   0.0005   0.08
+      σ̂ vừa                                            giảm         6119  1.175   9.81   0.0036   0.52
+      σ̂ thấp                                           giảm         5622  1.144   7.73   0.0082   0.84
+      σ̂ thấp                                           tăng         5622  1.111   6.13  -0.0129  -1.31
+
+[3/4] Bỏ-một-cặp (lift ≥ 1.15 trên cặp giữ lại, ≥4/6 cặp dương)…
+      0/0 chuyển giao được qua các cặp
+
+[4/4] Xác nhận trên đoạn KIỂM TRA (chưa dùng để phát hiện)…
+      0/0 tái lập trên kiểm tra (z > 1,96)
+
+================================================================================================================
+PHỄU                                             còn lại
+không gian giả thuyết (liệt kê đầy đủ)             1,890
+đủ số lần khớp                                     1,764
+thô p<0,05 (chưa hiệu chỉnh)                       1,186
+sống sót Westfall–Young                                9
+còn tin riêng sau đối chứng có điều kiện               0
+chuyển giao được (bỏ-một-cặp)                          0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/quyluat.json — 254s
+TỰ KIỂM ĐẠT
