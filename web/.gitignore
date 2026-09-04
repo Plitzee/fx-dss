@@ -1,7 +1,8 @@
-node_modules*/
-.next/
-__pycache__/
 *.pyc
+.next/
 .vercel/
-ui_data.json
+__pycache__/
+node_modules*/
 ui.html
+ui_data.json
+ui_live.html

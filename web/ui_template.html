@@ -228,7 +228,11 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
 </div>
 
 <script>
-const DATA = __DATA__;
+/* Hai bản dựng từ CÙNG một mẫu:
+   · bản tĩnh  — DATA nướng sẵn, API = null. Mở được ở bất kỳ đâu, không cần server.
+   · bản trực tiếp — DATA = null, API trỏ tới FastAPI. Dữ liệu tới hôm nay. */
+var DATA = __DATA__;
+var API  = __API__;
 </script>
 <script>
 "use strict";
@@ -350,6 +354,14 @@ function paintFoot(i){
   const ev = (DATA.su_kien||[]).filter(e=>e.ngay===dt);
   if(ev.length) rows.push(`<span class="chip"><span class="dot mid"></span>Hôm nay có họp ngân hàng trung ương: <b>${ev[0].nhan.join(", ")}</b>. Ngày họp và ngày kế tiếp đã nằm trong mô hình biến động (vòng 7, +8% QLIKE).</span>`);
   const cheDo = ["bình tĩnh","vừa","căng thẳng"][P.che_do[i]];
+  if(P.nguon){
+    const ng = P.nguon[i], uoc = P.rv_uoc ? P.rv_uoc[i] : 0;
+    const cuoi = P.ngay[P.ngay.length-1];
+    rows.push(`<span class="chip"><span class="dot ${ng==="yahoo"?"mid":"ok"}"></span>`
+      + `Nguồn ngày này: <b>${ng==="yahoo"?"Yahoo (báo giá chỉ dẫn)":"HistData (tick)"}</b>`
+      + (uoc? ` · rv5 <b>ước từ thanh giờ</b>, không nuôi dự báo hôm nay` : ` · rv5 thật từ thanh 5 phút`)
+      + ` · chuỗi đến ${cuoi}. Mối nối hai nhà cung cấp lệch trung vị 0,20–3,40 pip tuỳ cặp.</span>`);
+  }
   rows.push(`<h4 style="font-family:var(--f-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:4px 0 0">Vì sao ra con số này</h4>`);
   rows.push(`<ul class="why">
     <li><span class="id">TANG2-HAR7</span><span>σ̂ dự báo ${fmt(T.sig_pip[i])} pip — chế độ <b>${cheDo}</b>; đây là thứ đẩy ô vàng lên xuống</span><span class="st">QLIKE 0,1585</span></li>
@@ -415,7 +427,9 @@ function paintEv(){
 }
 
 function paintAbout(){
-  $("#p-about").innerHTML = `<div class="card sec">
+  const cb = (DATA.meta.canh_bao||[]).map(x=>`<li>${x}</li>`).join("");
+  const live = cb ? `<div class="note warn"><b>Bản chạy trực tiếp — cảnh báo của API:</b><ul style="margin:6px 0 0;padding-left:18px">${cb}</ul></div>` : "";
+  $("#p-about").innerHTML = live + `<div class="card sec">
     <h2>Hệ thống này hứa gì, và không hứa gì</h2>
     <p class="lead">Bản MVP. Mọi con số trên giao diện đều đo từ dữ liệu trong repo — 6 cặp, 2010–2025, nến M1 gộp lên D1, giờ UTC đã hiệu chuẩn giờ mùa hè.</p>
     <div class="note"><b>Hứa:</b> xác suất <em>được hiệu chuẩn</em>, rủi ro đuôi được chặn, và mỗi con số truy được về nguồn.<br>
@@ -457,9 +471,56 @@ function boot(){
   buildChart(); setPair("EURUSD");
 }
 
-$("#gobtn").onclick = ()=>{
+/* ── nạp từ API (bản trực tiếp) ── */
+async function jget(p){ const r = await fetch(API+p); if(!r.ok) throw new Error(p+" → "+r.status); return r.json(); }
+
+async function napTuAPI(){
+  const meta = await jget("/meta");
+  const [cal, ev] = await Promise.all([
+    jget("/calibration").catch(()=>({bang:{}})),
+    jget("/events?tu=2024-01-01").catch(()=>({su_kien:[]}))]);
+  const D2 = {meta:{cap:meta.cap, tu:"—", valid_tu:meta.valid_tu, test_tu:meta.test_tu,
+                    moc_noi:meta.moc_noi_nguon, canh_bao:meta.canh_bao, moi_noi:meta.moi_noi},
+              cap:{}, su_kien:ev.su_kien||[], hieu_chuan:cal.bang||{}};
+  for(const p of meta.cap){
+    const [s, f, c] = await Promise.all([
+      jget("/series?pair="+p+"&n=1500"),
+      jget("/forecast_series?pair="+p+"&n=1500"),
+      jget("/cost?pair="+p).catch(()=>null)]);
+    const k = new Map(f.ngay.map((d,i)=>[d,i]));
+    const sel = a => s.ngay.map(d => k.has(d) ? a[k.get(d)] : null);
+    const tam = {};
+    for(const h of ["1","5","20"]){
+      const t = f.tam[h];
+      tam[h] = {p:sel(t.p).map(v=>v||[1/3,1/3,1/3]), b_pip:sel(t.b_pip).map(v=>v||0),
+                sig_pip:sel(t.sig_pip).map(v=>v||0), kP:t.kP, c_h:t.c_h, nen:t.nen};
+    }
+    D2.cap[p] = {ngay:s.ngay, o:s.o, h:s.h, l:s.l, c:s.c, pip:s.pip,
+                 nguon:s.nguon, rv_uoc:s.rv_uoc,
+                 sig_pip:sel(f.sig_pip).map(v=>v||0),
+                 che_do:sel(f.che_do).map(v=>v==null?0:v),
+                 nen12:f.nen12, tam:tam,
+                 chi_phi_gio: c ? {med:c.med, p95:c.p95} : null};
+  }
+  return D2;
+}
+
+$("#gobtn").onclick = async ()=>{
   $("#who").textContent = ($("#u").value||"demo") + " · demo";
   $("#login").style.display="none"; $("#app").style.display="block";
+  if(API !== null && !DATA){          // API co the la chuoi rong -> phai so sanh voi null
+    const goc = $("#p-chart").innerHTML;
+    $("#p-chart").innerHTML = '<div class="card sec"><h2>Đang nạp dữ liệu hiện hành…</h2>'
+      + '<p class="lead">Gọi API và tính σ̂ cho 6 cặp bằng đúng điểm vào sản xuất của tầng 2. Lần đầu mất vài giây.</p></div>';
+    try{ DATA = await napTuAPI(); }
+    catch(e){
+      $("#p-chart").innerHTML = '<div class="card sec"><h2>Không gọi được API</h2>'
+        + '<p class="lead">' + String(e) + '</p>'
+        + '<p class="lead">Khởi động lại bằng:<br><code>python -m uvicorn api.main:app --port 8899</code></p></div>';
+      return;
+    }
+    $("#p-chart").innerHTML = goc;      // trả lại khung sau khi nạp xong
+  }
   if(typeof LightweightCharts==="undefined"){
     $("#p-chart").innerHTML = '<div class="card sec"><h2>Không tải được thư viện biểu đồ</h2><p class="lead">Thư viện nến không tải được từ CDN. Các trang Hiệu chuẩn, Sự kiện và Về hệ thống vẫn dùng được.</p></div>';
     paintCal(); return;
