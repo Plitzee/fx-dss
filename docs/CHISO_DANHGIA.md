@@ -100,7 +100,8 @@ sai.
 | Mondrian 2 (đang dùng) | 4,73% | 0,595 | 0,501 | 0,677 | đạt |
 | Student-t + σ̂ cũ | 5,00% | 0,737 | 0,400 | 0,443 | đạt |
 
-Tất cả đều đạt. **Phải nói thẳng giới hạn của kết luận này:** với 720 phiên
+Tất cả đều đạt — **nhưng đây là số gộp sáu cặp, và mục 5b cho thấy gộp đã
+giấu mất hai cặp hỏng.** Phải nói thẳng giới hạn của kết luận này: với 720 phiên
 mỗi cặp, các kiểm định này có lực rất thấp — ở mức 1% chỉ kỳ vọng 7 lần vi
 phạm mỗi cặp. "Không bác bỏ được" không có nghĩa là "đã chứng minh đúng". Đó
 chính là lý do PIT ở mục 4 có giá trị: nó dùng **toàn bộ** quan sát chứ không
@@ -138,3 +139,42 @@ theo CRPS**, phù hợp với mục 2.
 - Kupiec (1995), *Techniques for verifying the accuracy of risk measurement models*, Journal of Derivatives.
 - Engle, Manganelli (2004), *CAViaR*, Journal of Business & Economic Statistics.
 - Diebold, Gunther, Tay (1998), *Evaluating density forecasts*, International Economic Review. (PIT)
+
+---
+
+## 5b. Backtest VaR **riêng từng cặp** (bổ sung 04/09/2026)
+
+Mục 5 ở trên báo "đạt hết" — nhưng đó là số **gộp sáu cặp**. Tách ra thì hai cặp
+trượt. Gộp lại đã giấu mất điều đó, đúng kiểu bẫy gộp repo này từng mắc một lần
+với AUC.
+
+Đo trên đoạn **kiểm tra**, mức 1%, ngưỡng di động theo σ̂ từng phiên, phân vị
+thực nghiệm của z (không giả định chuẩn). Tái lập: `GET /risk?pair=…`, mã ở
+`api/main.py::var_es`.
+
+| cặp | VaR 99% (pip) | ES 99% (pip) | vi phạm | Kupiec p | DQ p | tỷ lệ ES | kết luận |
+|---|---|---|---|---|---|---|---|
+| EURUSD | 73,9 | 88,6 | 1,52% | 0,189 | 0,663 | 0,926 | đạt |
+| GBPUSD | 116,9 | 151,6 | 0,42% | 0,074 | 0,787 | 1,064 | đạt |
+| **USDJPY** | 162,6 | 199,1 | **2,07%** | **0,011** | **0,000** | **0,799** | **KHÔNG ĐẠT** |
+| AUDUSD | 65,9 | 77,6 | 1,39% | 0,326 | 0,889 | 0,855 | đạt |
+| USDCAD | 107,5 | 128,7 | 1,25% | 0,519 | 0,072 | 0,964 | đạt |
+| **USDCHF** | 85,6 | 135,7 | **1,94%** | **0,024** | **0,012** | 1,150 | **KHÔNG ĐẠT** |
+
+**USDJPY hỏng theo cả ba hướng, và ba phép đo độc lập cùng chỉ một chỗ:**
+
+- backtest VaR 1%: vi phạm 2,07% thay vì 1% — ngày rất xấu đến **gấp đôi** mức mô hình nói
+- tỷ lệ ES 0,799 — khi ngày đó xảy ra, lỗ thực tế **sâu hơn 25%** so với ES dự báo
+- PIT-KS p = 0,0036 và độ phủ 90% chỉ đạt 85,2% (mục 4)
+
+Kết luận: **σ̂ đánh giá thấp đuôi dưới của USDJPY.** Chưa vá. Giao diện in cảnh
+báo này ở tab Rủi ro cho đúng cặp đó, kèm khuyến nghị giảm cỡ lệnh và nới dừng lỗ.
+
+USDCHF trượt vì lý do khác: tỷ lệ ES 1,150 (> 1) nghĩa là ES **thừa** chứ không
+thiếu — đuôi của nó bị chi phối bởi một biến cố duy nhất, ngày SNB bỏ neo
+15/01/2015. Độ lệch z của USDCHF trên huấn luyện là −5,61 với KTC [−9,53; +0,04],
+tức khoảng tin cậy rộng đúng kiểu một quan sát chi phối cả mẫu.
+
+**Lực kiểm định.** Với ~722 phiên mỗi cặp, ở mức 1% chỉ kỳ vọng ~7 lần vi phạm.
+"Đạt" ở bảng trên **không** có nghĩa là đã chứng minh đúng — nó chỉ có nghĩa là
+chưa bác bỏ được. Bốn dòng "đạt" yếu hơn hai dòng "không đạt" nhiều.

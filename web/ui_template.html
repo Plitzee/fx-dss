@@ -201,6 +201,13 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .tsbar{flex:1;height:16px;background:var(--panel2);border-radius:3px;overflow:hidden}
 .tsbar i{display:block;height:100%;background:var(--acc)}
 .tsv{flex:0 0 44px;text-align:right;font-family:var(--f-m);font-size:12px}
+.varwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:12px 0}
+.varbox{background:var(--panel2);border-radius:6px;padding:13px 15px;display:flex;
+  flex-direction:column;gap:5px;border-left:3px solid var(--flat)}
+.varbox.bad{border-left-color:var(--down)}
+.varbox .vl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.varbox .vv{font-family:var(--f-m);font-size:26px;font-weight:600}
+.varbox .vg{font-size:11.5px;color:var(--ink2);line-height:1.45}
 .tqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
 body.ndt .chi-phan-tich{display:none!important}
 body:not(.ndt) .chi-ndt{display:none!important}
@@ -1150,6 +1157,85 @@ function paintTQ(){
   ${veTrongSo()}`;
 }
 
+/* TẦNG RỦI RO DƯỚI — VaR và ES.
+   "Biên độ dao động 32 pip" là độ lệch chuẩn, không ai vào lệnh bằng con số đó.
+   Câu nhà đầu tư thật sự hỏi là "ngày xấu thì tôi mất bao nhiêu". VaR trả lời
+   ngưỡng, ES trả lời ĐỘ SÂU khi đã vượt ngưỡng — thiếu ES thì VaR nói nửa vời. */
+function veVaR(V, pair){
+  if(!V || !V.muc || !V.muc.length) return "";
+  const ndt = state.che_do_xem === "nha_dau_tu";
+  const usd = v => v==null ? "—" : Number(v).toLocaleString("vi",{maximumFractionDigits:0})+" USD";
+  const m5 = V.muc.find(x=>x.alpha===0.05), m1 = V.muc.find(x=>x.alpha===0.01);
+  const hong = V.muc.filter(x=>!x.dat);
+  const ten = pair.slice(0,3)+"/"+pair.slice(3);
+
+  // ── bản cho nhà đầu tư ──
+  const ndtKhoi = `<div class="card sec chi-ndt">
+    <h2>Ngày xấu thì bạn mất bao nhiêu — ${ten}</h2>
+    <p class="lead">Tính trên cỡ lệnh hệ thống khuyến nghị, tài khoản mẫu
+      ${V.von_mau.toLocaleString("vi")} USD. Đây là <b>mức lỗ trong một phiên</b>,
+      chưa tính bạn giữ lệnh bao lâu.</p>
+    <div class="varwrap">
+      <div class="varbox"><span class="vl">1 ngày trong 20</span>
+        <span class="vv">${usd(m5.var_usd)}</span>
+        <span class="vg">tệ hơn mức này — tức khoảng <b>mỗi tháng một lần</b></span></div>
+      <div class="varbox bad"><span class="vl">1 ngày trong 100</span>
+        <span class="vv">${usd(m1.var_usd)}</span>
+        <span class="vg">tệ hơn mức này — khoảng <b>mỗi nửa năm một lần</b></span></div>
+      <div class="varbox bad"><span class="vl">Khi ngày đó xảy ra</span>
+        <span class="vv">${usd(m1.es_usd)}</span>
+        <span class="vg">là mức lỗ <b>trung bình</b> — nửa số lần còn sâu hơn</span></div>
+    </div>
+    <div class="tqcanh ${hong.length?"do":""}">
+      <b>${hong.length ? "Cảnh báo: con số này chưa đáng tin cho cặp "+ten+"." 
+                       : "Đã kiểm trên dữ liệu thật và đúng."}</b>
+      ${hong.length
+        ? `Hệ thống nói ${(100*hong[0].alpha).toFixed(0)}% nhưng thực tế đã xảy ra
+           <b>${(100*hong[0].ty_le_vi_pham).toFixed(1)}%</b> — tức ngày rất xấu đến
+           <b>nhiều hơn</b> hệ thống nghĩ. Với cặp này hãy <b>giảm cỡ lệnh và nới dừng lỗ</b>
+           so với khuyến nghị.`
+        : `Hệ thống nói 1% thì trong ${m1.n_kiem_tra} phiên chưa từng dùng để huấn luyện,
+           thực tế xảy ra <b>${(100*m1.ty_le_vi_pham).toFixed(2)}%</b>. Các lần đó cũng
+           <b>không dính cụm</b> — không có chuyện dồn hết vào một giai đoạn.`}
+    </div>
+    <div class="tqcanh"><b>Một điều hệ thống vẫn hơi lạc quan.</b>
+      Trong chính những ngày vượt ngưỡng, mức lỗ thực tế trung bình là
+      <b>${m1.es_thuc_te_pip} pip</b> trong khi hệ thống dự báo ${m1.es_du_bao_pip} pip —
+      tức <b>sâu hơn ${Math.round(100*(1/m1.es_ty_le-1))}%</b> so với dự báo.
+      Đã đo, chưa vá. Hãy trừ hao.</div>
+  </div>`;
+
+  // ── bản cho người phân tích ──
+  const hang = V.muc.map(x=>{
+    const c = (v,ok)=>`<td class="n ${v==null?"":(ok?"pos":"neg")}">${v==null?"—":v.toFixed(3)}</td>`;
+    return `<tr><td><b>${(100*(1-x.alpha)).toFixed(0)}%</b> (α=${x.alpha})</td>
+      <td class="n">${x.var_pip}</td><td class="n">${x.es_pip}</td>
+      <td class="n">${x.n_vi_pham}/${x.n_kiem_tra} = <b>${(100*x.ty_le_vi_pham).toFixed(2)}%</b></td>
+      <td class="n">${(100*x.ky_vong).toFixed(0)}%</td>
+      ${c(x.kupiec_p, x.kupiec_p>=0.05)}${c(x.chris_p, x.chris_p>=0.05)}${c(x.dq_p, x.dq_p>=0.05)}
+      <td class="n ${x.es_ty_le<0.9?"neg":""}">${x.es_ty_le==null?"—":x.es_ty_le.toFixed(3)}</td>
+      <td class="${x.dat?"pos":"neg"}"><b>${x.dat?"đạt":"KHÔNG ĐẠT"}</b></td></tr>`;}).join("");
+
+  return ndtKhoi + `<div class="card sec chi-phan-tich">
+    <h2>VaR / ES và backtest — ${ten}, đoạn kiểm tra</h2>
+    <p class="lead">VaR ước bằng <b>phân vị thực nghiệm của z</b> trên huấn luyện nhân σ̂
+      hôm nay — không giả định chuẩn. ES là kỳ vọng có điều kiện dưới VaR. Ngưỡng
+      di động theo σ̂ từng phiên. Cột <b>tỷ lệ ES</b> = ES dự báo / lỗ thực tế trung bình
+      trong chính những phiên vi phạm; &lt; 1,00 nghĩa là mô hình <b>đánh giá thấp</b>
+      độ sâu của đuôi.</p>
+    <div class="tw"><table><thead><tr><th>mức</th><th class="n">VaR (pip)</th>
+      <th class="n">ES (pip)</th><th class="n">vi phạm</th><th class="n">kỳ vọng</th>
+      <th class="n">Kupiec p</th><th class="n">Chris. p</th><th class="n">DQ p</th>
+      <th class="n">tỷ lệ ES</th><th>kết luận</th></tr></thead><tbody>${hang}</tbody></table></div>
+    <div class="note warn"><b>Lực kiểm định.</b> ${V.canh_bao_luc}
+      Kupiec (1995) · Christoffersen (1998) · Engle &amp; Manganelli (2004).</div>
+    <div class="note"><b>Đo RIÊNG TỪNG CẶP là có chủ đích.</b> <code>docs/CHISO_DANHGIA.md</code>
+      mục 5 báo "đạt hết" — nhưng đó là số <b>gộp sáu cặp</b>. Tách ra thì USD/JPY
+      trượt ở mức 1%. Gộp lại đã giấu mất điều đó, đúng kiểu bẫy gộp mà repo này
+      từng mắc một lần với AUC.</div>
+  </div>`;
+}
+
 /* Bảng XUẤT XỨ — mỗi con số rủi ro ra từ đâu và cái gì chứng minh nó đúng.
    Đây là thứ nhà đầu tư cần để tin hệ thống: không dòng nào là tham số đặt tay. */
 function veXuatXu(X){
@@ -1228,8 +1314,8 @@ function paintRR(){
       thắng cùng thua. Đây là lý do có dòng “chia mỗi lệnh” ở trên.</div>
   </div>`;
 
-  const XX = veXuatXu(R.xuat_xu);
-  $("#p-rr").innerHTML = ndtRR + XX + `
+  const XX = veXuatXu(R.xuat_xu), VR = veVaR(R.var_es, state.pair);
+  $("#p-rr").innerHTML = ndtRR + VR + XX + `
   <div class="card sec chi-phan-tich">
     <h2>Phiếu rủi ro — ${state.pair.slice(0,3)}/${state.pair.slice(3)} · ${R.ngay}</h2>
     <p class="lead">Đòn bẩy khuyến nghị đến từ đâu, và <b>ràng buộc nào đang buộc</b>. Mọi thành phần đều là số đo đã kiểm định ở tầng 4 và 6b, không phải tham số đặt tay.</p>

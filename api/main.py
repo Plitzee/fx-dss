@@ -557,6 +557,7 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
                        for k, v in ex.items()},
         "tam_han": tam, "theo_sut_giam": nhay,
         "xuat_xu": xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer),
+        "var_es": var_es(pair, K, z_tr, gia, don_bay=float(ex["f"])),
         "he_so_danh_muc": [{"k": k, "he_so": round(float(k_danh_muc(k)), 4)}
                            for k in range(1, 7)],
         "canh_bao": [
@@ -567,6 +568,80 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
             "Conformal phủ thiếu ~1 điểm phần trăm khi tài khoản đang lỗ "
             "(90,3% ở đỉnh vốn → 89,3% khi lỗ) — đo được, chưa vá.",
         ]})
+
+
+MUC_VAR = (0.05, 0.01)
+
+
+def var_es(pair, K, z_tr, gia, von=10000.0, don_bay=1.0):
+    """TANG RUI RO DUOI — VaR va ES, kem BACKTEST cua chinh no.
+
+    VaR muc alpha = phan vi alpha cua loi suat phien toi. ES = ky vong loi suat
+    KHI DA roi vao duoi VaR — tuc "neu ngay xau xay ra thi lo trung binh bao
+    nhieu". VaR mot minh khong du: no noi nguong, khong noi do sau.
+
+    Uoc bang PHAN VI THUC NGHIEM cua z (khong gia dinh chuan) nhan sigma^ hom
+    nay. Day dung la cach `src/evaluate2.py` da lam va da dat het backtest.
+
+    Kem backtest chay TAI CHO tren doan KIEM TRA:
+      Kupiec        ty le vi pham co dung bang alpha khong
+      Christoffersen  cac lan vi pham co dinh cum khong
+      DQ            manh hon ca hai (Engle & Manganelli 2004)
+    p >= 0,05 = khong bac bo duoc. Voi ~720 phien moi cap thi luc kiem dinh
+    RAT THAP — phai noi ra, khong duoc doc "dat" thanh "da chung minh".
+    """
+    import sys as _s
+    if SRC not in _s.path:
+        _s.path.insert(0, SRC)
+    from metrics import kupiec, christoffersen_ind, dq_test
+
+    pan = K["pan"]
+    sig = pan.sig.values
+    sg = float(sig[-1])
+    ps = pip_size(pair)
+    g = doan(pan.Date.values)
+    z_all = pan.zT.values
+    te = (g == 2) & np.isfinite(z_all) & np.isfinite(sig) & (sig > 0)
+
+    ra = {"von_mau": von, "muc": []}
+    for a in MUC_VAR:
+        qz = float(np.quantile(z_tr, a))               # phan vi z tren HUAN LUYEN
+        ez = float(np.mean(z_tr[z_tr <= qz])) if (z_tr <= qz).any() else qz
+        v_r, e_r = qz * sg, ez * sg                    # loi suat (am)
+        # backtest tren doan kiem tra: nguong di dong theo sigma^ tung phien
+        vt = qz * sig[te]
+        y = z_all[te] * sig[te]
+        hits = (y <= vt).astype(int)
+        _, pk, ph = kupiec(hits, a)
+        _, pi_ = christoffersen_ind(hits)
+        _, pdq = dq_test(hits, vt, a)
+        # ES co du sau khong: trong CHINH nhung phien vi pham, lo thuc te TB
+        # co bang ES da du bao khong? < 1 la mo hinh danh gia THAP muc lo.
+        m = hits.astype(bool)
+        es_du = float(np.mean(ez * sig[te][m])) if m.any() else float("nan")
+        es_th = float(np.mean(y[m])) if m.any() else float("nan")
+        r4 = lambda v: None if v is None or not np.isfinite(v) else round(float(v), 4)
+        ra["muc"].append({
+            "alpha": a,
+            "var_pip": round(float(sang_pip(abs(v_r), gia, pair)), 1),
+            "es_pip": round(float(sang_pip(abs(e_r), gia, pair)), 1),
+            "var_usd": round(von * don_bay * abs(v_r), 0),
+            "es_usd": round(von * don_bay * abs(e_r), 0),
+            "n_kiem_tra": int(te.sum()), "n_vi_pham": int(hits.sum()),
+            "ty_le_vi_pham": r4(ph), "ky_vong": a,
+            "kupiec_p": r4(pk), "chris_p": r4(pi_), "dq_p": r4(pdq),
+            "es_du_bao_pip": round(float(sang_pip(abs(es_du), gia, pair)), 1) if np.isfinite(es_du) else None,
+            "es_thuc_te_pip": round(float(sang_pip(abs(es_th), gia, pair)), 1) if np.isfinite(es_th) else None,
+            "es_ty_le": r4(es_du / es_th) if np.isfinite(es_du) and np.isfinite(es_th) and es_th != 0 else None,
+            "dat": bool((pk is None or not np.isfinite(pk) or pk >= 0.05)
+                        and (pi_ is None or not np.isfinite(pi_) or pi_ >= 0.05)
+                        and (pdq is None or not np.isfinite(pdq) or pdq >= 0.05)),
+        })
+    ra["canh_bao_luc"] = (
+        f"Ở mức 1% chỉ kỳ vọng ~{round(0.01*int(te.sum()))} lần vi phạm trên "
+        f"{int(te.sum())} phiên — lực kiểm định THẤP. \"Không bác bỏ được\" "
+        f"không có nghĩa là \"đã chứng minh đúng\".")
+    return ra
 
 
 def xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer):
