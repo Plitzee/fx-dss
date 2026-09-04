@@ -153,3 +153,68 @@ Kiểm nhân quả trong `balop.py`: cắt bỏ toàn bộ dữ liệu sau mốc
 **Chưa làm, ghi vào việc tồn:** đoạn kiểm tra chưa mở (đúng luật `split.py` —
 chỉ mở một lần ở giai đoạn 4); chưa có bản theo từng cặp riêng trong bảng in
 (đã lưu đủ trong `output/nen3.json` để dựng lại).
+
+---
+
+## Cửa sổ mở rộng cho tầng ba lớp (05/09/2026)
+
+**Vấn đề.** Tầng σ̂ chạy `window=None` — cửa sổ mở rộng, khớp lại mỗi phiên trên
+mọi quan sát trước nó. Tầng ba lớp thì không: phân phối z và ngưỡng chế độ được
+khớp một lần trên đoạn huấn luyện rồi **đóng băng ở 2021-10-12**, bỏ phí
+**30,5%** dữ liệu và đúng 4 năm gần nhất. Hai tầng trong cùng một hệ chạy hai
+giao thức khác nhau.
+
+**Cách sửa.** `balop.du_bao_cuon` — mỗi ~21 phiên khớp lại phân phối z và ngưỡng
+chế độ trên toàn bộ quá khứ trước mốc đó, rồi dự báo tới mốc kế. 136 lần khớp
+lại, phủ 79,2% số phiên (phần đầu chưa đủ 750 quan sát đệm thì rơi về bản đóng
+băng). Nhân quả có tự kiểm ép: phá hoại 21 hàng cuối chuỗi **không** được làm đổi
+một dự báo nào trước đó.
+
+**Nhãn giữ nguyên, chỉ ước lượng mới được cuộn.** `kP` và dải `b` vẫn chốt trên
+huấn luyện. Định nghĩa "đi ngang" là **quyết định sản phẩm**, không phải bài toán
+ước lượng — ô vàng không được đổi nghĩa dưới chân người dùng, và giữ nhãn cố định
+mới so sánh đóng băng với cuộn một cách công bằng.
+
+### Kết quả — mục tiêu P, đoạn KIỂM ĐỊNH
+
+| tầm hạn | nền | BSS đóng băng | BSS cuộn | ECE | MCE |
+|---|---|---|---|---|---|
+| h=1 | chỉ σ̂ | +0,0105 | **+0,0106** | 0,0156 → 0,0141 | 0,0816 → 0,0764 |
+| h=1 | σ̂ + chế độ | +0,0098 | **+0,0103** | 0,0135 → 0,0120 | 0,0834 → 0,0633 |
+| h=5 | chỉ σ̂ | +0,0104 | **+0,0105** | 0,0153 → 0,0151 | 0,0950 → 0,0902 |
+| h=5 | σ̂ + chế độ | +0,0137 | **+0,0148** | 0,0149 → 0,0133 | 0,0540 → 0,0471 |
+| h=20 | chỉ σ̂ | +0,0066 | **+0,0090** | 0,0430 → 0,0407 | 0,1164 → 0,1268 |
+| h=20 | σ̂ + chế độ | +0,0137 | **+0,0148** | 0,0395 → 0,0375 | 0,1383 → **0,2058** |
+
+**Cuộn không xấu đi ở 6/6 so sánh BSS, và ECE tốt hơn ở 6/6.** Nhưng mức tăng
+**nhỏ** — từ +0,0001 tới +0,0024. Thêm 31% dữ liệu không đổi được kết luận nào;
+nó chỉ siết lại ước lượng.
+
+### Hai điều xấu đi, ghi đúng như nó xảy ra
+
+**1. MCE ở h=20 xấu đi rõ: 0,138 → 0,206.** Đổi lấy BSS +0,0011. Quy tắc chọn đã
+chốt trước là **điểm log** nên vẫn lấy bản cuộn, nhưng đây là bước lùi thật ở
+đúng chỉ số mà giao diện phải cảnh báo. Việc của lớp hiệu chuẩn lại ở vòng sau.
+
+**2. Tổ hợp trực tuyến xấu đi khi chuyên gia của nó thành nền cuộn.**
+
+| tầm hạn | tổ hợp (chuyên gia đóng băng) | tổ hợp (chuyên gia cuộn) |
+|---|---|---|
+| h=1 | +0,0102 | **+0,0107** |
+| h=5 | +0,0134 | **+0,0089** |
+| h=20 | +0,0200 | **+0,0055** |
+
+Giả thuyết: trọng số Hedge phải đuổi theo một mục tiêu **di động** — chuyên gia
+đổi tham số mỗi 21 phiên — trong khi ở tầm hạn dài nó nhận rất ít lần cập nhật
+(trễ đúng h phiên). Chưa kiểm chứng, ghi lại làm giả thuyết.
+
+### Cấu hình chốt cho sản xuất — chọn theo điểm log trên kiểm định
+
+| tầm hạn | nền | log | BSS | MCE |
+|---|---|---|---|---|
+| h=1 | tổ hợp trực tuyến (chuyên gia cuộn) | 1,0866 | +0,0107 | 0,0611 |
+| h=5 | σ̂ + chế độ (cuộn) | 1,0804 | +0,0148 | 0,0471 |
+| h=20 | σ̂ + chế độ (cuộn) | 1,0744 | +0,0148 | 0,2058 |
+
+Đoạn **kiểm tra** không được mở lại cho vòng này — mọi con số trên đây là
+kiểm định.

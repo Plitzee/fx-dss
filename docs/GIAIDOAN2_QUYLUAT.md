@@ -147,3 +147,68 @@ thứ mục 10.4 đã viết sẵn:
 | Hansen SPA / White Reality Check | phát biểu "cả họ không thắng nền" |
 | Motif (matrix profile) | họ H2, chưa chạy — nhưng nó **không** liệt kê được đầy đủ nên phải xử lý bội khác |
 | Tập khoá sổ | **chưa mở**, đúng luật — mở một lần ở cuối |
+
+---
+
+## Kiểm chứng chính cái phễu (05/09/2026)
+
+Con số "0/1.890" tự nó **mơ hồ** giữa hai khả năng khác hẳn nhau: (a) không có
+quy luật nào, hay (b) phễu quá chặt nên không bắt được gì. Không phân biệt được
+thì nó không phát biểu thành câu gì cả. `src/kiem_pheu.py` phân biệt bằng hai
+phép chạy chuẩn của thiết kế thí nghiệm.
+
+Giá trị tới hạn `max|z|` dưới null khối, 1.000 hoán vị: **4,72**.
+
+### Đối chứng âm — xáo trộn khối kết cục, 10 lần
+
+| lần | vượt ngưỡng | qua điều kiện hoá |
+|---|---|---|
+| 1–10 | **0** | **0** |
+
+Không một dương tính giả nào trên 1.890 giả thuyết, ở cả 10 lần. **Phễu không
+rò rỉ.** Nếu bước này ra số dương thì mọi kết quả giai đoạn 2 đều phải vứt.
+
+### Đối chứng dương — tiêm quy luật đã biết, 60 lần mỗi mức
+
+Cách tiêm: chọn một vị từ **thật** có ≥300 lần khớp làm giá đỡ, rồi ở đúng
+những hàng nó khớp, đổi kết cục sang lớp đích với xác suất vừa đủ đạt lift mong
+muốn. Hàng không khớp giữ nguyên, nên cấu trúc tự tương quan của chuỗi được giữ.
+
+| lift đặt | lift thực | \|z\| trung vị | bắt được | **lực** |
+|---|---|---|---|---|
+| 1,02 | 1,090 | 2,02 | 1/60 | 2% |
+| 1,05 | 1,095 | 1,76 | 0/60 | 0% |
+| 1,10 | 1,128 | 3,51 | 2/60 | 3% |
+| 1,15 | 1,163 | 4,81 | 5/60 | 8% |
+| 1,20 | 1,201 | 6,33 | 24/60 | **40%** |
+| 1,35 | 1,346 | 10,76 | 60/60 | **100%** |
+| 1,50 | 1,504 | 14,51 | 60/60 | 100% |
+
+*Ghi chú trung thực:* phép tiêm có **sàn ~1,09** — ở nhiều vị từ, tỷ lệ hậu
+nghiệm sẵn có đã cao hơn mức đặt, nên hai dòng đầu thực chất đo cùng một mức
+với dòng 1,10. Ba dòng đó nhất quán với nhau (0–3%), nên không đổi kết luận.
+
+### Kết luận phải phát biểu lại
+
+**Hiệu ứng nhỏ nhất phát hiện được ở lực 80%: lift = 1,35.**
+
+Nên câu đúng **không phải** *"không tồn tại quy luật nào"*, mà là:
+
+> Phễu này bắt được quy luật có lift ≥ 1,35 với xác suất ≥ 80%, và không tìm
+> thấy quy luật nào. Do đó **mọi quy luật mạnh hơn 1,35 đã bị loại trừ** trên
+> dữ liệu này. **Quy luật yếu hơn 1,20 thì KHÔNG loại trừ được** — ở mức đó lực
+> phát hiện chỉ 40%, và ở 1,15 chỉ còn 8%.
+
+Đây là một hạn chế thật, và nó **không nhỏ**. Lift 1,35 nghĩa là xác suất lớp
+đó cao hơn nền 35% — với nền ~1/3 thì là **33% → 45%**, một lợi thế rất lớn
+theo chuẩn ngoại hối. Còn một quy luật lift 1,15 (33% → 38%), nếu có thật và
+ổn định, vẫn có thể có ý nghĩa kinh tế mà phễu này **không thấy**.
+
+Nguyên nhân là cỡ mẫu: 21.606 hàng phát hiện chia cho 1.890 giả thuyết, sau khi
+Westfall–Young đẩy ngưỡng lên `|z| > 4,72` để khống chế sai lầm loại I toàn cục.
+Đó là cái giá phải trả cho việc kiểm định bội trung thực — và nó phải được nêu
+trong luận văn, chứ không được giấu sau con số 0.
+
+Muốn hạ ngưỡng phát hiện thì có ba đường, đều tốn: thu hẹp không gian giả thuyết
+(ít giả thuyết hơn → ngưỡng thấp hơn), thêm cặp/thêm năm dữ liệu, hoặc chuyển
+sang khống chế FDR thay vì FWER (chấp nhận vài dương tính giả để đổi lấy lực).
