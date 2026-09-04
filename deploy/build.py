@@ -37,6 +37,21 @@ VERCEL = """{
 REQS = "requests>=2.31\npandas>=2.0\nnumpy>=1.26\n"
 BOQUA = "build.py\n__pycache__/\n*.pyc\n.vercel/\n"
 
+# Runtime Python moi cua Vercel KHONG tu do `api/*.py` nua — no doi mot
+# entrypoint khai bao ro. Lan deploy dau bao:
+#   "No python entrypoint found in default locations, but found potential
+#    entrypoints: api/intraday.py (variable: handler)"
+# va chi dung cach sua duoi day.
+PYPROJECT = """[project]
+name = "fx-dss"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["requests>=2.31", "pandas>=2.0", "numpy>=1.26"]
+
+[tool.vercel]
+entrypoint = "api.intraday:handler"
+"""
+
 
 def main():
     os.makedirs(PUB, exist_ok=True)
@@ -62,6 +77,9 @@ def main():
     io.open(os.path.join(HERE, "vercel.json"), "w", encoding="utf-8", newline="\n").write(VERCEL)
     io.open(os.path.join(HERE, "requirements.txt"), "w", encoding="utf-8", newline="\n").write(REQS)
     io.open(os.path.join(HERE, ".vercelignore"), "w", encoding="utf-8", newline="\n").write(BOQUA)
+    io.open(os.path.join(HERE, "pyproject.toml"), "w", encoding="utf-8", newline="\n").write(PYPROJECT)
+    # `api/` phai la goi Python thi "api.intraday:handler" moi nap duoc
+    io.open(os.path.join(HERE, "api", "__init__.py"), "w", encoding="utf-8").write("")
     for t in (os.path.join(HERE, "api", "__pycache__"), os.path.join(LIB, "__pycache__")):
         shutil.rmtree(t, ignore_errors=True)
 
