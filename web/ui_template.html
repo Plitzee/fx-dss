@@ -806,7 +806,7 @@ function paintFoot(i){
   rows.push(`<ul class="why chi-phan-tich">
     <li><span class="id">TANG2-HAR7</span><span>σ̂ dự báo ${fmt(T.sig_pip[i])} pip — chế độ <b>${cheDo}</b>; đây là thứ đẩy ô vàng lên xuống</span><span class="st">QLIKE 0,1585</span></li>
     <li><span class="id">DAI-P-kP</span><span>dải ±${fmt(T.b_pip[i])} pip = ${T.kP} × trung vị σ̂ 12 tháng × √${state.h} × ${T.c_h}</span><span class="st">chốt trên huấn luyện</span></li>
-    <li><span class="id">HUONG-NULL</span><span>không quy luật hướng nào được áp — 0/351 mẫu sống sót kiểm định bội</span><span class="st">Westfall–Young</span></li>
+    <li><span class="id">HUONG-NULL</span><span>không quy luật hướng nào được áp — 0 sống sót; phễu bắt được lift ≥ 1,35</span><span class="st">Westfall–Young</span></li>
   </ul>`);
   $("#foot").innerHTML = rows.join("");
 }
@@ -1000,7 +1000,14 @@ function paintMo(){
   <div class="card sec" style="margin-top:12px">
     <h2>Khai phá quy luật — phễu</h2>
     <div class="tw"><table><tbody>${pheu}</tbody></table></div>
-    <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂ và TSMOM thì còn ${P.sau_dieu_kien||0}.</div>
+    <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂, TSMOM, <b>nhân tố đô-la và carry</b> thì còn ${P.sau_dieu_kien||0}.</div>
+    <div class="note warn"><b>Con số 0 đó mạnh tới đâu — đã đo bằng đối chứng.</b>
+      Tiêm quy luật tổng hợp có độ mạnh biết trước vào dữ liệu thật, 60 lần mỗi mức,
+      rồi chạy nguyên phễu: lift 1,35 bắt được <b>60/60</b>; lift 1,20 chỉ <b>24/60</b>;
+      lift 1,15 còn <b>5/60</b>. Nên hiệu ứng nhỏ nhất phát hiện được ở lực 80% là
+      <b>lift 1,35</b>. Phát biểu đúng là: <b>quy luật mạnh hơn 1,35 đã bị loại trừ;
+      quy luật yếu hơn 1,20 thì KHÔNG</b>. Đối chứng âm (xáo trộn khối, 10 lần) cho
+      <b>0 dương tính giả</b> — phễu không rò rỉ.</div>
   </div>
 
   ${khoiTC}
@@ -1425,6 +1432,12 @@ function paintAbout(){
     <div class="note"><b>Hứa:</b> xác suất <em>được hiệu chuẩn</em>, rủi ro đuôi được chặn, và mỗi con số truy được về nguồn.<br>
     <b>Không hứa:</b> lợi nhuận. Kiểm tra toàn mạch trên ~26 năm cho vốn cuối 1,004–1,037 và không cháy tài khoản ở mọi cấu hình. Lợi thế là <em>nhỏ</em>.</div>
     <div class="note warn"><b>Không dự báo được hướng đi.</b> Năm nhánh độc lập cùng kết luận: momentum Sharpe −0,16 · carry −0,05 · <b>0/351</b> mẫu hướng sống sót Westfall–Young · 24/24 ô có AUC phủ 0,50 · và khai phá quy luật cho <b>${(Q.tho||0).toLocaleString("vi")} → ${Q.wy||0} → ${Q.sau_dieu_kien||0}</b>. Thông tin nằm ở trục <b>biến động</b>, và ô vàng là nơi nó hiện ra.</div>
+    <div class="note"><b>Giới hạn của kết luận đó, đã đo chứ không ước.</b> Phễu khai phá
+      bắt được quy luật có lift <b>≥ 1,35</b> với xác suất 80% (đối chứng dương, 60 lần
+      mỗi mức). Ở lift 1,20 lực chỉ còn 40%, ở 1,15 còn 8%. Nên câu đúng là
+      <b>“không có quy luật MẠNH”</b>, không phải “không có quy luật nào”. Một quy luật
+      yếu — lift 1,15, tức 33% lên 38% — vẫn có thể tồn tại mà phễu này không thấy.
+      Nguyên nhân là cỡ mẫu, và đó là cái giá của việc hiệu chỉnh bội trung thực.</div>
 
     <h2 style="margin-top:20px">Đã làm xong kể từ bản MVP đầu</h2>
     <div class="tw"><table><tbody>

@@ -71,6 +71,7 @@ T_DIEU_KIEN = 3.0           # |t| sau khi dieu kien hoa null manh nhat
 SEED = 0
 EPS = 1e-12
 TEN_LOP = ("giảm", "đi ngang", "tăng")
+TEN_KIEM_SOAT = ("log σ̂", "TSMOM 20", "nhân tố đô-la", "carry")
 
 
 # ── dac trung de dung vi tu ─────────────────────────────────────────────
@@ -197,6 +198,32 @@ def doi_chung(mkhop, y, c, kiem_soat):
     return float(be[1]), float(be[1] / max(se[1], EPS))
 
 
+def nhan_to_usd(Ms, dts):
+    """NHAN TO DO-LA CHUNG — trung binh sau cap sau khi quy ve cung chieu.
+
+    Sau cap deu co USD mot ve nen chung dong theo nhau: rho = 0,443 do duoc
+    (output/log_corr_regime.txt). Mot vi tu "hieu qua" hoan toan co the chi
+    dang bam vao nhan to nay. LOPO kiem CHUYEN GIAO, khong kiem TRUC GIAO voi
+    nhan to chung — hai chuyen khac nhau, nen phai dua no vao bo kiem soat.
+
+    Quy ve cung chieu BAN USD: XXXUSD giu nguyen dau, USDXXX doi dau. Chuan hoa
+    tung cap bang do lech chuan cua chinh no truoc khi lay trung binh, de cap
+    bien dong manh khong at cac cap khac.
+
+    NHAN QUA: gia tri tai t chi dung loi suat den het t, ma dich la lop cua t+1.
+    """
+    khung = {}
+    for i, p in enumerate(B.PAIRS):
+        c = Ms[i].close.values
+        r = np.r_[np.nan, np.diff(np.log(np.maximum(c, EPS)))]
+        dau = 1.0 if p.endswith("USD") else -1.0          # quy ve "ban USD"
+        khung[p] = pd.Series(dau * r, index=pd.DatetimeIndex(dts[i]))
+    F = pd.DataFrame(khung)
+    F = F / F.std()
+    nt = F.mean(axis=1, skipna=True)
+    return [nt.reindex(pd.DatetimeIndex(d)).values for d in dts]
+
+
 def main():
     t0 = time.time()
     print("=" * 112)
@@ -233,11 +260,27 @@ def main():
     y = np.concatenate(ys)
     cap = np.concatenate(caps)
     dt = pd.DatetimeIndex(np.concatenate(dts))
+    # BON null, khong phai hai. Them nhan to do-la chung (sau cap deu dinh USD)
+    # va carry (chenh lech lai suat — dong luc chung kinh dien cua FX, repo da
+    # co san `optimal_stop.carry_ngay` nhung chua bao gio dua vao bo kiem soat).
+    import optimal_stop as OS
+    nt_usd = nhan_to_usd(Ms, dts)
+    carry = []
+    for i, p in enumerate(B.PAIRS):
+        try:
+            carry.append(np.asarray(OS.carry_ngay(p, dts[i]), float))
+        except Exception:
+            carry.append(np.full(len(dts[i]), np.nan))
     kiem_soat = np.column_stack([
         np.log(np.maximum(np.concatenate(sigs), EPS)),            # null biến động
         np.concatenate([pd.Series(np.r_[np.nan, np.diff(np.log(np.maximum(
             m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),  # TSMOM
+        np.concatenate(nt_usd),                                   # nhân tố đô-la
+        np.concatenate(carry),                                    # carry
     ])
+    du_ks = np.isfinite(kiem_soat).all(1)
+    print(f"bộ kiểm soát: {', '.join(TEN_KIEM_SOAT)} — "
+          f"{du_ks.sum():,}/{len(du_ks):,} hàng đủ cả bốn")
 
     M, ten = vet_can(lit, ten_lit)
     print(f"{len(B.PAIRS)} cặp · {len(y):,} hàng")
@@ -271,7 +314,7 @@ def main():
         return
 
     print(f"\n[2/4] Đối chứng có điều kiện (|t| > {T_DIEU_KIEN} sau khi khử "
-          f"log σ̂ và TSMOM)…", flush=True)
+          f"{', '.join(TEN_KIEM_SOAT)})…", flush=True)
     ung = []
     for i, c in zip(*np.where(song)):
         b, t = doi_chung(M[i], y, c, kiem_soat)
