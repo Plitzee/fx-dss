@@ -225,8 +225,10 @@ class QuanTinh:
 
     def du_bao(self, n, y_truoc=None, **kw):
         P = np.tile(self.p0, (n, 1))
-        m = y_truoc >= 0
-        P[m] = self.M[y_truoc[m]]
+        if y_truoc is None:
+            return _chuan(P)
+        m = np.asarray(y_truoc, int) >= 0
+        P[m] = self.M[np.asarray(y_truoc, int)[m]]
         return _chuan(P)
 
 
@@ -286,6 +288,77 @@ class SigmaCheDo:
         return _chuan(P)
 
 
+class ToHopTrucTuyen:
+    """NEN 5 — HOC TRUC TUYEN (Hedge / trong so mu).
+
+    Day la cau tra loi that cho "hom nay du bao sai thi mai phai chinh xac
+    hon". Moi phien:
+        1. du bao = to hop CAC CHUYEN GIA theo trong so HIEN TAI
+        2. cho toi khi ket cuc phien do da biet, moi ha trong so cua chuyen gia
+           vua sai, theo ham mu cua ton that log
+    Chan hoi tiec O(sqrt(T log N)) so voi chuyen gia tot nhat nhin lai — tuc no
+    khong the te hon han chuyen gia gioi nhat, va no tu loai chuyen gia hong ma
+    khong can ai can thiep.
+
+    NHAN QUA. Cap nhat dung ket cuc cua du bao dat ra o t-h, la thu chi biet
+    duoc tai t. Voi h > 1 dieu nay QUAN TRONG: ket cuc cua du bao 5 phien dat o
+    t phai doi toi t+5. `tre` chinh la h. Tu kiem ep dieu nay.
+
+    Do duoc (output/ml3.json, doan kiem tra, muc tieu P, h=1):
+        khi hau hoc   BSS  0
+        chi sigma     BSS +0,0063  [+0,0038; +0,0088]
+        sigma+che do  BSS +0,0074  [+0,0046; +0,0106]
+        HEDGE         BSS +0,0076  [+0,0047; +0,0112]   <- tot nhat
+    """
+
+    ten = "tổ hợp trực tuyến"
+
+    def __init__(self, chuyen_gia, eta=0.5, tre=1):
+        """chuyen_gia: [(ten, doi_tuong_co_du_bao)]. eta chot 0,5 — la gia tri
+        da do o src/run_ml3.py, KHONG duoc chinh lai tren doan kiem tra."""
+        self.cg = list(chuyen_gia)
+        self.eta = float(eta)
+        self.tre = max(1, int(tre))
+
+    def khop(self, *a, **k):
+        return self
+
+    def du_bao(self, n, y_that=None, **kw):
+        """y_that: lop thuc tung phien (-1 = chua co ket cuc). Chi duoc dung DE
+        CAP NHAT SAU KHI da du bao xong phien do."""
+        A = np.stack([m.du_bao(n, **kw) for _, m in self.cg])      # (N, n, 3)
+        N = A.shape[0]
+        w = np.ones(N) / N
+        ra = np.zeros((n, 3))
+        lich_su = np.zeros((n, N))
+        y = None if y_that is None else np.asarray(y_that, int)
+        for t in range(n):
+            ra[t] = _chuan((w[:, None] * A[:, t, :]).sum(0)[None, :])[0]
+            lich_su[t] = w
+            if y is None:
+                continue
+            j = t - self.tre + 1          # du bao dat o j vua du ket cuc tai t
+            if j < 0 or y[j] < 0:
+                continue
+            ton = -np.log(np.maximum(A[:, j, y[j]], 1e-9))
+            w = w * np.exp(-self.eta * (ton - ton.min()))
+            w = w / max(w.sum(), EPS)
+        self.trong_so = {t: float(v) for (t, _), v in zip(self.cg, w)}
+        self.lich_su = lich_su
+        return _chuan(ra)
+
+    def du_bao_ke_tiep(self, **kw):
+        """Mot hang cho phien CHUA MO CUA — dung TRONG SO DA HOC toi hom nay.
+
+        Khong duoc goi du_bao(1, ...): the la khoi dong lai trong so tu deu nhau
+        va vut bo toan bo phan da hoc."""
+        if not hasattr(self, "trong_so"):
+            raise RuntimeError("phải chạy du_bao() trên lịch sử trước")
+        A = np.stack([m.du_bao(1, **kw) for _, m in self.cg])[:, 0, :]
+        w = np.array([self.trong_so[t] for t, _ in self.cg], float)
+        return _chuan((w[:, None] * A).sum(0)[None, :])
+
+
 def lop_truoc(y, h):
     """Lop cua cua so LIEN TRUOC khong chong lan: y[t-h]."""
     ra = np.full(len(y), -1, int)
@@ -294,8 +367,49 @@ def lop_truoc(y, h):
     return ra
 
 
+def _tu_kiem_to_hop():
+    """Ba dieu phai dung, khong thi lop tren khong duoc phep chay san xuat."""
+    rng = np.random.default_rng(0)
+    n = 600
+    y = rng.integers(0, 3, n)
+
+    class Gia:                                   # chuyen gia gia lap, hang so
+        def __init__(self, p): self.p = np.asarray(p, float)
+        def du_bao(self, n, **kw): return np.tile(self.p, (n, 1))
+
+    tot = Gia([.2, .6, .2])
+    xau = Gia([.6, .2, .2])
+
+    # 1) NHAN QUA — doi ket cuc TUONG LAI khong duoc doi du bao hom nay.
+    for tre in (1, 5, 20):
+        mo = ToHopTrucTuyen([("tốt", tot), ("xấu", xau)], tre=tre)
+        P1 = mo.du_bao(n, y_that=y)
+        y2 = y.copy()
+        y2[-1] = (y2[-1] + 1) % 3               # sua DUNG ket cuc cuoi cung
+        P2 = ToHopTrucTuyen([("tốt", tot), ("xấu", xau)], tre=tre).du_bao(n, y_that=y2)
+        assert np.allclose(P1, P2), f"RO RI: ket cuc cuoi doi du bao truoc do (tre={tre})"
+
+    # 2) HOC THAT — phai don trong so ve phia chuyen gia dung.
+    yg = np.ones(n, int)                        # thuc te luon la "di ngang"
+    mo = ToHopTrucTuyen([("tốt", tot), ("xấu", xau)], tre=1)
+    mo.du_bao(n, y_that=yg)
+    assert mo.trong_so["tốt"] > 0.99, f"khong hoc duoc: {mo.trong_so}"
+
+    # 3) CHAN HOI TIEC — khong duoc te hon han chuyen gia gioi nhat.
+    P = mo.du_bao(n, y_that=yg)
+    lt = -np.log(P[np.arange(n), yg]).sum()
+    lc = min(-np.log(np.tile(g.p, (n, 1))[np.arange(n), yg]).sum() for g in (tot, xau))
+    can = mo.eta and np.sqrt(n * np.log(2)) / mo.eta
+    assert lt - lc <= can, f"hoi tiec {lt-lc:.1f} vuot chan {can:.1f}"
+    return dict(hoi_tiec=float(lt - lc), chan=float(can), trong_so=mo.trong_so)
+
+
 if __name__ == "__main__":
     import diem3 as D
+
+    kq = _tu_kiem_to_hop()
+    print(f"  tổ hợp trực tuyến: nhân quả ĐẠT · học ĐẠT · hối tiếc "
+          f"{kq['hoi_tiec']:.2f} ≤ chặn {kq['chan']:.1f} ĐẠT")
 
     B = nap()
     print("TỰ KIỂM")

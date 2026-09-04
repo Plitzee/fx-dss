@@ -48,7 +48,15 @@ PAIRS = B.PAIRS
 MOC_NOI = pd.Timestamp("2026-01-01")
 PIP = {"USDJPY": 0.01}
 HS = (1, 5, 20)
-NEN_THEO_H = {1: "chỉ σ̂", 5: "σ̂ + chế độ", 20: "σ̂ + chế độ"}
+# Chon tren doan KIEM DINH (output/nen3.json), khong phai tren kiem tra:
+#   h=1   chi sigma +0,0105 · to hop +0,0102 · sigma+che do +0,0098   (hoa)
+#   h=5   sigma+che do +0,0137 · to hop +0,0134                        (hoa)
+#   h=20  TO HOP +0,0200 [+0,0065] · sigma+che do +0,0137 [+0,0005]    (thang ro)
+# To hop khong thua o dau, thang ro o tam han dang hong nhat, va ECE tot nhat o
+# h=1 va h=5. Them vao do no co CHAN HOI TIEC va tu ha trong so chuyen gia hong
+# khi che do troi — thu ma nen co dinh khong lam duoc. Nen dung no ca ba tam han.
+NEN_THEO_H = {1: "tổ hợp trực tuyến", 5: "tổ hợp trực tuyến",
+              20: "tổ hợp trực tuyến"}
 
 app = FastAPI(title="FX-DSS API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -147,13 +155,26 @@ def tinh(p):
     xs = {}
     for h in HS:
         T = B.dung_muc_tieu(pan, h, tr)
+        n = len(pan)
+        yt = B.lop_truoc(T["yP"], h)
         ns = B.ChiSigma().khop(T["z"][tr])
         cd = B.SigmaCheDo().khop(T["z"][tr], pan.sig.values[tr])
-        mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd
-        P = mo.du_bao(len(pan), canh=T["canh_P"], sigma_h=T["sigma_h"],
-                      sig=pan.sig.values)
+        kh = B.KhiHauHoc().khop(T["yP"][tr])
+        qt = B.QuanTinh().khop(T["yP"][tr], yt[tr])
+        kw = dict(canh=T["canh_P"], sigma_h=T["sigma_h"], sig=pan.sig.values,
+                  y_truoc=yt)
+        if NEN_THEO_H[h] == "tổ hợp trực tuyến":
+            # Hoc truc tuyen: trong so cap nhat tu ket cuc DA BIET, tre dung h
+            # phien. Du bao cho phien moi nhat dung trong so hoc tu toan bo qua
+            # khu truoc no — dung nghia "hom qua sai thi hom nay chinh".
+            mo = B.ToHopTrucTuyen([("khí hậu học", kh), ("quán tính", qt),
+                                   ("chỉ σ̂", ns), ("σ̂ + chế độ", cd)], tre=h)
+            P = mo.du_bao(n, y_that=T["yP"], **kw)
+        else:
+            mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd
+            P = mo.du_bao(n, **kw)
         xs[h] = dict(P=P, b=T["b"], sigma_h=T["sigma_h"], kP=T["kP"], c_h=T["c_h"],
-                     mo=mo)      # giu mo hinh DA KHOP de dung lai cho phien ke tiep
+                     mo=mo, trong_so=getattr(mo, "trong_so", None))
 
     nguong = np.quantile(pan.sig.values[tr], [1 / 3, 2 / 3])
     return dict(m=m, pan=pan, sig=pan.sig.values, xs=xs,
@@ -439,8 +460,11 @@ def forecast_next(pair: str = Query(...)):
         b = float(X["b"][-1])                       # dai doi cham, dung ban cuoi
         sh = sg * np.sqrt(h) * float(X["c_h"])
         # dung lai CHINH mo hinh da khop trong tinh() — khong khop lai
-        P = X["mo"].du_bao(1, canh=np.array([b]), sigma_h=np.array([sh]),
-                           sig=np.array([sg]))[0]
+        kw = dict(canh=np.array([b]), sigma_h=np.array([sh]), sig=np.array([sg]))
+        # Tang to hop phai dung TRONG SO DA HOC — goi du_bao(1,...) se khoi dong
+        # lai trong so tu deu nhau, tuc vut bo dung cai phan da hoc.
+        P = (X["mo"].du_bao_ke_tiep(**kw)[0]
+             if hasattr(X["mo"], "du_bao_ke_tiep") else X["mo"].du_bao(1, **kw)[0])
         ra["tam"][str(h)] = {
             "p_giam": round(float(P[0]), 4), "p_ngang": round(float(P[1]), 4),
             "p_tang": round(float(P[2]), 4),
@@ -532,6 +556,7 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
         "thanh_phan": {k: (round(v, 4) if isinstance(v, float) else v)
                        for k, v in ex.items()},
         "tam_han": tam, "theo_sut_giam": nhay,
+        "xuat_xu": xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer),
         "he_so_danh_muc": [{"k": k, "he_so": round(float(k_danh_muc(k)), 4)}
                            for k in range(1, 7)],
         "canh_bao": [
@@ -542,6 +567,85 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
             "Conformal phủ thiếu ~1 điểm phần trăm khi tài khoản đang lỗ "
             "(90,3% ở đỉnh vốn → 89,3% khi lỗ) — đo được, chưa vá.",
         ]})
+
+
+def xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer):
+    """XUAT XU TUNG CON SO tren phieu rui ro.
+
+    Nha dau tu chi tin duoc neu thay: con so nay ra tu CONG THUC nao, uoc tren
+    BAO NHIEU mau, va cai gi CHUNG MINH no dung. Cot cuoi la chi so da do —
+    QLIKE/MAE/CRPS/PIT cho tang sigma, ty le phu thuc te cho tang khoang, so
+    lan cham stop cho tang truot gia. Khong dong nao la tham so dat tay.
+    """
+    import json
+    f = os.path.join(ROOT, "output", "chiso_mohinh.json")
+    C = json.load(open(f, encoding="utf-8")) if os.path.exists(f) else {}
+    q = ((C.get("cap") or {}).get(pair) or {}).get("kiểm tra") or {}
+    g = (C.get("gop") or {}).get("kiểm tra") or {}
+    r2 = lambda v, n=2: None if v is None else round(float(v), n)
+
+    return {
+        "doan_do": "kiểm tra (2023-11-20 → nay), chưa từng dùng để khớp",
+        "n_sigma": q.get("n"), "n_z": int(len(z_tr)),
+        "muc": [
+            {"ten": "σ̂ — biên độ dao động dự kiến",
+             "cong_thuc": "HAR vòng 7: log RV = f(ngày, tuần, tháng) + hiệu chỉnh "
+                          "realized quarticity + semivariance ± + bipower/jump + "
+                          "lịch NHTW riêng từng cặp",
+             "de_hieu": "Dự đoán hôm nay giá sẽ dao động bao nhiêu pip, dựa trên mức "
+                        "dao động của hôm qua, tuần qua, tháng qua, cộng thêm ngày họp "
+                        "ngân hàng trung ương đã biết trước.",
+             "uoc_tren": f"{q.get('n', 0):,} phiên đoạn kiểm tra",
+             "chi_so": [("QLIKE", r2(q.get("qlike"), 4), "0 là hoàn hảo; gộp 6 cặp "
+                         f"{r2(g.get('qlike'), 4)}"),
+                        ("MAE", r2(q.get("mae_sigma_pip")), "pip — sai số tuyệt đối "
+                         "trung bình của chính σ̂"),
+                        ("RMSE", r2(q.get("rmse_sigma_pip")), "pip — phạt nặng lần "
+                         "trượt lớn"),
+                        ("CRPS", r2(q.get("crps_pip")), "pip — chấm CẢ PHÂN PHỐI, "
+                         "không chỉ điểm giữa"),
+                        ("PIT (KS p)", r2(q.get("pit_ks_p"), 4),
+                         "p < 0,05 nghĩa là hình dạng phân phối bị BÁC BỎ"),
+                        ("độ phủ 90%", r2(q.get("do_phu_90"), 4),
+                         "phải gần 0,90; thấp hơn = σ̂ hụt, khoảng quá hẹp")]},
+            {"ten": "Dừng lỗ = 2 σ̂",
+             "cong_thuc": "quét 1,0–4,0 σ̂ trên lưới, chọn theo tiền cuối kỳ có "
+                          "trừ trượt giá thật",
+             "de_hieu": "Thử mọi khoảng dừng lỗ từ hẹp tới rộng trên toàn bộ lịch sử, "
+                        "chọn khoảng cho nhiều tiền nhất SAU KHI đã trừ phí và trượt giá.",
+             "uoc_tren": "docs/TANG6B_DUNGTOIUU.md — 60.617 lần chạm stop đã đo trượt giá",
+             "chi_so": [("hệ số cắt", 0.92, "trượt giá thực làm mất 8% so với giả "
+                         "định khớp đúng giá stop")]},
+            {"ten": "P(chạm dừng lỗ) theo tầm hạn",
+             "cong_thuc": "mô phỏng chạm rào trên PHÂN PHỐI z THỰC NGHIỆM (không "
+                          "giả định chuẩn), ngưỡng 2σ̂/√h",
+             "de_hieu": "Đếm trên dữ liệu thật xem giá đã chạm mức dừng lỗ đó bao nhiêu "
+                        "lần, chứ không giả định giá đi theo đường cong lý thuyết.",
+             "uoc_tren": f"{len(z_tr):,} phiên huấn luyện của chính cặp này",
+             "chi_so": [("bậc tự do t", r2(nu), "đuôi càng dày ν càng nhỏ; ν<10 là "
+                         "đuôi rất dày")]},
+            {"ten": "Kelly",
+             "cong_thuc": "f* = lợi thế / σ̂² — lợi thế lấy từ CARRY đo được, "
+                          "KHÔNG dùng dự báo hướng",
+             "de_hieu": "Cỡ lệnh tối ưu về dài hạn. Lợi thế duy nhất hệ thống dùng là "
+                        "chênh lệch lãi suất giữa hai đồng tiền — KHÔNG dùng dự đoán hướng.",
+             "uoc_tren": "carry trung vị 260 phiên gần nhất của cặp này",
+             "chi_so": [("carry", r2(1e4 * cr), "bp/ngày")]},
+            {"ten": "Trần rủi ro phá sản",
+             "cong_thuc": "ngân sách phá sản 1% trên chuỗi tổn thất đuôi t(ν), "
+                          "rồi nhân hệ số trượt giá 0,92",
+             "de_hieu": "Trần cứng: cỡ lệnh lớn nhất mà xác suất cháy tài khoản vẫn "
+                        "dưới 1%, đã tính cả những phiên giá nhảy bất thường.",
+             "uoc_tren": "toàn mạch ~26 năm, mọi cấu hình đều không cháy tài khoản",
+             "chi_so": [("vốn cuối", "1,004–1,037", "lần — lợi thế NHỎ, đây là sự thật")]},
+            {"ten": "Hệ số danh mục 1/√(k+k(k−1)ρ)",
+             "cong_thuc": "ρ hiệu dụng đo theo chế độ; căng thẳng thì ρ nhảy lên",
+             "de_hieu": "Sáu cặp đều có USD nên chúng cùng thắng cùng thua. Mở nhiều "
+                        "lệnh thì phải thu nhỏ từng lệnh, nếu không rủi ro cộng dồn.",
+             "uoc_tren": "docs/TANG4_DANHMUC.md",
+             "chi_so": [("không cắt", "73,6%", "xác suất phá sản khi mở 6 lệnh cùng "
+                         "chiều USD mà không thu nhỏ — thay vì 1%")]},
+        ]}
 
 
 @app.get("/models")
@@ -563,6 +667,18 @@ def models():
                       ("su_kien", "sukien_profile.json")):
         f = os.path.join(ROOT, "output", ten)
         ra[khoa] = json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None
+
+    # TRONG SO SONG cua tang to hop truc tuyen — bang chung nhin thay duoc rang
+    # he thong dang hoc: chuyen gia nao vua sai nhieu thi trong so tut xuong.
+    ts = {}
+    for p_ in PAIRS:
+        try:
+            K = lay(p_)
+        except Exception:
+            continue
+        ts[p_] = {str(h): K["xs"][h].get("trong_so") for h in HS}
+    ra["trong_so_truc_tuyen"] = {"nen_theo_h": {str(k): v for k, v in NEN_THEO_H.items()},
+                                 "theo_cap": ts}
     return ra
 
 

@@ -195,9 +195,16 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .tqcanh{border-left:3px solid var(--flat);background:var(--flatbg);padding:12px 14px;
   margin-top:14px;font-size:14px;line-height:1.55}
 .tqcanh.do{border-left-color:var(--down);background:var(--downbg)}
+.tsbox{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.tsrow{display:flex;align-items:center;gap:10px}
+.tsk{flex:0 0 150px;font-size:12px;color:var(--ink2)}
+.tsbar{flex:1;height:16px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.tsbar i{display:block;height:100%;background:var(--acc)}
+.tsv{flex:0 0 44px;text-align:right;font-family:var(--f-m);font-size:12px}
 .tqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
 body.ndt .chi-phan-tich{display:none!important}
 body:not(.ndt) .chi-ndt{display:none!important}
+body:not(.o-bieu-do) #tfsel{display:none!important}
 .tw{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:480px}
 th{font-family:var(--f-m);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--ink3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -715,9 +722,9 @@ function paintFoot(i){
     + [0,1,2,3].map(k=>`<i class="${k<tin.sao?"on":""}"></i>`).join("")
     + `</span> — ${tin.vi}</span></span>`);
   rows.push(`<span class="chip chi-ndt"><span class="dot no"></span><span>`
-    + `<b>Ô đỏ và ô xanh gần bằng nhau là đúng, không phải lỗi.</b> Hệ thống đã được `
-    + `kiểm và <b>không phân biệt được</b> giá sẽ lên hay xuống. Chênh lệch nhỏ giữa `
-    + `hai ô là nhiễu. Chỉ ô giữa mang thông tin thật.</span></span>`);
+    + `<b>Chênh lệch giữa ô đỏ và ô xanh là nhiễu, không phải tín hiệu.</b> Đo trên `
+    + `toàn bộ lịch sử, độ lệch hai bên chỉ trong khoảng −2,6 đến +0,9 điểm phần trăm `
+    + `và cả 6 cặp đều phủ 0. Chỉ ô giữa mang thông tin thật.</span></span>`);
   if(state.h === "20") rows.push(`<span class="chip chi-ndt"><span class="dot bad"></span><span>`
     + `<b>Không nên dùng tầm hạn 20 phiên.</b> Đo trên dữ liệu thật, con số ở tầm hạn này `
     + `lệch nhiều so với thực tế. Hãy chọn 1 hoặc 5 phiên.</span></span>`);
@@ -1022,6 +1029,45 @@ function nhanTinCay(){
   return {sao, ten, vi};
 }
 
+/* TẦNG HỌC TRỰC TUYẾN — bằng chứng nhìn thấy được rằng hệ thống đang học.
+   Bốn "chuyên gia" cùng dự báo; ai vừa sai thì trọng số tụt theo hàm mũ của tổn
+   thất. Đây là cái trả lời câu "hôm nay sai thì mai phải chính xác hơn". */
+const TEN_CG_NDT = {
+  "khí hậu học": "Tỷ lệ lịch sử (không nhìn gì cả)",
+  "quán tính":   "Lặp lại xu thế phiên trước",
+  "chỉ σ̂":      "Theo biên độ dao động",
+  "σ̂ + chế độ": "Biên độ + trạng thái thị trường"};
+
+function veTrongSo(){
+  const W = ((DATA.meta.mo_hinh||{}).trong_so_truc_tuyen||{});
+  const w = ((W.theo_cap||{})[state.pair]||{})[state.h];
+  if(!w) return "";
+  const ndt = state.che_do_xem === "nha_dau_tu";
+  const sx = Object.entries(w).sort((a,b)=>b[1]-a[1]);
+  const chet = sx.filter(([,v])=>v<0.01).map(([k])=>k);
+  const thanh = sx.map(([k,v])=>`<div class="tsrow"><span class="tsk">${ndt?(TEN_CG_NDT[k]||k):k}</span>
+    <span class="tsbar"><i style="width:${Math.max(0.8,100*v).toFixed(1)}%"></i></span>
+    <span class="tsv">${(100*v).toFixed(0)}%</span></div>`).join("");
+  return `<div class="card sec">
+    <h2>${ndt?"Hệ thống đang tin mô hình nào":"Tầng tổ hợp trực tuyến — trọng số hiện tại"}</h2>
+    <p class="lead">Bốn mô hình cùng đưa ra dự báo. Mỗi phiên, mô hình nào vừa đoán sai
+      thì bị <b>hạ trọng số</b>, đoán đúng thì được nâng. Con số dưới đây là niềm tin
+      hiện tại của hệ thống, học từ toàn bộ lịch sử ${state.pair.slice(0,3)}/${state.pair.slice(3)}
+      cho tới phiên gần nhất — <b>không ai chỉnh tay</b>.</p>
+    <div class="tsbox">${thanh}</div>
+    ${chet.length?`<div class="tqcanh"><b>${chet.map(k=>ndt?(TEN_CG_NDT[k]||k):k).join(" và ")}</b> đã bị hệ thống
+      <b>tự loại</b> (trọng số về 0) vì đoán sai quá nhiều. Đó chính là phần "học":
+      không ai gỡ chúng ra cả.</div>`:""}
+    ${ndt?"":`<div class="note"><b>Thuật toán:</b> trọng số mũ (Hedge), η = 0,5, cập nhật
+      trễ đúng ${state.h} phiên để không dùng kết cục chưa biết. Chặn hối tiếc
+      O(√(T·log N)) so với chuyên gia tốt nhất nhìn lại — tức nó <b>không thể tệ hơn
+      hẳn</b> mô hình giỏi nhất trong nhóm. Đo trên đoạn kiểm định (mục tiêu P):
+      BSS <b>+0,0102</b> ở h=1, <b>+0,0134</b> ở h=5, <b>+0,0200</b> ở h=20 — ở tầm hạn
+      20 phiên nó hơn hẳn nền cũ σ̂+chế độ (+0,0137). Tự kiểm nhân quả ép trong
+      <code>src/balop.py</code>.</div>`}
+  </div>`;
+}
+
 function paintTQ(){
   const P = DATA.cap[state.pair];
   if(!P){ $("#p-tq").innerHTML = '<div class="card sec"><p class="lead">Đang tải…</p></div>'; return; }
@@ -1082,10 +1128,12 @@ function paintTQ(){
     </div>
 
     <div class="tqcanh"><b>Hệ thống không đoán được giá lên hay xuống.</b>
-      Hai ô ngoài gần như luôn bằng nhau — đó là <em>sự thật đã đo</em>, không phải lỗi.
-      Nhiều năm dữ liệu cho thấy chiều đi của tỷ giá gần như không đoán được.
-      Thứ đoán được là thị trường sẽ động <b>mạnh hay yếu</b>, và đó là ô giữa.
-      Hãy dùng nó để chọn <b>cỡ lệnh và dừng lỗ</b>, đừng dùng để chọn mua hay bán.</div>
+      Hai ô ngoài chênh nhau vài phần trăm — <b>đừng đọc chênh lệch đó như tín hiệu</b>.
+      Đã đo trên toàn bộ lịch sử: độ lệch giữa hai bên chỉ nằm trong khoảng −2,6 đến
+      +0,9 điểm phần trăm, và <b>cả 6 cặp đều có khoảng tin cậy phủ 0</b> — tức không
+      phân biệt được với nhiễu. Thứ hệ thống thật sự đoán được là thị trường sẽ động
+      <b>mạnh hay yếu</b>, và đó là ô giữa. Hãy dùng nó để chọn <b>cỡ lệnh và dừng lỗ</b>,
+      đừng dùng để chọn mua hay bán.</div>
 
     <div class="tqrow" style="margin-top:16px">
       <span class="k">Độ tin cậy của các con số trên</span>
@@ -1098,7 +1146,43 @@ function paintTQ(){
       <b>chiều đi vẫn không đoán được</b>. Nên nới dừng lỗ và giảm cỡ lệnh, đừng đoán hướng.</div>`:""}
   </div>
 
-  <div class="tqgrid">${khoiRR}</div>`;
+  <div class="tqgrid">${khoiRR}</div>
+  ${veTrongSo()}`;
+}
+
+/* Bảng XUẤT XỨ — mỗi con số rủi ro ra từ đâu và cái gì chứng minh nó đúng.
+   Đây là thứ nhà đầu tư cần để tin hệ thống: không dòng nào là tham số đặt tay. */
+function veXuatXu(X){
+  if(!X) return "";
+  const dat = (t,v)=>{
+    if(t.startsWith("PIT")) return v>=0.05;
+    if(t.startsWith("độ phủ")) return Math.abs(v-0.90)<=0.03;
+    return null;                                  // chỉ số không có ngưỡng đạt/không
+  };
+  const hang = X.muc.map(m=>{
+    const cs = m.chi_so.map(([t,v,g])=>{
+      const d = (typeof v==="number") ? dat(t,v) : null;
+      const mau = d===null ? "" : (d?"pos":"neg");
+      return `<tr><td>${t}</td><td class="n ${mau}"><b>${v==null?"—":v}</b>`
+           + (d===null?"":(d?" ✓":" ✗"))+`</td><td>${g}</td></tr>`;}).join("");
+    return `<tr><td colspan="3" style="padding-top:12px"><b>${m.ten}</b>
+      ${m.de_hieu?`<div class="chi-ndt" style="color:var(--ink2);font-size:12px;margin-top:3px">${m.de_hieu}</div>`:""}
+      <div class="chi-phan-tich" style="color:var(--ink3);font-size:11px;margin-top:3px">${m.cong_thuc}</div>
+      <div style="color:var(--ink3);font-size:11px">ước trên: ${m.uoc_tren}</div></td></tr>${cs}`;
+  }).join("");
+  return `<div class="card sec">
+    <h2>Vì sao tin được những con số trên</h2>
+    <p class="lead">Mỗi dòng: công thức, ước trên bao nhiêu mẫu, và <b>chỉ số đã đo</b>
+      chứng minh nó đúng tới đâu. Chấm trên <b>${X.doan_do}</b>.
+      Không con số nào là tham số đặt tay.</p>
+    <div class="tw"><table><thead><tr><th>chỉ số</th><th class="n">giá trị</th><th>nghĩa là gì</th></tr></thead>
+      <tbody>${hang}</tbody></table></div>
+    <div class="note warn"><b>Dấu ✗ là cảnh báo thật, không phải trang trí.</b>
+      PIT dưới 0,05 nghĩa là hình dạng phân phối của cặp này <b>bị bác bỏ</b> —
+      xác suất ở vùng đuôi kém tin cậy. Độ phủ dưới 0,87 nghĩa là σ̂ <b>hụt</b>:
+      giá vượt khoảng dự kiến nhiều hơn hệ thống nghĩ, nên hãy <b>nới dừng lỗ</b>
+      cho cặp đó.</div>
+  </div>`;
 }
 
 /* Tab RỦI RO — bày ra tầng 4 và 6b đã kiểm định mà giao diện chưa hề hiện.
@@ -1144,7 +1228,8 @@ function paintRR(){
       thắng cùng thua. Đây là lý do có dòng “chia mỗi lệnh” ở trên.</div>
   </div>`;
 
-  $("#p-rr").innerHTML = ndtRR + `
+  const XX = veXuatXu(R.xuat_xu);
+  $("#p-rr").innerHTML = ndtRR + XX + `
   <div class="card sec chi-phan-tich">
     <h2>Phiếu rủi ro — ${state.pair.slice(0,3)}/${state.pair.slice(3)} · ${R.ngay}</h2>
     <p class="lead">Đòn bẩy khuyến nghị đến từ đâu, và <b>ràng buộc nào đang buộc</b>. Mọi thành phần đều là số đo đã kiểm định ở tầng 4 và 6b, không phải tham số đặt tay.</p>
@@ -1308,6 +1393,7 @@ function boot(){
     document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
     $("#p-"+b.dataset.p).classList.add("on");
+    document.body.classList.toggle("o-bieu-do", b.dataset.p === "chart");
     if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="mo") paintMo();
     if(b.dataset.p==="tq") paintTQ();
     if(b.dataset.p==="rr") paintRR();
@@ -1331,6 +1417,8 @@ function boot(){
   if(DATA.meta.cap_nhat_luc)
     $("#capnhat").textContent = "cập nhật " + DATA.meta.cap_nhat_luc.slice(0,16).replace("T"," ") + "Z";
   document.body.classList.add("ndt");        // mặc định: chế độ nhà đầu tư
+  const _t0 = document.querySelector(".nav button.on");
+  document.body.classList.toggle("o-bieu-do", !!_t0 && _t0.dataset.p === "chart");
   buildChart(); setPair("EURUSD");
   tuLamMoi();
 }

@@ -65,6 +65,16 @@ def chuan_bi(h):
                 "chỉ σ̂": ns.du_bao(n, canh=canh, sigma_h=T["sigma_h"], sig=sig),
                 "σ̂ + chế độ": cd.du_bao(n, canh=canh, sigma_h=T["sigma_h"], sig=sig),
             }
+            # NEN 5 — to hop truc tuyen tren chinh bon nen tren. Chay MOT LAN
+            # tu dau chuoi: trong so hoc dan tu ket cuc DA BIET, tre dung h
+            # phien. Khong khop gi tren kiem dinh, nen khong ro ri.
+            th = B.ToHopTrucTuyen(
+                [("khí hậu học", kh), ("quán tính", qt),
+                 ("chỉ σ̂", ns), ("σ̂ + chế độ", cd)], tre=h)
+            P["tổ hợp trực tuyến"] = th.du_bao(
+                n, y_that=y_all, canh=canh, sigma_h=T["sigma_h"], sig=sig,
+                y_truoc=yt)
+            tham[p][f"trong_so_{mt}"] = th.trong_so
             m = va & (y_all >= 0)
             ra[mt]["y"].append(y_all[m])
             ra[mt]["cap"].append(np.full(int(m.sum()), p))
@@ -81,7 +91,8 @@ def chuan_bi(h):
     return ra, tham
 
 
-TEN_NEN = ("khí hậu học", "quán tính", "chỉ σ̂", "σ̂ + chế độ")
+TEN_NEN = ("khí hậu học", "quán tính", "chỉ σ̂", "σ̂ + chế độ",
+           "tổ hợp trực tuyến")
 CHE_DO_TEN = ("bình tĩnh", "vừa", "căng thẳng")
 
 # Do dai khoi cho bootstrap. Voi tam han h, cac cua so CHONG LAN nhau h phien
