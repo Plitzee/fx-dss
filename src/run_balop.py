@@ -65,12 +65,26 @@ def chuan_bi(h):
                 "chỉ σ̂": ns.du_bao(n, canh=canh, sigma_h=T["sigma_h"], sig=sig),
                 "σ̂ + chế độ": cd.du_bao(n, canh=canh, sigma_h=T["sigma_h"], sig=sig),
             }
+            # NEN 6/7 — CUA SO MO RONG: khop lai phan phoi z va nguong che do
+            # moi ~1 thang tren TOAN BO qua khu, thay vi dong bang o 2021-10.
+            P["chỉ σ̂ (cuộn)"] = B.du_bao_cuon(
+                T, sig, lambda z, sg: B.ChiSigma().khop(z))
+            P["σ̂ + chế độ (cuộn)"] = B.du_bao_cuon(
+                T, sig, lambda z, sg: B.SigmaCheDo().khop(z, sg))
+            # cac phien dau chua du dam thi roi ve nen dong bang tuong ung
+            for tc, tg in (("chỉ σ̂ (cuộn)", "chỉ σ̂"),
+                           ("σ̂ + chế độ (cuộn)", "σ̂ + chế độ")):
+                thieu = ~np.isfinite(P[tc][:, 0])
+                P[tc][thieu] = P[tg][thieu]
+
             # NEN 5 — to hop truc tuyen tren chinh bon nen tren. Chay MOT LAN
             # tu dau chuoi: trong so hoc dan tu ket cuc DA BIET, tre dung h
             # phien. Khong khop gi tren kiem dinh, nen khong ro ri.
             th = B.ToHopTrucTuyen(
                 [("khí hậu học", kh), ("quán tính", qt),
-                 ("chỉ σ̂", ns), ("σ̂ + chế độ", cd)], tre=h)
+                 ("chỉ σ̂", B.NenCoSan("chỉ σ̂", P["chỉ σ̂ (cuộn)"])),
+                 ("σ̂ + chế độ", B.NenCoSan("σ̂ + chế độ", P["σ̂ + chế độ (cuộn)"]))],
+                tre=h)
             P["tổ hợp trực tuyến"] = th.du_bao(
                 n, y_that=y_all, canh=canh, sigma_h=T["sigma_h"], sig=sig,
                 y_truoc=yt)
@@ -92,7 +106,7 @@ def chuan_bi(h):
 
 
 TEN_NEN = ("khí hậu học", "quán tính", "chỉ σ̂", "σ̂ + chế độ",
-           "tổ hợp trực tuyến")
+           "chỉ σ̂ (cuộn)", "σ̂ + chế độ (cuộn)", "tổ hợp trực tuyến")
 CHE_DO_TEN = ("bình tĩnh", "vừa", "căng thẳng")
 
 # Do dai khoi cho bootstrap. Voi tam han h, cac cua so CHONG LAN nhau h phien

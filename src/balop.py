@@ -288,6 +288,69 @@ class SigmaCheDo:
         return _chuan(P)
 
 
+# ── cua so mo rong cho tang ba lop ──────────────────────────────────────
+BUOC_KHOP = 21          # khop lai moi ~1 thang giao dich
+DAM_TOI_THIEU = 750     # can bao nhieu quan sat truoc khi duoc phep du bao
+
+
+class NenCoSan:
+    """Boc mot mang du bao DA TINH SAN thanh doi tuong co .du_bao().
+
+    Dung de dua ket qua cua so mo rong vao tang to hop ma khong phai khop lai."""
+
+    def __init__(self, ten, P, mo_cuoi=None):
+        self.ten, self.P = ten, np.asarray(P, float)
+        self.mo_cuoi = mo_cuoi
+
+    def khop(self, *a, **k):
+        return self
+
+    def du_bao(self, n, **kw):
+        return self.P[:n]
+
+    def du_bao_ke_tiep(self, **kw):
+        """Phien CHUA MO CUA khong co san trong mang — phai goi mo hinh khop
+        gan nhat. Khong co thi tra ve hang cuoi cua lich su, con hon la tra ve
+        hang DAU tien nhu `du_bao(1, ...)` se lam."""
+        if self.mo_cuoi is not None:
+            return self.mo_cuoi.du_bao(1, **kw)
+        return self.P[-1:][:]
+
+
+def du_bao_cuon(T, sig, tao_nen, buoc=BUOC_KHOP, dam=DAM_TOI_THIEU, tra_mo=False):
+    """Du bao ba lop bang CUA SO MO RONG — thay vi dong bang o cuoi huan luyen.
+
+    Tai moi moc khop lai, uoc phan phoi z va nguong che do tren TOAN BO quan
+    sat TRUOC moc do, roi du bao cho toi moc ke. Dung giao thuc ma tang sigma^
+    da chay san (volfc2 dung window=None, tuc cua so mo rong khop lai moi
+    phien) — nay hai tang moi nhat quan.
+
+    VI SAO NHAN VAO T DA DUNG SAN, KHONG DUNG lai nhan. Dinh nghia lop ("di
+    ngang" nghia la gi, dai b rong bao nhieu) la QUYET DINH SAN PHAM, khong
+    phai bai toan uoc luong: o vang khong duoc doi nghia duoi chan nguoi dung,
+    va giu nhan co dinh moi so sanh duoc dong bang voi cuon mot cach cong bang.
+    Cai duoc cuon la phan UOC LUONG XAC SUAT.
+
+    NHAN QUA: khoi [t0, t0+buoc) chi dung mo hinh khop tren < t0. Tu kiem ep.
+    """
+    z, canh, sh = T["z"], T["canh_P"], T["sigma_h"]
+    n = len(z)
+    P = np.full((n, 3), np.nan)
+    sig = np.asarray(sig, float)
+    mo_cuoi = None
+    for t0 in range(dam, n, buoc):
+        ok = np.zeros(n, bool)
+        ok[:t0] = True
+        ok &= np.isfinite(z) & np.isfinite(sig) & (sig > 0)
+        if ok.sum() < dam:
+            continue
+        mo = tao_nen(z[ok], sig[ok])
+        mo_cuoi = mo
+        Pb = mo.du_bao(n, canh=canh, sigma_h=sh, sig=sig)
+        P[t0:min(t0 + buoc, n)] = Pb[t0:min(t0 + buoc, n)]
+    return (P, mo_cuoi) if tra_mo else P
+
+
 class ToHopTrucTuyen:
     """NEN 5 — HOC TRUC TUYEN (Hedge / trong so mu).
 
@@ -354,7 +417,8 @@ class ToHopTrucTuyen:
         va vut bo toan bo phan da hoc."""
         if not hasattr(self, "trong_so"):
             raise RuntimeError("phải chạy du_bao() trên lịch sử trước")
-        A = np.stack([m.du_bao(1, **kw) for _, m in self.cg])[:, 0, :]
+        A = np.stack([(m.du_bao_ke_tiep(**kw) if hasattr(m, "du_bao_ke_tiep")
+                       else m.du_bao(1, **kw)) for _, m in self.cg])[:, 0, :]
         w = np.array([self.trong_so[t] for t, _ in self.cg], float)
         return _chuan((w[:, None] * A).sum(0)[None, :])
 
@@ -404,6 +468,24 @@ def _tu_kiem_to_hop():
     return dict(hoi_tiec=float(lt - lc), chan=float(can), trong_so=mo.trong_so)
 
 
+def _tu_kiem_cuon(d, h=1):
+    """Nhan qua: sua du lieu o CUOI chuoi khong duoc doi du bao o dau chuoi."""
+    tr = doan(d.Date.values) == 0
+    T = dung_muc_tieu(d, h, tr)
+    sig = d.sig.values
+    tao = lambda z, s: ChiSigma().khop(z)
+    P1 = du_bao_cuon(T, sig, tao)
+    T2 = {k: (v.copy() if isinstance(v, np.ndarray) else v) for k, v in T.items()}
+    n = len(sig)
+    T2["z"][-BUOC_KHOP:] = T2["z"][-BUOC_KHOP:] * 3.0 + 7.0   # pha hoai duoi chuoi
+    P2 = du_bao_cuon(T2, sig, tao)
+    m = np.isfinite(P1[:, 0]) & np.isfinite(P2[:, 0])
+    cat = n - 2 * BUOC_KHOP
+    assert np.allclose(P1[:cat][m[:cat]], P2[:cat][m[:cat]]), "RO RI: tuong lai doi qua khu"
+    phu = float(np.isfinite(P1[:, 0]).mean())
+    return dict(phu=phu, so_lan_khop=len(range(DAM_TOI_THIEU, n, BUOC_KHOP)))
+
+
 if __name__ == "__main__":
     import diem3 as D
 
@@ -416,6 +498,9 @@ if __name__ == "__main__":
     print(f"  {len(B)} cặp, {sum(len(d) for d in B.values()):,} phiên panel")
 
     d = B["EURUSD"]
+    kc = _tu_kiem_cuon(d)
+    print(f"  cửa sổ mở rộng: nhân quả ĐẠT · {kc['so_lan_khop']} lần khớp lại · "
+          f"phủ {kc['phu']:.1%} số phiên")
     tr = doan(d.Date.values) == 0
     va = doan(d.Date.values) == 1
 

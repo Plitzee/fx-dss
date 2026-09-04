@@ -48,15 +48,20 @@ PAIRS = B.PAIRS
 MOC_NOI = pd.Timestamp("2026-01-01")
 PIP = {"USDJPY": 0.01}
 HS = (1, 5, 20)
-# Chon tren doan KIEM DINH (output/nen3.json), khong phai tren kiem tra:
-#   h=1   chi sigma +0,0105 · to hop +0,0102 · sigma+che do +0,0098   (hoa)
-#   h=5   sigma+che do +0,0137 · to hop +0,0134                        (hoa)
-#   h=20  TO HOP +0,0200 [+0,0065] · sigma+che do +0,0137 [+0,0005]    (thang ro)
-# To hop khong thua o dau, thang ro o tam han dang hong nhat, va ECE tot nhat o
-# h=1 va h=5. Them vao do no co CHAN HOI TIEC va tu ha trong so chuyen gia hong
-# khi che do troi — thu ma nen co dinh khong lam duoc. Nen dung no ca ba tam han.
-NEN_THEO_H = {1: "tổ hợp trực tuyến", 5: "tổ hợp trực tuyến",
-              20: "tổ hợp trực tuyến"}
+# Chon theo DIEM LOG tren doan KIEM DINH (output/nen3.json). Cua so mo rong —
+# khop lai phan phoi z moi ~21 phien tren TOAN BO qua khu thay vi dong bang o
+# 2021-10 — cai thien TUNG NEN mot cach nhat quan (6/6 khong xau di, ECE tot
+# hon 5/6). Nhung to hop truc tuyen thi XAU DI ro o tam han dai khi chuyen gia
+# cua no tro thanh nen cuon: h=5 tut +0,0134 -> +0,0089, h=20 tut +0,0200 ->
+# +0,0055. Do la ket qua do duoc, khong giau.
+#   h=1   TO HOP (chuyen gia cuon)  log 1,0866 · BSS +0,0107 · MCE 0,0611
+#   h=5   SIGMA+CHE DO (cuon)       log 1,0804 · BSS +0,0148 · MCE 0,0471
+#   h=20  SIGMA+CHE DO (cuon)       log 1,0744 · BSS +0,0148 · MCE 0,2058  (*)
+# (*) h=20 danh doi that: BSS +0,0137 -> +0,0148 nhung MCE 0,138 -> 0,206. Quy
+#     tac chon da chot TRUOC la diem log, nen van lay ban cuon; MCE xau di phai
+#     bao cao tren giao dien va la viec cua lop hieu chuan lai o vong sau.
+NEN_THEO_H = {1: "tổ hợp trực tuyến", 5: "σ̂ + chế độ (cuộn)",
+              20: "σ̂ + chế độ (cuộn)"}
 
 app = FastAPI(title="FX-DSS API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -163,12 +168,28 @@ def tinh(p):
         qt = B.QuanTinh().khop(T["yP"][tr], yt[tr])
         kw = dict(canh=T["canh_P"], sigma_h=T["sigma_h"], sig=pan.sig.values,
                   y_truoc=yt)
-        if NEN_THEO_H[h] == "tổ hợp trực tuyến":
+        # cua so mo rong cho hai nen sigma^ — khop lai moi ~21 phien
+        Pns, mo_ns = B.du_bao_cuon(T, pan.sig.values,
+                                   lambda z, sg: B.ChiSigma().khop(z), tra_mo=True)
+        Pcd, mo_cd = B.du_bao_cuon(T, pan.sig.values,
+                                   lambda z, sg: B.SigmaCheDo().khop(z, sg), tra_mo=True)
+        for Pc, nen in ((Pns, ns), (Pcd, cd)):     # dam dau chuoi: dung ban dong bang
+            thieu = ~np.isfinite(Pc[:, 0])
+            if thieu.any():
+                Pc[thieu] = nen.du_bao(n, **kw)[thieu]
+        ns_c = B.NenCoSan("chỉ σ̂ (cuộn)", Pns, mo_ns or ns)
+        cd_c = B.NenCoSan("σ̂ + chế độ (cuộn)", Pcd, mo_cd or cd)
+
+        if NEN_THEO_H[h] == "σ̂ + chế độ (cuộn)":
+            mo, P = cd_c, Pcd
+        elif NEN_THEO_H[h] == "chỉ σ̂ (cuộn)":
+            mo, P = ns_c, Pns
+        elif NEN_THEO_H[h] == "tổ hợp trực tuyến":
             # Hoc truc tuyen: trong so cap nhat tu ket cuc DA BIET, tre dung h
             # phien. Du bao cho phien moi nhat dung trong so hoc tu toan bo qua
             # khu truoc no — dung nghia "hom qua sai thi hom nay chinh".
             mo = B.ToHopTrucTuyen([("khí hậu học", kh), ("quán tính", qt),
-                                   ("chỉ σ̂", ns), ("σ̂ + chế độ", cd)], tre=h)
+                                   ("chỉ σ̂", ns_c), ("σ̂ + chế độ", cd_c)], tre=h)
             P = mo.du_bao(n, y_that=T["yP"], **kw)
         else:
             mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd

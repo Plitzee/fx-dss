@@ -748,13 +748,15 @@ function paintFoot(i){
     const t20 = (((DATA.meta.mo_hinh||{}).tin_cay||{}).tam||{})["20"];
     const mce = t20 ? t20.gop.mce : null;
     rows.push(`<span class="chip chi-phan-tich"><span class="dot bad"></span><span>`
-      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> MCE ${mce!=null?mce.toFixed(4):"≈0,20"} — `
-      + `thùng xác suất tệ nhất lệch khoảng 20 điểm phần trăm, và ở chế độ êm nó `
-      + `từng <b>âm so với khí hậu học</b>. Nguyên nhân đo được: quy tắc √h giả định `
-      + `biến động đứng yên 20 phiên, trong khi nó hồi quy về trung bình — tỷ lệ `
-      + `(thực/dự báo) chạy từ 1,085 ở chế độ êm tới 0,770 ở chế độ căng. Đã vá bằng `
-      + `hệ số c_h riêng từng chế độ (hết âm có ý nghĩa) nhưng <b>chưa đủ</b>. `
-      + `Dùng tầm hạn 1 hoặc 5 phiên.</span></span>`);
+      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> MCE trên đoạn kiểm định là `
+      + `<b>0,206</b> — thùng xác suất tệ nhất lệch hơn 20 điểm phần trăm. `
+      + `Bản cửa sổ mở rộng ăn thêm điểm ở BSS (+0,0137 → +0,0148) nhưng `
+      + `<b>MCE lại xấu đi</b> (0,138 → 0,206). Quy tắc chọn đã chốt trước là điểm `
+      + `log nên vẫn lấy bản này, và chỗ xấu đi phải nói ra chứ không giấu. `
+      + `Nguyên nhân gốc đã đo: quy tắc √h giả định biến động đứng yên 20 phiên, `
+      + `trong khi nó hồi quy về trung bình — tỷ lệ (thực/dự báo) chạy từ 1,085 ở `
+      + `chế độ êm tới 0,770 ở chế độ căng. <b>Dùng tầm hạn 1 hoặc 5 phiên.</b>`
+      + `</span></span>`);
   }
 
   const sd = (DATA.so_dubao||{})[state.h];
