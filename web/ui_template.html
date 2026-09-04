@@ -292,7 +292,7 @@ const pct = v => (100*v).toFixed(1) + "%";
 const state = {pair:"EURUSD", tf:"D1", h:"1", i:0, duoi:"rsi",
   ind:{ema:true, st:false, bb:false, kc:false, dc:false, ich:false, vwap:false,
        sr:false, fvg:false, swing:false, quet:false, band:true, ev:false}};
-let chart, rsiChart, sCandle, sBandU, sBandL, LINE={}, DUOI={};
+let chart, rsiChart, sCandle, sLine, sBandU, sBandL, LINE={}, DUOI={};
 
 /* ── theme ── */
 function curTheme(){
@@ -381,6 +381,12 @@ function buildChart(){
     borderVisible:true, wickVisible:true,
     priceLineVisible:true, priceLineWidth:1, priceLineStyle:2,
     priceLineColor:css("--ink3"), lastValueVisible:true});
+  // Nguon co the KHONG co OHLC that o khung rat ngan. Do duoc: 100% thanh 1
+  // phut cua Yahoo co o=h=l=c, tuc bien do dung bang 0 — ve nen thi ra mot
+  // hang doji vo hinh. Nen giu san mot chuoi ĐƯỜNG de doi sang khi gap.
+  sLine = chart.addLineSeries({color:css("--nen-tang"), lineWidth:2,
+    priceLineVisible:true, priceLineStyle:2, priceLineColor:css("--ink3"),
+    lastValueVisible:true});
   LINE = {};
   const L = (id,màu,rong,kieu)=> LINE[id] = chart.addLineSeries(
       {color:màu, lineWidth:rong||1, lineStyle:kieu||0, priceLineVisible:false, lastValueVisible:false});
@@ -520,7 +526,19 @@ async function paintChart(){
   // dinh dang; K.ngay giu 'YYYY-MM-DD' de do ve du bao NGAY.
   chart.applyOptions({timeScale:{timeVisible: state.tf!=="D1", secondsVisible:false},
     watermark:{text: state.pair.slice(0,3)+"/"+state.pair.slice(3)+"  "+state.tf}});
-  sCandle.setData(K.t.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
+  // Đo tỷ lệ thanh có o=h=l=c. Nếu quá nửa thì nguồn không cung cấp OHLC
+  // thật ở khung này — vẽ nến là vẽ một hàng doji vô hình, nên chuyển sang
+  // đường và NÓI RÕ trên tiêu đề thay vì để người dùng tưởng biểu đồ hỏng.
+  let bang = 0;
+  for(let i=0;i<K.c.length;i++) if(K.o[i]===K.h[i] && K.h[i]===K.l[i] && K.l[i]===K.c[i]) bang++;
+  const suyBien = K.c.length>0 && bang/K.c.length > 0.5;
+  if(suyBien){
+    sCandle.setData([]); sCandle.setMarkers([]);
+    sLine.setData(K.t.map((t,i)=>({time:t, value:K.c[i]})));
+  } else {
+    sLine.setData([]);
+    sCandle.setData(K.t.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
+  }
   const V = a => K.t.map((t,i)=>(a && a[i]!=null) ? {time:t,value:a[i]} : null).filter(Boolean);
   const D = K.ind ? K.ind.duong : null;
 
@@ -557,16 +575,18 @@ async function paintChart(){
     mk = mk.concat(ct.quet.map(q=>({time:K.t[q.tai],
       position: q.chieu>0?"belowBar":"aboveBar", color:css("--flat"), shape:"square", text:"quét"})));
   mk = mk.filter(m=>m.time!=null).sort((a,b)=>(a.time>b.time)-(a.time<b.time));
-  sCandle.setMarkers(mk);
+  (suyBien ? sLine : sCandle).setMarkers(mk);
 
   // vùng S/R và khoảng trống giá vẽ bằng đường mức giá
-  (window.__mucGia||[]).forEach(l=>{ try{ sCandle.removePriceLine(l); }catch(e){} });
+  const chuoi = suyBien ? sLine : sCandle;
+  (window.__mucGia||[]).forEach(l=>{ try{ sCandle.removePriceLine(l); }catch(e){}
+                                     try{ sLine.removePriceLine(l); }catch(e){} });
   window.__mucGia = [];
-  if(ct && state.ind.sr) ct.vung.forEach(v=>window.__mucGia.push(sCandle.createPriceLine(
+  if(ct && state.ind.sr) ct.vung.forEach(v=>window.__mucGia.push(chuoi.createPriceLine(
     {price:v.gia, color:css("--ink3"), lineWidth:1, lineStyle:2, axisLabelVisible:true,
      title:"S/R ×"+v.cham})));
   if(ct && state.ind.fvg) ct.khoang_trong.forEach(g=>{
-    [g.duoi,g.tren].forEach(pr=>window.__mucGia.push(sCandle.createPriceLine(
+    [g.duoi,g.tren].forEach(pr=>window.__mucGia.push(chuoi.createPriceLine(
       {price:pr, color: g.chieu>0?css("--up"):css("--down"), lineWidth:1, lineStyle:1,
        axisLabelVisible:false, title:""})));});
 
@@ -584,7 +604,8 @@ async function paintChart(){
 
   const ten = {D1:"D1",H1:"H1",M15:"M15",M1:"M1"}[state.tf];
   $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · "+ten
-    + (K.ghi_chu ? " · " + K.ghi_chu : "");
+    + (K.ghi_chu ? " · " + K.ghi_chu : "")
+    + (suyBien ? " · CHỈ CÓ GIÁ ĐÓNG CỬA — nguồn không cung cấp OHLC ở khung này" : "");
   veOHLC(K, K.t.length-1);
 }
 
@@ -818,23 +839,44 @@ function paintEv(){
 
 function paintAbout(){
   const cb = (DATA.meta.canh_bao||[]).map(x=>`<li>${x}</li>`).join("");
-  const live = cb ? `<div class="note warn"><b>Bản chạy trực tiếp — cảnh báo của API:</b><ul style="margin:6px 0 0;padding-left:18px">${cb}</ul></div>` : "";
-  $("#p-about").innerHTML = live + `<div class="card sec">
+  const M = (DATA.meta||{}).mo_hinh||{}, Q = M.quy_luat||{};
+  $("#p-about").innerHTML = `
+  <div class="card sec">
     <h2>Hệ thống này hứa gì, và không hứa gì</h2>
-    <p class="lead">Bản MVP. Mọi con số trên giao diện đều đo từ dữ liệu trong repo — 6 cặp, 2010–2025, nến M1 gộp lên D1, giờ UTC đã hiệu chuẩn giờ mùa hè.</p>
+    <p class="lead">Mọi con số trên giao diện đo từ dữ liệu trong repo — 6 cặp, 2010 → nay, nến M1 gộp lên D1, giờ UTC đã hiệu chuẩn giờ mùa hè.</p>
     <div class="note"><b>Hứa:</b> xác suất <em>được hiệu chuẩn</em>, rủi ro đuôi được chặn, và mỗi con số truy được về nguồn.<br>
     <b>Không hứa:</b> lợi nhuận. Kiểm tra toàn mạch trên ~26 năm cho vốn cuối 1,004–1,037 và không cháy tài khoản ở mọi cấu hình. Lợi thế là <em>nhỏ</em>.</div>
-    <div class="note warn"><b>Không dự báo được hướng đi.</b> Bốn nhánh độc lập cùng kết luận: momentum Sharpe −0,16 (2010–2025) · carry −0,05 · <b>0/351</b> mẫu hướng sống sót Westfall–Young · 24/24 ô có AUC phủ 0,50. Thông tin nằm ở trục <b>biến động</b>, và ô vàng là nơi nó hiện ra.</div>
-    <h2 style="margin-top:18px">Còn thiếu trong bản MVP</h2>
+    <div class="note warn"><b>Không dự báo được hướng đi.</b> Năm nhánh độc lập cùng kết luận: momentum Sharpe −0,16 · carry −0,05 · <b>0/351</b> mẫu hướng sống sót Westfall–Young · 24/24 ô có AUC phủ 0,50 · và khai phá quy luật cho <b>${(Q.tho||0).toLocaleString("vi")} → ${Q.wy||0} → ${Q.sau_dieu_kien||0}</b>. Thông tin nằm ở trục <b>biến động</b>, và ô vàng là nơi nó hiện ra.</div>
+
+    <h2 style="margin-top:20px">Đã làm xong kể từ bản MVP đầu</h2>
     <div class="tw"><table><tbody>
-      <tr><td><b>Xác thực thật</b></td><td>màn hình đăng nhập là minh hoạ; Argon2id + phiên Postgres ở giai đoạn 5</td></tr>
-      <tr><td><b>Thư viện quy luật</b></td><td>giai đoạn 2 — hiện chỉ có nền "chỉ σ̂" và "σ̂ + chế độ"; chưa quy luật khai phá nào được áp</td></tr>
-      <tr><td><b>Dữ liệu hằng ngày</b></td><td>chuỗi dừng ở 2025-12-31; bộ tải Dukascospy .bi5 chưa viết</td></tr>
-      <tr><td><b>Sổ dự báo</b></td><td>chưa có, nên thanh hiệu chuẩn là số tĩnh đo trên kiểm định chứ chưa trượt theo thời gian thật</td></tr>
-      <tr><td><b>Chỉ báo</b></td><td>EMA/Bollinger/RSI tính ở trình duyệt cho bản MVP; kế hoạch là tính ở backend để chỉ báo và quy luật dùng chung một bộ mã</td></tr>
-      <tr><td><b>Đoạn kiểm tra</b></td><td>chưa mở — mọi số hiển thị đo trên đoạn kiểm định, đúng luật <code>src/split.py</code></td></tr>
+      <tr><td><b>Dữ liệu hằng ngày</b></td><td>đã nối — chuỗi tới hôm nay, cập nhật 4 lần/ngày qua GitHub Action. Nguồn Yahoo (<b>không chính thức</b>); mối nối với HistData lệch trung vị 0,20–3,40 pip tuỳ cặp, đã đo và công bố</td></tr>
+      <tr><td><b>Sổ dự báo</b></td><td>đã dựng, chỉ-ghi-thêm, ba luật có tự kiểm ép. Đang <b>tích luỹ</b> — cần ~30 phiên đã chấm để thanh hiệu chuẩn trượt theo thời gian thật</td></tr>
+      <tr><td><b>Chỉ báo</b></td><td>29 chỉ báo tính ở <b>backend</b> (<code>src/chibao.py</code>), kèm kiểm nhân quả — chỉ báo và quy luật dùng chung một bộ mã</td></tr>
+      <tr><td><b>Thư viện quy luật</b></td><td>giai đoạn 2 <b>đã chạy</b>: ${(Q.khong_gian||0).toLocaleString("vi")} giả thuyết liệt kê đầy đủ → ${Q.wy||0} sống sót Westfall–Young → <b>${Q.sau_dieu_kien||0}</b> còn tin riêng. Cả ${Q.wy||0} hoá ra đều là chính σ̂. Đây là <b>kết quả</b>, không phải việc còn thiếu</td></tr>
+      <tr><td><b>ML / DL / RL</b></td><td>đã huấn luyện logistic, LightGBM, GRU trên ba lớp; bandit, Q-learning, Q bi quan cho cổng vào lệnh. Phi tuyến <b>thua có ý nghĩa</b>; RL không cải thiện có ý nghĩa. Xem tab <b>Mô hình</b></td></tr>
     </tbody></table></div>
-    <div class="note"><b>Đây là hệ hỗ trợ quyết định, không phải lời khuyên đầu tư.</b></div></div>`;
+
+    <h2 style="margin-top:20px">Còn thiếu thật</h2>
+    <div class="tw"><table><tbody>
+      <tr><td><b>Xác thực thật</b></td><td>màn hình đăng nhập là <b>minh hoạ</b> — không có ô mật khẩu, không gửi và không lưu gì. Argon2id + phiên Postgres ở giai đoạn 5</td></tr>
+      <tr><td><b>Nhà cung cấp có hợp đồng</b></td><td>Yahoo có thể đổi hoặc chặn bất cứ lúc nào; khung M1 của họ <b>không có OHLC thật</b> (100% thanh có o=h=l=c) nên khung đó vẽ bằng đường</td></tr>
+      <tr><td><b>Hiệu chuẩn trượt</b></td><td>sổ dự báo mới ghi được ít phiên; tới khi đủ mẫu thì con số hiệu chuẩn vẫn là của đoạn kiểm định</td></tr>
+      <tr><td><b>Tầm hạn 5 và 20 ở giai đoạn 2</b></td><td>mới khai phá ở h=1, mục tiêu P. Cần thêm để đóng tiêu chí dừng</td></tr>
+      <tr><td><b>Hansen SPA</b></td><td>chưa chạy — cần để phát biểu "cả họ mô hình không thắng nền"</td></tr>
+    </tbody></table></div>
+
+    <h2 style="margin-top:20px">Trạng thái niêm phong dữ liệu</h2>
+    <div class="tw"><table><tbody>
+      <tr><td><b>Huấn luyện</b> (đến ${DATA.meta.valid_tu||"—"})</td><td>dùng để khớp mọi tham số</td></tr>
+      <tr><td><b>Kiểm định</b> (đến ${DATA.meta.test_tu||"—"})</td><td>dùng để chọn mô hình và cấu hình</td></tr>
+      <tr><td><b>Kiểm tra</b> (từ ${DATA.meta.test_tu||"—"})</td><td><b>ĐÃ MỞ</b> — chấm một lần cho mỗi thí nghiệm: nền giai đoạn 1, ML/DL, khai phá quy luật, chỉ số tầng σ̂</td></tr>
+      <tr><td><b>2026</b></td><td><b>ĐÃ TIÊU</b> — vốn nằm trong tập khoá sổ, nhưng hệ thống đang phục vụ dữ liệu 2026 trực tiếp</td></tr>
+      <tr><td><b>6 cặp chéo khoá sổ</b></td><td><b>CHƯA CHẠM</b> — EURGBP, EURJPY, GBPJPY, AUDJPY, EURCHF, NZDUSD</td></tr>
+    </tbody></table></div>
+    ${cb ? `<div class="note warn"><b>Cảnh báo của API:</b><ul style="margin:6px 0 0;padding-left:18px">${cb}</ul></div>` : ""}
+    <div class="note"><b>Đây là hệ hỗ trợ quyết định, không phải lời khuyên đầu tư.</b></div>
+  </div>`;
 }
 
 /* ── dieu huong ── */
