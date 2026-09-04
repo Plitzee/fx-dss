@@ -39,6 +39,7 @@ LIVE = os.path.join(D, "live")
 WEB = os.path.join(ROOT, "web")
 
 import balop as B                                      # noqa: E402
+import chibao as CB                                    # noqa: E402
 import volfc2 as V2                                    # noqa: E402
 from volfc import merge_thin_days                      # noqa: E402
 from split import doan, VALID_TU, TEST_TU              # noqa: E402
@@ -59,6 +60,26 @@ _bo_nho = {}
 
 def pip_size(p):
     return PIP.get(p, 0.0001)
+
+
+def _py(o):
+    """Ep kieu numpy ve kieu Python thuan — lop chan cuoi truoc khi ra JSON.
+    np.int64/np.float64 khong tuan tu hoa duoc, va NaN/Inf thi khong hop le
+    trong JSON nen doi thanh null."""
+    if isinstance(o, dict):
+        return {k: _py(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_py(v) for v in o]
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.floating):
+        v = float(o)
+        return v if np.isfinite(v) else None
+    if isinstance(o, np.bool_):
+        return bool(o)
+    if isinstance(o, float):
+        return o if np.isfinite(o) else None
+    return o
 
 
 def _nap_lich_su(p):
@@ -187,22 +208,107 @@ def meta():
         ]}
 
 
+KHUNG = ("D1", "H1", "M15", "M1")
+
+
+def nap_khung(pair, tf):
+    """Nen cho MOT khung thoi gian.
+
+      D1  lich su day (HistData 2010 -> 2025-12) + Yahoo tu 2026
+      H1  lich su day (repo prices/{P}_h1.csv tu 2010) + Yahoo 730 ngay
+      M15 chi Yahoo, 60 ngay      — gioi han cua nha cung cap
+      M1  chi Yahoo, 7 NGAY       — gioi han cung cua Yahoo (range=30d bao loi)
+
+    Do sau khac nhau la RANG BUOC CUA NGUON, khong phai lua chon thiet ke; ham
+    tra ve `ghi_chu` de giao dien noi ro cho nguoi dung."""
+    if tf == "D1":
+        d = lay(pair)["m"][["Date", "open", "high", "low", "close", "nguon", "rv_uoc"]]
+        return d.rename(columns={"Date": "ts"}), "lịch sử đầy đủ từ 2010"
+    if tf == "H1":
+        ph = []
+        f = os.path.join(D, "prices", f"{pair}_h1.csv")
+        if os.path.exists(f):
+            a = pd.read_csv(f, parse_dates=["Date"]).rename(columns={"Date": "ts"})
+            a = a[a.ts < MOC_NOI]
+            a["nguon"] = "histdata"
+            ph.append(a[["ts", "open", "high", "low", "close", "nguon"]])
+        g = os.path.join(LIVE, f"{pair}_H1.csv")
+        if os.path.exists(g):
+            b = pd.read_csv(g, parse_dates=["ts"])
+            b = b[b.ts >= MOC_NOI]
+            b["nguon"] = "yahoo"
+            ph.append(b[["ts", "open", "high", "low", "close", "nguon"]])
+        if not ph:
+            raise HTTPException(503, "chưa có dữ liệu H1")
+        d = pd.concat(ph, ignore_index=True).sort_values("ts")
+        return d.drop_duplicates("ts").reset_index(drop=True), "lịch sử đầy đủ từ 2010"
+    g = os.path.join(LIVE, f"{pair}_{tf}.csv")
+    if not os.path.exists(g):
+        raise HTTPException(503, f"chưa tải khung {tf} — chạy collect/live_fx.py")
+    d = pd.read_csv(g, parse_dates=["ts"]).sort_values("ts").reset_index(drop=True)
+    d["nguon"] = "yahoo"
+    han = {"M15": "chỉ 60 ngày — giới hạn nhà cung cấp",
+           "M1": "chỉ 7 ngày — giới hạn cứng của Yahoo"}
+    return d, han.get(tf, "")
+
+
+def _tem(d, tf):
+    if tf == "D1":
+        return [str(x)[:10] for x in d.ts.values]
+    return [pd.Timestamp(x).strftime("%Y-%m-%d %H:%M") for x in d.ts.values]
+
+
 @app.get("/series")
-def series(pair: str = Query(...), tu: str = Query(None), n: int = Query(1500)):
-    K = lay(pair)
-    m, ps = K["m"], pip_size(pair)
-    d = m if tu is None else m[m.Date >= pd.Timestamp(tu)]
+def series(pair: str = Query(...), tf: str = Query("D1"),
+           tu: str = Query(None), n: int = Query(1500)):
+    if tf not in KHUNG:
+        raise HTTPException(400, f"khung phải thuộc {KHUNG}")
+    lay(pair)
+    d, ghi_chu = nap_khung(pair, tf)
+    if tu:
+        d = d[d.ts >= pd.Timestamp(tu)]
     d = d.tail(n)
-    i0 = len(m) - len(d)
-    return {"pair": pair, "pip": ps,
-            "ngay": [str(x)[:10] for x in d.Date.values],
-            "o": [round(float(v), 6) for v in d.open.values],
-            "h": [round(float(v), 6) for v in d.high.values],
-            "l": [round(float(v), 6) for v in d.low.values],
-            "c": [round(float(v), 6) for v in d.close.values],
-            "nguon": list(d.nguon.values) if "nguon" in d else None,
-            "rv_uoc": [int(v) for v in d.rv_uoc.values] if "rv_uoc" in d else None,
-            "i0": i0}
+    ra = {"pair": pair, "tf": tf, "pip": pip_size(pair), "ghi_chu": ghi_chu,
+          "ngay": _tem(d, tf),
+          "o": [round(float(v), 6) for v in d.open.values],
+          "h": [round(float(v), 6) for v in d.high.values],
+          "l": [round(float(v), 6) for v in d.low.values],
+          "c": [round(float(v), 6) for v in d.close.values],
+          "nguon": list(d.nguon.values) if "nguon" in d else None}
+    if "rv_uoc" in d:
+        ra["rv_uoc"] = [int(v) for v in d.rv_uoc.fillna(0).values]
+    return ra
+
+
+@app.get("/indicators")
+def indicators(pair: str = Query(...), tf: str = Query("D1"), n: int = Query(1500)):
+    """Chi bao tinh o BACKEND (src/chibao.py) — cung bo ma ma quy luat se dung.
+
+    Xem docs/REPLAN_2026.md muc 7.1: neu chi bao ve bang TypeScript o phia truoc
+    con quy luat khai pha bang Python o phia sau thi hai ben se troi khoi nhau."""
+    if tf not in KHUNG:
+        raise HTTPException(400, f"khung phải thuộc {KHUNG}")
+    lay(pair)
+    d, _ = nap_khung(pair, tf)
+    d = d.tail(n).reset_index(drop=True)
+    R = CB.tinh_tat_ca(d)
+    lam = lambda a: [None if not np.isfinite(v) else round(float(v), 6)
+                     for v in np.asarray(a, float)]
+    ra = {"pair": pair, "tf": tf, "ngay": _tem(d, tf),
+          "duong": {k: lam(v) for k, v in R.items()
+                    if k not in ("st_chieu", "vwap_that")},
+          "st_chieu": [int(v) for v in R["st_chieu"]],
+          "vwap_that": bool(R["vwap_that"])}
+    h, l, c = d.high.values, d.low.values, d.close.values
+    dinh, day, k = CB.diem_xoay(h, l)
+    ra["cau_truc"] = {
+        "xoay_k": k,
+        "dinh": [int(i) for i in np.flatnonzero(dinh)][-60:],
+        "day": [int(i) for i in np.flatnonzero(day)][-60:],
+        "vung": CB.vung_ho_tro_khang_cu(h, l, c),
+        "khoang_trong": CB.khoang_trong_gia(h, l),
+        "quet": CB.quet_thanh_khoan(h, l, c)[-20:]}
+    return _py(ra)
 
 
 @app.get("/forecast")

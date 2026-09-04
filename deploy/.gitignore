@@ -1,0 +1,5 @@
+public/
+lib/
+vercel.json
+requirements.txt
+.vercel/

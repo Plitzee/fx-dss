@@ -171,6 +171,21 @@ def doi_chung_fred(p, d1):
         return dict(chuoi=FRED_ID[p], loi=str(e)[:100])
 
 
+def khung_noi_ngay(p):
+    """Ba khung cho bieu do. Gioi han la CUA YAHOO, khong phai lua chon:
+      1m  chi 7 ngay   (range=30d bao loi)
+      5m  60 ngay
+      1h  730 ngay
+    Lich su sau hon cho H1 lay tu data/prices/{PAIR}_h1.csv cua repo."""
+    ra = {}
+    for ten, rng, iv in (("M1", "7d", "1m"), ("M15", "60d", "15m"), ("H1", "730d", "1h")):
+        try:
+            ra[ten] = yahoo(f"{p}=X", rng, iv)
+        except Exception:
+            ra[ten] = None
+    return ra
+
+
 def mot_cap(p):
     h1 = yahoo(f"{p}=X", "730d", "1h")
     m5 = yahoo(f"{p}=X", "60d", "5m")
@@ -227,6 +242,11 @@ def main():
     for p in PAIRS:
         d1, xau, he_so, n_ol = mot_cap(p)
         d1.to_csv(os.path.join(OUT, f"{p}_d1.csv"), index=False)
+        for ten, f_ in khung_noi_ngay(p).items():
+            if f_ is not None and len(f_):
+                g_ = f_.copy()
+                g_["ts"] = g_.ts.dt.tz_convert("UTC").dt.tz_localize(None)
+                g_.to_csv(os.path.join(OUT, f"{p}_{ten}.csv"), index=False)
         mn = do_moi_noi(p, d1)
         fr = doi_chung_fred(p, d1)
         n_that = int((d1.rv_uoc == 0).sum())

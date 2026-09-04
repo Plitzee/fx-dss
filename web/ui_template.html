@@ -160,6 +160,12 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
     <div class="brand">FX<span>·</span>DSS</div>
     <div id="ptabs" style="display:flex;gap:2px;flex-wrap:wrap"></div>
     <div class="spacer"></div>
+    <div class="tsel" id="tfsel">
+      <button data-tf="M1">M1</button>
+      <button data-tf="M15">M15</button>
+      <button data-tf="H1">H1</button>
+      <button data-tf="D1" class="on">D1</button>
+    </div>
     <div class="tsel" id="hsel">
       <button data-h="1" class="on">1 phiên</button>
       <button data-h="5">5 phiên</button>
@@ -183,10 +189,27 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
           <div class="chd">
             <span class="t" id="chttl">EUR/USD · D1</span>
             <div class="ind" id="ind">
-              <button data-i="ema" class="on">EMA 20/50</button>
-              <button data-i="bb">Bollinger 2σ</button>
+              <button data-i="ema" class="on">EMA 20/50/200</button>
+              <button data-i="st">Supertrend</button>
+              <button data-i="bb">Bollinger</button>
+              <button data-i="kc">Keltner</button>
+              <button data-i="dc">Donchian</button>
+              <button data-i="ich">Ichimoku</button>
+              <button data-i="vwap">Giá TB</button>
+              <button data-i="sr">Vùng S/R</button>
+              <button data-i="fvg">Khoảng trống</button>
+              <button data-i="swing">Đỉnh/đáy</button>
+              <button data-i="quet">Quét thanh khoản</button>
               <button data-i="band" class="on">Dải ±b</button>
               <button data-i="ev">Sự kiện NHTW</button>
+            </div>
+            <div class="ind" id="ind2" style="margin-left:0">
+              <span class="t" style="align-self:center">KHUNG DƯỚI</span>
+              <button data-o="rsi" class="on">RSI 14</button>
+              <button data-o="macd">MACD</button>
+              <button data-o="stoch">Stochastic</button>
+              <button data-o="adx">ADX/DMI</button>
+              <button data-o="atr">ATR %</button>
             </div>
           </div>
           <div id="chart"></div>
@@ -239,8 +262,10 @@ var API  = __API__;
 const $ = s => document.querySelector(s);
 const fmt = (v,n=1) => (v===null||v===undefined||!isFinite(v)) ? "—" : v.toFixed(n);
 const pct = v => (100*v).toFixed(1) + "%";
-const state = {pair:"EURUSD", h:"1", i:0, ind:{ema:true,bb:false,band:true,ev:false}};
-let chart, rsiChart, sCandle, sEma20, sEma50, sBbU, sBbL, sBandU, sBandL, sRsi;
+const state = {pair:"EURUSD", tf:"D1", h:"1", i:0, duoi:"rsi",
+  ind:{ema:true, st:false, bb:false, kc:false, dc:false, ich:false, vwap:false,
+       sr:false, fvg:false, swing:false, quet:false, band:true, ev:false}};
+let chart, rsiChart, sCandle, sBandU, sBandL, LINE={}, DUOI={};
 
 /* ── theme ── */
 function curTheme(){
@@ -250,14 +275,45 @@ function curTheme(){
 }
 function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
-/* ── indicators (hien thi) ── */
-function ema(a,p){const k=2/(p+1);let e=a[0];return a.map((v,i)=>i?(e=v*k+e*(1-k)):e);}
-function sma(a,p){const o=[];let s=0;for(let i=0;i<a.length;i++){s+=a[i];if(i>=p)s-=a[i-p];o.push(i>=p-1?s/p:null);}return o;}
-function stdev(a,p){const o=[];for(let i=0;i<a.length;i++){if(i<p-1){o.push(null);continue;}let m=0;for(let j=i-p+1;j<=i;j++)m+=a[j];m/=p;let v=0;for(let j=i-p+1;j<=i;j++)v+=(a[j]-m)**2;o.push(Math.sqrt(v/p));}return o;}
-function rsi(a,p){const o=[];let g=0,l=0;for(let i=1;i<a.length;i++){const d=a[i]-a[i-1];const u=Math.max(d,0),dn=Math.max(-d,0);
-  if(i<=p){g+=u;l+=dn;o.push(null);if(i===p){g/=p;l/=p;o[o.length-1]=100-100/(1+g/Math.max(l,1e-12));}}
-  else{g=(g*(p-1)+u)/p;l=(l*(p-1)+dn)/p;o.push(100-100/(1+g/Math.max(l,1e-12)));}}
-  return [null,...o];}
+/* Chỉ báo KHÔNG tính ở đây — backend tính (src/chibao.py) và phục vụ qua
+   /indicators, để chỉ báo trên biểu đồ và đặc trưng của quy luật là MỘT bộ mã.
+   Xem docs/REPLAN_2026.md mục 7.1. */
+const KHO = {};                       // bộ nhớ đệm theo "cặp|khung"
+
+/* Ba chế độ chạy:
+     API === null      bản tĩnh hoàn toàn — chỉ khung ngày, không gọi mạng
+     API === "VERCEL"  dự báo nướng sẵn + gọi /api/intraday cho nến & chỉ báo
+     ngược lại         FastAPI đầy đủ ở cùng gốc                             */
+async function napKhung(p, tf){
+  const k = p+"|"+tf;
+  if(KHO[k]) return KHO[k];
+  const n = tf==="D1" ? 1500 : (tf==="H1" ? 1200 : 900);
+
+  if(API === "VERCEL"){
+    const r = await (await fetch(`/api/intraday?pair=${p}&tf=${tf}&n=${n}`)).json();
+    if(r.loi) throw new Error(r.loi);
+    KHO[k] = {ngay:r.ngay, o:r.o, h:r.h, l:r.l, c:r.c,
+              nguon:r.ngay.map(()=> "yahoo"), ghi_chu:r.ghi_chu,
+              ind:{duong:r.duong, st_chieu:r.st_chieu, vwap_that:r.vwap_that,
+                   cau_truc:r.cau_truc}};
+    return KHO[k];
+  }
+
+  if(API === null){
+    if(tf !== "D1") throw new Error("bản tĩnh chỉ có khung ngày — khung "+tf+" cần API");
+    const P = DATA.cap[p];
+    KHO[k] = {ngay:P.ngay, o:P.o, h:P.h, l:P.l, c:P.c, nguon:P.nguon,
+              ghi_chu:"bản tĩnh — chỉ khung ngày", ind:null};
+    return KHO[k];
+  }
+
+  const [s, ind] = await Promise.all([
+    jget(`/series?pair=${p}&tf=${tf}&n=${n}`),
+    jget(`/indicators?pair=${p}&tf=${tf}&n=${n}`).catch(()=>null)]);
+  KHO[k] = {ngay:s.ngay, o:s.o, h:s.h, l:s.l, c:s.c, nguon:s.nguon,
+            ghi_chu:s.ghi_chu||"", ind:ind};
+  return KHO[k];
+}
 
 /* ── chart ── */
 function buildChart(){
@@ -277,45 +333,105 @@ function buildChart(){
 
   sCandle = chart.addCandlestickSeries({upColor:css("--up"), downColor:css("--down"),
     borderUpColor:css("--up"), borderDownColor:css("--down"), wickUpColor:css("--up"), wickDownColor:css("--down")});
-  sEma20 = chart.addLineSeries({color:css("--acc"), lineWidth:1, priceLineVisible:false, lastValueVisible:false});
-  sEma50 = chart.addLineSeries({color:css("--ink3"), lineWidth:1, priceLineVisible:false, lastValueVisible:false});
-  sBbU = chart.addLineSeries({color:css("--ink3"), lineWidth:1, lineStyle:2, priceLineVisible:false, lastValueVisible:false});
-  sBbL = chart.addLineSeries({color:css("--ink3"), lineWidth:1, lineStyle:2, priceLineVisible:false, lastValueVisible:false});
-  sBandU = chart.addLineSeries({color:css("--flat"), lineWidth:1, lineStyle:1, priceLineVisible:false, lastValueVisible:false});
-  sBandL = chart.addLineSeries({color:css("--flat"), lineWidth:1, lineStyle:1, priceLineVisible:false, lastValueVisible:false});
-  sRsi = rsiChart.addLineSeries({color:css("--acc"), lineWidth:1, priceLineVisible:false});
+  LINE = {};
+  const L = (id,màu,rong,kieu)=> LINE[id] = chart.addLineSeries(
+      {color:màu, lineWidth:rong||1, lineStyle:kieu||0, priceLineVisible:false, lastValueVisible:false});
+  L("ema20",css("--acc"),1);  L("ema50",css("--ink3"),1);  L("ema200",css("--ink2"),2);
+  L("st",css("--up"),2);
+  L("bb_tren",css("--ink3"),1,2); L("bb_giua",css("--ink3"),1,3); L("bb_duoi",css("--ink3"),1,2);
+  L("kc_tren",css("--acc"),1,2);  L("kc_duoi",css("--acc"),1,2);
+  L("dc_tren",css("--flat"),1,3); L("dc_duoi",css("--flat"),1,3);
+  L("ich_tenkan",css("--down"),1); L("ich_kijun",css("--acc"),1);
+  L("ich_span_a",css("--up"),1,2); L("ich_span_b",css("--down"),1,2);
+  L("vwap",css("--flat"),2);
+  sBandU = L("bandU",css("--flat"),1,1);  sBandL = L("bandL",css("--flat"),1,1);
+  DUOI = {};
+  const O = (id,màu,rong,kieu)=> DUOI[id] = rsiChart.addLineSeries(
+      {color:màu, lineWidth:rong||1, lineStyle:kieu||0, priceLineVisible:false});
+  O("rsi",css("--acc"),1); O("macd",css("--acc"),1); O("macd_tin_hieu",css("--down"),1);
+  O("stoch_k",css("--acc"),1); O("stoch_d",css("--down"),1);
+  O("adx",css("--ink2"),2); O("di_duong",css("--up"),1); O("di_am",css("--down"),1);
+  O("atr_pv",css("--flat"),1);
 
   chart.subscribeCrosshairMove(pp=>{
     if(!pp || !pp.time) return;
+    const K = KHO[state.pair+"|"+state.tf]; if(!K) return;
+    const j = K.ngay.indexOf(pp.time);
+    if(j<0) return;
     const P = DATA.cap[state.pair];
-    const k = P.ngay.indexOf(pp.time);
+    const ngay = String(K.ngay[j]).slice(0,10);       // ba ô luôn theo NGÀY
+    const k = P.ngay.lastIndexOf(ngay);
     if(k>=0){ state.i=k; paintBoxes(); }
   });
   chart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
   new ResizeObserver(()=>{ if(chart){chart.applyOptions({width:el.clientWidth}); rsiChart.applyOptions({width:el.clientWidth});} }).observe(el);
 }
 
-function paintChart(){
+const NHOM = {ema:["ema20","ema50","ema200"], st:["st"], bb:["bb_tren","bb_giua","bb_duoi"],
+              kc:["kc_tren","kc_duoi"], dc:["dc_tren","dc_duoi"], vwap:["vwap"],
+              ich:["ich_tenkan","ich_kijun","ich_span_a","ich_span_b"]};
+const NHOM_DUOI = {rsi:["rsi"], macd:["macd","macd_tin_hieu"], stoch:["stoch_k","stoch_d"],
+                   adx:["adx","di_duong","di_am"], atr:["atr_pv"]};
+
+async function paintChart(){
   const P = DATA.cap[state.pair], T = P.tam[state.h];
-  const cd = P.ngay.map((t,i)=>({time:t, open:P.o[i], high:P.h[i], low:P.l[i], close:P.c[i]}));
-  sCandle.setData(cd);
-  const e20=ema(P.c,20), e50=ema(P.c,50), m20=sma(P.c,20), s20=stdev(P.c,20), rr=rsi(P.c,14);
-  const L=(a)=>P.ngay.map((t,i)=>a[i]==null?null:({time:t,value:a[i]})).filter(Boolean);
-  sEma20.setData(state.ind.ema?L(e20):[]);
-  sEma50.setData(state.ind.ema?L(e50):[]);
-  sBbU.setData(state.ind.bb?L(m20.map((m,i)=>m==null?null:m+2*s20[i])):[]);
-  sBbL.setData(state.ind.bb?L(m20.map((m,i)=>m==null?null:m-2*s20[i])):[]);
-  const bu=[],bl=[];
-  for(let i=0;i<P.ngay.length;i++){const b=T.b_pip[i]*P.pip; bu.push(P.c[i]+b); bl.push(P.c[i]-b);}
-  sBandU.setData(state.ind.band?L(bu):[]);
-  sBandL.setData(state.ind.band?L(bl):[]);
-  sRsi.setData(L(rr));
+  let K;
+  try{ K = await napKhung(state.pair, state.tf); }
+  catch(e){ $("#chttl").textContent = "lỗi nạp khung " + state.tf + ": " + e; return; }
+
+  sCandle.setData(K.ngay.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
+  const V = a => K.ngay.map((t,i)=>(a && a[i]!=null) ? {time:t,value:a[i]} : null).filter(Boolean);
+  const D = K.ind ? K.ind.duong : null;
+
+  for(const [nh,ids] of Object.entries(NHOM))
+    for(const id of ids) LINE[id].setData((state.ind[nh] && D) ? V(D[id]) : []);
+  for(const [nh,ids] of Object.entries(NHOM_DUOI))
+    for(const id of ids) DUOI[id].setData((state.duoi===nh && D) ? V(D[id]) : []);
+
+  // dải ±b là đại lượng NGÀY — chỉ vẽ trên khung D1
+  if(state.ind.band && state.tf==="D1"){
+    const bu=[],bl=[];
+    for(let i=0;i<K.ngay.length;i++){
+      const k = P.ngay.lastIndexOf(K.ngay[i]);
+      const b = k>=0 ? T.b_pip[k]*P.pip : null;
+      bu.push(b==null?null:K.c[i]+b); bl.push(b==null?null:K.c[i]-b);
+    }
+    sBandU.setData(V(bu)); sBandL.setData(V(bl));
+  } else { sBandU.setData([]); sBandL.setData([]); }
+
+  // đánh dấu: sự kiện NHTW, đỉnh/đáy dao động, quét thanh khoản
+  let mk = [];
   if(state.ind.ev && DATA.su_kien){
-    const set=new Set(P.ngay);
-    sCandle.setMarkers(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
-      time:e.ngay, position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
-  } else sCandle.setMarkers([]);
-  $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · D1 · RSI 14";
+    const set = new Set(K.ngay.map(x=>String(x).slice(0,10)));
+    mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
+      time: K.ngay.find(x=>String(x).slice(0,10)===e.ngay),
+      position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
+  }
+  const ct = K.ind ? K.ind.cau_truc : null;
+  if(state.ind.swing && ct){
+    mk = mk.concat(ct.dinh.map(i=>({time:K.ngay[i], position:"aboveBar", color:css("--down"), shape:"arrowDown", text:""})));
+    mk = mk.concat(ct.day.map(i=>({time:K.ngay[i], position:"belowBar", color:css("--up"), shape:"arrowUp", text:""})));
+  }
+  if(state.ind.quet && ct)
+    mk = mk.concat(ct.quet.map(q=>({time:K.ngay[q.tai],
+      position: q.chieu>0?"belowBar":"aboveBar", color:css("--flat"), shape:"square", text:"quét"})));
+  mk = mk.filter(m=>m.time).sort((a,b)=>String(a.time)<String(b.time)?-1:1);
+  sCandle.setMarkers(mk);
+
+  // vùng S/R và khoảng trống giá vẽ bằng đường mức giá
+  (window.__mucGia||[]).forEach(l=>{ try{ sCandle.removePriceLine(l); }catch(e){} });
+  window.__mucGia = [];
+  if(ct && state.ind.sr) ct.vung.forEach(v=>window.__mucGia.push(sCandle.createPriceLine(
+    {price:v.gia, color:css("--ink3"), lineWidth:1, lineStyle:2, axisLabelVisible:true,
+     title:"S/R ×"+v.cham})));
+  if(ct && state.ind.fvg) ct.khoang_trong.forEach(g=>{
+    [g.duoi,g.tren].forEach(pr=>window.__mucGia.push(sCandle.createPriceLine(
+      {price:pr, color: g.chieu>0?css("--up"):css("--down"), lineWidth:1, lineStyle:1,
+       axisLabelVisible:false, title:""})));});
+
+  const ten = {D1:"D1",H1:"H1",M15:"M15",M1:"M1"}[state.tf];
+  $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · "+ten
+    + (K.ghi_chu ? " · " + K.ghi_chu : "");
 }
 
 /* ── ba o ── */
@@ -448,26 +564,33 @@ function paintAbout(){
 }
 
 /* ── dieu huong ── */
-function setPair(p){ state.pair=p; state.i=DATA.cap[p].ngay.length-1;
+async function setPair(p){ state.pair=p; state.i=DATA.cap[p].ngay.length-1;
   document.querySelectorAll("#ptabs .ptab").forEach(b=>b.classList.toggle("on", b.dataset.p===p));
-  paintChart(); paintBoxes(); chart.timeScale().fitContent(); }
+  await paintChart(); paintBoxes(); chart.timeScale().fitContent(); }
 
 function boot(){
   $("#ptabs").innerHTML = DATA.meta.cap.map(p=>`<button class="ptab" data-p="${p}">${p.slice(0,3)}/${p.slice(3)}</button>`).join("");
   $("#ptabs").onclick = e=>{ const b=e.target.closest(".ptab"); if(b) setPair(b.dataset.p); };
-  $("#hsel").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+  $("#tfsel").onclick = async e=>{ const b=e.target.closest("button"); if(!b) return;
+    state.tf=b.dataset.tf; document.querySelectorAll("#tfsel button").forEach(x=>x.classList.toggle("on",x===b));
+    await paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
+  $("#hsel").onclick = async e=>{ const b=e.target.closest("button"); if(!b) return;
     state.h=b.dataset.h; document.querySelectorAll("#hsel button").forEach(x=>x.classList.toggle("on",x===b));
-    paintChart(); paintBoxes(); };
+    await paintChart(); paintBoxes(); };
   $("#ind").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
     state.ind[b.dataset.i]=!state.ind[b.dataset.i]; b.classList.toggle("on"); paintChart(); };
+  $("#ind2").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+    state.duoi = (state.duoi===b.dataset.o) ? null : b.dataset.o;
+    document.querySelectorAll("#ind2 button").forEach(x=>x.classList.toggle("on", x.dataset.o===state.duoi));
+    paintChart(); };
   document.querySelector(".nav").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
     document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
     $("#p-"+b.dataset.p).classList.add("on");
     if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="ev") paintEv(); if(b.dataset.p==="about") paintAbout();
     if(b.dataset.p==="chart" && chart) chart.timeScale().fitContent(); };
-  $("#theme").onclick = ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
-    buildChart(); paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
+  $("#theme").onclick = async ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
+    buildChart(); await paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
   buildChart(); setPair("EURUSD");
 }
 
@@ -508,7 +631,7 @@ async function napTuAPI(){
 $("#gobtn").onclick = async ()=>{
   $("#who").textContent = ($("#u").value||"demo") + " · demo";
   $("#login").style.display="none"; $("#app").style.display="block";
-  if(API !== null && !DATA){          // API co the la chuoi rong -> phai so sanh voi null
+  if(API !== null && API !== "VERCEL" && !DATA){   // API co the la chuoi rong -> so sanh voi null
     const goc = $("#p-chart").innerHTML;
     $("#p-chart").innerHTML = '<div class="card sec"><h2>Đang nạp dữ liệu hiện hành…</h2>'
       + '<p class="lead">Gọi API và tính σ̂ cho 6 cặp bằng đúng điểm vào sản xuất của tầng 2. Lần đầu mất vài giây.</p></div>';
