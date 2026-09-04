@@ -143,7 +143,8 @@ def tinh(p):
         mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd
         P = mo.du_bao(len(pan), canh=T["canh_P"], sigma_h=T["sigma_h"],
                       sig=pan.sig.values)
-        xs[h] = dict(P=P, b=T["b"], sigma_h=T["sigma_h"], kP=T["kP"], c_h=T["c_h"])
+        xs[h] = dict(P=P, b=T["b"], sigma_h=T["sigma_h"], kP=T["kP"], c_h=T["c_h"],
+                     mo=mo)      # giu mo hinh DA KHOP de dung lai cho phien ke tiep
 
     nguong = np.quantile(pan.sig.values[tr], [1 / 3, 2 / 3])
     return dict(m=m, pan=pan, sig=pan.sig.values, xs=xs,
@@ -384,6 +385,75 @@ def cost(pair: str = Query(...)):
     return {"pair": pair,
             "med": [round(float(v), 3) for v in c.spread_med.values],
             "p95": [round(float(v), 3) for v in c.spread_p95.values]}
+
+
+def _phien_ke_tiep(d):
+    t = pd.Timestamp(d) + pd.Timedelta(days=1)
+    while t.weekday() >= 5:                 # FX nghi thu 7 va Chu nhat
+        t += pd.Timedelta(days=1)
+    return t
+
+
+@app.get("/forecast_next")
+def forecast_next(pair: str = Query(...)):
+    """Du bao cho phien CHUA MO CUA — thu duy nhat duoc phep ghi vao so.
+
+    Cach lam theo dung docs/DONGBO_SANXUAT.md muc 1: bien lich la cua ngay t+1
+    va biet truoc nhieu nam, nen chay duoc TRUOC khi phien t+1 mo cua. Ta noi
+    them mot hang rong cho phien ke tiep roi goi lai diem vao san xuat.
+
+    LUU Y da do: noi them hang lam du bao CAC NGAY CU doi nhe (lech toi 6,4e-07
+    tren phuong sai) vi mo hinh khop lai theo cua so mo rong. Do la ly do so du
+    bao phai CHI GHI THEM — no giu dung con so da hien luc do, khong phai con
+    so tinh lai hom nay."""
+    K = lay(pair)
+    m = K["m"]
+    kt = _phien_ke_tiep(m.Date.iloc[-1])
+    hang = {c: np.nan for c in m.columns}
+    hang["Date"] = kt
+    hang["close"] = m.close.iloc[-1]
+    m2 = pd.concat([m, pd.DataFrame([hang])], ignore_index=True)
+    sig2 = V2.du_bao_san_xuat(m2, pair)
+    sg = float(np.sqrt(max(sig2[-1], 0.0)))
+    if not np.isfinite(sg) or sg <= 0:
+        raise HTTPException(503, "chưa dựng được σ̂ cho phiên kế tiếp")
+
+    ps = pip_size(pair)
+    nguong = K["nguong"]
+    ra = {"pair": pair, "ngay": str(kt.date()), "sigma_pip": round(sg / ps, 2),
+          "che_do": int(np.digitize([sg], nguong)[0]),
+          "du_lieu_den": str(m.Date.iloc[-1].date()), "tam": {}}
+    for h in HS:
+        X = K["xs"][h]
+        b = float(X["b"][-1])                       # dai doi cham, dung ban cuoi
+        sh = sg * np.sqrt(h) * float(X["c_h"])
+        # dung lai CHINH mo hinh da khop trong tinh() — khong khop lai
+        P = X["mo"].du_bao(1, canh=np.array([b]), sigma_h=np.array([sh]),
+                           sig=np.array([sg]))[0]
+        ra["tam"][str(h)] = {
+            "p_giam": round(float(P[0]), 4), "p_ngang": round(float(P[1]), 4),
+            "p_tang": round(float(P[2]), 4),
+            "dai_pip": round(b / ps, 2), "sigma_pip": round(sh / ps, 2),
+            "mo_hinh": NEN_THEO_H[h], "kP": round(float(X["kP"]), 4),
+            "c_h": round(float(X["c_h"]), 4)}
+    return _py(ra)
+
+
+@app.get("/journal")
+def journal(h: int = Query(1), n_toi_thieu: int = Query(30)):
+    """So du bao — hieu chuan TRUOT, do tren chinh cai he thong da noi ra.
+
+    Khac han /calibration: /calibration la so do tren doan KIEM DINH 2021-2023,
+    con day la so do tren nhung du bao he thong DA THUC SU dua ra. Khi chua du
+    mau thi tra `du_mau: false` va KHONG tra chi so — khong doan, khong muon
+    tam so cua doan kiem dinh."""
+    import so_dubao as SD
+    t = SD.thong_ke(h=h, n_toi_thieu=n_toi_thieu)
+    db = SD.doc_dubao()
+    t["tong_du_bao"] = int(len(db))
+    t["cho_ket_cuc"] = int(len(db) - len(SD.ghep())) if len(db) else 0
+    t["n_toi_thieu"] = int(n_toi_thieu)
+    return _py(t)
 
 
 @app.get("/calibration")

@@ -61,7 +61,8 @@ def chup_ban_tinh():
                    "test_tu": meta["test_tu"], "moc_noi": meta["moc_noi_nguon"],
                    "canh_bao": meta["canh_bao"]},
           "cap": {}, "su_kien": g("/events?tu=2024-01-01").get("su_kien", []),
-          "hieu_chuan": g("/calibration").get("bang", {})}
+          "hieu_chuan": g("/calibration").get("bang", {}),
+          "so_dubao": {h: g(f"/journal?h={h}") for h in HS}}
     for p in meta["cap"]:
         s = g(f"/series?pair={p}&n=1500")
         f = g(f"/forecast_series?pair={p}&n=1500")
@@ -104,6 +105,49 @@ def chup_ban_tinh():
     print(f"  chuỗi đến: " + ", ".join(f"{p}={v['ngay'][-1]}" for p, v in ra["cap"].items()))
 
 
+def so_du_bao():
+    """Ghi du bao cho phien CHUA MO CUA, roi cham nhung phien da du ket cuc.
+
+    Thu tu quan trong: GHI truoc, CHAM sau. Nguoc lai thi co luc du bao vua ghi
+    xong da bi cham ngay trong cung mot lan chay — dung ra la mot bai backtest."""
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, "src"))
+    sys.path.insert(0, ROOT)
+    import so_dubao as SD
+    from api.main import noi_chuoi, PAIRS
+
+    meta = requests.get(f"{API}/meta", timeout=60).json()
+    ma = f"{meta['moc_noi_nguon']}|{meta['valid_tu']}"
+
+    hang, den = [], {}
+    for p in PAIRS:
+        try:
+            f = requests.get(f"{API}/forecast_next?pair={p}", timeout=300).json()
+        except Exception as e:
+            print(f"  {p}: không lấy được dự báo kế tiếp ({str(e)[:60]})")
+            continue
+        den[p] = f["du_lieu_den"]
+        for h, t in f["tam"].items():
+            hang.append({"pair": p, "ngay": f["ngay"], "h": int(h),
+                         "p_giam": t["p_giam"], "p_ngang": t["p_ngang"],
+                         "p_tang": t["p_tang"], "b_pip": t["dai_pip"],
+                         "sigma_pip": t["sigma_pip"], "che_do": f["che_do"],
+                         "mo_hinh": t["mo_hinh"], "ma_cau_hinh": ma})
+    g, tr, qk = SD.ghi(hang, den)
+    print(f"  ghi: {g} dòng mới · {tr} trùng (bỏ qua) · {qk} từ chối vì đã có kết cục")
+
+    gia = {p: noi_chuoi(p)[["Date", "close"]] for p in PAIRS}
+    n = SD.cham(gia)
+    print(f"  chấm: {n} dòng")
+    for h in (1, 5, 20):
+        t = SD.thong_ke(h=h)
+        if t.get("du_mau"):
+            print(f"  h={h:<2} n={t['n']:<4} ECE {t['ece']} · MCE {t['mce']} · "
+                  f"BSS {t['bss']:+.4f} · AUC {t['auc']}")
+        else:
+            print(f"  h={h:<2} n={t['n']:<4} chưa đủ mẫu (cần 30) — đang tích luỹ")
+
+
 def main():
     t0 = time.time()
     tai = "--khong-tai" not in sys.argv
@@ -125,10 +169,13 @@ def main():
         raise SystemExit(f"  API không chạy ở {API}.\n"
                          f"  Khởi động: python -m uvicorn api.main:app --port 8899")
 
-    buoc(3, "Chụp bản tĩnh từ chính API")
+    buoc(3, "Ghi sổ dự báo cho phiên kế tiếp, rồi chấm những phiên đã đủ kết cục")
+    so_du_bao()
+
+    buoc(4, "Chụp bản tĩnh từ chính API")
     chup_ban_tinh()
 
-    buoc(4, "Dựng lại hai trang")
+    buoc(5, "Dựng lại hai trang")
     chay("web/build.py")
 
     print(f"\nXONG trong {time.time()-t0:.0f}s")

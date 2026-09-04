@@ -609,9 +609,30 @@ function paintFoot(i){
   const key = "h"+state.h+"_P_"+T.nen;
   const c = H[key];
   const rows = [];
+
+  // SỔ DỰ BÁO — hiệu chuẩn TRƯỢT, đo trên chính những dự báo hệ thống đã đưa
+  // ra. Phải tách hẳn khỏi số của đoạn kiểm định bên dưới: cái đó đo năm
+  // 2021–2023 và không theo dõi gì đang xảy ra hôm nay.
+  const sd = (DATA.so_dubao||{})[state.h];
+  if(sd){
+    if(sd.du_mau){
+      const tot = sd.ece <= (c? c.ece*1.5 : 0.05);
+      rows.push(`<span class="chip"><span class="dot ${tot?"ok":"bad"}"></span>`
+        + `<span><b>Sổ dự báo (trượt, ${sd.n} phiên đã chấm ${sd.tu}→${sd.den})</b>: `
+        + `ECE ${sd.ece} · MCE ${sd.mce} · BSS ${sd.bss>=0?"+":""}${sd.bss} · AUC ${sd.auc}`
+        + (tot?"" : " — <b>hiệu chuẩn đang trôi so với lúc kiểm định</b>")+`</span></span>`);
+    } else {
+      rows.push(`<span class="chip"><span class="dot mid"></span>`
+        + `<span><b>Sổ dự báo: đang tích luỹ</b> — ${sd.tong_du_bao||0} dự báo đã ghi, `
+        + `${sd.n||0}/${sd.n_toi_thieu||30} phiên đã đủ kết cục để chấm. `
+        + `Cho tới khi đủ, con số hiệu chuẩn bên dưới là của <b>đoạn kiểm định 2021–2023</b>, `
+        + `không phải đo trên thời gian thực.</span></span>`);
+    }
+  }
+
   if(c){
     const sig = (c.bss_lo>0);
-    rows.push(`<span class="chip"><span class="dot ${sig?"ok":"mid"}"></span>Hiệu chuẩn trên đoạn kiểm định: ECE ${c.ece.toFixed(4)} · MCE <b>${c.mce.toFixed(4)}</b> · BSS ${c.bss>=0?"+":""}${c.bss.toFixed(4)} KTC [${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${sig?" — thắng khí hậu học":" — chưa thắng khí hậu học"}</span>`);
+    rows.push(`<span class="chip"><span class="dot ${sig?"ok":"mid"}"></span>Hiệu chuẩn trên <b>đoạn kiểm định</b> (2021–2023, không phải trực tiếp): ECE ${c.ece.toFixed(4)} · MCE <b>${c.mce.toFixed(4)}</b> · BSS ${c.bss>=0?"+":""}${c.bss.toFixed(4)} KTC [${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${sig?" — thắng khí hậu học":" — chưa thắng khí hậu học"}</span>`);
     rows.push(`<span class="chip"><span class="dot no"></span><span><b>Kỹ năng hướng đi: AUC ${c.auc.toFixed(3)}</b> (KTC 95% [${c.auc_lo.toFixed(3)}; ${c.auc_hi.toFixed(3)}] — phủ 0,50). Không phân biệt được tăng với giảm. Chênh lệch giữa ô đỏ và ô xanh là đối xứng dải cộng nhiễu, <b>đừng đọc như khuyến nghị mua/bán</b>.</span></span>`);
     if(c.mce>0.06) rows.push(`<span class="chip"><span class="dot bad"></span>Cảnh báo: MCE ${c.mce.toFixed(3)} — trung bình hiệu chuẩn tốt nhưng thùng xác suất cực đoan lệch tới ${(100*c.mce).toFixed(1)} điểm %. Số càng mạnh càng nên nghi ngờ.</span>`);
   }
