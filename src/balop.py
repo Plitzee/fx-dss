@@ -70,23 +70,46 @@ def loi_suat_h(d, h):
     return ra
 
 
-def hieu_chinh_h(d, h, tr):
+def hieu_chinh_h(d, h, tr, che_do=None):
     """c_h — he so hieu chinh cho quy tac can(h), UOC LUONG TREN HUAN LUYEN.
 
-    Quy tac can(h) dung trung binh nhung lech toi +-14% theo che do
-    (docs/TANG6_TAMHAN.md), nen phai do chu khong duoc dat tay."""
+    Quy tac can(h) gia dinh bien dong DUNG YEN suot h phien. No khong dung:
+    bien dong hoi quy ve trung binh, nen o che do EM thi thuc te se dong manh
+    hon du bao, con o che do CANG thi yeu hon. Do duoc tren doan kiem tra,
+    ty le (sd thuc / sd du bao):
+
+        h    binh tinh   vua    cang thang
+        1      1,000    0,985     1,003
+        5      1,057    0,905     0,861
+       20      1,085    0,903     0,770      <- lech toi 31 diem phan tram
+
+    Sai so nay lon dan theo h, va no la nguyen nhan h=20 AM CO Y NGHIA o che do
+    em (BSS -0,0234). Nen c_h phai uoc RIENG TUNG CHE DO.
+
+    che_do : mang ma che do (0/1/2) moi hang. None -> mot he so chung (ban cu).
+    Tra ve so vo huong neu che_do=None, nguoc lai tra ve mang cung do dai d."""
+    n = len(d)
     if h == 1:
-        return 1.0
+        return 1.0 if che_do is None else np.ones(n)
     r = loi_suat_h(d, h)
     s = d.sig.values * np.sqrt(h)
-    m = tr & np.isfinite(r) & (s > EPS)
-    if m.sum() < 100:
-        return 1.0
-    return float(np.std(r[m] / s[m]))
+    ok = tr & np.isfinite(r) & (s > EPS)
+    if ok.sum() < 100:
+        return 1.0 if che_do is None else np.ones(n)
+    chung = float(np.std(r[ok] / s[ok]))
+    if che_do is None:
+        return chung
+    ra = np.full(n, chung)
+    for v in np.unique(np.asarray(che_do)):
+        m = ok & (np.asarray(che_do) == v)
+        if m.sum() >= 100:                     # du mau moi tach rieng
+            ra[np.asarray(che_do) == v] = float(np.std(r[m] / s[m]))
+    return ra
 
 
 def sigma_h(d, h, c_h):
-    return d.sig.values * np.sqrt(h) * c_h
+    """c_h co the la so vo huong (ban cu) hoac mang theo che do (ban moi)."""
+    return d.sig.values * np.sqrt(h) * np.asarray(c_h, float)
 
 
 def dai_P(d, h, c_h, kP=1.0):
@@ -131,12 +154,22 @@ def gan_lop(gia_tri, dai):
     return y
 
 
-def dung_muc_tieu(d, h, tr, k=None, kP=None):
+def dung_muc_tieu(d, h, tr, k=None, kP=None, theo_che_do=True):
     """Tra ve dict day du cho MOT cap, MOT tam han.
 
     k va kP deu CHON TREN HUAN LUYEN roi dong bang — truyen vao de dung lai
-    nguong da chot cho cap/tam han khac neu can."""
-    c_h = hieu_chinh_h(d, h, tr)
+    nguong da chot cho cap/tam han khac neu can.
+
+    theo_che_do: uoc c_h RIENG TUNG CHE DO bien dong. Mac dinh BAT vi quy tac
+    can(h) chung lech toi 31 diem phan tram giua che do em va che do cang o
+    h=20 — xem docstring cua hieu_chinh_h()."""
+    if theo_che_do:
+        ok = np.isfinite(d.sig.values)
+        ng = np.quantile(d.sig.values[tr & ok], [1 / 3, 2 / 3])
+        cd = np.digitize(d.sig.values, ng)
+    else:
+        cd = None
+    c_h = hieu_chinh_h(d, h, tr, cd)
     r = loi_suat_h(d, h)
     sg = sigma_h(d, h, c_h)
     z = r / np.maximum(sg, EPS)
@@ -145,7 +178,9 @@ def dung_muc_tieu(d, h, tr, k=None, kP=None):
     if kP is None:
         kP = chon_kP(d, h, c_h, tr)
     b = dai_P(d, h, c_h, kP)
-    return dict(c_h=c_h, k=k, kP=kP, r=r, sigma_h=sg, z=z, b=b,
+    c_h_ra = float(np.mean(np.asarray(c_h, float)))
+    return dict(c_h=c_h_ra, c_h_mang=np.asarray(c_h, float) * np.ones(len(d)),
+                k=k, kP=kP, r=r, sigma_h=sg, z=z, b=b,
                 yR=gan_lop(z, np.full(len(z), k)),
                 yP=gan_lop(r, b),
                 canh_R=np.full(len(z), k) * sg,   # dai muc tieu R quy ve don vi gia

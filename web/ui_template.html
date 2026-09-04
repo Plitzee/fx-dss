@@ -218,7 +218,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
     <div class="tsel" id="hsel">
       <button data-h="1" class="on">1 phiên</button>
       <button data-h="5">5 phiên</button>
-      <button data-h="20">20 phiên</button>
+      <button data-h="20" title="chưa dùng được — xem cảnh báo dưới ba ô">20 phiên ⚠</button>
     </div>
     <button class="iconb" id="theme">◐ nền</button>
     <span class="who" id="capnhat"></span>
@@ -647,6 +647,21 @@ function paintFoot(i){
   // SỔ DỰ BÁO — hiệu chuẩn TRƯỢT, đo trên chính những dự báo hệ thống đã đưa
   // ra. Phải tách hẳn khỏi số của đoạn kiểm định bên dưới: cái đó đo năm
   // 2021–2023 và không theo dõi gì đang xảy ra hôm nay.
+  // h=20 do duoc la CHUA DUNG DUOC: MCE ~0,20 nghia la thung xac suat te nhat
+  // lech 20 diem phan tram. Khong go khoi giao dien, nhung phai noi ra.
+  if(state.h === "20"){
+    const t20 = (((DATA.meta.mo_hinh||{}).tin_cay||{}).tam||{})["20"];
+    const mce = t20 ? t20.gop.mce : null;
+    rows.push(`<span class="chip"><span class="dot bad"></span><span>`
+      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> MCE ${mce!=null?mce.toFixed(4):"≈0,20"} — `
+      + `thùng xác suất tệ nhất lệch khoảng 20 điểm phần trăm, và ở chế độ êm nó `
+      + `từng <b>âm so với khí hậu học</b>. Nguyên nhân đo được: quy tắc √h giả định `
+      + `biến động đứng yên 20 phiên, trong khi nó hồi quy về trung bình — tỷ lệ `
+      + `(thực/dự báo) chạy từ 1,085 ở chế độ êm tới 0,770 ở chế độ căng. Đã vá bằng `
+      + `hệ số c_h riêng từng chế độ (hết âm có ý nghĩa) nhưng <b>chưa đủ</b>. `
+      + `Dùng tầm hạn 1 hoặc 5 phiên.</span></span>`);
+  }
+
   const sd = (DATA.so_dubao||{})[state.h];
   if(sd){
     if(sd.du_mau){
