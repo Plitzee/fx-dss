@@ -12,7 +12,11 @@
   --acc:#2c5b7a; --acc2:#e2ecf3;
   --down:#b03a33; --flat:#8f6c0c; --up:#25714b;
   --downbg:#f8e7e5; --flatbg:#f7f0dc; --upbg:#e2f0e8;
-  --grid:#e8ebe5;
+  --grid:#e4e8e0;
+  /* Màu NẾN tách khỏi màu ngữ nghĩa của ba ô. Ba ô là đỏ/vàng/xanh vì đó là
+     ngữ nghĩa giảm/đi ngang/tăng; còn nến dùng bộ teal–đỏ mà mọi sàn lớn
+     dùng, vì mắt người đã quen đọc nó và độ tương phản cao hơn hẳn. */
+  --nen-tang:#089981; --nen-giam:#f23645;
   --f-d:"Archivo","Segoe UI",system-ui,sans-serif;
   --f-b:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif;
   --f-m:"IBM Plex Mono",ui-monospace,monospace;
@@ -23,7 +27,8 @@
   --acc:#7cb2d4; --acc2:#182935;
   --down:#e8776d; --flat:#d9aa3d; --up:#5fc08d;
   --downbg:#2b1917; --flatbg:#2a2211; --upbg:#12271c;
-  --grid:#1e262b;
+  --grid:#1c2429;
+  --nen-tang:#26a69a; --nen-giam:#ef5350;
 }}
 :root[data-theme="dark"]{
   --bg:#0c1013; --panel:#141a1e; --panel2:#1b2228; --line:#283137; --line2:#1f272c;
@@ -31,7 +36,8 @@
   --acc:#7cb2d4; --acc2:#182935;
   --down:#e8776d; --flat:#d9aa3d; --up:#5fc08d;
   --downbg:#2b1917; --flatbg:#2a2211; --upbg:#12271c;
-  --grid:#1e262b;
+  --grid:#1c2429;
+  --nen-tang:#26a69a; --nen-giam:#ef5350;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-weight:300;font-size:14px;line-height:1.5}
@@ -79,8 +85,22 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .ind{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
 .ind button{padding:3px 8px;font-family:var(--f-m);font-size:10.5px;color:var(--ink3);border:1px solid var(--line)}
 .ind button.on{color:var(--acc);border-color:var(--acc);background:var(--acc2)}
-#chart{height:376px}
-#rsi{height:88px;border-top:1px solid var(--line2)}
+#chartwrap{position:relative}
+#chart{height:400px}
+#rsi{height:96px;border-top:1px solid var(--line2)}
+/* Bảng OHLC nổi — thứ người dùng đọc nhiều nhất trên mọi sàn lớn */
+#ohlc{position:absolute;top:8px;left:12px;z-index:3;pointer-events:none;
+  font-family:var(--f-m);font-size:11.5px;line-height:1.5;letter-spacing:.01em;
+  display:flex;gap:11px;flex-wrap:wrap;align-items:baseline}
+#ohlc .sym{font-family:var(--f-d);font-weight:700;font-size:13px;letter-spacing:-.01em;color:var(--ink)}
+#ohlc .tf{color:var(--ink3);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+#ohlc b{color:var(--ink3);font-weight:400}
+#ohlc .v{color:var(--ink);font-variant-numeric:tabular-nums}
+#ohlc .up{color:var(--nen-tang)} #ohlc .dn{color:var(--nen-giam)}
+/* nhãn tên chỉ báo khung dưới — phải nằm TRÊN khung dưới, không đè bảng OHLC */
+#rsimark{position:absolute;bottom:80px;left:12px;z-index:3;pointer-events:none;
+  font-family:var(--f-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3)}
 
 .rail{display:flex;flex-direction:column;gap:12px}
 .kv{padding:10px 12px;border-bottom:1px solid var(--line2)}
@@ -212,8 +232,12 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
               <button data-o="atr">ATR %</button>
             </div>
           </div>
-          <div id="chart"></div>
-          <div id="rsi"></div>
+          <div id="chartwrap">
+            <div id="ohlc"></div>
+            <div id="chart"></div>
+            <div id="rsimark"></div>
+            <div id="rsi"></div>
+          </div>
         </div>
 
         <div class="boxwrap">
@@ -326,19 +350,34 @@ function buildChart(){
   const el = $("#chart"); el.innerHTML=""; $("#rsi").innerHTML="";
   const dark = curTheme()==="dark";
   const opt = {
-    layout:{background:{color:css("--panel")}, textColor:css("--ink3"), fontFamily:"IBM Plex Mono, monospace", fontSize:10},
+    layout:{background:{color:css("--panel")}, textColor:css("--ink3"),
+            fontFamily:"IBM Plex Mono, monospace", fontSize:11},
+    watermark:{visible:true, color:css("--grid"), fontSize:44, fontFamily:"Archivo, sans-serif",
+               text:"", horzAlign:"center", vertAlign:"center"},
     grid:{vertLines:{color:css("--grid")}, horzLines:{color:css("--grid")}},
-    rightPriceScale:{borderColor:css("--line")},
-    timeScale:{borderColor:css("--line"), rightOffset:4},
-    crosshair:{mode:0, vertLine:{color:css("--ink3"),width:1,style:2,labelBackgroundColor:css("--acc")},
-               horzLine:{color:css("--ink3"),width:1,style:2,labelBackgroundColor:css("--acc")}},
+    rightPriceScale:{borderColor:css("--line"), scaleMargins:{top:0.14, bottom:0.12}},
+    // rightOffset: chua mot khoang trong ben phai nen cuoi, giong moi san —
+    // de nen moi nhat khong dinh vao mep va con cho ve nhan gia
+    timeScale:{borderColor:css("--line"), rightOffset:8, barSpacing:8,
+               minBarSpacing:0.6, timeVisible:false, secondsVisible:false},
+    // mode 1 = nam cham: chu thap tu hut ve gia dong cua gan nhat, dung nhu
+    // TradingView mac dinh — doc gia chinh xac hon nhieu khi nen day
+    crosshair:{mode:1,
+      vertLine:{color:css("--ink3"),width:1,style:3,labelBackgroundColor:css("--acc")},
+      horzLine:{color:css("--ink3"),width:1,style:3,labelBackgroundColor:css("--acc")}},
+    handleScale:{axisPressedMouseMove:{time:true, price:true}},
   };
   chart = LightweightCharts.createChart(el, {...opt, height:el.clientHeight, width:el.clientWidth});
   rsiChart = LightweightCharts.createChart($("#rsi"), {...opt, height:$("#rsi").clientHeight, width:el.clientWidth,
     rightPriceScale:{borderColor:css("--line"), scaleMargins:{top:.1,bottom:.1}}, timeScale:{visible:false}});
 
-  sCandle = chart.addCandlestickSeries({upColor:css("--up"), downColor:css("--down"),
-    borderUpColor:css("--up"), borderDownColor:css("--down"), wickUpColor:css("--up"), wickDownColor:css("--down")});
+  sCandle = chart.addCandlestickSeries({
+    upColor:css("--nen-tang"), downColor:css("--nen-giam"),
+    borderUpColor:css("--nen-tang"), borderDownColor:css("--nen-giam"),
+    wickUpColor:css("--nen-tang"), wickDownColor:css("--nen-giam"),
+    borderVisible:true, wickVisible:true,
+    priceLineVisible:true, priceLineWidth:1, priceLineStyle:2,
+    priceLineColor:css("--ink3"), lastValueVisible:true});
   LINE = {};
   const L = (id,màu,rong,kieu)=> LINE[id] = chart.addLineSeries(
       {color:màu, lineWidth:rong||1, lineStyle:kieu||0, priceLineVisible:false, lastValueVisible:false});
@@ -360,10 +399,11 @@ function buildChart(){
   O("atr_pv",css("--flat"),1);
 
   chart.subscribeCrosshairMove(pp=>{
-    if(!pp || !pp.time) return;
     const K = KHO[state.pair+"|"+state.tf]; if(!K) return;
+    if(!pp || !pp.time){ veOHLC(K, K.t.length-1); return; }
     const j = K.t.indexOf(pp.time);
     if(j<0) return;
+    veOHLC(K, j);
     const P = DATA.cap[state.pair];
     const ngay = K.ngay[j];                           // ba ô luôn theo NGÀY
     const k = P.ngay.lastIndexOf(ngay);
@@ -379,6 +419,40 @@ const NHOM = {ema:["ema20","ema50","ema200"], st:["st"], bb:["bb_tren","bb_giua"
 const NHOM_DUOI = {rsi:["rsi"], macd:["macd","macd_tin_hieu"], stoch:["stoch_k","stoch_d"],
                    adx:["adx","di_duong","di_am"], atr:["atr_pv"]};
 
+/* Bảng OHLC nổi góc trên trái — mọi sàn lớn đều có, và đây là thứ người dùng
+   đọc nhiều nhất khi rê chuột. Hiện O/H/L/C, biến động tuyệt đối và %. */
+function veOHLC(K, j){
+  if(!K || j==null || j<0 || j>=K.c.length) return;
+  const P = DATA.cap[state.pair], nd = (P && P.pip===0.01) ? 3 : 5;
+  const o=K.o[j], h=K.h[j], l=K.l[j], c=K.c[j];
+  const tr = j>0 ? K.c[j-1] : o;
+  const d = c-tr, dp = tr? 100*d/tr : 0, cl = d>=0 ? "up":"dn";
+  const nhan = (typeof K.t[j]==="number")
+    ? new Date(K.t[j]*1000).toISOString().slice(0,16).replace("T"," ")
+    : K.t[j];
+  $("#ohlc").innerHTML =
+    `<span class="sym">${state.pair.slice(0,3)}/${state.pair.slice(3)}</span>`
+  + `<span class="tf">${state.tf}</span>`
+  + `<span class="tf">${nhan}</span>`
+  + `<span><b>O</b> <span class="v">${o.toFixed(nd)}</span></span>`
+  + `<span><b>H</b> <span class="v">${h.toFixed(nd)}</span></span>`
+  + `<span><b>L</b> <span class="v">${l.toFixed(nd)}</span></span>`
+  + `<span><b>C</b> <span class="v ${cl}">${c.toFixed(nd)}</span></span>`
+  + `<span class="${cl}">${d>=0?"+":""}${(d/(P?P.pip:0.0001)).toFixed(1)} pip `
+  + `(${d>=0?"+":""}${dp.toFixed(2)}%)</span>`;
+}
+
+/* Cửa sổ mặc định: ~130 nến gần nhất, KHÔNG phải fitContent().
+   fitContent() nhồi cả 1.500 nến vào ~640px — mỗi nến chưa tới nửa pixel, nến
+   biến thành một dải nhiễu. Mọi sàn đều mở ở khoảng 100–200 nến. */
+const CUA_SO = {D1:130, H1:140, M15:150, M1:160};
+function veCuaSo(){
+  const K = KHO[state.pair+"|"+state.tf]; if(!K) return;
+  const n = K.t.length, m = Math.min(CUA_SO[state.tf]||130, n);
+  chart.timeScale().setVisibleLogicalRange({from:n-m, to:n+8});
+  veOHLC(K, n-1);
+}
+
 async function paintChart(){
   const P = DATA.cap[state.pair], T = P.tam[state.h];
   let K;
@@ -387,7 +461,8 @@ async function paintChart(){
 
   // Lightweight Charts chi nhan 'YYYY-MM-DD' hoac SO GIAY UNIX. K.t da dung
   // dinh dang; K.ngay giu 'YYYY-MM-DD' de do ve du bao NGAY.
-  chart.applyOptions({timeScale:{timeVisible: state.tf!=="D1", secondsVisible:false}});
+  chart.applyOptions({timeScale:{timeVisible: state.tf!=="D1", secondsVisible:false},
+    watermark:{text: state.pair.slice(0,3)+"/"+state.pair.slice(3)+"  "+state.tf}});
   sCandle.setData(K.t.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
   const V = a => K.t.map((t,i)=>(a && a[i]!=null) ? {time:t,value:a[i]} : null).filter(Boolean);
   const D = K.ind ? K.ind.duong : null;
@@ -438,9 +513,22 @@ async function paintChart(){
       {price:pr, color: g.chieu>0?css("--up"):css("--down"), lineWidth:1, lineStyle:1,
        axisLabelVisible:false, title:""})));});
 
+  // Mốc tham chiếu khung dưới: RSI 30/70 và đường 0 của MACD. Không có chúng
+  // thì nhìn đường RSI không biết đâu là quá mua / quá bán.
+  (window.__mocDuoi||[]).forEach(l=>{ try{ DUOI.rsi.removePriceLine(l); }catch(e){} });
+  window.__mocDuoi = [];
+  const mocs = {rsi:[[70,"70"],[50,""],[30,"30"]], stoch:[[80,"80"],[20,"20"]],
+                adx:[[25,"25"]], macd:[[0,""]], atr:[[0.5,""]]}[state.duoi] || [];
+  mocs.forEach(([v,nh])=>window.__mocDuoi.push(DUOI.rsi.createPriceLine(
+    {price:v, color:css("--line"), lineWidth:1, lineStyle:2,
+     axisLabelVisible:!!nh, title:nh})));
+  $("#rsimark").textContent = ({rsi:"RSI 14", macd:"MACD 12/26/9",
+    stoch:"Stochastic 14/3/3", adx:"ADX/DMI 14", atr:"ATR — phân vị 252"})[state.duoi] || "";
+
   const ten = {D1:"D1",H1:"H1",M15:"M15",M1:"M1"}[state.tf];
   $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · "+ten
     + (K.ghi_chu ? " · " + K.ghi_chu : "");
+  veOHLC(K, K.t.length-1);
 }
 
 /* ── ba o ── */
@@ -575,14 +663,14 @@ function paintAbout(){
 /* ── dieu huong ── */
 async function setPair(p){ state.pair=p; state.i=DATA.cap[p].ngay.length-1;
   document.querySelectorAll("#ptabs .ptab").forEach(b=>b.classList.toggle("on", b.dataset.p===p));
-  await paintChart(); paintBoxes(); chart.timeScale().fitContent(); }
+  await paintChart(); paintBoxes(); veCuaSo(); }
 
 function boot(){
   $("#ptabs").innerHTML = DATA.meta.cap.map(p=>`<button class="ptab" data-p="${p}">${p.slice(0,3)}/${p.slice(3)}</button>`).join("");
   $("#ptabs").onclick = e=>{ const b=e.target.closest(".ptab"); if(b) setPair(b.dataset.p); };
   $("#tfsel").onclick = async e=>{ const b=e.target.closest("button"); if(!b) return;
     state.tf=b.dataset.tf; document.querySelectorAll("#tfsel button").forEach(x=>x.classList.toggle("on",x===b));
-    await paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
+    await paintChart(); paintBoxes(); veCuaSo(); };
   $("#hsel").onclick = async e=>{ const b=e.target.closest("button"); if(!b) return;
     state.h=b.dataset.h; document.querySelectorAll("#hsel button").forEach(x=>x.classList.toggle("on",x===b));
     await paintChart(); paintBoxes(); };
@@ -597,9 +685,9 @@ function boot(){
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
     $("#p-"+b.dataset.p).classList.add("on");
     if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="ev") paintEv(); if(b.dataset.p==="about") paintAbout();
-    if(b.dataset.p==="chart" && chart) chart.timeScale().fitContent(); };
+    if(b.dataset.p==="chart" && chart) veCuaSo(); };
   $("#theme").onclick = async ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
-    buildChart(); await paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
+    buildChart(); await paintChart(); paintBoxes(); veCuaSo(); };
   buildChart(); setPair("EURUSD");
 }
 
