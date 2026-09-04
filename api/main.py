@@ -492,7 +492,8 @@ def models():
     for khoa, ten in (("chi_so_sigma", "chiso_mohinh.json"),
                       ("ba_lop", "ml3.json"),
                       ("quy_luat", "quyluat.json"),
-                      ("bien_dong_14", "ketqua_ml_dl.json")):
+                      ("bien_dong_14", "ketqua_ml_dl.json"),
+                      ("tin_cay", "tincay.json")):
         f = os.path.join(ROOT, "output", ten)
         ra[khoa] = json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None
     return ra

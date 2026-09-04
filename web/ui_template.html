@@ -158,6 +158,16 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .why .st{font-family:var(--f-m);font-size:10px;color:var(--ink3);white-space:nowrap}
 
 /* ══ tables ══ */
+/* biểu đồ tin cậy — SVG nội tuyến, không thư viện */
+.tcwrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:6px}
+.tcbox{flex:0 0 240px;max-width:240px}
+@media (max-width:760px){.tcbox{flex:1 1 100%;max-width:none}}
+.tccap{font-family:var(--f-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:4px}
+.tcsvg{width:100%;height:auto;display:block}
+.tcsvg .gr{stroke:var(--grid);stroke-width:1}
+.tcsvg .dg{stroke:var(--ink3);stroke-width:1;stroke-dasharray:3 3}
+.tcsvg .ax{fill:var(--ink3);font-family:var(--f-m);font-size:8px}
 .tw{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:480px}
 th{font-family:var(--f-m);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--ink3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -733,6 +743,7 @@ function paintMo(){
     return;
   }
   const s = M.chi_so_sigma, ba = M.ba_lop, ql = M.quy_luat, b14 = M.bien_dong_14;
+  const tc = M.tin_cay;
   const f = (v,n) => (v==null||!isFinite(v)) ? "—" : Number(v).toFixed(n);
 
   // ── tầng σ̂ ──
@@ -792,6 +803,58 @@ function paintMo(){
     .filter(x=>x[1]!=null)
     .map(x=>`<tr><td>${x[0]}</td><td class="n"><b>${x[1].toLocaleString("vi")}</b></td></tr>`).join("");
 
+  // ── biểu đồ tin cậy + bản theo chế độ ──
+  let khoiTC = "";
+  if(tc && tc.tam){
+    const mau = {"giảm":"--down","đi ngang":"--flat","tăng":"--up"};
+    for(const h of ["1","5","20"]){
+      const T = tc.tam[h]; if(!T) continue;
+      // khung vẽ: lấy dải thực của dữ liệu rồi nới ra, vì xác suất chụm ở giữa
+      let lo=1, hi=0;
+      for(const b of Object.values(T.tin_cay)) for(const x of b)
+        if(x.n>0 && x.p!=null){ lo=Math.min(lo,x.p,x.that); hi=Math.max(hi,x.p,x.that); }
+      lo=Math.max(0,lo-0.05); hi=Math.min(1,hi+0.05); if(hi-lo<0.15){lo=Math.max(0,lo-0.08);hi=Math.min(1,hi+0.08);}
+      const W=210,Hh=210,P0=26;
+      const X=v=>P0+(v-lo)/(hi-lo)*(W-P0-8), Y=v=>Hh-P0-(v-lo)/(hi-lo)*(Hh-P0-8);
+      let svg="";
+      for(let g=0;g<=4;g++){
+        const v=lo+(hi-lo)*g/4;
+        svg+=`<line class="gr" x1="${P0}" y1="${Y(v)}" x2="${W-8}" y2="${Y(v)}"/>`
+           + `<text class="ax" x="2" y="${Y(v)+3}">${(100*v).toFixed(0)}%</text>`
+           + `<text class="ax" x="${X(v)-8}" y="${Hh-P0+12}">${(100*v).toFixed(0)}%</text>`;
+      }
+      svg+=`<line class="dg" x1="${X(lo)}" y1="${Y(lo)}" x2="${X(hi)}" y2="${Y(hi)}"/>`;
+      for(const [lop,bins] of Object.entries(T.tin_cay)){
+        const c=`var(${mau[lop]||"--acc"})`;
+        const pts=bins.filter(b=>b.n>=20&&b.p!=null);
+        svg+=`<polyline fill="none" stroke="${c}" stroke-width="1.5" opacity=".55" points="`
+           + pts.map(b=>`${X(b.p)},${Y(b.that)}`).join(" ")+`"/>`;
+        for(const b of pts)
+          svg+=`<circle cx="${X(b.p)}" cy="${Y(b.that)}" r="${Math.min(7,2+Math.sqrt(b.n)/9)}"`
+             + ` fill="${c}" opacity=".8"><title>${lop}: dự báo ${(100*b.p).toFixed(1)}% · thực ${(100*b.that).toFixed(1)}% · n=${b.n}</title></circle>`;
+      }
+      let rcd="";
+      for(const t of T.theo_che_do){
+        const win=t.bss_lo>0, xau=t.bss_hi<0;
+        rcd+=`<tr><td><b>${t.che_do}</b></td><td class="n">${t.n.toLocaleString("vi")}</td>`
+          +`<td class="n">${t.log.toFixed(4)}</td>`
+          +`<td class="n ${win?"pos":(xau?"neg":"")}">${t.bss>=0?"+":""}${t.bss.toFixed(4)}</td>`
+          +`<td class="n">[${t.bss_lo>=0?"+":""}${t.bss_lo.toFixed(4)}; ${t.bss_hi>=0?"+":""}${t.bss_hi.toFixed(4)}]${win?" ✓":(xau?" ✗":"")}</td>`
+          +`<td class="n">${t.ece.toFixed(4)}</td>`
+          +`<td class="n ${t.mce>0.10?"neg":""}">${t.mce.toFixed(4)}</td>`
+          +`<td class="n">${t.auc.toFixed(3)}</td></tr>`;
+      }
+      khoiTC += `<div class="card sec" style="margin-top:12px">
+        <h2>Tầm hạn ${h} phiên — độ tin cậy và bản theo chế độ</h2>
+        <p class="lead">Mô hình đang chạy: <b>${T.nen}</b> · n = ${T.n.toLocaleString("vi")} trên đoạn kiểm tra. Trục ngang là xác suất <em>dự báo</em>, trục dọc là tần suất <em>thực tế</em>. Nằm trên đường chéo là hiệu chuẩn đúng; dưới đường chéo là <b>nói quá</b>, trên là <b>nói non</b>. Cỡ chấm tỉ lệ với số quan sát.</p>
+        <div class="tcwrap"><div class="tcbox"><div class="tccap">biểu đồ tin cậy — 3 lớp</div>
+          <svg class="tcsvg" viewBox="0 0 ${W} ${Hh}" role="img"
+               aria-label="Biểu đồ tin cậy tầm hạn ${h} phiên">${svg}</svg></div>
+          <div style="flex:3 1 380px"><div class="tw"><table><thead><tr><th>chế độ σ̂</th><th class="n">n</th><th class="n">log</th><th class="n">BSS</th><th class="n">KTC 95%</th><th class="n">ECE</th><th class="n">MCE</th><th class="n">AUC</th></tr></thead><tbody>${rcd}</tbody></table></div></div>
+        </div></div>`;
+    }
+  }
+
   $("#p-mo").innerHTML = `
   <div class="card sec">
     <h2>Tầng σ̂ — dự báo biến động</h2>
@@ -812,6 +875,8 @@ function paintMo(){
     <div class="tw"><table><tbody>${pheu}</tbody></table></div>
     <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂ và TSMOM thì còn ${P.sau_dieu_kien||0}.</div>
   </div>
+
+  ${khoiTC}
 
   ${r3 ? `<div class="card sec" style="margin-top:12px">
     <h2>14 mô hình dự báo biến động (vòng 7)</h2>
