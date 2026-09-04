@@ -186,3 +186,82 @@ không phải vì ai đọc lại mã. Đó là lý do phải có nền trước
 - [Proactive Model Adaptation Against Concept Drift for Online Time Series Forecasting](https://arxiv.org/html/2412.08435v5)
 - [The Evolution of Reinforcement Learning in Quantitative Finance: A Survey (ACM CSUR)](https://dl.acm.org/doi/full/10.1145/3733714)
 - [A Review of Reinforcement Learning in Financial Applications (arXiv 2411.12746)](https://arxiv.org/pdf/2411.12746)
+
+---
+
+## Phần 5 — RL đúng nghĩa: cổng vào lệnh (đã train, 04/09/2026)
+
+*Tái lập: `python src/run_rl_gate.py`. Log: `output/log_rl_gate.txt`.*
+
+Ở phần 3 tôi viết "RL cổng vào lệnh **sẽ** thua" mà chưa chạy. Đó là tiên
+nghiệm, không phải kết quả. Nay đã chạy.
+
+### 5.1 Vì sao đây vẫn là RL chứ không phải học có giám sát
+
+Hành động **đổi trạng thái tương lai**: đứng ngoài hôm nay → không lỗ → sụt
+giảm nhỏ hơn → trần rủi ro ngày mai cho đòn bẩy cao hơn. Vòng phản hồi đó là
+thứ học có giám sát không bắt được. Không gian hành động 2 giá trị, trạng thái
+rời rạc 72 ô (tercile σ̂ × 3 mức sụt giảm × dấu carry × dấu P&L 5 phiên × cờ
+họp NHTW). Chi phí spread thật, quy đúng về đơn vị lợi suất.
+
+### 5.2 Kết quả
+
+**Kiểm định** (dùng để chọn):
+
+| chính sách | TB (bp/ngày) | Sharpe | sụt giảm | % vào lệnh |
+|---|---|---|---|---|
+| luôn vào | 0,577 | 0,36 | 6,0% | 100% |
+| **quy tắc tay (bỏ tercile σ̂ cao)** | **0,693** | **0,60** | **3,0%** | 52,8% |
+| bandit ngữ cảnh (γ=0) | 0,164 | 0,25 | 2,5% | 34,8% |
+| Q-learning (γ=0,95) | 0,508 | 0,36 | 5,7% | 92,5% |
+| Q bi quan (γ=0,95) | 0,577 | 0,36 | 6,0% | 100% |
+
+**Kiểm tra** (chấm một lần):
+
+| chính sách | TB (bp/ngày) | Sharpe | sụt giảm | % vào lệnh | t so luôn vào |
+|---|---|---|---|---|---|
+| luôn vào | −0,821 | −0,60 | 7,0% | 100% | — |
+| không bao giờ vào | 0,000 | 0,00 | 0,0% | 0% | +0,74 (p=0,460) |
+| quy tắc tay | −0,585 | −0,46 | 5,7% | 79,6% | +0,74 (p=0,461) |
+| bandit ngữ cảnh | **−0,200** | −0,31 | 3,2% | 33,4% | +0,75 (p=0,455) |
+| Q-learning | −0,596 | −0,51 | 5,3% | 84,3% | +0,63 (p=0,529) |
+| Q bi quan | −0,821 | −0,60 | 7,0% | 100% | +0,00 (p=1,000) |
+
+### 5.3 Năm điều rút ra
+
+**1. Không một hiệu số nào có ý nghĩa thống kê.** Mọi p > 0,45. Kết luận đúng
+là **"không phân biệt được"**, không phải "RL thua".
+
+**2. Chiến lược nền vốn đã lỗ trên kiểm tra** (−0,821 bp/ngày). Đúng như repo
+đã biết: carry Sharpe −0,05 từ 2010, dưới ngưỡng 0,30 đặt trước. Nên thí nghiệm
+này thực chất đo *"RL có học được cách ngừng giao dịch một chiến lược đang lỗ
+không"* — chứ không phải *"RL có tạo ra lợi nhuận không"*. Cổng chỉ giảm lỗ
+được, không sinh lãi được.
+
+**3. Bandit lỗ ít nhất trong nhóm có giao dịch** (−0,200 so −0,821), bằng cách
+hạ tỷ lệ tham gia xuống 33,4%. Lại là **phương pháp ít năng lực nhất** dẫn đầu
+trong nhóm học được — lần thứ hai, sau bảng định cỡ vị thế.
+
+**4. Q bi quan sập về "luôn vào".** Khi trừ khoản phạt tỷ lệ `1/√n(s,a)`, không
+ô trạng thái nào đủ bằng chứng để lệch khỏi mặc định. Đó là biến thể bảo thủ
+làm **đúng việc của nó**: từ chối hành động theo bằng chứng mỏng. Và nó nói
+thẳng một điều — với 15.018 bước và 72 ô, dữ liệu này **không đủ** để học một
+chính sách khác mặc định.
+
+**5. Chính sách học được khác quy tắc tay ở 23/47 ô có đủ bằng chứng** — tức nó
+không chỉ tìm lại quy luật thủ công, nó làm khác. Và cái khác đó không tốt hơn.
+
+### 5.4 Cái này giải quyết gì, không giải quyết gì
+
+**Đã giải quyết:** RL dạng bảng cho cổng vào lệnh, trên không gian trạng thái
+này, trên chiến lược nền này → **không cải thiện có ý nghĩa** so với một quy tắc
+tay một dòng. Đây là dạng RL **thứ tư** được thử và là lần thứ tư không thắng
+được quy tắc thủ công.
+
+**Chưa giải quyết:** RL trên một chiến lược nền **có lợi thế thật** (hiện chưa
+có); trạng thái giàu hơn; RL sâu (đã thử ở bảng định cỡ, thua nặng hơn).
+
+Mẫu hình lặp lại đủ nhiều lần để đáng ghi vào luận văn: **trên dữ liệu này, mỗi
+lần tăng năng lực mô hình lại làm kết quả xấu đi.** PPO < bandit < quy tắc tay ở
+định cỡ; GRU < LightGBM < logistic < nền ở ba lớp; Q-learning < bandit ở cổng
+vào lệnh. Ba nhánh độc lập, cùng một chiều.
