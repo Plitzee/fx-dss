@@ -85,6 +85,25 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .ind{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
 .ind button{padding:3px 8px;font-family:var(--f-m);font-size:10.5px;color:var(--ink3);border:1px solid var(--line)}
 .ind button.on{color:var(--acc);border-color:var(--acc);background:var(--acc2)}
+/* Bảng chỉ báo dạng thả xuống. 18 nút bày phẳng chiếm hai hàng và mắt không
+   nhóm được chúng; gom vào một bảng cuộn có tiêu đề nhóm thì quét nhanh hơn. */
+.indwrap{position:relative;margin-left:auto}
+#btnind{display:flex;align-items:center;gap:7px;padding:4px 11px;font-family:var(--f-m);
+  font-size:11.5px;color:var(--ink);border:1px solid var(--line);background:var(--panel2)}
+#btnind .dem{font-size:10px;background:var(--acc);color:var(--panel);
+  border-radius:9px;padding:0 6px;min-width:16px;text-align:center}
+#btnind .mui{color:var(--ink3);font-size:9px}
+#indmenu{position:absolute;top:calc(100% + 5px);right:0;z-index:20;width:250px;
+  max-height:min(58vh,380px);overflow-y:auto;background:var(--panel);
+  border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.22);padding:5px 0}
+#indmenu .grp{font-family:var(--f-m);font-size:9.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink3);padding:9px 13px 4px;
+  position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line2)}
+#indmenu label{display:flex;align-items:center;gap:9px;padding:6px 13px;font-size:12.5px;
+  color:var(--ink2);cursor:pointer}
+#indmenu label:hover{background:var(--panel2);color:var(--ink)}
+#indmenu input{accent-color:var(--acc);width:13px;height:13px;flex:none;margin:0}
+#indmenu .ghi{font-family:var(--f-m);font-size:9.5px;color:var(--ink3);margin-left:auto}
 #chartwrap{position:relative}
 #chart{height:400px}
 #rsi{height:96px;border-top:1px solid var(--line2)}
@@ -208,28 +227,9 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
         <div class="card">
           <div class="chd">
             <span class="t" id="chttl">EUR/USD · D1</span>
-            <div class="ind" id="ind">
-              <button data-i="ema" class="on">EMA 20/50/200</button>
-              <button data-i="st">Supertrend</button>
-              <button data-i="bb">Bollinger</button>
-              <button data-i="kc">Keltner</button>
-              <button data-i="dc">Donchian</button>
-              <button data-i="ich">Ichimoku</button>
-              <button data-i="vwap">Giá TB</button>
-              <button data-i="sr">Vùng S/R</button>
-              <button data-i="fvg">Khoảng trống</button>
-              <button data-i="swing">Đỉnh/đáy</button>
-              <button data-i="quet">Quét thanh khoản</button>
-              <button data-i="band" class="on">Dải ±b</button>
-              <button data-i="ev">Sự kiện NHTW</button>
-            </div>
-            <div class="ind" id="ind2" style="margin-left:0">
-              <span class="t" style="align-self:center">KHUNG DƯỚI</span>
-              <button data-o="rsi" class="on">RSI 14</button>
-              <button data-o="macd">MACD</button>
-              <button data-o="stoch">Stochastic</button>
-              <button data-o="adx">ADX/DMI</button>
-              <button data-o="atr">ATR %</button>
+            <div class="indwrap">
+              <button id="btnind" aria-expanded="false">Chỉ báo <span class="dem" id="indcount">2</span><span class="mui">▾</span></button>
+              <div id="indmenu" hidden></div>
             </div>
           </div>
           <div id="chartwrap">
@@ -411,6 +411,60 @@ function buildChart(){
   });
   chart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
   new ResizeObserver(()=>{ if(chart){chart.applyOptions({width:el.clientWidth}); rsiChart.applyOptions({width:el.clientWidth});} }).observe(el);
+}
+
+/* Danh mục chỉ báo — nguồn duy nhất cho cả bảng thả xuống lẫn phần vẽ. */
+const DANH_MUC = [
+  ["Xu hướng", "chong", [
+    ["ema",  "EMA", "20/50/200"], ["st", "Supertrend", "10 · 3"],
+    ["ich",  "Ichimoku", "9/26/52"], ["vwap", "Giá trung bình", "20"]]],
+  ["Biến động / kênh", "chong", [
+    ["bb", "Bollinger", "20 · 2σ"], ["kc", "Keltner", "20 · 1,5×ATR"],
+    ["dc", "Donchian", "20"], ["band", "Dải quyết định ±b", "chỉ D1"]]],
+  ["Cấu trúc thị trường", "chong", [
+    ["sr", "Vùng hỗ trợ / kháng cự", ""], ["fvg", "Khoảng trống giá", "FVG"],
+    ["swing", "Đỉnh / đáy dao động", "fractal 2"],
+    ["quet", "Quét thanh khoản", ""], ["ev", "Sự kiện NHTW", ""]]],
+  ["Khung dưới — chọn một", "duoi", [
+    ["rsi", "RSI", "14"], ["macd", "MACD", "12/26/9"],
+    ["stoch", "Stochastic", "14/3/3"], ["adx", "ADX / DMI", "14"],
+    ["atr", "ATR — phân vị", "252"]]],
+];
+
+function demChiBao(){
+  return Object.values(state.ind).filter(Boolean).length + (state.duoi ? 1 : 0);
+}
+
+function dungBangChiBao(){
+  const m = $("#indmenu");
+  m.innerHTML = DANH_MUC.map(([ten, loai, ds]) =>
+    `<div class="grp">${ten}</div>` + ds.map(([id, nhan, ts]) => {
+      const bat = loai === "duoi" ? state.duoi === id : !!state.ind[id];
+      const kieu = loai === "duoi" ? "radio" : "checkbox";
+      return `<label><input type="${kieu}" ${loai==="duoi"?'name="duoi"':""}`
+           + ` data-loai="${loai}" data-id="${id}" ${bat?"checked":""}>`
+           + `<span>${nhan}</span><span class="ghi">${ts}</span></label>`;
+    }).join("")).join("");
+  $("#indcount").textContent = demChiBao();
+
+  m.onchange = e => {
+    const i = e.target;
+    if(!i.dataset.id) return;
+    if(i.dataset.loai === "duoi") state.duoi = i.checked ? i.dataset.id : null;
+    else state.ind[i.dataset.id] = i.checked;
+    $("#indcount").textContent = demChiBao();
+    paintChart();
+  };
+  $("#btnind").onclick = e => {
+    e.stopPropagation();
+    m.hidden = !m.hidden;
+    $("#btnind").setAttribute("aria-expanded", String(!m.hidden));
+  };
+  // bấm ra ngoài hoặc Esc thì đóng
+  document.addEventListener("click", e => {
+    if(!m.hidden && !m.contains(e.target) && e.target !== $("#btnind")) m.hidden = true;
+  });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") m.hidden = true; });
 }
 
 const NHOM = {ema:["ema20","ema50","ema200"], st:["st"], bb:["bb_tren","bb_giua","bb_duoi"],
@@ -674,12 +728,7 @@ function boot(){
   $("#hsel").onclick = async e=>{ const b=e.target.closest("button"); if(!b) return;
     state.h=b.dataset.h; document.querySelectorAll("#hsel button").forEach(x=>x.classList.toggle("on",x===b));
     await paintChart(); paintBoxes(); };
-  $("#ind").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
-    state.ind[b.dataset.i]=!state.ind[b.dataset.i]; b.classList.toggle("on"); paintChart(); };
-  $("#ind2").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
-    state.duoi = (state.duoi===b.dataset.o) ? null : b.dataset.o;
-    document.querySelectorAll("#ind2 button").forEach(x=>x.classList.toggle("on", x.dataset.o===state.duoi));
-    paintChart(); };
+  dungBangChiBao();
   document.querySelector(".nav").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
     document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
