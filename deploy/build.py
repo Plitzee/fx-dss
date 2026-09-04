@@ -22,9 +22,12 @@ WEB = os.path.join(ROOT, "web")
 PUB = os.path.join(HERE, "public")
 LIB = os.path.join(HERE, "lib")
 
+# `outputDirectory` khai bao RO — khong dua vao viec Vercel tu doan, vi du an
+# nay khong dung framework nao. KHONG dat `maxDuration`: goi Hobby gioi han
+# thap hon con so tuy tien, ma ham nay do duoc 0,7-1,5s nen mac dinh la du.
 VERCEL = """{
   "version": 2,
-  "functions": { "api/intraday.py": { "memory": 1024, "maxDuration": 30 } },
+  "outputDirectory": "public",
   "headers": [
     { "source": "/ui_data.json",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }] }
@@ -32,6 +35,7 @@ VERCEL = """{
 }
 """
 REQS = "requests>=2.31\npandas>=2.0\nnumpy>=1.26\n"
+BOQUA = "build.py\n__pycache__/\n*.pyc\n.vercel/\n"
 
 
 def main():
@@ -57,6 +61,9 @@ def main():
 
     io.open(os.path.join(HERE, "vercel.json"), "w", encoding="utf-8", newline="\n").write(VERCEL)
     io.open(os.path.join(HERE, "requirements.txt"), "w", encoding="utf-8", newline="\n").write(REQS)
+    io.open(os.path.join(HERE, ".vercelignore"), "w", encoding="utf-8", newline="\n").write(BOQUA)
+    for t in (os.path.join(HERE, "api", "__pycache__"), os.path.join(LIB, "__pycache__")):
+        shutil.rmtree(t, ignore_errors=True)
 
     mb = os.path.getsize(os.path.join(PUB, "index.html")) / 1048576
     print(f"  public/index.html    {mb:5.2f} MB")
