@@ -1,0 +1,470 @@
+<meta charset="utf-8">
+<title>FX-DSS Terminal</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<!-- TradingView Lightweight Charts v4.1.3, giấy phép Apache-2.0. KHÔNG có trên
+     cdnjs (đã kiểm: 404) — jsDelivr /npm/ cũng nằm trong danh sách cho phép. -->
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+:root{
+  --bg:#f4f6f3; --panel:#ffffff; --panel2:#eceee8; --line:#d5d9d1; --line2:#e4e7e0;
+  --ink:#14181b; --ink2:#4d565c; --ink3:#7d868c;
+  --acc:#2c5b7a; --acc2:#e2ecf3;
+  --down:#b03a33; --flat:#8f6c0c; --up:#25714b;
+  --downbg:#f8e7e5; --flatbg:#f7f0dc; --upbg:#e2f0e8;
+  --grid:#e8ebe5;
+  --f-d:"Archivo","Segoe UI",system-ui,sans-serif;
+  --f-b:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif;
+  --f-m:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1013; --panel:#141a1e; --panel2:#1b2228; --line:#283137; --line2:#1f272c;
+  --ink:#e4e8e2; --ink2:#a5afb4; --ink3:#78838a;
+  --acc:#7cb2d4; --acc2:#182935;
+  --down:#e8776d; --flat:#d9aa3d; --up:#5fc08d;
+  --downbg:#2b1917; --flatbg:#2a2211; --upbg:#12271c;
+  --grid:#1e262b;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1013; --panel:#141a1e; --panel2:#1b2228; --line:#283137; --line2:#1f272c;
+  --ink:#e4e8e2; --ink2:#a5afb4; --ink3:#78838a;
+  --acc:#7cb2d4; --acc2:#182935;
+  --down:#e8776d; --flat:#d9aa3d; --up:#5fc08d;
+  --downbg:#2b1917; --flatbg:#2a2211; --upbg:#12271c;
+  --grid:#1e262b;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-weight:300;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* ══ login ══ */
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.lcard{width:min(400px,100%);background:var(--panel);border:1px solid var(--line);padding:34px 32px}
+.lcard h1{font-family:var(--f-d);font-weight:700;font-size:24px;letter-spacing:-.02em;margin:0 0 4px}
+.lcard .sub{color:var(--ink3);font-size:12.5px;margin:0 0 22px}
+.lcard label{display:block;font-family:var(--f-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:0 0 6px}
+.lcard input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:9px 11px;font-family:var(--f-m);font-size:13px;margin-bottom:16px}
+.lcard button.go{width:100%;background:var(--acc);color:#fff;padding:10px;font-family:var(--f-d);font-weight:600;font-size:14px}
+:root[data-theme="dark"] .lcard button.go,:root:not([data-theme="light"]) .lcard button.go{color:#0c1013}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .lcard button.go{color:#fff}}
+.mock{margin-top:16px;padding:9px 11px;background:var(--acc2);border-left:2px solid var(--acc);font-size:11.5px;color:var(--ink2);line-height:1.45}
+
+/* ══ shell ══ */
+#app{display:none}
+.top{display:flex;align-items:center;gap:6px;padding:0 14px;height:46px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-family:var(--f-d);font-weight:700;font-size:14px;letter-spacing:-.01em;margin-right:10px;white-space:nowrap}
+.brand span{color:var(--acc)}
+.ptab{padding:5px 10px;font-family:var(--f-m);font-size:12px;color:var(--ink3);border:1px solid transparent;border-radius:2px}
+.ptab.on{background:var(--panel2);color:var(--ink);border-color:var(--line)}
+.spacer{flex:1}
+.tsel{display:flex;gap:1px;background:var(--line);border:1px solid var(--line)}
+.tsel button{padding:4px 11px;font-family:var(--f-m);font-size:11.5px;background:var(--panel);color:var(--ink3)}
+.tsel button.on{background:var(--acc);color:var(--panel)}
+.iconb{padding:5px 9px;font-family:var(--f-m);font-size:11px;color:var(--ink3);border:1px solid var(--line)}
+.who{font-family:var(--f-m);font-size:11px;color:var(--ink3);padding-left:6px}
+
+.nav{display:flex;gap:0;background:var(--panel);border-bottom:1px solid var(--line);padding:0 14px;overflow-x:auto}
+.nav button{padding:9px 14px;font-size:13px;color:var(--ink3);border-bottom:2px solid transparent;white-space:nowrap}
+.nav button.on{color:var(--ink);border-bottom-color:var(--acc)}
+
+.page{display:none;padding:14px}
+.page.on{display:block}
+
+/* ══ chart page ══ */
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 232px;gap:12px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line)}
+.chd{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chd .t{font-family:var(--f-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.ind{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.ind button{padding:3px 8px;font-family:var(--f-m);font-size:10.5px;color:var(--ink3);border:1px solid var(--line)}
+.ind button.on{color:var(--acc);border-color:var(--acc);background:var(--acc2)}
+#chart{height:376px}
+#rsi{height:88px;border-top:1px solid var(--line2)}
+
+.rail{display:flex;flex-direction:column;gap:12px}
+.kv{padding:10px 12px;border-bottom:1px solid var(--line2)}
+.kv:last-child{border-bottom:0}
+.kv .k{font-family:var(--f-m);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3)}
+.kv .v{font-family:var(--f-d);font-weight:600;font-size:18px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:1px}
+.kv .n{font-family:var(--f-m);font-size:10.5px;color:var(--ink3)}
+.pill{display:inline-block;padding:2px 8px;font-family:var(--f-m);font-size:10px;letter-spacing:.06em;text-transform:uppercase;border-radius:9px}
+.pill.r0{background:var(--upbg);color:var(--up)} .pill.r1{background:var(--flatbg);color:var(--flat)} .pill.r2{background:var(--downbg);color:var(--down)}
+.bars{display:flex;align-items:flex-end;gap:1px;height:38px;margin-top:6px}
+.bars i{flex:1;background:var(--acc);opacity:.4;min-height:1px}
+.bars i.hot{opacity:1;background:var(--down)}
+.bars i.now{outline:1px solid var(--ink2);outline-offset:0}
+
+/* ══ three boxes ══ */
+.boxwrap{margin-top:12px}
+.bxh{display:flex;align-items:baseline;gap:12px;padding:9px 12px;background:var(--panel);border:1px solid var(--line);border-bottom:0;flex-wrap:wrap}
+.bxh .d{font-family:var(--f-m);font-size:12px;color:var(--ink)}
+.bxh .m{font-family:var(--f-m);font-size:11px;color:var(--ink3)}
+.boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.bx{padding:13px 15px 12px;display:flex;flex-direction:column;gap:2px}
+.bx.d{background:var(--downbg)} .bx.f{background:var(--flatbg)} .bx.u{background:var(--upbg)}
+.bx .lb{font-family:var(--f-m);font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500}
+.bx.d .lb{color:var(--down)} .bx.f .lb{color:var(--flat)} .bx.u .lb{color:var(--up)}
+.bx .pc{font-family:var(--f-d);font-weight:700;font-size:clamp(26px,4.6vw,36px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.bx.d .pc{color:var(--down)} .bx.f .pc{color:var(--flat)} .bx.u .pc{color:var(--up)}
+.bx .cd,.bx .dl{font-family:var(--f-m);font-size:10.5px}
+.bx .cd{color:var(--ink2)} .bx .dl{color:var(--ink3)}
+.foot{background:var(--panel);border:1px solid var(--line);border-top:0;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.chip{display:flex;align-items:flex-start;gap:7px;font-family:var(--f-m);font-size:11px;color:var(--ink2);line-height:1.45}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;margin-top:4px}
+.dot.ok{background:var(--up)} .dot.mid{background:var(--flat)} .dot.no{background:var(--ink3)} .dot.bad{background:var(--down)}
+.why{margin:2px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.why li{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:10px;font-size:12px;color:var(--ink2);align-items:baseline}
+.why .id{font-family:var(--f-m);font-size:10.5px;color:var(--acc)}
+.why .st{font-family:var(--f-m);font-size:10px;color:var(--ink3);white-space:nowrap}
+
+/* ══ tables ══ */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:480px}
+th{font-family:var(--f-m);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--ink3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+td.n,th.n{text-align:right;font-family:var(--f-m);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td b{color:var(--ink);font-weight:600}
+.pos{color:var(--up);font-weight:500} .neg{color:var(--down);font-weight:500}
+h2{font-family:var(--f-d);font-weight:600;font-size:17px;letter-spacing:-.01em;margin:0 0 4px}
+.lead{color:var(--ink3);font-size:12.5px;margin:0 0 14px;max-width:74ch}
+.sec{padding:14px}
+p{max-width:74ch}
+.note{background:var(--acc2);border-left:2px solid var(--acc);padding:10px 13px;font-size:12.5px;color:var(--ink2);margin:12px 0;line-height:1.55}
+.note.warn{border-left-color:var(--flat)}
+code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px 4px}
+
+@media (max-width:920px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  .boxes{grid-template-columns:1fr}
+  .why li{grid-template-columns:minmax(0,1fr);gap:1px}
+  #chart{height:300px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="login">
+  <div class="lcard">
+    <h1>FX-DSS</h1>
+    <p class="sub">Hệ hỗ trợ quyết định giao dịch ngoại hối</p>
+    <label for="u">Tên người dùng</label>
+    <input id="u" value="demo" autocomplete="off">
+    <button class="go" id="gobtn">Đăng nhập</button>
+    <div class="mock"><b>Màn hình minh hoạ.</b> Chưa nối hệ xác thực thật — không có ô mật khẩu, không gửi và không lưu gì. Xác thực thật (Argon2id + phiên trong Postgres) nằm ở giai đoạn 5 của kế hoạch.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="top">
+    <div class="brand">FX<span>·</span>DSS</div>
+    <div id="ptabs" style="display:flex;gap:2px;flex-wrap:wrap"></div>
+    <div class="spacer"></div>
+    <div class="tsel" id="hsel">
+      <button data-h="1" class="on">1 phiên</button>
+      <button data-h="5">5 phiên</button>
+      <button data-h="20">20 phiên</button>
+    </div>
+    <button class="iconb" id="theme">◐ nền</button>
+    <span class="who" id="who"></span>
+  </div>
+
+  <div class="nav">
+    <button data-p="chart" class="on">Biểu đồ</button>
+    <button data-p="cal">Hiệu chuẩn</button>
+    <button data-p="ev">Sự kiện</button>
+    <button data-p="about">Về hệ thống</button>
+  </div>
+
+  <div class="page on" id="p-chart">
+    <div class="wrap">
+      <div>
+        <div class="card">
+          <div class="chd">
+            <span class="t" id="chttl">EUR/USD · D1</span>
+            <div class="ind" id="ind">
+              <button data-i="ema" class="on">EMA 20/50</button>
+              <button data-i="bb">Bollinger 2σ</button>
+              <button data-i="band" class="on">Dải ±b</button>
+              <button data-i="ev">Sự kiện NHTW</button>
+            </div>
+          </div>
+          <div id="chart"></div>
+          <div id="rsi"></div>
+        </div>
+
+        <div class="boxwrap">
+          <div class="bxh">
+            <span class="d" id="bxdate">—</span>
+            <span class="m" id="bxband">—</span>
+            <span class="m" id="bxsig">—</span>
+            <span class="m" style="margin-left:auto" id="bxsrc">—</span>
+          </div>
+          <div class="boxes">
+            <div class="bx d"><span class="lb">Giảm</span><span class="pc" id="pd">—</span><span class="cd" id="cd">—</span><span class="dl" id="dd">—</span></div>
+            <div class="bx f"><span class="lb">Đi ngang</span><span class="pc" id="pf">—</span><span class="cd" id="cf">—</span><span class="dl" id="df">—</span></div>
+            <div class="bx u"><span class="lb">Tăng</span><span class="pc" id="pu">—</span><span class="cd" id="cu">—</span><span class="dl" id="du">—</span></div>
+          </div>
+          <div class="foot" id="foot"></div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="card" id="rail1"></div>
+        <div class="card">
+          <div class="kv">
+            <div class="k">Chi phí theo giờ (UTC)</div>
+            <div class="bars" id="cbars"></div>
+            <div class="n" id="cnote">spread trung vị, chế độ sau 2015</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="p-cal"></div>
+  <div class="page" id="p-ev"></div>
+  <div class="page" id="p-about"></div>
+</div>
+
+<script>
+const DATA = __DATA__;
+</script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const fmt = (v,n=1) => (v===null||v===undefined||!isFinite(v)) ? "—" : v.toFixed(n);
+const pct = v => (100*v).toFixed(1) + "%";
+const state = {pair:"EURUSD", h:"1", i:0, ind:{ema:true,bb:false,band:true,ev:false}};
+let chart, rsiChart, sCandle, sEma20, sEma50, sBbU, sBbL, sBandU, sBandL, sRsi;
+
+/* ── theme ── */
+function curTheme(){
+  const t = document.documentElement.getAttribute("data-theme");
+  if (t) return t;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+/* ── indicators (hien thi) ── */
+function ema(a,p){const k=2/(p+1);let e=a[0];return a.map((v,i)=>i?(e=v*k+e*(1-k)):e);}
+function sma(a,p){const o=[];let s=0;for(let i=0;i<a.length;i++){s+=a[i];if(i>=p)s-=a[i-p];o.push(i>=p-1?s/p:null);}return o;}
+function stdev(a,p){const o=[];for(let i=0;i<a.length;i++){if(i<p-1){o.push(null);continue;}let m=0;for(let j=i-p+1;j<=i;j++)m+=a[j];m/=p;let v=0;for(let j=i-p+1;j<=i;j++)v+=(a[j]-m)**2;o.push(Math.sqrt(v/p));}return o;}
+function rsi(a,p){const o=[];let g=0,l=0;for(let i=1;i<a.length;i++){const d=a[i]-a[i-1];const u=Math.max(d,0),dn=Math.max(-d,0);
+  if(i<=p){g+=u;l+=dn;o.push(null);if(i===p){g/=p;l/=p;o[o.length-1]=100-100/(1+g/Math.max(l,1e-12));}}
+  else{g=(g*(p-1)+u)/p;l=(l*(p-1)+dn)/p;o.push(100-100/(1+g/Math.max(l,1e-12)));}}
+  return [null,...o];}
+
+/* ── chart ── */
+function buildChart(){
+  const el = $("#chart"); el.innerHTML=""; $("#rsi").innerHTML="";
+  const dark = curTheme()==="dark";
+  const opt = {
+    layout:{background:{color:css("--panel")}, textColor:css("--ink3"), fontFamily:"IBM Plex Mono, monospace", fontSize:10},
+    grid:{vertLines:{color:css("--grid")}, horzLines:{color:css("--grid")}},
+    rightPriceScale:{borderColor:css("--line")},
+    timeScale:{borderColor:css("--line"), rightOffset:4},
+    crosshair:{mode:0, vertLine:{color:css("--ink3"),width:1,style:2,labelBackgroundColor:css("--acc")},
+               horzLine:{color:css("--ink3"),width:1,style:2,labelBackgroundColor:css("--acc")}},
+  };
+  chart = LightweightCharts.createChart(el, {...opt, height:el.clientHeight, width:el.clientWidth});
+  rsiChart = LightweightCharts.createChart($("#rsi"), {...opt, height:$("#rsi").clientHeight, width:el.clientWidth,
+    rightPriceScale:{borderColor:css("--line"), scaleMargins:{top:.1,bottom:.1}}, timeScale:{visible:false}});
+
+  sCandle = chart.addCandlestickSeries({upColor:css("--up"), downColor:css("--down"),
+    borderUpColor:css("--up"), borderDownColor:css("--down"), wickUpColor:css("--up"), wickDownColor:css("--down")});
+  sEma20 = chart.addLineSeries({color:css("--acc"), lineWidth:1, priceLineVisible:false, lastValueVisible:false});
+  sEma50 = chart.addLineSeries({color:css("--ink3"), lineWidth:1, priceLineVisible:false, lastValueVisible:false});
+  sBbU = chart.addLineSeries({color:css("--ink3"), lineWidth:1, lineStyle:2, priceLineVisible:false, lastValueVisible:false});
+  sBbL = chart.addLineSeries({color:css("--ink3"), lineWidth:1, lineStyle:2, priceLineVisible:false, lastValueVisible:false});
+  sBandU = chart.addLineSeries({color:css("--flat"), lineWidth:1, lineStyle:1, priceLineVisible:false, lastValueVisible:false});
+  sBandL = chart.addLineSeries({color:css("--flat"), lineWidth:1, lineStyle:1, priceLineVisible:false, lastValueVisible:false});
+  sRsi = rsiChart.addLineSeries({color:css("--acc"), lineWidth:1, priceLineVisible:false});
+
+  chart.subscribeCrosshairMove(pp=>{
+    if(!pp || !pp.time) return;
+    const P = DATA.cap[state.pair];
+    const k = P.ngay.indexOf(pp.time);
+    if(k>=0){ state.i=k; paintBoxes(); }
+  });
+  chart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ if(r) rsiChart.timeScale().setVisibleLogicalRange(r); });
+  new ResizeObserver(()=>{ if(chart){chart.applyOptions({width:el.clientWidth}); rsiChart.applyOptions({width:el.clientWidth});} }).observe(el);
+}
+
+function paintChart(){
+  const P = DATA.cap[state.pair], T = P.tam[state.h];
+  const cd = P.ngay.map((t,i)=>({time:t, open:P.o[i], high:P.h[i], low:P.l[i], close:P.c[i]}));
+  sCandle.setData(cd);
+  const e20=ema(P.c,20), e50=ema(P.c,50), m20=sma(P.c,20), s20=stdev(P.c,20), rr=rsi(P.c,14);
+  const L=(a)=>P.ngay.map((t,i)=>a[i]==null?null:({time:t,value:a[i]})).filter(Boolean);
+  sEma20.setData(state.ind.ema?L(e20):[]);
+  sEma50.setData(state.ind.ema?L(e50):[]);
+  sBbU.setData(state.ind.bb?L(m20.map((m,i)=>m==null?null:m+2*s20[i])):[]);
+  sBbL.setData(state.ind.bb?L(m20.map((m,i)=>m==null?null:m-2*s20[i])):[]);
+  const bu=[],bl=[];
+  for(let i=0;i<P.ngay.length;i++){const b=T.b_pip[i]*P.pip; bu.push(P.c[i]+b); bl.push(P.c[i]-b);}
+  sBandU.setData(state.ind.band?L(bu):[]);
+  sBandL.setData(state.ind.band?L(bl):[]);
+  sRsi.setData(L(rr));
+  if(state.ind.ev && DATA.su_kien){
+    const set=new Set(P.ngay);
+    sCandle.setMarkers(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
+      time:e.ngay, position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
+  } else sCandle.setMarkers([]);
+  $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · D1 · RSI 14";
+}
+
+/* ── ba o ── */
+function paintBoxes(){
+  const P = DATA.cap[state.pair], T = P.tam[state.h], i = Math.min(state.i, P.ngay.length-1);
+  const p = T.p[i], nen = P.nen12[state.h];
+  $("#pd").textContent = pct(p[0]); $("#pf").textContent = pct(p[1]); $("#pu").textContent = pct(p[2]);
+  const b = T.b_pip[i];
+  $("#cd").textContent = "Δ < −"+fmt(b)+" pip";
+  $("#cf").textContent = "|Δ| < "+fmt(b)+" pip";
+  $("#cu").textContent = "Δ > +"+fmt(b)+" pip";
+  const dl = (v,n)=>{const d=100*(v-n); return "nền 12T "+pct(n)+" · "+(d>=0?"+":"")+d.toFixed(1)+"đ%";};
+  $("#dd").textContent = dl(p[0],(1-nen)/2); $("#df").textContent = dl(p[1],nen); $("#du").textContent = dl(p[2],(1-nen)/2);
+  $("#bxdate").textContent = P.ngay[i];
+  $("#bxband").textContent = "dải ±"+fmt(b)+" pip";
+  $("#bxsig").textContent = "σ̂ "+fmt(T.sig_pip[i])+" pip";
+  $("#bxsrc").textContent = "nền: "+T.nen+" · tầm "+state.h+" phiên";
+  paintFoot(i); paintRail(i);
+}
+
+function paintFoot(i){
+  const P = DATA.cap[state.pair], T = P.tam[state.h];
+  const H = DATA.hieu_chuan || {};
+  const key = "h"+state.h+"_P_"+T.nen;
+  const c = H[key];
+  const rows = [];
+  if(c){
+    const sig = (c.bss_lo>0);
+    rows.push(`<span class="chip"><span class="dot ${sig?"ok":"mid"}"></span>Hiệu chuẩn trên đoạn kiểm định: ECE ${c.ece.toFixed(4)} · MCE <b>${c.mce.toFixed(4)}</b> · BSS ${c.bss>=0?"+":""}${c.bss.toFixed(4)} KTC [${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${sig?" — thắng khí hậu học":" — chưa thắng khí hậu học"}</span>`);
+    rows.push(`<span class="chip"><span class="dot no"></span><span><b>Kỹ năng hướng đi: AUC ${c.auc.toFixed(3)}</b> (KTC 95% [${c.auc_lo.toFixed(3)}; ${c.auc_hi.toFixed(3)}] — phủ 0,50). Không phân biệt được tăng với giảm. Chênh lệch giữa ô đỏ và ô xanh là đối xứng dải cộng nhiễu, <b>đừng đọc như khuyến nghị mua/bán</b>.</span></span>`);
+    if(c.mce>0.06) rows.push(`<span class="chip"><span class="dot bad"></span>Cảnh báo: MCE ${c.mce.toFixed(3)} — trung bình hiệu chuẩn tốt nhưng thùng xác suất cực đoan lệch tới ${(100*c.mce).toFixed(1)} điểm %. Số càng mạnh càng nên nghi ngờ.</span>`);
+  }
+  const ch = P.chi_phi_gio, worst = ch ? ch.med.indexOf(Math.max(...ch.med)) : 21;
+  rows.push(`<span class="chip"><span class="dot mid"></span>Chi phí: giờ đắt nhất là ${worst}:00 UTC (spread trung vị ${fmt(ch.med[worst],2)} pip, p95 ${fmt(ch.p95[worst],2)}). Giờ trượt giá tệ nhất đo được là 12–13h UTC.</span>`);
+  const dt = P.ngay[i];
+  const ev = (DATA.su_kien||[]).filter(e=>e.ngay===dt);
+  if(ev.length) rows.push(`<span class="chip"><span class="dot mid"></span>Hôm nay có họp ngân hàng trung ương: <b>${ev[0].nhan.join(", ")}</b>. Ngày họp và ngày kế tiếp đã nằm trong mô hình biến động (vòng 7, +8% QLIKE).</span>`);
+  const cheDo = ["bình tĩnh","vừa","căng thẳng"][P.che_do[i]];
+  rows.push(`<h4 style="font-family:var(--f-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:4px 0 0">Vì sao ra con số này</h4>`);
+  rows.push(`<ul class="why">
+    <li><span class="id">TANG2-HAR7</span><span>σ̂ dự báo ${fmt(T.sig_pip[i])} pip — chế độ <b>${cheDo}</b>; đây là thứ đẩy ô vàng lên xuống</span><span class="st">QLIKE 0,1585</span></li>
+    <li><span class="id">DAI-P-kP</span><span>dải ±${fmt(T.b_pip[i])} pip = ${T.kP} × trung vị σ̂ 12 tháng × √${state.h} × ${T.c_h}</span><span class="st">chốt trên huấn luyện</span></li>
+    <li><span class="id">HUONG-NULL</span><span>không quy luật hướng nào được áp — 0/351 mẫu sống sót kiểm định bội</span><span class="st">Westfall–Young</span></li>
+  </ul>`);
+  $("#foot").innerHTML = rows.join("");
+}
+
+function paintRail(i){
+  const P = DATA.cap[state.pair], T = P.tam[state.h];
+  const cheDo = ["bình tĩnh","vừa","căng thẳng"][P.che_do[i]];
+  $("#rail1").innerHTML = `
+    <div class="kv"><div class="k">Giá đóng cửa</div><div class="v">${P.c[i]}</div><div class="n">${P.ngay[i]}</div></div>
+    <div class="kv"><div class="k">σ̂ dự báo (tầng 2)</div><div class="v">${fmt(T.sig_pip[i])} <span style="font-size:11px;color:var(--ink3)">pip</span></div><div class="n">HAR vòng 7 + lịch NHTW</div></div>
+    <div class="kv"><div class="k">Chế độ biến động</div><div class="v" style="font-size:14px"><span class="pill r${P.che_do[i]}">${cheDo}</span></div><div class="n">tam phân vị chốt trên huấn luyện</div></div>
+    <div class="kv"><div class="k">Dải quyết định</div><div class="v">±${fmt(T.b_pip[i])} <span style="font-size:11px;color:var(--ink3)">pip</span></div><div class="n">cố định, đổi chậm hơn σ̂ 56 lần</div></div>`;
+  const ch = P.chi_phi_gio;
+  if(ch){
+    const mx = Math.max(...ch.med), now = new Date().getUTCHours();
+    $("#cbars").innerHTML = ch.med.map((v,hh)=>`<i class="${v>=mx*0.92?"hot":""} ${hh===now?"now":""}" style="height:${Math.max(2,100*v/mx)}%" title="${hh}:00 UTC — ${v.toFixed(2)} pip"></i>`).join("");
+    $("#cnote").textContent = `spread trung vị theo giờ UTC · đắt nhất ${ch.med.indexOf(mx)}:00 (${mx.toFixed(2)} pip)`;
+  }
+}
+
+/* ── cac trang phu ── */
+function paintCal(){
+  const H = DATA.hieu_chuan||{}; const rows=[];
+  for(const h of [1,5,20]) for(const mt of ["P","R"]){
+    for(const n of ["khí hậu học","quán tính","chỉ σ̂","σ̂ + chế độ"]){
+      const c = H[`h${h}_${mt}_${n}`]; if(!c) continue;
+      const win = c.bss_lo>0;
+      rows.push(`<tr><td class="n">${h}</td><td><b>${mt}</b></td><td>${n}</td>
+        <td class="n ${c.bss>0?"pos":(c.bss<0?"neg":"")}">${c.bss>=0?"+":""}${c.bss.toFixed(4)}</td>
+        <td class="n">[${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${win?" ✓":""}</td>
+        <td class="n">${c.ece.toFixed(4)}</td><td class="n">${c.mce.toFixed(4)}</td>
+        <td class="n">${c.auc.toFixed(3)}</td><td class="n">[${c.auc_lo.toFixed(3)}; ${c.auc_hi.toFixed(3)}]</td></tr>`);
+    }
+  }
+  $("#p-cal").innerHTML = `<div class="card sec">
+    <h2>Hiệu chuẩn — hệ thống tự chấm điểm mình</h2>
+    <p class="lead">Sản phẩm giao cho người dùng là ba phần trăm, nên hiệu chuẩn <em>chính là</em> sản phẩm. Bảng dưới đo trên <b>đoạn kiểm định</b> (${DATA.meta.valid_tu} → ${DATA.meta.test_tu}), 6 cặp gộp, n = 3.282 mỗi ô. Đoạn kiểm tra chưa mở.</p>
+    <div class="note"><b>Cách đọc.</b> <b>BSS</b> = giảm được bao nhiêu phần Brier so với "khí hậu học" (đoán bằng tần suất lịch sử). Dấu ✓ nghĩa là khoảng tin cậy không phủ 0 — thắng thật. <b>ECE</b> = lệch hiệu chuẩn trung bình, <b>MCE</b> = lệch của thùng tệ nhất. <b>AUC</b> = kỹ năng phân biệt tăng/giảm; 0,5 là không phân biệt được.</div>
+    <div class="tw"><table><thead><tr><th class="n">h</th><th>mục tiêu</th><th>nền</th><th class="n">BSS</th><th class="n">KTC 95%</th><th class="n">ECE</th><th class="n">MCE</th><th class="n">AUC hướng</th><th class="n">KTC 95%</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>
+    <div class="note warn"><b>Mục tiêu R so với P.</b> R dùng dải co giãn theo σ̂ nên σ̂ bị chia mất — mọi nền suy biến thành hằng số và không nền nào thắng khí hậu học. P dùng dải cố định nên σ̂ còn tác dụng, và đó là bản đang hiển thị. Đo được: trên R độ lệch chuẩn của P(đi ngang) theo ngày là 1,10×10⁻¹⁶; trên P là 7,88×10⁻².</div>
+    <div class="note warn"><b>24/24 ô có AUC phủ 0,50.</b> Không nền nào phân biệt được hướng đi ở bất kỳ tầm hạn nào. Cùng chiều với 0/351 mẫu hướng sống sót kiểm định bội ở giai đoạn 0.</div></div>`;
+}
+
+function paintEv(){
+  const P = DATA.cap[state.pair];
+  const set = new Set(P.ngay);
+  const ev = (DATA.su_kien||[]).filter(e=>set.has(e.ngay)).slice(-60).reverse();
+  const rows = ev.map(e=>{
+    const i = P.ngay.indexOf(e.ngay), T = P.tam[state.h];
+    return `<tr><td class="n">${e.ngay}</td><td><b>${e.nhan.join(", ")}</b></td>
+      <td class="n">${fmt(T.sig_pip[i])}</td><td class="n">${fmt(T.b_pip[i])}</td>
+      <td class="n">${pct(T.p[i][1])}</td></tr>`;}).join("");
+  $("#p-ev").innerHTML = `<div class="card sec">
+    <h2>Sự kiện — lịch ngân hàng trung ương</h2>
+    <p class="lead">${(DATA.su_kien||[]).length} ngày họp của 7 ngân hàng trung ương từ ${DATA.meta.tu}. Đây là <b>trục duy nhất</b> trong 1.024 cấu hình đã backtest có tác dụng thật: lịch riêng từng cặp ăn 8% QLIKE, lịch dùng chung chỉ 3%.</p>
+    <div class="note"><b>Phạm vi trung thực.</b> Hệ thống có lịch sự kiện <em>có kế hoạch</em>. Nó <b>không</b> có kho tin tức lịch sử có dấu thời gian, nên chưa phản ứng được với tin thuế quan hay xung đột. Khi có, cách làm đã thiết kế là <em>nghiên cứu sự kiện</em>: tra phân phối phản ứng đã đo kèm cỡ mẫu, rồi đề xuất về <b>dải, cỡ vị thế và giờ vào lệnh</b> — không bao giờ đề xuất hướng. Xem <code>docs/REPLAN_2026.md</code> mục 6.</div>
+    <div class="tw"><table><thead><tr><th class="n">ngày</th><th>ngân hàng</th><th class="n">σ̂ (pip)</th><th class="n">dải ±b</th><th class="n">P(đi ngang)</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function paintAbout(){
+  $("#p-about").innerHTML = `<div class="card sec">
+    <h2>Hệ thống này hứa gì, và không hứa gì</h2>
+    <p class="lead">Bản MVP. Mọi con số trên giao diện đều đo từ dữ liệu trong repo — 6 cặp, 2010–2025, nến M1 gộp lên D1, giờ UTC đã hiệu chuẩn giờ mùa hè.</p>
+    <div class="note"><b>Hứa:</b> xác suất <em>được hiệu chuẩn</em>, rủi ro đuôi được chặn, và mỗi con số truy được về nguồn.<br>
+    <b>Không hứa:</b> lợi nhuận. Kiểm tra toàn mạch trên ~26 năm cho vốn cuối 1,004–1,037 và không cháy tài khoản ở mọi cấu hình. Lợi thế là <em>nhỏ</em>.</div>
+    <div class="note warn"><b>Không dự báo được hướng đi.</b> Bốn nhánh độc lập cùng kết luận: momentum Sharpe −0,16 (2010–2025) · carry −0,05 · <b>0/351</b> mẫu hướng sống sót Westfall–Young · 24/24 ô có AUC phủ 0,50. Thông tin nằm ở trục <b>biến động</b>, và ô vàng là nơi nó hiện ra.</div>
+    <h2 style="margin-top:18px">Còn thiếu trong bản MVP</h2>
+    <div class="tw"><table><tbody>
+      <tr><td><b>Xác thực thật</b></td><td>màn hình đăng nhập là minh hoạ; Argon2id + phiên Postgres ở giai đoạn 5</td></tr>
+      <tr><td><b>Thư viện quy luật</b></td><td>giai đoạn 2 — hiện chỉ có nền "chỉ σ̂" và "σ̂ + chế độ"; chưa quy luật khai phá nào được áp</td></tr>
+      <tr><td><b>Dữ liệu hằng ngày</b></td><td>chuỗi dừng ở 2025-12-31; bộ tải Dukascospy .bi5 chưa viết</td></tr>
+      <tr><td><b>Sổ dự báo</b></td><td>chưa có, nên thanh hiệu chuẩn là số tĩnh đo trên kiểm định chứ chưa trượt theo thời gian thật</td></tr>
+      <tr><td><b>Chỉ báo</b></td><td>EMA/Bollinger/RSI tính ở trình duyệt cho bản MVP; kế hoạch là tính ở backend để chỉ báo và quy luật dùng chung một bộ mã</td></tr>
+      <tr><td><b>Đoạn kiểm tra</b></td><td>chưa mở — mọi số hiển thị đo trên đoạn kiểm định, đúng luật <code>src/split.py</code></td></tr>
+    </tbody></table></div>
+    <div class="note"><b>Đây là hệ hỗ trợ quyết định, không phải lời khuyên đầu tư.</b></div></div>`;
+}
+
+/* ── dieu huong ── */
+function setPair(p){ state.pair=p; state.i=DATA.cap[p].ngay.length-1;
+  document.querySelectorAll("#ptabs .ptab").forEach(b=>b.classList.toggle("on", b.dataset.p===p));
+  paintChart(); paintBoxes(); chart.timeScale().fitContent(); }
+
+function boot(){
+  $("#ptabs").innerHTML = DATA.meta.cap.map(p=>`<button class="ptab" data-p="${p}">${p.slice(0,3)}/${p.slice(3)}</button>`).join("");
+  $("#ptabs").onclick = e=>{ const b=e.target.closest(".ptab"); if(b) setPair(b.dataset.p); };
+  $("#hsel").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+    state.h=b.dataset.h; document.querySelectorAll("#hsel button").forEach(x=>x.classList.toggle("on",x===b));
+    paintChart(); paintBoxes(); };
+  $("#ind").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+    state.ind[b.dataset.i]=!state.ind[b.dataset.i]; b.classList.toggle("on"); paintChart(); };
+  document.querySelector(".nav").onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+    document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
+    document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+    $("#p-"+b.dataset.p).classList.add("on");
+    if(b.dataset.p==="cal") paintCal(); if(b.dataset.p==="ev") paintEv(); if(b.dataset.p==="about") paintAbout();
+    if(b.dataset.p==="chart" && chart) chart.timeScale().fitContent(); };
+  $("#theme").onclick = ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
+    buildChart(); paintChart(); paintBoxes(); chart.timeScale().fitContent(); };
+  buildChart(); setPair("EURUSD");
+}
+
+$("#gobtn").onclick = ()=>{
+  $("#who").textContent = ($("#u").value||"demo") + " · demo";
+  $("#login").style.display="none"; $("#app").style.display="block";
+  if(typeof LightweightCharts==="undefined"){
+    $("#p-chart").innerHTML = '<div class="card sec"><h2>Không tải được thư viện biểu đồ</h2><p class="lead">Thư viện nến không tải được từ CDN. Các trang Hiệu chuẩn, Sự kiện và Về hệ thống vẫn dùng được.</p></div>';
+    paintCal(); return;
+  }
+  boot();
+};
+document.addEventListener("keydown", e=>{ if(e.key==="Enter" && $("#login").style.display!=="none") $("#gobtn").click(); });
+</script>
