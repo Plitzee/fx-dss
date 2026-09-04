@@ -78,6 +78,7 @@ def chup_ban_tinh(day_du=True):
          "hieu_chuan": g("/calibration").get("bang", {}),
          "so_dubao": {h: g(f"/journal?h={h}") for h in HS},
          "mo_hinh": g("/models"),
+         "rui_ro": {},
          "chi_phi_gio": {}, "tom_tat": {}}
 
     tong = 0
@@ -88,6 +89,10 @@ def chup_ban_tinh(day_du=True):
             M["chi_phi_gio"][p] = g(f"/cost?pair={p}")
         except Exception:
             M["chi_phi_gio"][p] = None
+        try:
+            M["rui_ro"][p] = g(f"/risk?pair={p}&so_vi_the=6")
+        except Exception:
+            M["rui_ro"][p] = None
         try:
             ind = g(f"/indicators?pair={p}&tf=D1&n={N}")
         except Exception:

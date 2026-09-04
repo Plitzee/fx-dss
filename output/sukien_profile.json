@@ -1,0 +1,98 @@
+{
+ "cua_so": 20,
+ "min_n": 30,
+ "loai": [
+  {
+   "bank": "BOC",
+   "n": 798,
+   "bd_trungvi": 1.16,
+   "bd_lo": 1.041,
+   "bd_hi": 1.252,
+   "bd_p90": 3.236,
+   "sig_trungvi": 1.013,
+   "dau_tb": 0.034,
+   "dau_lo": -0.03,
+   "dau_hi": 0.098,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "BOE",
+   "n": 588,
+   "bd_trungvi": 1.321,
+   "bd_lo": 1.169,
+   "bd_hi": 1.48,
+   "bd_p90": 3.612,
+   "sig_trungvi": 1.075,
+   "dau_tb": 0.007,
+   "dau_lo": -0.068,
+   "dau_hi": 0.088,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "BOJ",
+   "n": 690,
+   "bd_trungvi": 1.084,
+   "bd_lo": 0.981,
+   "bd_hi": 1.176,
+   "bd_p90": 3.089,
+   "sig_trungvi": 1.037,
+   "dau_tb": -0.026,
+   "dau_lo": -0.097,
+   "dau_hi": 0.043,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "ECB",
+   "n": 918,
+   "bd_trungvi": 1.274,
+   "bd_lo": 1.188,
+   "bd_hi": 1.409,
+   "bd_p90": 3.62,
+   "sig_trungvi": 1.022,
+   "dau_tb": 0.007,
+   "dau_lo": -0.06,
+   "dau_hi": 0.074,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "FOMC",
+   "n": 792,
+   "bd_trungvi": 1.454,
+   "bd_lo": 1.347,
+   "bd_hi": 1.516,
+   "bd_p90": 3.793,
+   "sig_trungvi": 1.232,
+   "dau_tb": 0.028,
+   "dau_lo": -0.039,
+   "dau_hi": 0.096,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "RBA",
+   "n": 1056,
+   "bd_trungvi": 1.157,
+   "bd_lo": 1.105,
+   "bd_hi": 1.251,
+   "bd_p90": 3.031,
+   "sig_trungvi": 0.984,
+   "dau_tb": 0.024,
+   "dau_lo": -0.035,
+   "dau_hi": 0.083,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "SNB",
+   "n": 432,
+   "bd_trungvi": 1.264,
+   "bd_lo": 1.116,
+   "bd_hi": 1.445,
+   "bd_p90": 3.351,
+   "sig_trungvi": 1.123,
+   "dau_tb": 0.044,
+   "dau_lo": -0.051,
+   "dau_hi": 0.137,
+   "huong_co_y_nghia": false
+  }
+ ],
+ "so_loai_co_huong": 0
+}
