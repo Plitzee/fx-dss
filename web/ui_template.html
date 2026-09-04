@@ -289,28 +289,34 @@ async function napKhung(p, tf){
   if(KHO[k]) return KHO[k];
   const n = tf==="D1" ? 1500 : (tf==="H1" ? 1200 : 900);
 
+  // D1 LUON lay tu du lieu nuong san: no co lich su day du (2010 ->) va chi
+  // bao tinh tu chinh chuoi do. Goi API cho D1 se chi duoc 730 ngay vi thanh
+  // gio cua Yahoo bi cap o do — tuc mat lich su.
+  if(tf === "D1" && DATA && DATA.cap[p]){
+    const P = DATA.cap[p];
+    KHO[k] = {ngay:P.ngay, t:P.ngay, o:P.o, h:P.h, l:P.l, c:P.c, nguon:P.nguon,
+              ghi_chu: P.ind ? "lịch sử đầy đủ" : "bản tĩnh — chưa có chỉ báo",
+              ind: P.ind || null};
+    return KHO[k];
+  }
+
   if(API === "VERCEL"){
     const r = await (await fetch(`/api/intraday?pair=${p}&tf=${tf}&n=${n}`)).json();
     if(r.loi) throw new Error(r.loi);
-    KHO[k] = {ngay:r.ngay, o:r.o, h:r.h, l:r.l, c:r.c,
+    KHO[k] = {ngay:r.ngay, t:r.t||r.ngay, o:r.o, h:r.h, l:r.l, c:r.c,
               nguon:r.ngay.map(()=> "yahoo"), ghi_chu:r.ghi_chu,
               ind:{duong:r.duong, st_chieu:r.st_chieu, vwap_that:r.vwap_that,
                    cau_truc:r.cau_truc}};
     return KHO[k];
   }
 
-  if(API === null){
-    if(tf !== "D1") throw new Error("bản tĩnh chỉ có khung ngày — khung "+tf+" cần API");
-    const P = DATA.cap[p];
-    KHO[k] = {ngay:P.ngay, o:P.o, h:P.h, l:P.l, c:P.c, nguon:P.nguon,
-              ghi_chu:"bản tĩnh — chỉ khung ngày", ind:null};
-    return KHO[k];
-  }
+  if(API === null)
+    throw new Error("bản tĩnh chỉ có khung ngày — khung "+tf+" cần API");
 
   const [s, ind] = await Promise.all([
     jget(`/series?pair=${p}&tf=${tf}&n=${n}`),
     jget(`/indicators?pair=${p}&tf=${tf}&n=${n}`).catch(()=>null)]);
-  KHO[k] = {ngay:s.ngay, o:s.o, h:s.h, l:s.l, c:s.c, nguon:s.nguon,
+  KHO[k] = {ngay:s.ngay, t:s.t||s.ngay, o:s.o, h:s.h, l:s.l, c:s.c, nguon:s.nguon,
             ghi_chu:s.ghi_chu||"", ind:ind};
   return KHO[k];
 }
@@ -356,10 +362,10 @@ function buildChart(){
   chart.subscribeCrosshairMove(pp=>{
     if(!pp || !pp.time) return;
     const K = KHO[state.pair+"|"+state.tf]; if(!K) return;
-    const j = K.ngay.indexOf(pp.time);
+    const j = K.t.indexOf(pp.time);
     if(j<0) return;
     const P = DATA.cap[state.pair];
-    const ngay = String(K.ngay[j]).slice(0,10);       // ba ô luôn theo NGÀY
+    const ngay = K.ngay[j];                           // ba ô luôn theo NGÀY
     const k = P.ngay.lastIndexOf(ngay);
     if(k>=0){ state.i=k; paintBoxes(); }
   });
@@ -379,8 +385,11 @@ async function paintChart(){
   try{ K = await napKhung(state.pair, state.tf); }
   catch(e){ $("#chttl").textContent = "lỗi nạp khung " + state.tf + ": " + e; return; }
 
-  sCandle.setData(K.ngay.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
-  const V = a => K.ngay.map((t,i)=>(a && a[i]!=null) ? {time:t,value:a[i]} : null).filter(Boolean);
+  // Lightweight Charts chi nhan 'YYYY-MM-DD' hoac SO GIAY UNIX. K.t da dung
+  // dinh dang; K.ngay giu 'YYYY-MM-DD' de do ve du bao NGAY.
+  chart.applyOptions({timeScale:{timeVisible: state.tf!=="D1", secondsVisible:false}});
+  sCandle.setData(K.t.map((t,i)=>({time:t, open:K.o[i], high:K.h[i], low:K.l[i], close:K.c[i]})));
+  const V = a => K.t.map((t,i)=>(a && a[i]!=null) ? {time:t,value:a[i]} : null).filter(Boolean);
   const D = K.ind ? K.ind.duong : null;
 
   for(const [nh,ids] of Object.entries(NHOM))
@@ -402,20 +411,20 @@ async function paintChart(){
   // đánh dấu: sự kiện NHTW, đỉnh/đáy dao động, quét thanh khoản
   let mk = [];
   if(state.ind.ev && DATA.su_kien){
-    const set = new Set(K.ngay.map(x=>String(x).slice(0,10)));
+    const set = new Set(K.ngay);
     mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
-      time: K.ngay.find(x=>String(x).slice(0,10)===e.ngay),
+      time: K.t[K.ngay.indexOf(e.ngay)],
       position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
   }
   const ct = K.ind ? K.ind.cau_truc : null;
   if(state.ind.swing && ct){
-    mk = mk.concat(ct.dinh.map(i=>({time:K.ngay[i], position:"aboveBar", color:css("--down"), shape:"arrowDown", text:""})));
-    mk = mk.concat(ct.day.map(i=>({time:K.ngay[i], position:"belowBar", color:css("--up"), shape:"arrowUp", text:""})));
+    mk = mk.concat(ct.dinh.map(i=>({time:K.t[i], position:"aboveBar", color:css("--down"), shape:"arrowDown", text:""})));
+    mk = mk.concat(ct.day.map(i=>({time:K.t[i], position:"belowBar", color:css("--up"), shape:"arrowUp", text:""})));
   }
   if(state.ind.quet && ct)
-    mk = mk.concat(ct.quet.map(q=>({time:K.ngay[q.tai],
+    mk = mk.concat(ct.quet.map(q=>({time:K.t[q.tai],
       position: q.chieu>0?"belowBar":"aboveBar", color:css("--flat"), shape:"square", text:"quét"})));
-  mk = mk.filter(m=>m.time).sort((a,b)=>String(a.time)<String(b.time)?-1:1);
+  mk = mk.filter(m=>m.time!=null).sort((a,b)=>(a.time>b.time)-(a.time<b.time));
   sCandle.setMarkers(mk);
 
   // vùng S/R và khoảng trống giá vẽ bằng đường mức giá

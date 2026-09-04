@@ -69,6 +69,14 @@ def chup_ban_tinh():
             c = g(f"/cost?pair={p}")
         except Exception:
             c = None
+        # Chi bao D1 tinh tu chuoi LICH SU DAY DU (2010 ->) roi nuong vao ban
+        # tinh. Neu de trang tren Vercel goi /api/intraday cho D1 thi no chi co
+        # 730 ngay — gioi han thanh gio cua Yahoo — tuc mat het lich su.
+        try:
+            ind = g(f"/indicators?pair={p}&tf=D1&n=1500")
+        except Exception:
+            ind = None
+
         k = {d: i for i, d in enumerate(f["ngay"])}
         sel = lambda a: [a[k[d]] if d in k else None for d in s["ngay"]]
         tam = {}
@@ -84,7 +92,10 @@ def chup_ban_tinh():
             "sig_pip": [v or 0 for v in sel(f["sig_pip"])],
             "che_do": [0 if v is None else v for v in sel(f["che_do"])],
             "nen12": f["nen12"], "tam": tam,
-            "chi_phi_gio": {"med": c["med"], "p95": c["p95"]} if c else None}
+            "chi_phi_gio": {"med": c["med"], "p95": c["p95"]} if c else None,
+            "ind": ({"duong": ind["duong"], "st_chieu": ind["st_chieu"],
+                     "vwap_that": ind["vwap_that"], "cau_truc": ind["cau_truc"],
+                     "ngay": ind["ngay"]} if ind else None)}
     out = os.path.join(WEB, "ui_data.json")
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(ra, fh, ensure_ascii=False, separators=(",", ":"))

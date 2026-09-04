@@ -253,9 +253,16 @@ def nap_khung(pair, tf):
 
 
 def _tem(d, tf):
+    """Tra ve (ngay, t).
+
+    `ngay` luon la 'YYYY-MM-DD' — de giao dien do duoc ve du bao NGAY.
+    `t` la moc cho BIEU DO: Lightweight Charts chi nhan chuoi 'YYYY-MM-DD'
+    hoac SO GIAY UNIX. Chuoi kieu '2026-09-04 03:00' bi parse ra rac va bieu
+    do hien trang — da gap that tren ban da trien khai."""
+    ngay = [str(pd.Timestamp(x).date()) for x in d.ts.values]
     if tf == "D1":
-        return [str(x)[:10] for x in d.ts.values]
-    return [pd.Timestamp(x).strftime("%Y-%m-%d %H:%M") for x in d.ts.values]
+        return ngay, ngay
+    return ngay, [int(pd.Timestamp(x).timestamp()) for x in d.ts.values]
 
 
 @app.get("/series")
@@ -268,8 +275,9 @@ def series(pair: str = Query(...), tf: str = Query("D1"),
     if tu:
         d = d[d.ts >= pd.Timestamp(tu)]
     d = d.tail(n)
+    ngay, t = _tem(d, tf)
     ra = {"pair": pair, "tf": tf, "pip": pip_size(pair), "ghi_chu": ghi_chu,
-          "ngay": _tem(d, tf),
+          "ngay": ngay, "t": t,
           "o": [round(float(v), 6) for v in d.open.values],
           "h": [round(float(v), 6) for v in d.high.values],
           "l": [round(float(v), 6) for v in d.low.values],
@@ -294,7 +302,8 @@ def indicators(pair: str = Query(...), tf: str = Query("D1"), n: int = Query(150
     R = CB.tinh_tat_ca(d)
     lam = lambda a: [None if not np.isfinite(v) else round(float(v), 6)
                      for v in np.asarray(a, float)]
-    ra = {"pair": pair, "tf": tf, "ngay": _tem(d, tf),
+    ngay, t = _tem(d, tf)
+    ra = {"pair": pair, "tf": tf, "ngay": ngay, "t": t,
           "duong": {k: lam(v) for k, v in R.items()
                     if k not in ("st_chieu", "vwap_that")},
           "st_chieu": [int(v) for v in R["st_chieu"]],

@@ -84,13 +84,19 @@ def lam(pair, tf, n):
     d = d.tail(n).reset_index(drop=True)
 
     R = CB.tinh_tat_ca(d)
-    tem = ([str(x)[:10] for x in d.ts.values] if tf == "D1"
-           else [pd.Timestamp(x).strftime("%Y-%m-%d %H:%M") for x in d.ts.values])
+    # `t` la moc thoi gian CHO BIEU DO. Lightweight Charts chi chap nhan chuoi
+    # 'YYYY-MM-DD' hoac SO GIAY UNIX — chuoi kieu '2026-09-04 03:00' bi parse
+    # ra rac va bieu do hien trang. Da gap that tren ban da trien khai.
+    # `ngay` luon la 'YYYY-MM-DD' de giao dien do duoc ve du bao NGAY.
+    ngay = [str(pd.Timestamp(x).date()) for x in d.ts.values]
+    t = (ngay if tf == "D1"
+         else [int(pd.Timestamp(x).timestamp()) for x in d.ts.values])
+    tem = ngay
     h, l, c = d.high.values, d.low.values, d.close.values
     dinh, day, k = CB.diem_xoay(h, l)
     return _py({
         "pair": pair, "tf": tf, "ghi_chu": ghi_chu, "nguon": "yahoo",
-        "pip": PIP.get(pair, 0.0001), "ngay": tem,
+        "pip": PIP.get(pair, 0.0001), "ngay": tem, "t": t,
         "o": [round(float(v), 6) for v in d.open.values],
         "h": [round(float(v), 6) for v in h],
         "l": [round(float(v), 6) for v in l],
