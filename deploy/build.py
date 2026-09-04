@@ -29,8 +29,8 @@ VERCEL = """{
   "version": 2,
   "outputDirectory": "public",
   "headers": [
-    { "source": "/ui_data.json",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }] }
+    { "source": "/data/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600" }] }
   ]
 }
 """
@@ -60,18 +60,20 @@ def main():
     # 1. chi bao — dung CHINH file o src/, khong viet lai (mot bo ma duy nhat)
     shutil.copy2(os.path.join(ROOT, "src", "chibao.py"), os.path.join(LIB, "chibao.py"))
 
-    # 2. du lieu du bao da tinh san
-    src = os.path.join(WEB, "ui_data.json")
-    if not os.path.exists(src):
-        raise SystemExit("thiếu web/ui_data.json — chạy `python jobs/cap_nhat.py` trước")
-    shutil.copy2(src, os.path.join(PUB, "ui_data.json"))
+    # 2. du lieu: tach theo cap, lich su DAY DU. Khong noi tuyen vao HTML nua —
+    #    11 MB nhoi vao mot trang thi khong mo noi.
+    src = os.path.join(WEB, "data")
+    if not os.path.isdir(src) or not os.path.exists(os.path.join(src, "meta.json")):
+        raise SystemExit("thiếu web/data/ — chạy `python jobs/cap_nhat.py` trước")
+    dst = os.path.join(PUB, "data")
+    shutil.rmtree(dst, ignore_errors=True)
+    shutil.copytree(src, dst)
 
     # 3. trang: ban TINH (du bao nuong san) nhung API tro toi /api de lay khung
     #    noi ngay. Hai nguon nay khong xung dot: du bao la dai luong NGAY, con
     #    nen noi ngay chi de ve bieu do.
     t = io.open(os.path.join(WEB, "ui_template.html"), encoding="utf-8").read()
-    data = io.open(src, encoding="utf-8").read()
-    html = t.replace("__DATA__", data).replace("__API__", '"VERCEL"')
+    html = t.replace("__DATA__", "null").replace("__API__", '"VERCEL"')
     io.open(os.path.join(PUB, "index.html"), "w", encoding="utf-8", newline="\n").write(html)
 
     io.open(os.path.join(HERE, "vercel.json"), "w", encoding="utf-8", newline="\n").write(VERCEL)
@@ -84,8 +86,9 @@ def main():
         shutil.rmtree(t, ignore_errors=True)
 
     mb = os.path.getsize(os.path.join(PUB, "index.html")) / 1048576
-    print(f"  public/index.html    {mb:5.2f} MB")
-    print(f"  public/ui_data.json  {os.path.getsize(src)/1048576:5.2f} MB")
+    tong = sum(os.path.getsize(os.path.join(dst, f)) for f in os.listdir(dst)) / 1048576
+    print(f"  public/index.html    {mb*1024:5.0f} KB")
+    print(f"  public/data/         {tong:5.2f} MB ({len(os.listdir(dst))} tệp)")
     print(f"  api/intraday.py + lib/chibao.py + vercel.json + requirements.txt")
     print("\nTriển khai:  cd deploy && vercel deploy --prod")
     print("TỰ KIỂM ĐẠT")

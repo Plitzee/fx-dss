@@ -17,6 +17,7 @@ Dinh ky (Windows, chay 06:05 UTC moi ngay):
 LUU Y NIEM PHONG: buoc 1 tai du lieu 2026, ma toan bo 2026 nam trong tap khoa
 so cua docs/KHOA_SO.md. Chi chay viec nay khi da chot cau hinh va ghi bien ban.
 """
+import datetime as dt
 import json
 import os
 import subprocess
@@ -50,59 +51,79 @@ def api_song():
         return False
 
 
-def chup_ban_tinh():
-    """Goi API roi ghi web/ui_data.json dung hinh dang ma giao dien can.
+def chup_ban_tinh(day_du=True):
+    """Goi API roi ghi du lieu cho giao dien.
 
-    Dung CHINH API lam nguon, khong tinh lai bang duong khac — de hai ban
-    khong the lech nhau."""
-    g = lambda p: requests.get(API + p, timeout=180).json()
+    TACH THEO CAP. Lich su DAY DU (4.324 nen tu 2010) ton ~2 MB moi cap, tuc
+    ~11,6 MB cho ca sau. Nhoi het vao mot file roi noi tuyen vao HTML thi trang
+    nang khong mo noi. Nen:
+        web/data/meta.json    nho — cap, hieu chuan, su kien, so du bao, chi phi
+        web/data/{PAIR}.json  ~2 MB — nen, du bao, chi bao cua RIENG cap do
+    Giao dien nap meta + cap dau tien luc khoi dong, cac cap khac tai khi bam.
+    Vercel tu nen gzip/brotli nen ~2 MB xuong con ~300 KB tren duong truyen.
+
+    Dung CHINH API lam nguon, khong tinh lai bang duong khac — de ban tinh va
+    ban truc tiep khong the lech nhau.
+    """
+    g = lambda p: requests.get(API + p, timeout=600).json()
+    N = 6000 if day_du else 1500
     meta = g("/meta")
-    ra = {"meta": {"cap": meta["cap"], "tu": "—", "valid_tu": meta["valid_tu"],
-                   "test_tu": meta["test_tu"], "moc_noi": meta["moc_noi_nguon"],
-                   "canh_bao": meta["canh_bao"]},
-          "cap": {}, "su_kien": g("/events?tu=2024-01-01").get("su_kien", []),
-          "hieu_chuan": g("/calibration").get("bang", {}),
-          "so_dubao": {h: g(f"/journal?h={h}") for h in HS}}
+    thu_muc = os.path.join(WEB, "data")
+    os.makedirs(thu_muc, exist_ok=True)
+
+    M = {"cap": meta["cap"], "valid_tu": meta["valid_tu"], "test_tu": meta["test_tu"],
+         "moc_noi": meta["moc_noi_nguon"], "canh_bao": meta["canh_bao"],
+         "cap_nhat_luc": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+         "su_kien": g("/events?tu=2018-01-01").get("su_kien", []),
+         "hieu_chuan": g("/calibration").get("bang", {}),
+         "so_dubao": {h: g(f"/journal?h={h}") for h in HS},
+         "chi_phi_gio": {}, "tom_tat": {}}
+
+    tong = 0
     for p in meta["cap"]:
-        s = g(f"/series?pair={p}&n=1500")
-        f = g(f"/forecast_series?pair={p}&n=1500")
+        s_ = g(f"/series?pair={p}&n={N}")
+        f_ = g(f"/forecast_series?pair={p}&n={N}")
         try:
-            c = g(f"/cost?pair={p}")
+            M["chi_phi_gio"][p] = g(f"/cost?pair={p}")
         except Exception:
-            c = None
-        # Chi bao D1 tinh tu chuoi LICH SU DAY DU (2010 ->) roi nuong vao ban
-        # tinh. Neu de trang tren Vercel goi /api/intraday cho D1 thi no chi co
-        # 730 ngay — gioi han thanh gio cua Yahoo — tuc mat het lich su.
+            M["chi_phi_gio"][p] = None
         try:
-            ind = g(f"/indicators?pair={p}&tf=D1&n=1500")
+            ind = g(f"/indicators?pair={p}&tf=D1&n={N}")
         except Exception:
             ind = None
 
-        k = {d: i for i, d in enumerate(f["ngay"])}
-        sel = lambda a: [a[k[d]] if d in k else None for d in s["ngay"]]
+        k = {d: i for i, d in enumerate(f_["ngay"])}
+        sel = lambda a: [a[k[d]] if d in k else None for d in s_["ngay"]]
         tam = {}
         for h in HS:
-            t = f["tam"][h]
+            t = f_["tam"][h]
             tam[h] = {"p": [v or [1 / 3, 1 / 3, 1 / 3] for v in sel(t["p"])],
                       "b_pip": [v or 0 for v in sel(t["b_pip"])],
                       "sig_pip": [v or 0 for v in sel(t["sig_pip"])],
                       "kP": t["kP"], "c_h": t["c_h"], "nen": t["nen"]}
-        ra["cap"][p] = {
-            "ngay": s["ngay"], "o": s["o"], "h": s["h"], "l": s["l"], "c": s["c"],
-            "pip": s["pip"], "nguon": s.get("nguon"), "rv_uoc": s.get("rv_uoc"),
-            "sig_pip": [v or 0 for v in sel(f["sig_pip"])],
-            "che_do": [0 if v is None else v for v in sel(f["che_do"])],
-            "nen12": f["nen12"], "tam": tam,
-            "chi_phi_gio": {"med": c["med"], "p95": c["p95"]} if c else None,
-            "ind": ({"duong": ind["duong"], "st_chieu": ind["st_chieu"],
-                     "vwap_that": ind["vwap_that"], "cau_truc": ind["cau_truc"],
-                     "ngay": ind["ngay"]} if ind else None)}
-    out = os.path.join(WEB, "ui_data.json")
-    with open(out, "w", encoding="utf-8") as fh:
-        json.dump(ra, fh, ensure_ascii=False, separators=(",", ":"))
-    n = sum(len(v["ngay"]) for v in ra["cap"].values())
-    print(f"  {out}  ({os.path.getsize(out)/1024:,.0f} KB, {n:,} nến)")
-    print(f"  chuỗi đến: " + ", ".join(f"{p}={v['ngay'][-1]}" for p, v in ra["cap"].items()))
+        D_ = {"ngay": s_["ngay"], "o": s_["o"], "h": s_["h"], "l": s_["l"],
+              "c": s_["c"], "pip": s_["pip"], "nguon": s_.get("nguon"),
+              "rv_uoc": s_.get("rv_uoc"),
+              "sig_pip": [v or 0 for v in sel(f_["sig_pip"])],
+              "che_do": [0 if v is None else v for v in sel(f_["che_do"])],
+              "nen12": f_["nen12"], "tam": tam,
+              "ind": ({"duong": ind["duong"], "st_chieu": ind["st_chieu"],
+                       "vwap_that": ind["vwap_that"], "cau_truc": ind["cau_truc"]}
+                      if ind else None)}
+        fp = os.path.join(thu_muc, f"{p}.json")
+        with open(fp, "w", encoding="utf-8") as fh:
+            json.dump(D_, fh, ensure_ascii=False, separators=(",", ":"))
+        kb = os.path.getsize(fp) / 1024
+        tong += kb
+        M["tom_tat"][p] = {"n": len(s_["ngay"]), "tu": s_["ngay"][0],
+                           "den": s_["ngay"][-1], "kb": round(kb)}
+        print(f"  {p}  {len(s_['ngay']):5,} nến  {s_['ngay'][0]} → {s_['ngay'][-1]}  {kb:6,.0f} KB")
+
+    fm = os.path.join(thu_muc, "meta.json")
+    with open(fm, "w", encoding="utf-8") as fh:
+        json.dump(M, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"  meta.json {os.path.getsize(fm)/1024:,.0f} KB · tổng {tong/1024:,.1f} MB "
+          f"(gzip trên đường truyền còn ~1/6)")
 
 
 def so_du_bao():

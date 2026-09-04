@@ -211,6 +211,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
       <button data-h="20">20 phiên</button>
     </div>
     <button class="iconb" id="theme">◐ nền</button>
+    <span class="who" id="capnhat"></span>
     <span class="who" id="who"></span>
   </div>
 
@@ -736,7 +737,12 @@ function paintAbout(){
 }
 
 /* ── dieu huong ── */
-async function setPair(p){ state.pair=p; state.i=DATA.cap[p].ngay.length-1;
+async function setPair(p){
+  if(!DATA.cap[p]){
+    $("#chttl").textContent = "đang tải " + p + "…";
+    try{ await napCap(p); } catch(e){ $("#chttl").textContent = "lỗi tải "+p+": "+e; return; }
+  }
+  state.pair=p; state.i=DATA.cap[p].ngay.length-1;
   document.querySelectorAll("#ptabs .ptab").forEach(b=>b.classList.toggle("on", b.dataset.p===p));
   await paintChart(); paintBoxes(); veCuaSo(); }
 
@@ -758,58 +764,65 @@ function boot(){
     if(b.dataset.p==="chart" && chart) veCuaSo(); };
   $("#theme").onclick = async ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
     buildChart(); await paintChart(); paintBoxes(); veCuaSo(); };
+  if(DATA.meta.cap_nhat_luc)
+    $("#capnhat").textContent = "cập nhật " + DATA.meta.cap_nhat_luc.slice(0,16).replace("T"," ") + "Z";
   buildChart(); setPair("EURUSD");
+  tuLamMoi();
 }
 
 /* ── nạp từ API (bản trực tiếp) ── */
 async function jget(p){ const r = await fetch(API+p); if(!r.ok) throw new Error(p+" → "+r.status); return r.json(); }
 
-async function napTuAPI(){
-  const meta = await jget("/meta");
-  const [cal, ev] = await Promise.all([
-    jget("/calibration").catch(()=>({bang:{}})),
-    jget("/events?tu=2024-01-01").catch(()=>({su_kien:[]}))]);
-  const D2 = {meta:{cap:meta.cap, tu:"—", valid_tu:meta.valid_tu, test_tu:meta.test_tu,
-                    moc_noi:meta.moc_noi_nguon, canh_bao:meta.canh_bao, moi_noi:meta.moi_noi},
-              cap:{}, su_kien:ev.su_kien||[], hieu_chuan:cal.bang||{}};
-  for(const p of meta.cap){
-    const [s, f, c] = await Promise.all([
-      jget("/series?pair="+p+"&n=1500"),
-      jget("/forecast_series?pair="+p+"&n=1500"),
-      jget("/cost?pair="+p).catch(()=>null)]);
-    const k = new Map(f.ngay.map((d,i)=>[d,i]));
-    const sel = a => s.ngay.map(d => k.has(d) ? a[k.get(d)] : null);
-    const tam = {};
-    for(const h of ["1","5","20"]){
-      const t = f.tam[h];
-      tam[h] = {p:sel(t.p).map(v=>v||[1/3,1/3,1/3]), b_pip:sel(t.b_pip).map(v=>v||0),
-                sig_pip:sel(t.sig_pip).map(v=>v||0), kP:t.kP, c_h:t.c_h, nen:t.nen};
-    }
-    D2.cap[p] = {ngay:s.ngay, o:s.o, h:s.h, l:s.l, c:s.c, pip:s.pip,
-                 nguon:s.nguon, rv_uoc:s.rv_uoc,
-                 sig_pip:sel(f.sig_pip).map(v=>v||0),
-                 che_do:sel(f.che_do).map(v=>v==null?0:v),
-                 nen12:f.nen12, tam:tam,
-                 chi_phi_gio: c ? {med:c.med, p95:c.p95} : null};
-  }
-  return D2;
+/* Lịch sử ĐẦY ĐỦ (4.324 nến/cặp từ 2010) tốn ~1,9 MB mỗi cặp, ~11 MB cả sáu.
+   Nên tách file theo cặp: nạp meta + cặp đang xem lúc khởi động, cặp khác tải
+   khi bấm. Máy chủ tự nén gzip nên ~1,9 MB xuống còn ~300 KB trên đường truyền. */
+const GOC = (API === "VERCEL") ? "" : API;
+
+async function napMeta(){
+  const M = await (await fetch(GOC + "/data/meta.json", {cache:"no-cache"})).json();
+  DATA = {meta:{cap:M.cap, valid_tu:M.valid_tu, test_tu:M.test_tu,
+                canh_bao:M.canh_bao, cap_nhat_luc:M.cap_nhat_luc,
+                tom_tat:M.tom_tat, moc_noi:M.moc_noi},
+          cap:{}, su_kien:M.su_kien||[], hieu_chuan:M.hieu_chuan||{},
+          so_dubao:M.so_dubao||{}, _chiphi:M.chi_phi_gio||{}};
+  return DATA;
+}
+
+async function napCap(p){
+  if(DATA.cap[p]) return DATA.cap[p];
+  const d = await (await fetch(GOC + "/data/" + p + ".json")).json();
+  const c = DATA._chiphi[p];
+  d.chi_phi_gio = c ? {med:c.med, p95:c.p95} : null;
+  DATA.cap[p] = d;
+  return d;
+}
+
+/* Khung nội ngày lấy trực tiếp lúc có request nên nó vốn đã "sống"; cứ 60
+   giây thì bỏ bộ nhớ đệm của khung đang xem rồi vẽ lại. Khung ngày KHÔNG làm
+   mới ở đây — mô hình tầng 2 là mô hình NGÀY, nó chỉ đổi một lần mỗi ngày;
+   làm mới liên tục chỉ tốn lượt gọi mà không đổi gì. */
+function tuLamMoi(){
+  setInterval(async ()=>{
+    if(state.tf === "D1" || document.hidden) return;
+    delete KHO[state.pair+"|"+state.tf];
+    try{ await paintChart(); paintBoxes(); }catch(e){}
+  }, 60000);
 }
 
 $("#gobtn").onclick = async ()=>{
   $("#who").textContent = ($("#u").value||"demo") + " · demo";
   $("#login").style.display="none"; $("#app").style.display="block";
-  if(API !== null && API !== "VERCEL" && !DATA){   // API co the la chuoi rong -> so sanh voi null
+  if(API !== null){
     const goc = $("#p-chart").innerHTML;
-    $("#p-chart").innerHTML = '<div class="card sec"><h2>Đang nạp dữ liệu hiện hành…</h2>'
-      + '<p class="lead">Gọi API và tính σ̂ cho 6 cặp bằng đúng điểm vào sản xuất của tầng 2. Lần đầu mất vài giây.</p></div>';
-    try{ DATA = await napTuAPI(); }
+    $("#p-chart").innerHTML = '<div class="card sec"><h2>Đang nạp dữ liệu…</h2>'
+      + '<p class="lead">Lịch sử đầy đủ từ 2010 — khoảng 300 KB cho cặp đầu tiên.</p></div>';
+    try{ await napMeta(); await napCap("EURUSD"); }
     catch(e){
-      $("#p-chart").innerHTML = '<div class="card sec"><h2>Không gọi được API</h2>'
-        + '<p class="lead">' + String(e) + '</p>'
-        + '<p class="lead">Khởi động lại bằng:<br><code>python -m uvicorn api.main:app --port 8899</code></p></div>';
+      $("#p-chart").innerHTML = '<div class="card sec"><h2>Không nạp được dữ liệu</h2>'
+        + '<p class="lead">' + String(e) + '</p></div>';
       return;
     }
-    $("#p-chart").innerHTML = goc;      // trả lại khung sau khi nạp xong
+    $("#p-chart").innerHTML = goc;
   }
   if(typeof LightweightCharts==="undefined"){
     $("#p-chart").innerHTML = '<div class="card sec"><h2>Không tải được thư viện biểu đồ</h2><p class="lead">Thư viện nến không tải được từ CDN. Các trang Hiệu chuẩn, Sự kiện và Về hệ thống vẫn dùng được.</p></div>';

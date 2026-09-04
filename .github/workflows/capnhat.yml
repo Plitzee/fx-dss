@@ -14,7 +14,11 @@ name: Cập nhật FX-DSS
 
 on:
   schedule:
-    - cron: "10 6 * * *"
+    # Bốn lần mỗi ngày, rải quanh giờ mở/đóng các phiên chính (UTC). Mô hình
+    # tầng 2 là mô hình NGÀY nên dự báo chỉ đổi một lần; chạy nhiều lần là để
+    # dữ liệu và biểu đồ không cũ quá vài giờ ở bất kỳ múi giờ nào. Sổ dự báo
+    # có chốt chống trùng nên chạy lại nhiều lần vẫn an toàn.
+    - cron: "10 1,7,13,19 * * *"
   workflow_dispatch:
 
 permissions:

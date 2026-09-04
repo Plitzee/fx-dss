@@ -62,6 +62,15 @@ def pip_size(p):
     return PIP.get(p, 0.0001)
 
 
+def sang_pip(v, gia, pair):
+    """Doi mot dai luong TUONG DOI (do lech chuan cua loi suat log) sang pip.
+
+    Phai nhan voi MUC GIA roi moi chia co pip. Chia thang co pip la sai: voi
+    EURUSD gia ~1,16 thi gan dung nen loi khong lo ra, nhung voi USDJPY gia
+    ~156 thi lech 156 lan — man hinh tung hien sigma 0,4 pip thay vi ~65."""
+    return np.asarray(v, float) * np.asarray(gia, float) / pip_size(pair)
+
+
 def _py(o):
     """Ep kieu numpy ve kieu Python thuan — lop chan cuoi truoc khi ra JSON.
     np.int64/np.float64 khong tuan tu hoa duoc, va NaN/Inf thi khong hop le
@@ -328,17 +337,17 @@ def forecast(pair: str = Query(...), h: int = Query(1), ngay: str = Query(None))
     K = lay(pair)
     i = _idx(K, ngay)
     X = K["xs"][h]
-    ps = pip_size(pair)
-    P = X["P"][i]
     pan = K["pan"]
+    gia_i = float(K["m"].close.values[min(i, len(K["m"]) - 1)])
+    P = X["P"][i]
     nen12 = float(pd.Series(X["P"][:, 1]).rolling(252, min_periods=60).mean().iloc[i])
     return {
         "pair": pair, "h": h, "ngay": str(pan.Date.values[i])[:10],
         "p_giam": round(float(P[0]), 4), "p_ngang": round(float(P[1]), 4),
         "p_tang": round(float(P[2]), 4),
-        "dai_pip": round(float(X["b"][i]) / ps, 2),
-        "sigma_pip": round(float(X["sigma_h"][i]) / ps, 2),
-        "sigma_1_pip": round(float(K["sig"][i]) / ps, 2),
+        "dai_pip": round(float(sang_pip(X["b"][i], gia_i, pair)), 2),
+        "sigma_pip": round(float(sang_pip(X["sigma_h"][i], gia_i, pair)), 2),
+        "sigma_1_pip": round(float(sang_pip(K["sig"][i], gia_i, pair)), 2),
         "che_do": int(K["che_do"][i]),
         "che_do_ten": ["bình tĩnh", "vừa", "căng thẳng"][int(K["che_do"][i])],
         "nen_12thang_ngang": round(nen12, 4) if np.isfinite(nen12) else None,
@@ -357,17 +366,18 @@ def forecast_series(pair: str = Query(...), n: int = Query(1500)):
     pan = K["pan"]
     n = min(n, len(pan))
     sl = slice(len(pan) - n, len(pan))
+    _gia = K["m"].close.values[: len(pan)][sl]
     ra = {"pair": pair, "pip": ps,
           "ngay": [str(x)[:10] for x in pan.Date.values[sl]],
           "che_do": [int(v) for v in K["che_do"][sl]],
-          "sig_pip": [round(float(v) / ps, 2) for v in K["sig"][sl]],
+          "sig_pip": [round(float(v), 2) for v in sang_pip(K["sig"][sl], _gia, pair)],
           "tam": {}, "nen12": {}}
     for h in HS:
         X = K["xs"][h]
         ra["tam"][str(h)] = {
             "p": [[round(float(v), 4) for v in row] for row in X["P"][sl]],
-            "b_pip": [round(float(v) / ps, 2) for v in X["b"][sl]],
-            "sig_pip": [round(float(v) / ps, 2) for v in X["sigma_h"][sl]],
+            "b_pip": [round(float(v), 2) for v in sang_pip(X["b"][sl], _gia, pair)],
+            "sig_pip": [round(float(v), 2) for v in sang_pip(X["sigma_h"][sl], _gia, pair)],
             "kP": round(float(X["kP"]), 4), "c_h": round(float(X["c_h"]), 4),
             "nen": NEN_THEO_H[h]}
         s = pd.Series(X["P"][:, 1]).rolling(252, min_periods=60).mean().iloc[-1]
@@ -418,9 +428,10 @@ def forecast_next(pair: str = Query(...)):
     if not np.isfinite(sg) or sg <= 0:
         raise HTTPException(503, "chưa dựng được σ̂ cho phiên kế tiếp")
 
-    ps = pip_size(pair)
+    gia_kt = float(m.close.iloc[-1])
     nguong = K["nguong"]
-    ra = {"pair": pair, "ngay": str(kt.date()), "sigma_pip": round(sg / ps, 2),
+    ra = {"pair": pair, "ngay": str(kt.date()),
+          "sigma_pip": round(float(sang_pip(sg, gia_kt, pair)), 2),
           "che_do": int(np.digitize([sg], nguong)[0]),
           "du_lieu_den": str(m.Date.iloc[-1].date()), "tam": {}}
     for h in HS:
@@ -433,7 +444,8 @@ def forecast_next(pair: str = Query(...)):
         ra["tam"][str(h)] = {
             "p_giam": round(float(P[0]), 4), "p_ngang": round(float(P[1]), 4),
             "p_tang": round(float(P[2]), 4),
-            "dai_pip": round(b / ps, 2), "sigma_pip": round(sh / ps, 2),
+            "dai_pip": round(float(sang_pip(b, gia_kt, pair)), 2),
+            "sigma_pip": round(float(sang_pip(sh, gia_kt, pair)), 2),
             "mo_hinh": NEN_THEO_H[h], "kP": round(float(X["kP"]), 4),
             "c_h": round(float(X["c_h"]), 4)}
     return _py(ra)
@@ -486,6 +498,14 @@ def refresh(pair: str = Query(None)):
     for p in ds:
         lay(p, moi=True)
     return {"da_tinh_lai": ds, "luc": dt.datetime.utcnow().isoformat() + "Z"}
+
+
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+_DATA_DIR = os.path.join(WEB, "data")
+if os.path.isdir(_DATA_DIR):
+    # ban truc tiep va ban Vercel cung doc /data/meta.json va /data/{PAIR}.json
+    app.mount("/data", StaticFiles(directory=_DATA_DIR), name="data")
 
 
 @app.get("/")
