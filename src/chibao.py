@@ -35,8 +35,14 @@ def sma(x, n):
 
 
 def rma(x, n):
-    """Trung binh truot Wilder — dung cho RSI, ATR, ADX (khac EMA o he so)."""
-    return _s(x).ewm(alpha=1.0 / n, adjust=False).mean().values
+    """Trung binh truot Wilder — dung cho RSI, ATR, ADX (khac EMA o he so).
+
+    Tra ve ban SAO GHI DUOC. Ly do: `.values` cua pandas moi (copy-on-write)
+    tra ve mang CHI DOC, nen `a[:n] = np.nan` o atr/rsi/adx se nem
+    "assignment destination is read-only". Loi nay khong lo tren may co
+    pandas cu — no chi lo khi da trien khai. Da gap that tren Vercel."""
+    return np.array(_s(x).ewm(alpha=1.0 / n, adjust=False).mean().values,
+                    dtype=float, copy=True)
 
 
 def true_range(h, l, c):
@@ -356,7 +362,25 @@ if __name__ == "__main__":
     assert all(x["tren"] > x["duoi"] for x in g), "khoảng trống phải có trên > dưới"
     assert kx == 2
 
-    # 5) VWAP phai bao trung thuc khi khong co khoi luong
+    # 5) DAU VAO CHI DOC — pandas moi (copy-on-write) tra ve mang chi doc tu
+    #    `.values`. Loi "assignment destination is read-only" khong lo tren may
+    #    co pandas cu, no chi lo SAU KHI TRIEN KHAI. Da gap that tren Vercel.
+    dro = d.copy()
+    for c_ in ("open", "high", "low", "close"):
+        a_ = np.asarray(dro[c_].values, float)
+        a_.setflags(write=False)
+        dro[c_] = a_
+    R2 = tinh_tat_ca(dro)
+    for k_ in R:
+        if k_ == "vwap_that":
+            continue
+        a1, a2 = np.asarray(R[k_], float), np.asarray(R2[k_], float)
+        m_ = np.isfinite(a1) & np.isfinite(a2)
+        assert m_.sum() and np.nanmax(np.abs(a1[m_] - a2[m_])) < 1e-12, \
+            f"ket qua doi khi dau vao chi doc: {k_}"
+    print("  đầu vào chỉ đọc (pandas copy-on-write): chạy được và cho cùng kết quả — ĐẠT")
+
+    # 6) VWAP phai bao trung thuc khi khong co khoi luong
     _, that = vwap_lan(d.high.values, d.low.values, d.close.values)
     assert that is False, "khong co khoi luong thi phai bao that=False"
     _, that2 = vwap_lan(d.high.values, d.low.values, d.close.values,
