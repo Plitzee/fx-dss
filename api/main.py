@@ -762,6 +762,7 @@ def models():
                       ("quy_luat", "quyluat.json"),
                       ("bien_dong_14", "ketqua_ml_dl.json"),
                       ("tin_cay", "tincay.json"),
+                      ("ngoai_mau", "ngoai_mau.json"),
                       ("su_kien", "sukien_profile.json")):
         f = os.path.join(ROOT, "output", ten)
         ra[khoa] = json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None

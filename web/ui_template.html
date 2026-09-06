@@ -758,6 +758,12 @@ function paintFoot(i){
       + `nhưng <b>MCE lại xấu đi</b> (${vn(cu.mce,3)} → ${vn(c.mce,3)}). `
       + `Quy tắc chọn đã chốt trước là điểm log nên vẫn lấy bản này, và chỗ xấu đi `
       + `phải nói ra chứ không giấu.`);
+    if(nm) dòng.push(`<b>Và trên đoạn KIỂM TRA — dữ liệu chưa từng dùng để chọn `
+      + `mô hình — BSS chỉ ${nm.bss>=0?"+":""}${vn(nm.bss,4)}, khoảng tin cậy `
+      + `[${vn(nm.bss_lo,4)}; ${nm.bss_hi>=0?"+":""}${vn(nm.bss_hi,4)}] phủ 0.</b> `
+      + `Tức ngoài mẫu nó <b>không chứng minh được là hơn cách đoán đơn giản</b>. `
+      + `(Cửa sổ 20 phiên chồng lấn nên mẫu hữu hiệu chỉ khoảng ${nm.n_huu_hieu}, `
+      + `không phải ${nm.n.toLocaleString("vi")}.)`);
     rows.push(`<span class="chip chi-phan-tich"><span class="dot bad"></span><span>`
       + `<b>Tầm hạn 20 phiên chưa dùng được.</b> ${dòng.join(" ")} `
       + `Nguyên nhân gốc đã đo: quy tắc √h giả định biến động đứng yên 20 phiên, `
@@ -783,6 +789,19 @@ function paintFoot(i){
     }
   }
 
+  // SO NGOAI MAU — do tren doan KIEM TRA, chua tung dung de chon mo hinh. Day
+  // la bang chung manh hon so cua doan kiem dinh (doan da dung de chon).
+  const NM = (((DATA.meta.mo_hinh||{}).ngoai_mau||{}).tam||{})[state.h];
+  if(NM){
+    const v = (x,n)=>x.toFixed(n).replace(".", ",");
+    rows.push(`<span class="chip chi-phan-tich"><span class="dot ${NM.co_y_nghia?"ok":"mid"}"></span>`
+      + `<span><b>Đo trên đoạn KIỂM TRA</b> (2023-11-20 → 2025-12-31, chưa từng dùng `
+      + `để chọn mô hình — mạnh hơn dòng “kiểm định” bên dưới): `
+      + `BSS ${NM.bss>=0?"+":""}${v(NM.bss,4)} KTC [${v(NM.bss_lo,4)}; `
+      + `${NM.bss_hi>=0?"+":""}${v(NM.bss_hi,4)}] · MCE ${v(NM.mce,4)} · AUC ${v(NM.auc,3)}`
+      + (NM.co_y_nghia ? ` — <b>thắng khí hậu học có ý nghĩa</b>`
+                       : ` — <b>chưa thắng được khí hậu học</b>`)+`.</span></span>`);
+  }
   if(c){
     const sig = (c.bss_lo>0);
     rows.push(`<span class="chip chi-phan-tich"><span class="dot ${sig?"ok":"mid"}"></span>Hiệu chuẩn trên <b>đoạn kiểm định</b> (2021–2023, không phải trực tiếp): ECE ${c.ece.toFixed(4)} · MCE <b>${c.mce.toFixed(4)}</b> · BSS ${c.bss>=0?"+":""}${c.bss.toFixed(4)} KTC [${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${sig?" — thắng khí hậu học":" — chưa thắng khí hậu học"}</span>`);

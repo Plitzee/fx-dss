@@ -218,3 +218,60 @@ Giả thuyết: trọng số Hedge phải đuổi theo một mục tiêu **di đ
 
 Đoạn **kiểm tra** không được mở lại cho vòng này — mọi con số trên đây là
 kiểm định.
+
+---
+
+## Lớp hiệu chuẩn lại — **đã thử, KHÔNG dùng** (05/09/2026)
+
+Mục 3.3 của `docs/KEHOACH_2026Q4.md`. Hai kỹ thuật chuẩn, khớp trên **kiểm định**,
+chấm **kiểm tra** một lần:
+
+- **Nhiệt độ** (temperature scaling), 1 tham số: `P' ∝ P^(1/T)`
+- **Vector scaling**, 6 tham số: `P' ∝ exp(a_k·log P_k + b_k)`
+
+Quy tắc chọn cài trước: MCE thấp nhất trên kiểm định, hoà thì xét điểm log.
+
+| h | MCE gốc (KĐ) | nhiệt độ | vector | chọn |
+|---|---|---|---|---|
+| 1 | **0,0611** | 0,0764 | 0,0840 | gốc |
+| 5 | **0,0471** | 0,1173 | 0,0711 | gốc |
+| 20 | 0,2058 | **0,1718** | 0,1792 | nhiệt độ |
+
+Ở h=1 và h=5, **bản gốc đã hiệu chuẩn tốt hơn cả hai kỹ thuật** — không có gì
+để sửa. Ở h=20 nhiệt độ thắng trên kiểm định, nhưng trên **kiểm tra** thì MCE
+0,1617 → **0,1707**, tức xấu đi.
+
+**Kết luận: không triển khai.** Cả ba tầm hạn giữ nguyên bản gốc.
+
+Lý do có thể giải thích được: ECE của bản gốc vốn đã nhỏ (0,013 ở h=1). Cả hai
+kỹ thuật đều tối thiểu hoá **điểm log** — một hàm mất trung bình — nên chúng cải
+thiện ECE (0,0132 → 0,0074 ở h=1) mà **đánh đổi bằng MCE**, tức làm tệ đi đúng
+cái thùng cực đoan mà ta đang nhắm vào. Muốn hạ MCE thì phải tối thiểu hoá trực
+tiếp MCE, hoặc dùng hiệu chuẩn theo thùng (binned/isotonic có ràng buộc đuôi) —
+không phải hiệu chuẩn tham số toàn cục.
+
+---
+
+## Chỉ số NGOÀI MẪU của cấu hình sản xuất — lần đầu công bố
+
+Trước nay giao diện chỉ in số của đoạn **kiểm định** — mà đó chính là đoạn đã
+dùng để **chọn** mô hình, nên nó lạc quan hơn sự thật. Đây là số trên đoạn
+**kiểm tra** (2023-11-20 → 2025-12-31, chưa từng dùng để chọn):
+
+| h | nền đang chạy | BSS | KTC 95% | MCE | AUC | kết luận |
+|---|---|---|---|---|---|---|
+| **1** | tổ hợp trực tuyến | **+0,0152** | [+0,0103; +0,0209] | 0,0389 | 0,484 | **thắng khí hậu học có ý nghĩa** |
+| **5** | σ̂ + chế độ (cuộn) | **+0,0074** | [+0,0009; +0,0144] | 0,0449 | 0,484 | **thắng có ý nghĩa** |
+| 20 | σ̂ + chế độ (cuộn) | **−0,0058** | [−0,0193; +0,0166] | 0,1617 | 0,460 | **phủ 0 — không chứng minh được** |
+
+**h=1 và h=5 đứng vững ngoài mẫu.** Đây là bằng chứng mạnh nhất hệ thống đang có,
+và nó mạnh hơn số kiểm định vì đoạn này chưa từng tham gia vào bất kỳ lựa chọn nào.
+
+**h=20 thì không.** Điểm ước lượng âm, khoảng tin cậy phủ 0. Cửa sổ 20 phiên
+chồng lấn nên mẫu hữu hiệu chỉ khoảng **210** chứ không phải 4.216 — lực kiểm
+định thấp, nên "phủ 0" ở đây nghĩa là *chưa chứng minh được gì*, cả theo hướng
+tốt lẫn hướng xấu. Cộng với MCE 0,16, cảnh báo "không nên dùng tầm hạn 20 phiên"
+trên giao diện nay có số ngoài mẫu đứng sau.
+
+AUC ~0,46–0,48 ở cả ba tầm hạn: **vẫn không có kỹ năng hướng**, đúng như mọi
+phép đo trước.
