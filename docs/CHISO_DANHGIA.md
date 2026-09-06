@@ -178,3 +178,86 @@ tức khoảng tin cậy rộng đúng kiểu một quan sát chi phối cả m�
 **Lực kiểm định.** Với ~722 phiên mỗi cặp, ở mức 1% chỉ kỳ vọng ~7 lần vi phạm.
 "Đạt" ở bảng trên **không** có nghĩa là đã chứng minh đúng — nó chỉ có nghĩa là
 chưa bác bỏ được. Bốn dòng "đạt" yếu hơn hai dòng "không đạt" nhiều.
+
+---
+
+## 5c. Vá đuôi dưới — **đã thử, KHÔNG thành công** (05/09/2026)
+
+Ghi lại đầy đủ vì đây là một kết quả âm, và giấu nó đi thì mọi con số khác trong
+tài liệu này mất giá trị.
+
+### Chẩn đoán
+
+`sd(z)` theo đoạn — chỉ **một** cặp có xu hướng:
+
+| cặp | huấn luyện | kiểm định | kiểm tra |
+|---|---|---|---|
+| EURUSD | 0,958 | 1,000 | 0,991 |
+| GBPUSD | 1,005 | 0,977 | 0,949 |
+| **USDJPY** | **1,014** | **1,100** | **1,136** |
+| AUDUSD | 0,938 | 0,980 | 0,942 |
+| USDCAD | 0,933 | 0,949 | 0,889 |
+| USDCHF | 1,052 | 0,947 | 0,995 |
+
+USDJPY tăng **đơn điệu +12%**. Và đuôi **trái** sâu thêm trong khi đuôi phải
+đứng yên: q01 −2,476 → **−3,742**, q99 2,572 → 2,559. Nên đây là **thang đo
+trôi theo thời gian** cho riêng JPY, không phải hình dạng phân phối sai — hệ số
+cố định ước trên huấn luyện sẽ vô ích vì `sd(z)` huấn luyện đã là 1,014.
+
+### Ba phương án, chọn trên KIỂM ĐỊNH
+
+| phương án | ô đạt / 12 | \|tỷ lệ ES − 1\| TB |
+|---|---|---|
+| V0 phân vị trên huấn luyện (đang chạy) | 8/12 | 0,0695 |
+| **V1 cửa sổ mở rộng, khớp lại mỗi 21 phiên** | **10/12** | 0,0636 |
+| V2 cửa sổ cuộn 500 phiên | 9/12 | **0,0362** |
+
+Quy tắc đã cài sẵn trong `src/va_duoi.py` (số ô đạt nhiều nhất, hoà thì xét sai
+lệch ES) chọn **V1**. Chốt, rồi mới mở đoạn kiểm tra.
+
+**Điểm phải nêu:** trên kiểm định, USDJPY **đạt cả ba phương án**. Vấn đề JPY
+chỉ lộ ra ở đoạn kiểm tra (2023–2025, giai đoạn BoJ bình thường hoá chính sách).
+Nên về nguyên tắc **không thể** chọn cách vá cho một lỗi mà đoạn chọn không nhìn
+thấy. Vẫn làm đúng giao thức, và ghi lại giới hạn này.
+
+### Đoạn KIỂM TRA — chấm một lần
+
+Đây là **lần mở thứ hai** của tầng VaR trên đoạn kiểm tra; lần đầu là chẩn đoán
+ở mục 5b.
+
+| | ô đạt / 12 | \|tỷ lệ ES − 1\| TB |
+|---|---|---|
+| V0 cũ | **9/12** | 0,0942 |
+| V1 đã chọn | **8/12** | 0,0852 |
+
+USDJPY mức 99%, chi tiết:
+
+| | vi phạm | Kupiec | DQ | tỷ lệ ES |
+|---|---|---|---|---|
+| V0 | 2,07% | 0,011 | **0,000** | 0,799 |
+| V1 | 1,94% | 0,025 | **0,000** | 0,888 |
+
+**Kết luận: không sửa được.** Tỷ lệ vi phạm gần như không đổi (2,07% → 1,94%),
+Kupiec vẫn dưới 0,05, và **DQ vẫn bằng 0,000**. Tỷ lệ ES có cải thiện thật
+(0,799 → 0,888) nhưng chưa đạt ngưỡng 0,9. Ngoài ra V1 còn **làm hỏng** USDCAD
+mức 99% (DQ 0,072 → 0,043).
+
+### Quyết định: GIỮ NGUYÊN V0
+
+Không đẩy V1 lên sản xuất. Nó không chứng minh được cải thiện trên đoạn kiểm tra
+(8/12 so với 9/12), nên thay đổi mô hình lúc này là thêm rủi ro mà không đổi lại
+được gì. Cảnh báo USDJPY trên giao diện **giữ nguyên**.
+
+### Cái học được, dùng cho lần sau
+
+`DQ p = 0,000` không đổi qua cả hai phương án là thông tin quan trọng: phép kiểm
+Engle–Manganelli bác bỏ vì các lần vi phạm **dự báo được từ vi phạm trước đó và
+từ chính mức VaR**. Tức đuôi JPY có **cấu trúc động** mà mô hình bỏ sót — không
+phải chuyện ước lượng phân vị vô điều kiện cho chính xác hơn. Cả V0 lẫn V1 đều
+là ước lượng vô điều kiện, nên cả hai đều không chạm tới nguyên nhân.
+
+Hướng cho lần thử sau, **phải chốt trước khi mở kiểm tra lần ba**: phân vị **có
+điều kiện theo chế độ** (như `SigmaCheDo` nhưng cho đuôi), hoặc mô hình đuôi
+động dạng CAViaR. V2 (cuộn 500) có sai lệch ES tốt nhất trên kiểm định (0,0362)
+nhưng đã thua ở quy tắc chọn — **không được** lấy nó ra dùng bây giờ chỉ vì V1
+hỏng, vì đó đúng là data snooping mà cả giao thức này sinh ra để chặn.
