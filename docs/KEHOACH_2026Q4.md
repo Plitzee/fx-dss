@@ -170,3 +170,53 @@ bản hiện tại — và đó là một kết quả tốt cho luận văn, kh�
 Điều **không** nên kỳ vọng: rằng thêm dữ liệu hay thêm mô hình sẽ làm hai ô
 ngoài trở nên có ích. Năm phép kiểm độc lập đã nói không, và cửa chi phí ở mục
 1.1 nhiều khả năng sẽ giết bất cứ tín hiệu yếu nào tìm được ở H1.
+
+---
+
+## Nối lịch sự kiện vĩ mô (05/09/2026) — đã dựng, chờ khoá
+
+`collect/lich_su_kien.py`. Mở rộng lịch từ **7 NHTW / 901 ngày** sang cả các công
+bố vĩ mô tác động cao: **NFP, CPI, GDP, bán lẻ, PCE, PPI, JOLTS, ISM**.
+
+**Vì sao.** `sukien_profile.py` đo được σ̂ hụt **11–20%** đúng ở ngày sự kiện:
+
+| | \|r\| so nền | σ̂ dự báo | hụt |
+|---|---|---|---|
+| FOMC | 1,454× | 1,232× | 15% |
+| BOE | 1,321× | 1,075× | 19% |
+| ECB | 1,274× | 1,022× | 20% |
+
+Và hệ thống **không biết gì** về NFP/CPI — riêng NFP đã là ~190 ngày tác động cao
+mỗi 16 năm. Nối vào là vá đúng chỗ σ̂ đang hụt, tức cải thiện **trục biến động** —
+trục duy nhất đã chứng minh có thông tin (BSS +0,0152 ngoài mẫu ở h=1).
+
+**Nguồn: FRED `releases/dates`** (Fed St. Louis) — chính thức, miễn phí, lịch sử
+đầy đủ. Đây là **ngày công bố thật**, không phải suy ra từ quy tắc "thứ Sáu đầu
+tháng": quy tắc đó sai vài lần mỗi năm, và ngày sai sẽ **làm loãng** phản ứng đo
+được, khiến mô hình tệ đi chứ không tốt lên.
+
+**Cần một khoá miễn phí.** Đăng ký 30 giây ở
+`https://fredaccount.stlouisfed.org/apikey`, rồi đặt vào **biến môi trường**
+(không đặt trong mã, không commit):
+
+```
+Windows :  setx FRED_API_KEY "khoa_cua_ban"
+bash    :  export FRED_API_KEY=khoa_cua_ban
+Actions :  Settings → Secrets → FRED_API_KEY
+```
+
+Chưa có khoá thì script dừng với hướng dẫn rõ ràng, không làm hỏng gì.
+
+**Chuỗi đã nối sẵn.** `src/sukien_profile.py`, `api/main.py::/events` đều ưu tiên
+`data/su_kien.csv` (bản mở rộng) rồi mới rơi về `data/cb_dates.csv`. Chạy xong
+collector là toàn bộ chuỗi — hồ sơ phản ứng, thanh cảnh báo, dấu ⚡ trên biểu đồ —
+tự phủ luôn NFP và CPI.
+
+**Bước bắt buộc sau khi có dữ liệu:** chạy lại `python src/sukien_profile.py`.
+**Không được gán nhãn "tác động cao" cho NFP/CPI trước khi đo.** Giao diện xếp
+mức độ bằng **tỷ lệ đã đo** kèm cỡ mẫu, không bằng quy ước — đó là điểm khác biệt
+so với các nền tảng khác, và nó chỉ đúng nếu con số đến từ phép đo.
+
+**FRED không cho gì:** consensus forecast. Muốn đo "bất ngờ" (`|thực − dự báo|`)
+thì phải có nguồn trả phí (Trading Economics). Ngày công bố đã đủ cho mục tiêu
+của pha này.

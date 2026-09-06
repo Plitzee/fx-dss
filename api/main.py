@@ -783,10 +783,15 @@ def models():
 
 @app.get("/events")
 def events(tu: str = Query("2024-01-01")):
-    f = os.path.join(D, "cb_dates.csv")
+    # uu tien lich da mo rong (collect/lich_su_kien.py), roi ve lich NHTW
+    f = os.path.join(D, "su_kien.csv")
+    if not os.path.exists(f):
+        f = os.path.join(D, "cb_dates.csv")
     if not os.path.exists(f):
         return {"su_kien": []}
     c = pd.read_csv(f, parse_dates=["date"])
+    if "ma" in c.columns and "bank" not in c.columns:
+        c = c.rename(columns={"ma": "bank"})      # su_kien.csv dung cot `ma`
     c = c[c.date >= pd.Timestamp(tu)]
     c["ngay"] = c.date.astype(str).str[:10]
     return {"su_kien": [{"ngay": k, "nhan": sorted(set(v))}
