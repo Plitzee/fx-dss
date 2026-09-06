@@ -1,0 +1,13 @@
+================================================================================================
+VI TU 'sigma^ thap' CO NOI THEM GI NGOAI sigma^ KHONG?
+================================================================================================
+Bo A = log sigma^ TUYEN TINH (nhu da chay)
+Bo B = 10 bien gia theo thap phan vi cua sigma^ (mem deo)
+
+vi tu               lop          lift   t | bo A   t | bo B   ket luan
+σ̂ thấp             giam        0.846      -6.46      -5.88   SONG
+σ̂ thấp             di ngang    1.289       9.68      10.32   SONG
+σ̂ thấp             tang        0.867      -3.02      -4.23   SONG
+
+Neu cot 'bo B' tut ve duoi 3,0 thi ba cai song sot o H1 la ARTEFACT cua
+viec dat sai dang bien kiem soat, khong phai thong tin moi.

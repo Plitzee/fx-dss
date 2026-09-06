@@ -1,0 +1,36 @@
+============================================================================================================
+KHAI PHÁ QUY LUẬT Ở TẦM HẠN H1
+============================================================================================================
+6 cặp · 592,343 thanh H1 · 630 vị từ × 3 lớp = 1,890 giả thuyết
+phát hiện 513,367 thanh · ma trận 373 MB
+bộ kiểm soát: σ̂ (9 biến giả phân vị × mỗi cặp), TSMOM 24, nhân tố đô-la, 23 biến giả giờ — 592,199 thanh đủ
+
+[1/4] Westfall–Young, 400 hoán vị, khối 24 thanh…
+      (1.66s/hoán vị → ước 11.1 phút)
+      ngưỡng max|z|: 90% 4.91 · 95% 5.33 · 99% 6.03
+      626/630 vị từ đủ 500 lần khớp
+      sống sót W-Y p<0,05: 3 / thô p<0,05: 1683 (nhiễu thuần kỳ vọng 94)
+
+[2/4] Đối chứng có điều kiện (|t| > 3.0)…
+      3/3 vị từ sống sót W-Y là CHÍNH σ̂ — loại khỏi không gian quy luật theo nguyên tắc
+      0/0 vị từ KHÔNG-phải-σ̂ còn tin riêng
+
+      vị từ                                         lớp              n   lift       z    t|đk
+      σ̂ thấp                                       đi ngang   164,925  1.289   82.83    0.74
+      σ̂ thấp                                       giảm       164,925  0.846  -44.17    0.13
+      σ̂ thấp                                       tăng       164,925  0.867  -38.54   -0.90
+
+[3/4] Cửa chi phí — lợi thế ròng sau spread…
+      spread trung vị dùng làm ngưỡng: 0.96 pip
+      0/0 còn lợi thế ròng dương sau chi phí
+
+============================================================================================================
+PHỄU H1                                                còn lại
+không gian giả thuyết                                    1,890
+thô p<0,05 (chưa hiệu chỉnh)                             1,683
+sống sót Westfall–Young                                      3
+còn tin riêng sau điều kiện hoá                              0
+còn lợi thế ròng sau chi phí                                 0
+============================================================================================================
+đã ghi output\quyluat_h1.json — 662s
+TỰ KIỂM ĐẠT
