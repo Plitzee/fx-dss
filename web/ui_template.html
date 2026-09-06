@@ -208,6 +208,13 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .varbox .vl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .varbox .vv{font-family:var(--f-m);font-size:26px;font-weight:600}
 .varbox .vg{font-size:11.5px;color:var(--ink2);line-height:1.45}
+.skbar{display:flex;gap:12px;align-items:flex-start;margin:14px 0;padding:12px 14px;
+  border-radius:6px;background:var(--flatbg);border-left:3px solid var(--flat)}
+.skbar.cao{background:var(--downbg);border-left-color:var(--down)}
+.skico{font-size:20px;line-height:1.2;flex:0 0 auto}
+.skbar.cao .skico{filter:drop-shadow(0 0 6px var(--down))}
+.sktxt{font-size:13px;line-height:1.55;color:var(--ink2)}
+.skthem{display:block;margin-top:5px;font-size:11.5px;color:var(--ink3)}
 .tqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
 body.ndt .chi-phan-tich{display:none!important}
 body:not(.ndt) .chi-ndt{display:none!important}
@@ -637,9 +644,13 @@ async function paintChart(){
   let mk = [];
   if(state.ind.ev && DATA.su_kien){
     const set = new Set(K.ngay);
-    mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
-      time: K.t[K.ngay.indexOf(e.ngay)],
-      position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
+    mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>{
+      const m = mucDoSuKien(e.nhan);
+      return {time: K.t[K.ngay.indexOf(e.ngay)], position:"belowBar",
+              color: m.mau, shape: m.cao ? "arrowUp" : "circle",
+              text: (m.cao ? "⚡ " : "") + e.nhan.join("/")
+                    + (m.bd ? ` ${m.bd.toFixed(2)}×` : "")};
+    }));
   }
   const ct = K.ind ? K.ind.cau_truc : null;
   if(state.ind.swing && ct){
@@ -682,6 +693,66 @@ async function paintChart(){
     + (K.ghi_chu ? " · " + K.ghi_chu : "")
     + (suyBien ? " · CHỈ CÓ GIÁ ĐÓNG CỬA — nguồn không cung cấp OHLC ở khung này" : "");
   veOHLC(K, K.t.length-1);
+}
+
+/* MỨC ĐỘ SỰ KIỆN — lấy từ PHẢN ỨNG ĐÃ ĐO, không phải nhãn "cao/vừa/thấp" đặt tay.
+   Đây là chỗ hệ này khác các nền tảng khác: họ gán nhãn tác động theo quy ước,
+   còn ở đây con số là tỷ lệ |r| ngày sự kiện so với nền 20 phiên liền trước, đo
+   trên toàn bộ lịch sử, kèm cỡ mẫu — xem src/sukien_profile.py.
+       FOMC 1,454× (n=792) · BOE 1,321× · ECB 1,274× · SNB 1,264×
+       BOC  1,160× · RBA 1,157× · BOJ 1,084×
+   Ngưỡng "cao" đặt ở 1,25× — tức ngày đó giá động mạnh hơn ngày thường ≥ 25%. */
+const NGUONG_SK_CAO = 1.25;
+
+/* SỰ KIỆN SẮP TỚI — `data/cb_dates.csv` có lịch tới 18/12/2026 nên đây là dữ
+   liệu THẬT, không phải suy đoán. Trả về sự kiện gần nhất còn ở phía trước. */
+function suKienSapToi(sau_ngay, trong_n_ngay){
+  const hnay = sau_ngay || (DATA.meta.cap_nhat_luc || "").slice(0,10);
+  const han = new Date(hnay); han.setDate(han.getDate() + (trong_n_ngay || 14));
+  const hanS = han.toISOString().slice(0,10);
+  return (DATA.su_kien||[])
+    .filter(e => e.ngay >= hnay && e.ngay <= hanS)
+    .sort((a,b)=> a.ngay < b.ngay ? -1 : 1)
+    .map(e => ({...e, ...mucDoSuKien(e.nhan),
+                cach: Math.round((new Date(e.ngay) - new Date(hnay))/86400000)}))
+    .sort((a,b)=> b.bd - a.bd || a.cach - b.cach);
+}
+
+function veCanhBaoSuKien(){
+  const ds = suKienSapToi(null, 14);
+  if(!ds.length) return "";
+  const cao = ds.filter(e=>e.cao);
+  const g = cao.length ? cao[0] : ds[0];
+  const khi = g.cach === 0 ? "<b>HÔM NAY</b>"
+            : g.cach === 1 ? "<b>NGÀY MAI</b>"
+            : `còn <b>${g.cach} ngày</b> (${g.ngay})`;
+  const p90 = g.e ? g.e.bd_p90 : null;
+  return `<div class="skbar ${g.cao?"cao":""}">
+    <span class="skico">${g.cao?"⚡":"•"}</span>
+    <div class="sktxt">
+      <b>${g.nhan.join(", ")} — ${khi}.</b>
+      ${g.bd ? `Trong lịch sử, ngày họp ${g.nhan[0]} giá động
+        <b>${g.bd.toFixed(2)} lần</b> ngày thường (đo trên ${g.e.n} quan sát)${
+        p90 ? `, và 1 trong 10 lần còn động tới <b>${p90.toFixed(1)} lần</b>` : ""}.` : ""}
+      ${g.cao ? `Nên <b>nới dừng lỗ và giảm cỡ lệnh</b> quanh ngày đó.
+        <b>Chiều đi vẫn không đoán được</b> — hệ thống đã đo và không ngân hàng nào
+        trong 7 có thiên lệch lên hay xuống.` : ""}
+      ${ds.length>1 ? `<span class="skthem">Còn ${ds.length-1} sự kiện khác trong
+        14 ngày tới: ${ds.slice(1,5).map(e=>`${e.nhan.join("/")} ${e.ngay.slice(5)}`)
+        .join(" · ")}${ds.length>5?" …":""}</span>` : ""}
+    </div></div>`;
+}
+
+function mucDoSuKien(nhan){
+  const L = ((DATA.meta.mo_hinh||{}).su_kien||{}).loai || [];
+  let bd = 0, ten = null;
+  (nhan||[]).forEach(n=>{
+    const e = L.find(x=>x.bank===n);
+    if(e && e.bd_trungvi > bd){ bd = e.bd_trungvi; ten = e; }
+  });
+  const cao = bd >= NGUONG_SK_CAO;
+  return {bd, cao, e: ten,
+          mau: cao ? css("--down") : (bd ? css("--flat") : css("--acc"))};
 }
 
 /* ── ba o ── */
@@ -1162,6 +1233,7 @@ function paintTQ(){
       <span class="tqdelta" style="color:var(--ink3);margin-left:auto">${P.ngay[i]}</span>
     </div>
     <p class="tqcau">${cau} Biên độ dao động dự kiến khoảng <b>${sig.toFixed(0)} pip</b>.</p>
+    ${veCanhBaoSuKien()}
 
     <div class="tqbig">
       <div class="tqb d"><span class="t">Giá xuống</span><span class="v">${(100*p[0]).toFixed(0)}%</span><span class="g">giảm quá ${b.toFixed(0)} pip</span></div>
