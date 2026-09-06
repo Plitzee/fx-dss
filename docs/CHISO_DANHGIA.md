@@ -261,3 +261,64 @@ Hướng cho lần thử sau, **phải chốt trước khi mở kiểm tra lần
 động dạng CAViaR. V2 (cuộn 500) có sai lệch ES tốt nhất trên kiểm định (0,0362)
 nhưng đã thua ở quy tắc chọn — **không được** lấy nó ra dùng bây giờ chỉ vì V1
 hỏng, vì đó đúng là data snooping mà cả giao thức này sinh ra để chặn.
+
+---
+
+## 7. Phản ứng đo được của 14 loại sự kiện (05/09/2026)
+
+Sau khi nối FRED (`collect/lich_su_kien.py`), lịch mở rộng từ **7 NHTW / 901
+ngày** lên **14 loại / 2.404 ngày**, và `src/sukien_profile.py` đo lại trên
+**13.944 quan sát** (cặp × ngày sự kiện).
+
+Tỷ lệ = trung vị `|r|` ngày sự kiện chia trung vị `|r|` của 20 phiên liền trước.
+
+| loại | n | \|r\| so nền | KTC 95% | σ̂ dự báo | có tác động? |
+|---|---|---|---|---|---|
+| **FOMC** | 792 | **1,454** | [1,347; 1,516] | 1,232 | ✓ cao |
+| **BOE** | 588 | **1,321** | [1,169; 1,480] | 1,075 | ✓ cao |
+| **ECB** | 918 | **1,274** | [1,188; 1,409] | 1,022 | ✓ cao |
+| **NFP** | 1.206 | **1,269** | [1,177; 1,364] | 1,103 | ✓ cao |
+| **SNB** | 432 | **1,264** | [1,116; 1,445] | 1,123 | ✓ cao |
+| BOC | 798 | 1,160 | [1,041; 1,252] | 1,013 | ✓ |
+| RBA | 1.056 | 1,157 | [1,105; 1,251] | 0,984 | ✓ |
+| BANLE | 1.254 | 1,119 | [1,030; 1,196] | 0,995 | ✓ |
+| GDP | 1.338 | 1,101 | [1,048; 1,190] | 1,003 | ✓ |
+| JOLTS | 1.158 | 1,097 | [1,020; 1,158] | 0,986 | ✓ |
+| BOJ | 690 | 1,084 | [0,981; 1,176] | 1,037 | **phủ 1,0** |
+| **CPI** | 1.266 | 1,082 | **[0,991; 1,159]** | 0,966 | **phủ 1,0** |
+| PPI | 1.248 | 0,980 | [0,900; 1,051] | 0,998 | **phủ 1,0** |
+| **PCE** | 1.200 | **0,943** | **[0,891; 0,991]** | 1,001 | **ÊM HƠN có ý nghĩa** |
+
+### Ba điều đáng nói
+
+**1. NFP thật sự cao — 1,269×, hạng tư trong 14 loại.** Đây là bổ sung có giá
+trị nhất: 1.206 quan sát, KTC không phủ 1,0, và σ̂ chỉ dự báo 1,103× nên **hụt
+13%**. Trước khi nối FRED, hệ thống hoàn toàn mù về ngày này.
+
+**2. CPI KHÔNG khác ngày thường — trái với mọi lịch kinh tế.** 1,082× với KTC
+**[0,991; 1,159] phủ 1,0**, trên 1.266 quan sát. Forex Factory, TradingView,
+Investing.com đều tô **đỏ** cho CPI. Đo trên dữ liệu này thì nó **không** làm
+giá động mạnh hơn ngày thường một cách phân biệt được.
+
+Giao diện vì thế **không đánh dấu CPI**. Đây chính là điểm khác biệt của hệ
+thống: mức độ đến từ **phép đo kèm khoảng tin cậy**, không từ quy ước.
+
+**3. PCE ÊM HƠN ngày thường, có ý nghĩa.** 0,943× với KTC [0,891; 0,991] — cận
+trên dưới 1,0. Giả thuyết: PCE công bố cuối tháng, và nền 20 phiên liền trước
+của nó rơi vào giai đoạn thường có nhiều sự kiện khác. **Chưa kiểm chứng** —
+ghi lại làm quan sát, không làm kết luận.
+
+### Hướng đi: vẫn 0/14
+
+**Không một loại nào trong 14** có thiên lệch hướng có ý nghĩa — mọi khoảng tin
+cậy của dấu trung bình đều phủ 0. Trước là 0/7, nay là **0/14** với gấp đôi số
+loại và gấp 2,6 lần số quan sát. Kết luận "sự kiện khuếch đại *biên độ*, không
+chỉ ra *chiều*" mạnh lên đáng kể.
+
+### Hai ngưỡng dùng trên giao diện
+
+- **"có tác động"** — KTC 95% không phủ 1,0 → được đánh dấu chấm tròn
+- **"tác động cao"** — điểm ước lượng ≥ 1,25 → biểu tượng ⚡ đỏ
+
+Cả hai dựa trên khoảng tin cậy chứ không chỉ điểm ước lượng, nên BOJ (1,084×,
+phủ 1,0) và CPI **không** được đánh dấu dù thị trường quen coi chúng là quan trọng.
