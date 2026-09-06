@@ -187,14 +187,12 @@ def wy_nhanh(Mm, ym, nperm=NPERM, khoi=KHOI, seed=SEED, min_khop=MIN_KHOP):
     return Z, L, nk, p.reshape(Z.shape), np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
 
 
-def main():
-    gop4 = "--h4" in sys.argv
-    nhan = "H4" if gop4 else "H1"
-    t0 = time.time()
-    print("=" * 108)
-    print(f"KHAI PHÁ QUY LUẬT Ở TẦM HẠN {nhan}")
-    print("=" * 108, flush=True)
+def chuan_bi_h1(gop4=False, im=False):
+    """Dung ma tran vi tu, dich, va bo kiem soat cho H1 (hoac H4).
 
+    Tach rieng de `src/kiem_pheu.py --h1` dung lai DUNG duong nay, khong viet
+    lai duong khac."""
+    nhan = "H4" if gop4 else "H1"
     D = nap_h1(gop4)
     lits, ys, gios, sigs, dts, caps, rs = [], [], [], [], [], [], []
     ten_lit = None
@@ -233,9 +231,9 @@ def main():
     M, ten = Q.vet_can(lit, ten_lit)
     del lits, lit
     pha = (dt < TEST_TU) & (y >= 0)
-    print(f"{len(B.PAIRS)} cặp · {len(y):,} thanh {nhan} · "
+    if not im: print(f"{len(B.PAIRS)} cặp · {len(y):,} thanh {nhan} · "
           f"{len(ten):,} vị từ × 3 lớp = {len(ten)*3:,} giả thuyết")
-    print(f"phát hiện {int(pha.sum()):,} thanh · ma trận {M.nbytes/1e6:.0f} MB",
+    if not im: print(f"phát hiện {int(pha.sum()):,} thanh · ma trận {M.nbytes/1e6:.0f} MB",
           flush=True)
 
     # ── BO KIEM SOAT: log sigma, TSMOM, NHAN TO DO-LA, va GIO (bien giả) ──
@@ -262,9 +260,20 @@ def main():
     # CUM cho sai so vung: cap x khoi 24 thanh (mot ngay)
     cum_nhan = np.concatenate([[f"{p}_{i//24}" for i in range(len(dts[j]))]
                                for j, p in enumerate(B.PAIRS)])
-    print(f"bộ kiểm soát: σ̂ (9 biến giả phân vị × mỗi cặp), TSMOM 24, "
+    if not im: print(f"bộ kiểm soát: σ̂ (9 biến giả phân vị × mỗi cặp), TSMOM 24, "
           f"nhân tố đô-la, 23 biến giả giờ — "
           f"{int(np.isfinite(ks).all(1).sum()):,} thanh đủ", flush=True)
+
+    return M, ten, y, ks, pha, cum_nhan, r_all, nhan
+
+
+def main():
+    gop4 = "--h4" in sys.argv
+    t0 = time.time()
+    M, ten, y, ks, pha, cum_nhan, r_all, nhan = chuan_bi_h1(gop4)
+    print("=" * 108)
+    print(f"KHAI PHÁ QUY LUẬT Ở TẦM HẠN {nhan}")
+    print("=" * 108, flush=True)
 
     # ── CUA 1: Westfall-Young ────────────────────────────────────────────
     print(f"\n[1/4] Westfall–Young, {NPERM} hoán vị, khối {KHOI} thanh…", flush=True)

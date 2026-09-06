@@ -306,3 +306,62 @@ D1. Phải chạy lại nó ở H1 để biết MDES mới. Nhưng có thể nó
 > đối chứng có điều kiện, và cửa chi phí — **không một chỉ báo kỹ thuật nào
 > mang thông tin vượt trên một mô hình biến động tốt**. Thứ duy nhất sống sót
 > là chính mô hình biến động đó.
+
+---
+
+## Lực phát hiện của phễu H1 — MDES rơi từ 1,35 xuống 1,10
+
+`python src/kiem_pheu.py --h1`. Cùng thiết lập với phễu thật: khối 24 thanh, SE
+vững theo cụm, và vị từ làm giá đỡ **không được là σ̂** (dùng `la_vi_tu_nen`) —
+nếu tiêm tín hiệu vào chính σ̂ thì đang đo lực phát hiện σ̂, không phải lực phát
+hiện quy luật.
+
+Giá trị tới hạn max|z| dưới null khối: **5,36** (D1 là 4,72). Ngưỡng **cao hơn**
+là đúng: với 513k quan sát, |z| dưới null cũng trải rộng hơn, nên Westfall–Young
+phải nâng ngưỡng để giữ nguyên mức khống chế sai lầm loại I toàn cục. Đây là lý
+do 27× dữ liệu **không** cho 27× lực.
+
+### Đối chứng âm — 10 lần xáo trộn khối
+
+**0 dương tính giả** cả 10 lần, trên 1.890 giả thuyết. Phễu H1 không rò rỉ.
+
+### Đối chứng dương — 40 lần mỗi mức
+
+| lift đặt | lift thực | \|z\| trung vị | bắt được | **lực** |
+|---|---|---|---|---|
+| 1,02 | 1,033 | 2,47 | 6/40 | 15% |
+| 1,05 | 1,082 | 8,12 | 25/40 | 62% |
+| **1,10** | 1,126 | 14,54 | **37/40** | **92%** |
+| 1,15 | 1,153 | 22,61 | 38/40 | 95% |
+| 1,20 | 1,202 | 30,07 | 40/40 | 100% |
+| 1,35 | 1,350 | 51,57 | 40/40 | 100% |
+| 1,50 | 1,500 | 73,87 | 40/40 | 100% |
+
+**Hiệu ứng nhỏ nhất phát hiện được (lực 80%): lift = 1,10.**
+
+| | D1 | **H1** |
+|---|---|---|
+| quan sát | 21.596 | 592.343 |
+| giá trị tới hạn | 4,72 | 5,36 |
+| **MDES (lực 80%)** | **1,35** | **1,10** |
+| lực ở lift 1,20 | 40% | **100%** |
+| lực ở lift 1,15 | 8% | **95%** |
+| lực ở lift 1,05 | 0% | **62%** |
+| dương tính giả / 1.890 | 0,0 | 0,0 |
+
+### Phát biểu được gì — bản mạnh nhất hiện có
+
+> Trên **592.343 quan sát** và **1.890 giả thuyết liệt kê đầy đủ**, phễu này phát
+> hiện được quy luật có lift **≥ 1,10** với xác suất **≥ 80%** (và ≥ 1,20 với xác
+> suất 100%), trong khi cho **0 dương tính giả** trên nhiễu thuần. Sau kiểm định
+> bội, đối chứng có điều kiện, và cửa chi phí — **không một chỉ báo kỹ thuật nào
+> sống sót**. Thứ duy nhất sống sót là chính mô hình biến động.
+>
+> Do đó: **không tồn tại quy luật kỹ thuật nào có lợi thế từ 10% trở lên** trên
+> bộ dữ liệu này. Quy luật yếu hơn 1,05 thì vẫn **không** loại trừ được — ở mức
+> đó lực chỉ 62%.
+
+Lift 1,10 nghĩa là xác suất lớp cao hơn nền 10% — với nền ~1/3 thì là **33% →
+37%**. Đó là ngưỡng đủ thấp để phát biểu có sức nặng: lợi thế nhỏ hơn thế, sau
+khi trừ spread 0,96 pip trên biên độ H1 ~4,2 pip, gần như chắc chắn không còn ý
+nghĩa kinh tế.

@@ -141,38 +141,57 @@ def tiem(y, mkhop, lop, lift, pha, rng):
     return y2, float((y2[ok] == lop).mean() / max(p0, EPS))
 
 
-def gia_tri_toi_han(M, y, pha):
-    """max|z| duoi null khoi, phan vi 95% — chay DUNG MOT LAN."""
+def gia_tri_toi_han(M, y, pha, h1=False):
+    """max|z| duoi null khoi, phan vi 95% — chay DUNG MOT LAN.
+
+    O H1 dung `quyluat_h1.wy_nhanh`: ban trong run_quyluat cat lai ma tran 592k
+    cot moi hoan vi, do la phan ton nhat."""
+    if h1:
+        import quyluat_h1 as H1
+        Mm = np.ascontiguousarray(M[:, pha])
+        _, _, _, _, ng = H1.wy_nhanh(Mm, y[pha], nperm=H1.NPERM, khoi=H1.KHOI,
+                                     seed=SEED, min_khop=H1.MIN_KHOP)
+        return float(ng[1])
     _, _, _, _, ng = Q.westfall_young(M, y, pha, nperm=NPERM_NGUONG, seed=SEED)
     return float(ng[1])
 
 
-def qua_hai_cua(M, y, kiem_soat, pha, i, c, gtth):
+def qua_hai_cua(M, y, kiem_soat, pha, i, c, gtth, cum=None):
     """Vi tu (i, c) co qua ca hai cua chat nhat khong: W-Y roi dieu kien hoa."""
     Z, _, _ = Q.z_lift(M, y, pha)
     z = Z[i, c]
     if not (np.isfinite(z) and abs(z) > gtth):
         return False, (float(z) if np.isfinite(z) else np.nan)
-    _, t = Q.doi_chung(M[i], y, c, kiem_soat)
+    _, t = Q.doi_chung(M[i], y, c, kiem_soat, cum=cum)
     return bool(np.isfinite(t) and abs(t) > Q.T_DIEU_KIEN), float(z)
 
 
 def main():
     t0 = time.time()
+    h1 = "--h1" in sys.argv
+    nhan = "H1" if h1 else "D1"
     print("=" * 100)
-    print("KIỂM CHỨNG PHỄU GIAI ĐOẠN 2 — đối chứng âm và đối chứng dương")
+    print(f"KIỂM CHỨNG PHỄU GIAI ĐOẠN 2 ({nhan}) — đối chứng âm và đối chứng dương")
     print("=" * 100, flush=True)
-    M, ten, y, kiem_soat, pha = chuan_bi()
+    if h1:
+        import quyluat_h1 as H1
+        M, ten, y, kiem_soat, pha, cum, _, _ = H1.chuan_bi_h1()
+        Q.KHOI = H1.KHOI                      # khối 24 thanh = một ngày
+        Q.MIN_KHOP = H1.MIN_KHOP
+        globals()["N_LAP"] = 40               # H1 tốn ×27 mỗi lần lặp
+    else:
+        M, ten, y, kiem_soat, pha = chuan_bi()
+        cum = None
     ngt = M.shape[0] * 3
     print(f"{M.shape[0]:,} vị từ × 3 lớp = {ngt:,} giả thuyết · "
           f"{int(pha.sum()):,} hàng phát hiện", flush=True)
-    ra = {"n_gia_thuyet": int(ngt), "n_hang": int(pha.sum()),
+    ra = {"tam_han": nhan, "n_gia_thuyet": int(ngt), "n_hang": int(pha.sum()),
           "nperm_nguong": NPERM_NGUONG, "lifts": list(LIFTS),
           "n_lap": N_LAP, "t_dieu_kien": Q.T_DIEU_KIEN}
 
     print(f"\n[0/2] Giá trị tới hạn max|z| dưới null khối "
-          f"({NPERM_NGUONG} hoán vị)…", flush=True)
-    gtth = gia_tri_toi_han(M, y, pha)
+          f"(khối {Q.KHOI})…", flush=True)
+    gtth = gia_tri_toi_han(M, y, pha, h1=h1)
     ra["gia_tri_toi_han"] = gtth
     print(f"      giá trị tới hạn 95% = {gtth:.2f}", flush=True)
 
@@ -187,7 +206,7 @@ def main():
         vuot = np.where(np.isfinite(Zs) & (np.abs(Zs) > gtth))
         q = 0
         for i, c in zip(*vuot):
-            _, t = Q.doi_chung(M[i], ys, c, kiem_soat)
+            _, t = Q.doi_chung(M[i], ys, c, kiem_soat, cum=cum)
             if np.isfinite(t) and abs(t) > Q.T_DIEU_KIEN:
                 q += 1
         am.append({"lan": lap, "vuot_nguong": int(len(vuot[0])), "qua_dieu_kien": q})
@@ -202,7 +221,8 @@ def main():
     print(f"\n[2/2] ĐỐI CHỨNG DƯƠNG — tiêm quy luật đã biết, {N_LAP} lần mỗi mức",
           flush=True)
     nk = np.array([(M[i] & pha).sum() for i in range(M.shape[0])])
-    ung_vien = np.where(nk >= MIN_KHOP_TIEM)[0]
+    ung_vien = np.array([i for i in np.where(nk >= MIN_KHOP_TIEM)[0]
+                         if not Q.la_vi_tu_nen(ten[i])])
     print(f"      {len(ung_vien):,} vị từ đủ ≥{MIN_KHOP_TIEM} lần khớp làm giá đỡ\n",
           flush=True)
     print(f"      {'lift đặt':>9}{'lift thực':>11}{'|z| trung vị':>14}"
@@ -216,7 +236,7 @@ def main():
             c = int(r2.integers(0, 3))
             y2, lt = tiem(y, M[i], c, lift, pha, r2)
             lts.append(lt)
-            ok, z = qua_hai_cua(M, y2, kiem_soat, pha, i, c, gtth)
+            ok, z = qua_hai_cua(M, y2, kiem_soat, pha, i, c, gtth, cum)
             zs_.append(abs(z))
             bat += int(ok)
         luc = bat / N_LAP
@@ -244,9 +264,10 @@ def main():
     print(f"Dương tính giả trên nhiễu thuần: {tb_am:.1f}/{ngt:,}")
     print("=" * 100)
 
-    with open(os.path.join(OUT, "kiem_pheu.json"), "w", encoding="utf-8") as f:
+    ten_f = "kiem_pheu.json" if not h1 else "kiem_pheu_h1.json"
+    with open(os.path.join(OUT, ten_f), "w", encoding="utf-8") as f:
         json.dump(ra, f, ensure_ascii=False, indent=1)
-    print(f"đã ghi output/kiem_pheu.json · {time.time()-t0:.0f}s")
+    print(f"đã ghi output/{ten_f} · {time.time()-t0:.0f}s")
     print("TỰ KIỂM ĐẠT")
 
 
