@@ -381,3 +381,55 @@ biết ngày nào ngân hàng trung ương **của đúng đồng tiền đó** 
 - **Chưa làm:** P3 — chốt cấu hình, mở tập khoá sổ (6 cặp chéo + 2026), chạy một lần.
 - **Nên làm trước P3:** cập nhật `panel2_6pairs.csv` bằng dự báo của cấu hình vòng 7,
   rồi chạy lại tầng 3–6 để xem cải thiện tầng 2 chảy xuống bao nhiêu.
+
+---
+
+## Lan truyền biến động Diebold-Yilmaz — thử ở tần suất ngày, KHÔNG cải thiện (06/09/2026)
+
+Nghiên cứu văn liệu 2024-2026 tìm được một bài dùng đúng bộ 5/6 cặp tiền của
+repo (Rubaszek, Szafranek & Uddin 2025, *J. Intl Money & Finance*): TVP-VAR
+spillover index trên dữ liệu 5 phút, đo được EUR truyền cú sốc biến động, GBP
+nhận. Thử áp dụng ý tưởng này làm biến ngoại sinh cho HAR vòng 7.
+
+**Khác với `crosspair` cũ** (`volfc2.py`, trung bình không trọng số của log-RV
+các cặp khác — đã đo trong lưới 1.024 cấu hình: QLIKE trung bình 0,120570 so
+với 0,120763, gần như không đổi): `src/spillover_dy.py` dùng **trọng số phân rã
+phương sai dự báo tổng quát** (generalized FEVD, đúng công thức Diebold-Yilmaz
+2012) từ VAR(1) khớp trên cửa sổ mở rộng, khớp lại mỗi 21 phiên — mỗi cặp nhận
+đúng tỷ lệ biến động mà từng cặp khác thực sự giải thích được, không phải trung
+bình đều.
+
+### Kết quả — QLIKE trên đoạn kiểm định (không trộn lịch NHTW, so sánh sạch)
+
+| cặp | không thêm cột | + spillover DY | chênh |
+|---|---|---|---|
+| EURUSD | 0,116215 | 0,116175 | −0,000040 |
+| **GBPUSD** | 0,121983 | **0,121086** | **−0,000898** |
+| USDJPY | 0,246666 | 0,246937 | +0,000271 |
+| AUDUSD | 0,098912 | 0,098933 | +0,000022 |
+| USDCAD | 0,082950 | 0,083155 | +0,000205 |
+| USDCHF | 0,101939 | 0,102359 | +0,000420 |
+| **trung bình** | **0,128111** | **0,128108** | **−0,000003** |
+
+**Không cải thiện.** Chênh lệch trung bình là nhiễu số (−0,000003), và **4/6 cặp
+xấu đi** — chỉ GBPUSD nhích tốt hơn thật (−0,0009, ~0,7%). Kết luận mạnh hơn kết
+quả `crosspair` cũ: **kể cả khi dùng trọng số có cơ sở lý thuyết đúng đắn**
+(FEVD thay vì trung bình tho), lan truyền biến động **ở tần suất ngày** vẫn
+không mang thêm thông tin ngoài lịch sử của chính cặp đó (vốn đã có trong ba
+thành phần HAR ngày/tuần/tháng).
+
+### Vì sao — và hướng còn ngỏ
+
+Bài Rubaszek dùng dữ liệu **5 phút**, và tự ghi nhận: *"volatility connectedness
+ở tần suất trong ngày cho một bức tranh bổ sung khác với ước lượng từ dữ liệu
+ngày"*. Rất có thể lan truyền biến động là hiện tượng **trong ngày** (phiên Á
+ảnh hưởng phiên Âu ảnh hưởng phiên Mỹ, cùng ngày) mà khi gộp về D1 thì đã hoà
+tan hết — giống hệt cơ chế mùa vụ trong ngày mà `quyluat_h1.py` phải xử lý
+riêng. Thử ở H1 (đã có hạ tầng VAR + FEVD trong `spillover_dy.py`, có thể tái
+dùng) là hướng tự nhiên tiếp theo, nhưng **chưa làm** — để ngỏ, không kết luận
+trước khi đo.
+
+Ma trận TO/FROM (ảnh chụp cuối kỳ, không phải trung bình thời gian) không cho
+thấy một cặp "truyền" rõ rệt như văn liệu — mọi cặp có hệ số chéo khá đồng đều
+(0,10–0,20), khác với phát hiện "EUR truyền, GBP nhận" của bài gốc. Hợp lý vì
+đó là kết quả ở tần suất khác hẳn.
