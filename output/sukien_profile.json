@@ -3,6 +3,19 @@
  "min_n": 30,
  "loai": [
   {
+   "bank": "BANLE",
+   "n": 1254,
+   "bd_trungvi": 1.119,
+   "bd_lo": 1.03,
+   "bd_hi": 1.196,
+   "bd_p90": 3.04,
+   "sig_trungvi": 0.995,
+   "dau_tb": 0.004,
+   "dau_lo": -0.052,
+   "dau_hi": 0.055,
+   "huong_co_y_nghia": false
+  },
+  {
    "bank": "BOC",
    "n": 798,
    "bd_trungvi": 1.16,
@@ -42,6 +55,19 @@
    "huong_co_y_nghia": false
   },
   {
+   "bank": "CPI",
+   "n": 1266,
+   "bd_trungvi": 1.082,
+   "bd_lo": 0.991,
+   "bd_hi": 1.159,
+   "bd_p90": 3.173,
+   "sig_trungvi": 0.966,
+   "dau_tb": 0.029,
+   "dau_lo": -0.028,
+   "dau_hi": 0.084,
+   "huong_co_y_nghia": false
+  },
+  {
    "bank": "ECB",
    "n": 918,
    "bd_trungvi": 1.274,
@@ -65,6 +91,71 @@
    "dau_tb": 0.028,
    "dau_lo": -0.039,
    "dau_hi": 0.096,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "GDP",
+   "n": 1338,
+   "bd_trungvi": 1.101,
+   "bd_lo": 1.048,
+   "bd_hi": 1.19,
+   "bd_p90": 3.093,
+   "sig_trungvi": 1.003,
+   "dau_tb": 0.001,
+   "dau_lo": -0.051,
+   "dau_hi": 0.058,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "JOLTS",
+   "n": 1158,
+   "bd_trungvi": 1.097,
+   "bd_lo": 1.02,
+   "bd_hi": 1.158,
+   "bd_p90": 2.672,
+   "sig_trungvi": 0.986,
+   "dau_tb": 0.033,
+   "dau_lo": -0.023,
+   "dau_hi": 0.089,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "NFP",
+   "n": 1206,
+   "bd_trungvi": 1.269,
+   "bd_lo": 1.177,
+   "bd_hi": 1.364,
+   "bd_p90": 3.536,
+   "sig_trungvi": 1.103,
+   "dau_tb": -0.012,
+   "dau_lo": -0.071,
+   "dau_hi": 0.05,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "PCE",
+   "n": 1200,
+   "bd_trungvi": 0.943,
+   "bd_lo": 0.891,
+   "bd_hi": 0.991,
+   "bd_p90": 2.882,
+   "sig_trungvi": 1.001,
+   "dau_tb": 0.003,
+   "dau_lo": -0.057,
+   "dau_hi": 0.058,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "PPI",
+   "n": 1248,
+   "bd_trungvi": 0.98,
+   "bd_lo": 0.9,
+   "bd_hi": 1.051,
+   "bd_p90": 2.842,
+   "sig_trungvi": 0.998,
+   "dau_tb": -0.03,
+   "dau_lo": -0.078,
+   "dau_hi": 0.025,
    "huong_co_y_nghia": false
   },
   {

@@ -1,0 +1,122 @@
+{
+ "tam_han": "H1",
+ "n_gia_thuyet": 1890,
+ "n_hang": 513367,
+ "nperm_nguong": 1000,
+ "lifts": [
+  1.02,
+  1.05,
+  1.1,
+  1.15,
+  1.2,
+  1.35,
+  1.5
+ ],
+ "n_lap": 40,
+ "t_dieu_kien": 3.0,
+ "gia_tri_toi_han": 5.358053231239318,
+ "doi_chung_am": [
+  {
+   "lan": 0,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 1,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 2,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 3,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 4,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 5,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 6,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 7,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 8,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 9,
+   "vuot_nguong": 0,
+   "qua_dieu_kien": 0
+  }
+ ],
+ "doi_chung_duong": [
+  {
+   "lift": 1.02,
+   "lift_that": 1.0330050852605648,
+   "z_trungvi": 2.4725545409309135,
+   "bat": 6,
+   "luc": 0.15
+  },
+  {
+   "lift": 1.05,
+   "lift_that": 1.0820729670654827,
+   "z_trungvi": 8.119625943998647,
+   "bat": 25,
+   "luc": 0.625
+  },
+  {
+   "lift": 1.1,
+   "lift_that": 1.125808311638401,
+   "z_trungvi": 14.5397697359704,
+   "bat": 37,
+   "luc": 0.925
+  },
+  {
+   "lift": 1.15,
+   "lift_that": 1.1529825991496119,
+   "z_trungvi": 22.610709055766254,
+   "bat": 38,
+   "luc": 0.95
+  },
+  {
+   "lift": 1.2,
+   "lift_that": 1.201864683188801,
+   "z_trungvi": 30.066297648469657,
+   "bat": 40,
+   "luc": 1.0
+  },
+  {
+   "lift": 1.35,
+   "lift_that": 1.3496202721437922,
+   "z_trungvi": 51.57337342406454,
+   "bat": 40,
+   "luc": 1.0
+  },
+  {
+   "lift": 1.5,
+   "lift_that": 1.5002557854382244,
+   "z_trungvi": 73.87106184414894,
+   "bat": 40,
+   "luc": 1.0
+  }
+ ],
+ "lift_nho_nhat_luc80": 1.1
+}

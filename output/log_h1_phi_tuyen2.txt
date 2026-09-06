@@ -1,0 +1,13 @@
+====================================================================================================
+VI TU 'sigma^ thap' CO NOI THEM GI NGOAI sigma^ KHONG? — ban da sua
+====================================================================================================
+Bo A = log sigma^ TUYEN TINH (bo da dung khi chay pheu)
+Bo C = 54 bien gia thap phan vi sigma^ RIENG TUNG CAP (mem deo, dung thang)
+
+vi tu         lop          lift   t | bo A   t | bo C   ket luan
+σ̂ thấp       giam        0.846      -6.46       0.13   CHET
+σ̂ thấp       di ngang    1.289       9.68       0.78   CHET
+σ̂ thấp       tang        0.867      -3.02      -0.89   CHET
+
+Doi chieu — trong 3 vi tu song sot W-Y, bao nhieu cai KHONG lien quan sigma^: 0/3
+Ca ba deu la 'sigma^ thap'. Khong mot chi bao ky thuat nao lot vao.

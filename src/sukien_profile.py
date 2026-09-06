@@ -41,6 +41,20 @@ SEED = 0
 EPS = 1e-12
 
 
+def nap_lich(thu_muc):
+    """Lich su kien: uu tien `su_kien.csv` (da mo rong), roi ve `cb_dates.csv`.
+
+    `su_kien.csv` do `collect/lich_su_kien.py` dung tu FRED — no phu ca cong bo
+    vi mo (NFP, CPI, GDP...) chu khong chi 7 NHTW. Cot `ma` thay cho `bank`."""
+    f = os.path.join(thu_muc, "su_kien.csv")
+    if os.path.exists(f):
+        d = pd.read_csv(f, parse_dates=["date"])
+        if "ma" in d.columns:
+            d = d.rename(columns={"ma": "bank"})
+        return d
+    return pd.read_csv(os.path.join(thu_muc, "cb_dates.csv"), parse_dates=["date"])
+
+
 def ktc(x, f=np.median, nboot=NBOOT, seed=SEED):
     x = np.asarray(x, float)
     x = x[np.isfinite(x)]
@@ -55,7 +69,7 @@ def main():
     import balop as B
     from api.main import noi_chuoi
 
-    cb = pd.read_csv(os.path.join(D, "cb_dates.csv"), parse_dates=["date"])
+    cb = nap_lich(D)
     cb["ngay"] = cb.date.astype(str).str[:10]
 
     hang = []

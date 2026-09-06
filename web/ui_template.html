@@ -208,6 +208,13 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .varbox .vl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .varbox .vv{font-family:var(--f-m);font-size:26px;font-weight:600}
 .varbox .vg{font-size:11.5px;color:var(--ink2);line-height:1.45}
+.skbar{display:flex;gap:12px;align-items:flex-start;margin:14px 0;padding:12px 14px;
+  border-radius:6px;background:var(--flatbg);border-left:3px solid var(--flat)}
+.skbar.cao{background:var(--downbg);border-left-color:var(--down)}
+.skico{font-size:20px;line-height:1.2;flex:0 0 auto}
+.skbar.cao .skico{filter:drop-shadow(0 0 6px var(--down))}
+.sktxt{font-size:13px;line-height:1.55;color:var(--ink2)}
+.skthem{display:block;margin-top:5px;font-size:11.5px;color:var(--ink3)}
 .tqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
 body.ndt .chi-phan-tich{display:none!important}
 body:not(.ndt) .chi-ndt{display:none!important}
@@ -637,9 +644,13 @@ async function paintChart(){
   let mk = [];
   if(state.ind.ev && DATA.su_kien){
     const set = new Set(K.ngay);
-    mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>({
-      time: K.t[K.ngay.indexOf(e.ngay)],
-      position:"belowBar", color:css("--acc"), shape:"circle", text:e.nhan.join("/")})));
+    mk = mk.concat(DATA.su_kien.filter(e=>set.has(e.ngay)).map(e=>{
+      const m = mucDoSuKien(e.nhan);
+      return {time: K.t[K.ngay.indexOf(e.ngay)], position:"belowBar",
+              color: m.mau, shape: m.cao ? "arrowUp" : "circle",
+              text: (m.cao ? "⚡ " : "") + e.nhan.join("/")
+                    + (m.that ? ` ${m.bd.toFixed(2)}×` : "")};
+    }));
   }
   const ct = K.ind ? K.ind.cau_truc : null;
   if(state.ind.swing && ct){
@@ -682,6 +693,78 @@ async function paintChart(){
     + (K.ghi_chu ? " · " + K.ghi_chu : "")
     + (suyBien ? " · CHỈ CÓ GIÁ ĐÓNG CỬA — nguồn không cung cấp OHLC ở khung này" : "");
   veOHLC(K, K.t.length-1);
+}
+
+/* MỨC ĐỘ SỰ KIỆN — lấy từ PHẢN ỨNG ĐÃ ĐO, không phải nhãn "cao/vừa/thấp" đặt tay.
+   Đây là chỗ hệ này khác các nền tảng khác: họ gán nhãn tác động theo quy ước,
+   còn ở đây con số là tỷ lệ |r| ngày sự kiện so với nền 20 phiên liền trước, đo
+   trên toàn bộ lịch sử, kèm cỡ mẫu — xem src/sukien_profile.py.
+       FOMC 1,454× (n=792) · BOE 1,321× · ECB 1,274× · SNB 1,264×
+       BOC  1,160× · RBA 1,157× · BOJ 1,084×
+   Ngưỡng "cao" đặt ở 1,25× — tức ngày đó giá động mạnh hơn ngày thường ≥ 25%. */
+const NGUONG_SK_CAO = 1.25;
+
+/* SỰ KIỆN SẮP TỚI — `data/su_kien.csv` có lịch tới 18/12/2026 nên đây là dữ liệu
+   THẬT, không phải suy đoán. Trả về các sự kiện còn ở phía trước, xếp theo mức
+   độ đã đo rồi tới độ gần. */
+function suKienSapToi(sau_ngay, trong_n_ngay){
+  const hnay = sau_ngay || (DATA.meta.cap_nhat_luc || "").slice(0,10);
+  const han = new Date(hnay); han.setDate(han.getDate() + (trong_n_ngay || 14));
+  const hanS = han.toISOString().slice(0,10);
+  return (DATA.su_kien||[])
+    .filter(e => e.ngay >= hnay && e.ngay <= hanS)
+    .map(e => ({...e, ...mucDoSuKien(e.nhan),
+                cach: Math.round((new Date(e.ngay) - new Date(hnay))/86400000)}))
+    .sort((a,b)=> b.bd - a.bd || a.cach - b.cach);
+}
+
+function veCanhBaoSuKien(){
+  const ds = suKienSapToi(null, 14);
+  if(!ds.length) return "";
+  const cao = ds.filter(e=>e.cao), thuc = ds.filter(e=>e.that);
+  if(!thuc.length) return "";          // không sự kiện nào ĐO RA có tác động
+  const g = cao.length ? cao[0] : thuc[0];
+  const khi = g.cach === 0 ? "<b>HÔM NAY</b>"
+            : g.cach === 1 ? "<b>NGÀY MAI</b>"
+            : `còn <b>${g.cach} ngày</b> (${g.ngay})`;
+  const p90 = g.e ? g.e.bd_p90 : null;
+  const khac = thuc.filter(e=>e!==g).slice(0,4);
+  return `<div class="skbar ${g.cao?"cao":""}">
+    <span class="skico">${g.cao?"⚡":"•"}</span>
+    <div class="sktxt">
+      <b>${g.nhan.join(", ")} — ${khi}.</b>
+      Trong lịch sử, ngày này giá động <b>${g.bd.toFixed(2)} lần</b> ngày thường
+      (đo trên ${g.e.n.toLocaleString("vi")} quan sát)${
+      p90 ? `, và 1 trong 10 lần còn động tới <b>${p90.toFixed(1)} lần</b>` : ""}.
+      ${g.cao ? `Nên <b>nới dừng lỗ và giảm cỡ lệnh</b> quanh ngày đó.` : ""}
+      <b>Chiều đi vẫn không đoán được</b> — đã đo 14 loại sự kiện,
+      <b>không loại nào</b> có thiên lệch lên hay xuống.
+      ${khac.length ? `<span class="skthem">Còn ${khac.length} sự kiện đo ra có
+        tác động trong 14 ngày tới: ${khac.map(e=>`${e.nhan.join("/")}
+        ${e.ngay.slice(5)} (${e.bd.toFixed(2)}×)`).join(" · ")}</span>` : ""}
+    </div></div>`;
+}
+
+/* HAI NGUONG, ca hai dua tren KHOANG TIN CAY chu khong chi diem uoc luong:
+     "co tac dong"  KTC 95% khong phu 1,0  (bd_lo > 1)
+     "tac dong cao" diem uoc luong >= 1,25
+   Do duoc tren 14 loai / 13.944 quan sat (src/sukien_profile.py):
+     FOMC 1,454x  BOE 1,321x  ECB 1,274x  NFP 1,269x  SNB 1,264x  <- cao
+     BOC 1,160x  RBA 1,157x  BANLE 1,119x  GDP 1,101x  JOLTS 1,097x
+     BOJ 1,084x  CPI 1,082x  PPI 0,980x  PCE 0,943x
+   CPI (KTC [0,991; 1,159] PHU 1,0) KHONG duoc danh dau, du moi lich kinh te deu
+   to do no. PCE (KTC [0,891; 0,991]) thuc ra EM HON ngay thuong co y nghia. */
+function mucDoSuKien(nhan){
+  const L = ((DATA.meta.mo_hinh||{}).su_kien||{}).loai || [];
+  let bd = 0, ten = null;
+  (nhan||[]).forEach(n=>{
+    const e = L.find(x=>x.bank===n);
+    if(e && e.bd_trungvi > bd){ bd = e.bd_trungvi; ten = e; }
+  });
+  const that = !!(ten && ten.bd_lo > 1.0);
+  const cao = that && bd >= NGUONG_SK_CAO;
+  return {bd, cao, that, e: ten,
+          mau: cao ? css("--down") : (that ? css("--flat") : css("--ink3"))};
 }
 
 /* ── ba o ── */
@@ -744,17 +827,32 @@ function paintFoot(i){
   // 2021–2023 và không theo dõi gì đang xảy ra hôm nay.
   // h=20 do duoc la CHUA DUNG DUOC: MCE ~0,20 nghia la thung xac suat te nhat
   // lech 20 diem phan tram. Khong go khoi giao dien, nhung phai noi ra.
+  // Đọc THẲNG từ bảng hiệu chuẩn đang phục vụ, không chép số vào mã: nếu
+  // `jobs/cap_nhat.py` chạy lại và số đổi thì câu cảnh báo phải đổi theo.
+  // `cu` là bản ĐÓNG BĂNG tương ứng, để so được trước/sau cửa sổ mở rộng.
   if(state.h === "20"){
-    const t20 = (((DATA.meta.mo_hinh||{}).tin_cay||{}).tam||{})["20"];
-    const mce = t20 ? t20.gop.mce : null;
+    const cu = H["h20_P_" + T.nen.replace(" (cuộn)", "")];
+    const dòng = [];
+    const vn = (v, n) => v.toFixed(n).replace(".", ",");   // dấu thập phân tiếng Việt
+    if(c) dòng.push(`MCE trên đoạn kiểm định là <b>${vn(c.mce,3)}</b> — `
+      + `thùng xác suất tệ nhất lệch <b>${vn(100*c.mce,1)}</b> điểm phần trăm.`);
+    if(c && cu) dòng.push(`Bản cửa sổ mở rộng ăn thêm điểm ở BSS `
+      + `(${cu.bss>=0?"+":""}${vn(cu.bss,4)} → ${c.bss>=0?"+":""}${vn(c.bss,4)}) `
+      + `nhưng <b>MCE lại xấu đi</b> (${vn(cu.mce,3)} → ${vn(c.mce,3)}). `
+      + `Quy tắc chọn đã chốt trước là điểm log nên vẫn lấy bản này, và chỗ xấu đi `
+      + `phải nói ra chứ không giấu.`);
+    if(nm) dòng.push(`<b>Và trên đoạn KIỂM TRA — dữ liệu chưa từng dùng để chọn `
+      + `mô hình — BSS chỉ ${nm.bss>=0?"+":""}${vn(nm.bss,4)}, khoảng tin cậy `
+      + `[${vn(nm.bss_lo,4)}; ${nm.bss_hi>=0?"+":""}${vn(nm.bss_hi,4)}] phủ 0.</b> `
+      + `Tức ngoài mẫu nó <b>không chứng minh được là hơn cách đoán đơn giản</b>. `
+      + `(Cửa sổ 20 phiên chồng lấn nên mẫu hữu hiệu chỉ khoảng ${nm.n_huu_hieu}, `
+      + `không phải ${nm.n.toLocaleString("vi")}.)`);
     rows.push(`<span class="chip chi-phan-tich"><span class="dot bad"></span><span>`
-      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> MCE ${mce!=null?mce.toFixed(4):"≈0,20"} — `
-      + `thùng xác suất tệ nhất lệch khoảng 20 điểm phần trăm, và ở chế độ êm nó `
-      + `từng <b>âm so với khí hậu học</b>. Nguyên nhân đo được: quy tắc √h giả định `
-      + `biến động đứng yên 20 phiên, trong khi nó hồi quy về trung bình — tỷ lệ `
-      + `(thực/dự báo) chạy từ 1,085 ở chế độ êm tới 0,770 ở chế độ căng. Đã vá bằng `
-      + `hệ số c_h riêng từng chế độ (hết âm có ý nghĩa) nhưng <b>chưa đủ</b>. `
-      + `Dùng tầm hạn 1 hoặc 5 phiên.</span></span>`);
+      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> ${dòng.join(" ")} `
+      + `Nguyên nhân gốc đã đo: quy tắc √h giả định biến động đứng yên 20 phiên, `
+      + `trong khi nó hồi quy về trung bình — tỷ lệ (thực/dự báo) chạy từ 1,085 ở `
+      + `chế độ êm tới 0,770 ở chế độ căng. <b>Dùng tầm hạn 1 hoặc 5 phiên.</b>`
+      + `</span></span>`);
   }
 
   const sd = (DATA.so_dubao||{})[state.h];
@@ -774,6 +872,19 @@ function paintFoot(i){
     }
   }
 
+  // SO NGOAI MAU — do tren doan KIEM TRA, chua tung dung de chon mo hinh. Day
+  // la bang chung manh hon so cua doan kiem dinh (doan da dung de chon).
+  const NM = (((DATA.meta.mo_hinh||{}).ngoai_mau||{}).tam||{})[state.h];
+  if(NM){
+    const v = (x,n)=>x.toFixed(n).replace(".", ",");
+    rows.push(`<span class="chip chi-phan-tich"><span class="dot ${NM.co_y_nghia?"ok":"mid"}"></span>`
+      + `<span><b>Đo trên đoạn KIỂM TRA</b> (2023-11-20 → 2025-12-31, chưa từng dùng `
+      + `để chọn mô hình — mạnh hơn dòng “kiểm định” bên dưới): `
+      + `BSS ${NM.bss>=0?"+":""}${v(NM.bss,4)} KTC [${v(NM.bss_lo,4)}; `
+      + `${NM.bss_hi>=0?"+":""}${v(NM.bss_hi,4)}] · MCE ${v(NM.mce,4)} · AUC ${v(NM.auc,3)}`
+      + (NM.co_y_nghia ? ` — <b>thắng khí hậu học có ý nghĩa</b>`
+                       : ` — <b>chưa thắng được khí hậu học</b>`)+`.</span></span>`);
+  }
   if(c){
     const sig = (c.bss_lo>0);
     rows.push(`<span class="chip chi-phan-tich"><span class="dot ${sig?"ok":"mid"}"></span>Hiệu chuẩn trên <b>đoạn kiểm định</b> (2021–2023, không phải trực tiếp): ECE ${c.ece.toFixed(4)} · MCE <b>${c.mce.toFixed(4)}</b> · BSS ${c.bss>=0?"+":""}${c.bss.toFixed(4)} KTC [${c.bss_lo>=0?"+":""}${c.bss_lo.toFixed(4)}; ${c.bss_hi>=0?"+":""}${c.bss_hi.toFixed(4)}]${sig?" — thắng khí hậu học":" — chưa thắng khí hậu học"}</span>`);
@@ -804,7 +915,7 @@ function paintFoot(i){
   rows.push(`<ul class="why chi-phan-tich">
     <li><span class="id">TANG2-HAR7</span><span>σ̂ dự báo ${fmt(T.sig_pip[i])} pip — chế độ <b>${cheDo}</b>; đây là thứ đẩy ô vàng lên xuống</span><span class="st">QLIKE 0,1585</span></li>
     <li><span class="id">DAI-P-kP</span><span>dải ±${fmt(T.b_pip[i])} pip = ${T.kP} × trung vị σ̂ 12 tháng × √${state.h} × ${T.c_h}</span><span class="st">chốt trên huấn luyện</span></li>
-    <li><span class="id">HUONG-NULL</span><span>không quy luật hướng nào được áp — 0/351 mẫu sống sót kiểm định bội</span><span class="st">Westfall–Young</span></li>
+    <li><span class="id">HUONG-NULL</span><span>không quy luật hướng nào được áp — 0 sống sót; phễu bắt được lift ≥ 1,35</span><span class="st">Westfall–Young</span></li>
   </ul>`);
   $("#foot").innerHTML = rows.join("");
 }
@@ -998,7 +1109,14 @@ function paintMo(){
   <div class="card sec" style="margin-top:12px">
     <h2>Khai phá quy luật — phễu</h2>
     <div class="tw"><table><tbody>${pheu}</tbody></table></div>
-    <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂ và TSMOM thì còn ${P.sau_dieu_kien||0}.</div>
+    <div class="note warn"><b>Hệ số thổi phồng 13,5 lần.</b> ${P.tho||0} giả thuyết "có ý nghĩa" nếu không hiệu chỉnh bội, trong khi thuần nhiễu kỳ vọng khoảng 88. Sau Westfall–Young còn ${P.wy||0}, và <b>cả ${P.wy||0} đều là chính σ̂ rời rạc hoá</b> — không chỉ báo kỹ thuật nào lọt vào. Sau khi điều kiện hoá trên log σ̂, TSMOM, <b>nhân tố đô-la và carry</b> thì còn ${P.sau_dieu_kien||0}.</div>
+    <div class="note warn"><b>Con số 0 đó mạnh tới đâu — đã đo bằng đối chứng.</b>
+      Tiêm quy luật tổng hợp có độ mạnh biết trước vào dữ liệu thật, 60 lần mỗi mức,
+      rồi chạy nguyên phễu: lift 1,35 bắt được <b>60/60</b>; lift 1,20 chỉ <b>24/60</b>;
+      lift 1,15 còn <b>5/60</b>. Nên hiệu ứng nhỏ nhất phát hiện được ở lực 80% là
+      <b>lift 1,35</b>. Phát biểu đúng là: <b>quy luật mạnh hơn 1,35 đã bị loại trừ;
+      quy luật yếu hơn 1,20 thì KHÔNG</b>. Đối chứng âm (xáo trộn khối, 10 lần) cho
+      <b>0 dương tính giả</b> — phễu không rò rỉ.</div>
   </div>
 
   ${khoiTC}
@@ -1127,6 +1245,7 @@ function paintTQ(){
       <span class="tqdelta" style="color:var(--ink3);margin-left:auto">${P.ngay[i]}</span>
     </div>
     <p class="tqcau">${cau} Biên độ dao động dự kiến khoảng <b>${sig.toFixed(0)} pip</b>.</p>
+    ${veCanhBaoSuKien()}
 
     <div class="tqbig">
       <div class="tqb d"><span class="t">Giá xuống</span><span class="v">${(100*p[0]).toFixed(0)}%</span><span class="g">giảm quá ${b.toFixed(0)} pip</span></div>
@@ -1423,6 +1542,12 @@ function paintAbout(){
     <div class="note"><b>Hứa:</b> xác suất <em>được hiệu chuẩn</em>, rủi ro đuôi được chặn, và mỗi con số truy được về nguồn.<br>
     <b>Không hứa:</b> lợi nhuận. Kiểm tra toàn mạch trên ~26 năm cho vốn cuối 1,004–1,037 và không cháy tài khoản ở mọi cấu hình. Lợi thế là <em>nhỏ</em>.</div>
     <div class="note warn"><b>Không dự báo được hướng đi.</b> Năm nhánh độc lập cùng kết luận: momentum Sharpe −0,16 · carry −0,05 · <b>0/351</b> mẫu hướng sống sót Westfall–Young · 24/24 ô có AUC phủ 0,50 · và khai phá quy luật cho <b>${(Q.tho||0).toLocaleString("vi")} → ${Q.wy||0} → ${Q.sau_dieu_kien||0}</b>. Thông tin nằm ở trục <b>biến động</b>, và ô vàng là nơi nó hiện ra.</div>
+    <div class="note"><b>Giới hạn của kết luận đó, đã đo chứ không ước.</b> Phễu khai phá
+      bắt được quy luật có lift <b>≥ 1,35</b> với xác suất 80% (đối chứng dương, 60 lần
+      mỗi mức). Ở lift 1,20 lực chỉ còn 40%, ở 1,15 còn 8%. Nên câu đúng là
+      <b>“không có quy luật MẠNH”</b>, không phải “không có quy luật nào”. Một quy luật
+      yếu — lift 1,15, tức 33% lên 38% — vẫn có thể tồn tại mà phễu này không thấy.
+      Nguyên nhân là cỡ mẫu, và đó là cái giá của việc hiệu chỉnh bội trung thực.</div>
 
     <h2 style="margin-top:20px">Đã làm xong kể từ bản MVP đầu</h2>
     <div class="tw"><table><tbody>

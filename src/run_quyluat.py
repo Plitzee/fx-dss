@@ -71,6 +71,8 @@ T_DIEU_KIEN = 3.0           # |t| sau khi dieu kien hoa null manh nhat
 SEED = 0
 EPS = 1e-12
 TEN_LOP = ("giảm", "đi ngang", "tăng")
+TEN_KIEM_SOAT = ("σ̂ (9 biến giả phân vị × mỗi cặp)", "TSMOM 20",
+                 "nhân tố đô-la", "carry")
 
 
 # ── dac trung de dung vi tu ─────────────────────────────────────────────
@@ -179,22 +181,146 @@ def westfall_young(M, y, mask, nperm=NPERM, seed=SEED):
     return Z, L, nk, p.reshape(Z.shape), np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
 
 
-def doi_chung(mkhop, y, c, kiem_soat):
+R2_TRUNG = 0.99          # nguong coi vi tu la TRUNG voi bo kiem soat
+DAC_TRUNG_NEN = ("σ̂",)   # dac trung LA CHINH NEN — khong duoc tinh la quy luat
+
+
+def la_vi_tu_nen(ten_vt):
+    """Vi tu chi gom cac menh de ve CHINH NEN thi khong phai quy luat.
+
+    LY DO NGUYEN TAC, chot truoc khi nhin ket qua. Cau hoi cua giai doan 2 la
+    "co quy luat nao noi them dieu gi NGOAI mot mo hinh bien dong tot khong".
+    Mot vi tu nhu "sigma^ cao" la CHINH mo hinh do dem ra roi rac hoa — no
+    khong the tra loi cau hoi ay, dung nhu 1 = 1 khong chung minh duoc gi.
+
+    Day cung la cho hai lan lien tiep sinh ra ket qua rac: dieu kien hoa mot ham
+    cua sigma^ len chinh sigma^ lam he so KHONG DINH DANH DUOC, va hoi quy xac
+    suat tuyen tinh ngoai suy ra |b| = 0,64 trong khi lift chi ung voi 0,17.
+    Cach dung khong phai va thong ke — la loai chung ra khoi khong gian QUY LUAT
+    ngay tu dau. Chung van duoc BAO CAO o bang song sot W-Y, vi "ca chin cai
+    song sot deu la chinh sigma^" tu no da la mot ket qua.
+    """
+    return all(m.rsplit(" ", 1)[0].strip() in DAC_TRUNG_NEN
+               for m in str(ten_vt).split(" & "))
+
+
+def doi_chung(mkhop, y, c, kiem_soat, r2_trung=R2_TRUNG, cum=None):
     """Vi tu con noi them gi SAU KHI dieu kien hoa null manh nhat?
 
-    1{lop = c} = a + b*1{khop} + Σ ck * kiem_soat_k    -> tra ve (b, t)."""
+    1{lop = c} = a + b*1{khop} + Σ ck * kiem_soat_k    -> tra ve (b, t).
+
+    CHOT CHONG TRUNG TUYEN TINH. Bo kiem soat chua bien gia phan vi cua sigma^,
+    ma nhieu vi tu trong khong gian gia thuyet CUNG la phan vi cua sigma^ — nen
+    chung gan nhu nam tron trong khong gian cua bo kiem soat. Khi do he so cua
+    vi tu KHONG DINH DANH DUOC: hoi quy van chay, van tra ve mot con so, nhung
+    con so do vo nghia.
+
+    Do duoc that (05/09/2026, output/log_chan_doan_dk.txt): vi tu "sigma^ cao"
+    cho b = 0,346 va t = 31,8 trong khi lift chi 1,246 (tuc +8 diem phan tram,
+    khong phai +34,6). So dieu kien cua X'X la 2,9e12. Neu khong chan, pheu se
+    ghi mot "quy luat" thuan tuy do trung tuyen tinh vao rules_v1.csv.
+
+    Nen: hoi quy vi tu len bo kiem soat truoc; neu R^2 >= r2_trung thi vi tu
+    KHONG noi them gi ngoai bo kiem soat theo dung nghia den — tra ve NaN de no
+    truot cua, thay vi tra ve mot thong ke rac.
+    """
     ok = np.isfinite(kiem_soat).all(1) & (y >= 0)
     if ok.sum() < MIN_KHOP:
         return np.nan, np.nan
-    X = np.column_stack([np.ones(ok.sum()), mkhop[ok].astype(float),
-                         kiem_soat[ok]])
+    K = np.column_stack([np.ones(ok.sum()), kiem_soat[ok]])
+    d = mkhop[ok].astype(float)
+    # R^2 cua vi tu tren bo kiem soat — bang lstsq de chiu duoc suy bien hang
+    be_k, *_ = np.linalg.lstsq(K, d, rcond=None)
+    du = d - K @ be_k
+    sst = float(((d - d.mean()) ** 2).sum())
+    r2 = 1.0 - float(du @ du) / max(sst, EPS)
+    if r2 >= r2_trung:
+        return np.nan, np.nan               # trung voi bo kiem soat -> vo nghia
+
+    X = np.column_stack([np.ones(ok.sum()), d, kiem_soat[ok]])
     yy = (y[ok] == c).astype(float)
-    XtX = X.T @ X + 1e-8 * np.eye(X.shape[1])
-    be = np.linalg.solve(XtX, X.T @ yy)
-    r = yy - X @ be
-    s2 = float(r @ r) / max(len(yy) - X.shape[1], 1)
-    se = np.sqrt(np.maximum(np.diag(np.linalg.inv(XtX)) * s2, EPS))
-    return float(be[1]), float(be[1] / max(se[1], EPS))
+    be, _, rank, _ = np.linalg.lstsq(X, yy, rcond=None)
+    u = yy - X @ be
+
+    # SAI SO CHUAN VUNG THEO CUM, khong phai SE thuong.
+    #
+    # Vi sao bat buoc. Bo kiem soat chua bien gia phan vi cua sigma^, ma nhieu vi
+    # tu cung la phan vi cua sigma^. Sau khi khu, phan bien thien con lai cua vi
+    # tu tap trung vao DUNG mot vai o phan vi giap ranh — tuc he so chi duoc
+    # dinh danh tu mot mau con rat mong. SE thuong gia dinh phuong sai deu tren
+    # TOAN BO hang nen no danh gia THAP do bat dinh, va t no tung.
+    #
+    # Do duoc that (05/09/2026): vi tu "sigma^ cao" cho b = 0,3455 va t = 31,70
+    # voi SE thuong, trong khi lift chi 1,246 (+8 diem phan tram, khong phai
+    # +34,6). VIF chi 2,9 nen day KHONG phai trung tuyen tinh — day la SE sai.
+    #
+    # Cum = cap x khoi thoi gian: chuoi tai chinh co tu tuong quan trong cum va
+    # cac cap dong theo nhau qua nhan to do-la, nen hai truc do phai vao cum.
+    if cum is None:
+        se = float(np.sqrt(float(u @ u) / max(len(yy) - rank, 1)
+                           / max(float(du @ du), EPS)))
+    else:
+        g = np.asarray(cum)[ok]
+        w = du * u
+        tong = pd.Series(w).groupby(pd.Series(g)).sum().values
+        se = float(np.sqrt(float((tong ** 2).sum())) / max(float(du @ du), EPS))
+    return float(be[1]), float(be[1] / max(se, EPS))
+
+
+def kiem_soat_sigma(sig, cap, tr, npv=10):
+    """Bien gia phan vi cua sigma^, RIENG TUNG CAP — bo kiem soat MEM DEO.
+
+    VI SAO KHONG DUNG `log sigma^` TUYEN TINH. Vi tu trong khong gian gia thuyet
+    la CHI BAO PHAN VI ("sigma^ thap/vua/cao"). Mot bien tuyen tinh khong hap thu
+    duoc mot chi bao phan vi, nen phan phi tuyen con lai se hien ra nhu la
+    "thong tin moi" trong khi no chi la chinh sigma^.
+
+    Da do truc tiep o H1 (output/log_h1_phi_tuyen2.txt): vi tu "sigma^ thap" co
+    |t| = 9,68 voi kiem soat tuyen tinh, tut ve 0,78 voi kiem soat mem deo. Ba
+    "quy luat song sot" o H1 deu bien mat. Nguong phan vi phai chot RIENG TUNG
+    CAP vi sigma^ khac thang giua cac cap — dung nguong gop thi kiem soat bi chi
+    phoi boi chenh lech giua cap chu khong phai bien thien trong cap.
+    """
+    sig = np.asarray(sig, float)
+    cap = np.asarray(cap)
+    ten_cap = list(dict.fromkeys(cap.tolist()))
+    X = np.zeros((len(sig), len(ten_cap) * (npv - 1)), np.float32)
+    for j, p in enumerate(ten_cap):
+        mp = cap == p
+        v = sig[mp & tr & np.isfinite(sig)]
+        if len(v) < 100:
+            continue
+        q = np.quantile(v, np.linspace(0, 1, npv + 1)[1:-1])
+        b = np.digitize(sig, q)
+        for k in range(1, npv):
+            X[mp & (b == k), j * (npv - 1) + k - 1] = 1.0
+    return X
+
+
+def nhan_to_usd(Ms, dts):
+    """NHAN TO DO-LA CHUNG — trung binh sau cap sau khi quy ve cung chieu.
+
+    Sau cap deu co USD mot ve nen chung dong theo nhau: rho = 0,443 do duoc
+    (output/log_corr_regime.txt). Mot vi tu "hieu qua" hoan toan co the chi
+    dang bam vao nhan to nay. LOPO kiem CHUYEN GIAO, khong kiem TRUC GIAO voi
+    nhan to chung — hai chuyen khac nhau, nen phai dua no vao bo kiem soat.
+
+    Quy ve cung chieu BAN USD: XXXUSD giu nguyen dau, USDXXX doi dau. Chuan hoa
+    tung cap bang do lech chuan cua chinh no truoc khi lay trung binh, de cap
+    bien dong manh khong at cac cap khac.
+
+    NHAN QUA: gia tri tai t chi dung loi suat den het t, ma dich la lop cua t+1.
+    """
+    khung = {}
+    for i, p in enumerate(B.PAIRS):
+        c = Ms[i].close.values
+        r = np.r_[np.nan, np.diff(np.log(np.maximum(c, EPS)))]
+        dau = 1.0 if p.endswith("USD") else -1.0          # quy ve "ban USD"
+        khung[p] = pd.Series(dau * r, index=pd.DatetimeIndex(dts[i]))
+    F = pd.DataFrame(khung)
+    F = F / F.std()
+    nt = F.mean(axis=1, skipna=True)
+    return [nt.reindex(pd.DatetimeIndex(d)).values for d in dts]
 
 
 def main():
@@ -233,11 +359,32 @@ def main():
     y = np.concatenate(ys)
     cap = np.concatenate(caps)
     dt = pd.DatetimeIndex(np.concatenate(dts))
+    # BON null, khong phai hai. Them nhan to do-la chung (sau cap deu dinh USD)
+    # va carry (chenh lech lai suat — dong luc chung kinh dien cua FX, repo da
+    # co san `optimal_stop.carry_ngay` nhung chua bao gio dua vao bo kiem soat).
+    import optimal_stop as OS
+    nt_usd = nhan_to_usd(Ms, dts)
+    carry = []
+    for i, p in enumerate(B.PAIRS):
+        try:
+            carry.append(np.asarray(OS.carry_ngay(p, dts[i]), float))
+        except Exception:
+            carry.append(np.full(len(dts[i]), np.nan))
+    sig_all = np.concatenate(sigs)
+    tr_all = np.concatenate([doan(d) == 0 for d in dts])
+    # CUM cho sai so vung: cap x khoi 20 phien
+    cum = np.concatenate([[f"{p}_{i//20}" for i in range(len(dts[j]))]
+                          for j, p in enumerate(B.PAIRS)])
     kiem_soat = np.column_stack([
-        np.log(np.maximum(np.concatenate(sigs), EPS)),            # null biến động
+        kiem_soat_sigma(sig_all, cap, tr_all),                    # null biến động MỀM DẺO
         np.concatenate([pd.Series(np.r_[np.nan, np.diff(np.log(np.maximum(
             m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),  # TSMOM
+        np.concatenate(nt_usd),                                   # nhân tố đô-la
+        np.concatenate(carry),                                    # carry
     ])
+    du_ks = np.isfinite(kiem_soat).all(1)
+    print(f"bộ kiểm soát: {', '.join(TEN_KIEM_SOAT)} — "
+          f"{du_ks.sum():,}/{len(du_ks):,} hàng đủ cả bốn")
 
     M, ten = vet_can(lit, ten_lit)
     print(f"{len(B.PAIRS)} cặp · {len(y):,} hàng")
@@ -271,15 +418,21 @@ def main():
         return
 
     print(f"\n[2/4] Đối chứng có điều kiện (|t| > {T_DIEU_KIEN} sau khi khử "
-          f"log σ̂ và TSMOM)…", flush=True)
+          f"{', '.join(TEN_KIEM_SOAT)})…", flush=True)
     ung = []
     for i, c in zip(*np.where(song)):
-        b, t = doi_chung(M[i], y, c, kiem_soat)
+        b, t = doi_chung(M[i], y, c, kiem_soat, cum=cum)
         ung.append(dict(i=int(i), lop=int(c), ten=ten[i], n=int(nk[i]),
                         z=float(Z[i, c]), lift=float(L[i, c]), p_wy=float(P[i, c]),
                         b_dk=b, t_dk=t))
-    qua_dk = [u for u in ung if np.isfinite(u["t_dk"]) and abs(u["t_dk"]) > T_DIEU_KIEN]
-    print(f"      {len(qua_dk)}/{len(ung)} còn tin riêng sau khi điều kiện hoá")
+    n_nen = sum(1 for u in ung if la_vi_tu_nen(u["ten"]))
+    qua_dk = [u for u in ung
+              if not la_vi_tu_nen(u["ten"])
+              and np.isfinite(u["t_dk"]) and abs(u["t_dk"]) > T_DIEU_KIEN]
+    print(f"      {n_nen}/{len(ung)} vị từ sống sót W-Y là CHÍNH σ̂ — loại khỏi "
+          f"không gian quy luật theo nguyên tắc (xem la_vi_tu_nen)")
+    print(f"      {len(qua_dk)}/{len(ung)-n_nen} vị từ KHÔNG-phải-σ̂ còn tin riêng "
+          f"sau khi điều kiện hoá")
     # GHI LAI ca nhung vi tu RỚT o cua nay — chung la artefact quan trong nhat
     # cua giai doan 2, vi chung cho thay dieu gi da hap thu het tin hieu.
     print()

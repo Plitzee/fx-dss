@@ -147,3 +147,221 @@ thứ mục 10.4 đã viết sẵn:
 | Hansen SPA / White Reality Check | phát biểu "cả họ không thắng nền" |
 | Motif (matrix profile) | họ H2, chưa chạy — nhưng nó **không** liệt kê được đầy đủ nên phải xử lý bội khác |
 | Tập khoá sổ | **chưa mở**, đúng luật — mở một lần ở cuối |
+
+---
+
+## Kiểm chứng chính cái phễu (05/09/2026)
+
+Con số "0/1.890" tự nó **mơ hồ** giữa hai khả năng khác hẳn nhau: (a) không có
+quy luật nào, hay (b) phễu quá chặt nên không bắt được gì. Không phân biệt được
+thì nó không phát biểu thành câu gì cả. `src/kiem_pheu.py` phân biệt bằng hai
+phép chạy chuẩn của thiết kế thí nghiệm.
+
+Giá trị tới hạn `max|z|` dưới null khối, 1.000 hoán vị: **4,72**.
+
+### Đối chứng âm — xáo trộn khối kết cục, 10 lần
+
+| lần | vượt ngưỡng | qua điều kiện hoá |
+|---|---|---|
+| 1–10 | **0** | **0** |
+
+Không một dương tính giả nào trên 1.890 giả thuyết, ở cả 10 lần. **Phễu không
+rò rỉ.** Nếu bước này ra số dương thì mọi kết quả giai đoạn 2 đều phải vứt.
+
+### Đối chứng dương — tiêm quy luật đã biết, 60 lần mỗi mức
+
+Cách tiêm: chọn một vị từ **thật** có ≥300 lần khớp làm giá đỡ, rồi ở đúng
+những hàng nó khớp, đổi kết cục sang lớp đích với xác suất vừa đủ đạt lift mong
+muốn. Hàng không khớp giữ nguyên, nên cấu trúc tự tương quan của chuỗi được giữ.
+
+| lift đặt | lift thực | \|z\| trung vị | bắt được | **lực** |
+|---|---|---|---|---|
+| 1,02 | 1,090 | 2,02 | 1/60 | 2% |
+| 1,05 | 1,095 | 1,76 | 0/60 | 0% |
+| 1,10 | 1,128 | 3,51 | 2/60 | 3% |
+| 1,15 | 1,163 | 4,81 | 5/60 | 8% |
+| 1,20 | 1,201 | 6,33 | 24/60 | **40%** |
+| 1,35 | 1,346 | 10,76 | 60/60 | **100%** |
+| 1,50 | 1,504 | 14,51 | 60/60 | 100% |
+
+*Ghi chú trung thực:* phép tiêm có **sàn ~1,09** — ở nhiều vị từ, tỷ lệ hậu
+nghiệm sẵn có đã cao hơn mức đặt, nên hai dòng đầu thực chất đo cùng một mức
+với dòng 1,10. Ba dòng đó nhất quán với nhau (0–3%), nên không đổi kết luận.
+
+### Kết luận phải phát biểu lại
+
+**Hiệu ứng nhỏ nhất phát hiện được ở lực 80%: lift = 1,35.**
+
+Nên câu đúng **không phải** *"không tồn tại quy luật nào"*, mà là:
+
+> Phễu này bắt được quy luật có lift ≥ 1,35 với xác suất ≥ 80%, và không tìm
+> thấy quy luật nào. Do đó **mọi quy luật mạnh hơn 1,35 đã bị loại trừ** trên
+> dữ liệu này. **Quy luật yếu hơn 1,20 thì KHÔNG loại trừ được** — ở mức đó lực
+> phát hiện chỉ 40%, và ở 1,15 chỉ còn 8%.
+
+Đây là một hạn chế thật, và nó **không nhỏ**. Lift 1,35 nghĩa là xác suất lớp
+đó cao hơn nền 35% — với nền ~1/3 thì là **33% → 45%**, một lợi thế rất lớn
+theo chuẩn ngoại hối. Còn một quy luật lift 1,15 (33% → 38%), nếu có thật và
+ổn định, vẫn có thể có ý nghĩa kinh tế mà phễu này **không thấy**.
+
+Nguyên nhân là cỡ mẫu: 21.606 hàng phát hiện chia cho 1.890 giả thuyết, sau khi
+Westfall–Young đẩy ngưỡng lên `|z| > 4,72` để khống chế sai lầm loại I toàn cục.
+Đó là cái giá phải trả cho việc kiểm định bội trung thực — và nó phải được nêu
+trong luận văn, chứ không được giấu sau con số 0.
+
+Muốn hạ ngưỡng phát hiện thì có ba đường, đều tốn: thu hẹp không gian giả thuyết
+(ít giả thuyết hơn → ngưỡng thấp hơn), thêm cặp/thêm năm dữ liệu, hoặc chuyển
+sang khống chế FDR thay vì FWER (chấp nhận vài dương tính giả để đổi lấy lực).
+
+---
+
+## Hạ phễu xuống H1 — 27× dữ liệu, kết quả vẫn 0 (05/09/2026)
+
+Mục 1.1 của `docs/KEHOACH_2026Q4.md`. `src/quyluat_h1.py`.
+
+### Vì sao làm
+
+`src/kiem_pheu.py` đo được: phễu D1 chỉ phát hiện quy luật lift ≥ 1,35 (lực 80%).
+Ở 1,20 lực chỉ 40%, ở 1,15 còn 8%. Nên "0/1.890" chỉ loại trừ được quy luật
+**mạnh** — nguyên nhân là cỡ mẫu, không phải bản chất thị trường.
+
+| | số quan sát |
+|---|---|
+| panel D1 | 21.596 |
+| **H1** (`data/prices/*_h1.csv`) | **592.343** — ×27,4 |
+
+### Bốn thứ đã xử lý
+
+1. **Mùa vụ trong ngày** — hai tầng: σ̂ khử mùa vụ trước khi ước EWMA rồi gắn lại
+   (Andersen–Bollerslev), **và** 23 biến giả giờ trong bộ kiểm soát.
+2. **Khối hoán vị 24 thanh** = một ngày, giữ chu kỳ trong ngày.
+3. **Cửa chi phí** — cửa thứ năm, chốt trước khi chạy: lợi thế ròng phải dương
+   sau spread (trung vị đo được 0,96 pip).
+4. Kiểm nhiễu vi cấu trúc ở H4 — chưa chạy, để lần sau.
+
+### Kết quả
+
+| cửa | D1 | **H1** |
+|---|---|---|
+| không gian giả thuyết | 1.890 | 1.890 |
+| thô p<0,05 | 1.186 | **1.683** |
+| *(nhiễu thuần kỳ vọng)* | *88* | *94* |
+| *(hệ số thổi phồng)* | *13,5×* | ***17,9×*** |
+| sống sót Westfall–Young | 9 | **3** |
+| **là chính σ̂** | **9/9** | **3/3** |
+| không-phải-σ̂ còn tin riêng | **0** | **0** |
+| qua cửa chi phí | — | **0** |
+
+**Không một chỉ báo kỹ thuật nào lọt vào, kể cả với 27 lần dữ liệu.** Ba cái sống
+sót ở H1 đều là "σ̂ thấp": lift 1,289 cho *đi ngang*, và 0,846 / 0,867 cho
+*giảm* / *tăng* — **gần đối xứng và cả hai đều < 1**, tức vẫn không có tín hiệu
+hướng.
+
+### Ba lỗi đã bắt được trong quá trình này
+
+Ghi lại vì cả ba đều suýt đưa một "quy luật" không tồn tại vào luận văn.
+
+**1. `du_bao_cuon()` ghi cứng `canh_P`.** Mọi hàng `h*_R_*(cuộn)` trong
+`nen3.json` tính bằng dải của mục tiêu P. 9 hàng sai, 0 hàng P bị ảnh hưởng.
+
+**2. Biến kiểm soát đặt sai dạng.** `log σ̂` **tuyến tính** không hấp thụ nổi một
+chỉ báo **phân vị** của chính σ̂. Ở H1, "σ̂ thấp" có |t| = 9,68 với kiểm soát
+tuyến tính, tụt về **0,74** với biến giả phân vị riêng từng cặp. *(Lần đầu tôi
+kiểm bằng phân vị **gộp** sáu cặp và nó vẫn sống — sai, vì σ̂ khác thang giữa các
+cặp nên ngưỡng gộp bị chi phối bởi chênh lệch giữa cặp, không phải biến thiên
+trong cặp.)*
+
+**3. Vị từ về chính σ̂ không bao giờ nên là ứng viên.** Sau khi sửa (2), phễu D1
+lại đẻ ra "σ̂ cao → tăng" với `t = 31,70` và **ghi thẳng vào `rules_v1.csv`**.
+Ba lần vá thống kê đều không cứu được:
+
+| vá | t |
+|---|---|
+| SE thường + kiểm soát tuyến tính | 1,26 |
+| SE thường + kiểm soát mềm dẻo | 31,70 |
+| chốt trùng tuyến R² ≥ 0,99 | 31,70 *(không kích hoạt — VIF chỉ 2,9)* |
+| SE vững theo cụm (cặp × khối) | 31,59 |
+
+Bằng chứng nội tại: `b = −0,6425` cho "σ̂ cao → đi ngang" tức −64 điểm phần trăm,
+trong khi lift 0,482 chỉ ứng với −17 điểm — hồi quy xác suất tuyến tính ngoại suy
+ra ngoài [0, 1].
+
+Nguyên nhân là **thiết kế**, không phải thống kê. Câu hỏi của giai đoạn 2 là
+*"có quy luật nào nói thêm gì **ngoài** một mô hình biến động tốt không"*. Vị từ
+"σ̂ cao" **chính là** mô hình đó rời rạc hoá; điều kiện hoá nó lên chính nó là
+hỏi *"σ̂ có nói thêm gì ngoài σ̂ không"*. Đã thêm `la_vi_tu_nen()` loại chúng
+khỏi không gian quy luật **theo nguyên tắc**, chốt trước khi nhìn kết quả — nhưng
+vẫn **báo cáo** chúng ở bảng sống sót, vì *"cả chín cái sống sót đều là chính σ̂"*
+tự nó là kết quả trung tâm.
+
+Hai cải tiến kỹ thuật giữ lại vì đúng trong tổng quát: kiểm soát σ̂ mềm dẻo riêng
+từng cặp, và SE vững theo cụm.
+
+### Phát biểu được gì
+
+**"Không có quy luật nào"** vẫn chưa nói được — `kiem_pheu.py` mới chỉ đo lực ở
+D1. Phải chạy lại nó ở H1 để biết MDES mới. Nhưng có thể nói:
+
+> Với 592.343 quan sát và 1.890 giả thuyết liệt kê đầy đủ, sau kiểm định bội,
+> đối chứng có điều kiện, và cửa chi phí — **không một chỉ báo kỹ thuật nào
+> mang thông tin vượt trên một mô hình biến động tốt**. Thứ duy nhất sống sót
+> là chính mô hình biến động đó.
+
+---
+
+## Lực phát hiện của phễu H1 — MDES rơi từ 1,35 xuống 1,10
+
+`python src/kiem_pheu.py --h1`. Cùng thiết lập với phễu thật: khối 24 thanh, SE
+vững theo cụm, và vị từ làm giá đỡ **không được là σ̂** (dùng `la_vi_tu_nen`) —
+nếu tiêm tín hiệu vào chính σ̂ thì đang đo lực phát hiện σ̂, không phải lực phát
+hiện quy luật.
+
+Giá trị tới hạn max|z| dưới null khối: **5,36** (D1 là 4,72). Ngưỡng **cao hơn**
+là đúng: với 513k quan sát, |z| dưới null cũng trải rộng hơn, nên Westfall–Young
+phải nâng ngưỡng để giữ nguyên mức khống chế sai lầm loại I toàn cục. Đây là lý
+do 27× dữ liệu **không** cho 27× lực.
+
+### Đối chứng âm — 10 lần xáo trộn khối
+
+**0 dương tính giả** cả 10 lần, trên 1.890 giả thuyết. Phễu H1 không rò rỉ.
+
+### Đối chứng dương — 40 lần mỗi mức
+
+| lift đặt | lift thực | \|z\| trung vị | bắt được | **lực** |
+|---|---|---|---|---|
+| 1,02 | 1,033 | 2,47 | 6/40 | 15% |
+| 1,05 | 1,082 | 8,12 | 25/40 | 62% |
+| **1,10** | 1,126 | 14,54 | **37/40** | **92%** |
+| 1,15 | 1,153 | 22,61 | 38/40 | 95% |
+| 1,20 | 1,202 | 30,07 | 40/40 | 100% |
+| 1,35 | 1,350 | 51,57 | 40/40 | 100% |
+| 1,50 | 1,500 | 73,87 | 40/40 | 100% |
+
+**Hiệu ứng nhỏ nhất phát hiện được (lực 80%): lift = 1,10.**
+
+| | D1 | **H1** |
+|---|---|---|
+| quan sát | 21.596 | 592.343 |
+| giá trị tới hạn | 4,72 | 5,36 |
+| **MDES (lực 80%)** | **1,35** | **1,10** |
+| lực ở lift 1,20 | 40% | **100%** |
+| lực ở lift 1,15 | 8% | **95%** |
+| lực ở lift 1,05 | 0% | **62%** |
+| dương tính giả / 1.890 | 0,0 | 0,0 |
+
+### Phát biểu được gì — bản mạnh nhất hiện có
+
+> Trên **592.343 quan sát** và **1.890 giả thuyết liệt kê đầy đủ**, phễu này phát
+> hiện được quy luật có lift **≥ 1,10** với xác suất **≥ 80%** (và ≥ 1,20 với xác
+> suất 100%), trong khi cho **0 dương tính giả** trên nhiễu thuần. Sau kiểm định
+> bội, đối chứng có điều kiện, và cửa chi phí — **không một chỉ báo kỹ thuật nào
+> sống sót**. Thứ duy nhất sống sót là chính mô hình biến động.
+>
+> Do đó: **không tồn tại quy luật kỹ thuật nào có lợi thế từ 10% trở lên** trên
+> bộ dữ liệu này. Quy luật yếu hơn 1,05 thì vẫn **không** loại trừ được — ở mức
+> đó lực chỉ 62%.
+
+Lift 1,10 nghĩa là xác suất lớp cao hơn nền 10% — với nền ~1/3 thì là **33% →
+37%**. Đó là ngưỡng đủ thấp để phát biểu có sức nặng: lợi thế nhỏ hơn thế, sau
+khi trừ spread 0,96 pip trên biên độ H1 ~4,2 pip, gần như chắc chắn không còn ý
+nghĩa kinh tế.

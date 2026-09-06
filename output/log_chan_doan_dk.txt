@@ -1,0 +1,8 @@
+kich thuoc X : (25816, 59)
+hang cua X   : 57 (du hang thi phai = 59 )
+so dieu kien : 2.888e+12
+duong cheo inv(XtX) — so phan tu AM: 0 / 59
+  gia tri o vi tri he so cua vi tu (chi so 1): 5.496011e-04
+
+doi_chung hien tai  -> b = 0.346009 · t = 31.82
+tinh dung (pinv)    -> b = 0.346009 · se = 0.010873 · t = 31.82   (hang = 57/59)
