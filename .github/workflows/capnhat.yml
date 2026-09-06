@@ -3,9 +3,11 @@
 # Chạy 06:10 UTC mỗi ngày (sau khi phiên Á đã mở đủ lâu để có thanh 5 phút).
 # Bấm tay được ở tab Actions → "Cập nhật FX-DSS" → Run workflow.
 #
-# CẦN MỘT BÍ MẬT: VERCEL_TOKEN (Settings → Secrets and variables → Actions).
-# Lấy ở https://vercel.com/account/tokens. Không có thì mọi bước vẫn chạy và
-# sổ dự báo vẫn được ghi, chỉ bỏ qua bước triển khai.
+# CẦN HAI BÍ MẬT (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN  — https://vercel.com/account/tokens
+#                   Không có thì mọi bước vẫn chạy, chỉ bỏ qua triển khai.
+#   FRED_API_KEY  — https://fredaccount.stlouisfed.org/apikey (miễn phí)
+#                   Không có thì bỏ qua bước cập nhật lịch sự kiện, dùng lịch cũ.
 #
 # LƯU Ý NIÊM PHONG: việc này tải dữ liệu 2026, mà toàn bộ 2026 nằm trong tập
 # khoá sổ của docs/KHOA_SO.md. Chỉ bật khi đã chốt cấu hình và ghi biên bản.
@@ -54,6 +56,18 @@ jobs:
 
       - name: Tải dữ liệu hiện hành
         run: python collect/live_fx.py
+
+      # Lich cong bo doi rat cham (vai lan moi nam), nen goi FRED ca 4 lan/ngay
+      # la thua nhung khong hai gi — vai chuc request, FRED cho phep rat rong
+      # rai. Khong co khoa thi bo qua buoc nay, dung lich cu trong
+      # data/su_kien.csv (hoac data/cb_dates.csv neu chua tung chay).
+      - name: Cập nhật lịch sự kiện (FRED)
+        if: ${{ env.FRED_API_KEY != '' }}
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python collect/lich_su_kien.py
+          python src/sukien_profile.py
 
       - name: Khởi động API
         run: |
