@@ -52,7 +52,18 @@ MUC_TIEU = [
     ("PCE",     "Personal Income and Outlays",          "USD"),
     ("PPI",     "Producer Price Index",                 "USD"),
     ("JOLTS",   "Job Openings and Labor Turnover",      "USD"),
-    ("ISM",     "ISM Manufacturing",                    "USD"),
+    # BON LOAI MOI (06/09/2026) — da XAC NHAN ten khop bang --liet-ke:
+    #   JOBLESS -> "Unemployment Insurance Weekly Claims Report" (900 ngay, tu 2009)
+    #   DTC     -> "Manufacturer's Shipments, Inventories, and Orders (M3) Survey" (release 95)
+    #   NHA     -> "New Residential Sales" (203 ngay, tu 2009)
+    #   UMCSI   -> "Surveys of Consumers" (release 91, dai Michigan)
+    ("JOBLESS", "Unemployment Insurance Weekly Claims", "USD"),  # ra hang tuan
+    ("DTC",     "Manufacturer's Shipments, Inventories, and Orders (M3)", "USD"),
+    ("NHA",     "New Residential Sales",                "USD"),
+    ("UMCSI",   "Surveys of Consumers",                 "USD"),  # co ban so bo + chinh thuc
+    # ISM cu KHONG khop duoc — ISM la nguon tu (Institute for Supply
+    # Management), khong phai co quan lien bang, nen thuong KHONG co trong
+    # releases/dates cua FRED theo dung nghia "ngay cong bo". Bo, khong doan.
 ]
 
 

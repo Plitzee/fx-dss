@@ -68,6 +68,19 @@
    "huong_co_y_nghia": false
   },
   {
+   "bank": "DTC",
+   "n": 2460,
+   "bd_trungvi": 1.033,
+   "bd_lo": 0.985,
+   "bd_hi": 1.104,
+   "bd_p90": 2.922,
+   "sig_trungvi": 0.992,
+   "dau_tb": 0.015,
+   "dau_lo": -0.026,
+   "dau_hi": 0.051,
+   "huong_co_y_nghia": false
+  },
+  {
    "bank": "ECB",
    "n": 918,
    "bd_trungvi": 1.274,
@@ -107,6 +120,19 @@
    "huong_co_y_nghia": false
   },
   {
+   "bank": "JOBLESS",
+   "n": 5190,
+   "bd_trungvi": 1.043,
+   "bd_lo": 1.009,
+   "bd_hi": 1.084,
+   "bd_p90": 3.005,
+   "sig_trungvi": 0.998,
+   "dau_tb": 0.004,
+   "dau_lo": -0.024,
+   "dau_hi": 0.029,
+   "huong_co_y_nghia": false
+  },
+  {
    "bank": "JOLTS",
    "n": 1158,
    "bd_trungvi": 1.097,
@@ -130,6 +156,19 @@
    "dau_tb": -0.012,
    "dau_lo": -0.071,
    "dau_hi": 0.05,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "NHA",
+   "n": 1170,
+   "bd_trungvi": 0.927,
+   "bd_lo": 0.849,
+   "bd_hi": 0.989,
+   "bd_p90": 2.589,
+   "sig_trungvi": 0.964,
+   "dau_tb": -0.004,
+   "dau_lo": -0.067,
+   "dau_hi": 0.055,
    "huong_co_y_nghia": false
   },
   {
@@ -182,6 +221,19 @@
    "dau_tb": 0.044,
    "dau_lo": -0.051,
    "dau_hi": 0.137,
+   "huong_co_y_nghia": false
+  },
+  {
+   "bank": "UMCSI",
+   "n": 1176,
+   "bd_trungvi": 0.954,
+   "bd_lo": 0.897,
+   "bd_hi": 1.012,
+   "bd_p90": 3.031,
+   "sig_trungvi": 0.997,
+   "dau_tb": -0.022,
+   "dau_lo": -0.075,
+   "dau_hi": 0.037,
    "huong_co_y_nghia": false
   }
  ],

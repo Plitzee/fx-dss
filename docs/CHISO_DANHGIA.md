@@ -322,3 +322,47 @@ chỉ ra *chiều*" mạnh lên đáng kể.
 
 Cả hai dựa trên khoảng tin cậy chứ không chỉ điểm ước lượng, nên BOJ (1,084×,
 phủ 1,0) và CPI **không** được đánh dấu dù thị trường quen coi chúng là quan trọng.
+
+---
+
+## 8. Mở rộng thêm — 18 loại sự kiện, và Nhà ở lộ ra phản ứng ngược (06/09/2026)
+
+Thêm 4 loại vào `collect/lich_su_kien.py`: **JOBLESS** (đơn xin trợ cấp thất
+nghiệp hàng tuần), **DTC** (đơn hàng hoá lâu bền — release "Manufacturer's
+Shipments, Inventories, and Orders"), **NHA** (bán nhà mới), **UMCSI** (khảo sát
+tâm lý tiêu dùng Michigan). Bỏ **ISM** — nó là dữ liệu của một tổ chức tư nhân,
+không nằm trong `releases/dates` của FRED theo đúng nghĩa "ngày công bố".
+
+Lịch nay: **18 loại, 4.138 dòng** (từ 14 loại / 2.404 dòng). `sukien_profile.py`
+đo lại trên số quan sát lớn hơn nhiều — **JOBLESS một mình đã có 5.190 quan sát**
+vì ra hàng tuần thay vì hàng tháng.
+
+| loại | n | \|r\| so nền | KTC 95% | σ̂ dự báo | |
+|---|---|---|---|---|---|
+| JOBLESS | 5.190 | 1,043 | [1,009; 1,084] | 0,998 | ✓ có tác động, nhẹ |
+| DTC | 2.460 | 1,033 | [0,985; 1,104] | 0,992 | phủ 1,0 |
+| **NHA** | 1.170 | **0,927** | **[0,849; 0,989]** | 0,964 | **ÊM HƠN có ý nghĩa** |
+| UMCSI | 1.176 | 0,954 | [0,897; 1,012] | 0,997 | phủ 1,0 |
+
+### Phát hiện: bán nhà mới (NHA) làm giá **êm hơn** ngày thường, có ý nghĩa
+
+0,927× với KTC **[0,849; 0,989]** — cận trên dưới 1,0, trên 1.170 quan sát. Đây
+là loại thứ hai (sau PCE) cho kết quả **ngược chiều** so với trực giác "sự kiện
+nào cũng làm giá động mạnh hơn".
+
+**Giả thuyết, chưa kiểm chứng:** New Residential Sales công bố cùng khung thời
+gian với nhiều số liệu nhà ở khác đã biết trước (housing starts, building
+permits thường ra sớm hơn vài ngày), nên tới lúc NHA công bố thị trường có thể
+đã "tiêu hoá" phần lớn thông tin liên quan. Cũng có thể là ngẫu nhiên do KTC sát
+1,0. Cần thêm dữ liệu hoặc kiểm chéo với dữ liệu nhà ở khác trước khi kết luận.
+
+### JOBLESS: mẫu lớn nhất nhưng tác động nhỏ nhất trong nhóm "có tác động"
+
+1,043× là mức thấp nhất trong các loại có KTC không phủ 1,0. Hợp lý — đây là số
+liệu ra **hàng tuần**, thị trường ít bất ngờ hơn số liệu hàng tháng như NFP.
+
+### Hướng đi: 0/18, không đổi
+
+Vẫn không loại nào có thiên lệch hướng có ý nghĩa. Số lần kiểm độc lập tăng từ
+14 lên 18 loại, kết luận "sự kiện khuếch đại biên độ, không chỉ ra chiều" tiếp
+tục đứng vững.
