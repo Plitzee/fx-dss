@@ -81,15 +81,15 @@ def fevd_tong_quat(A, Sigma, h=H_FEVD):
     return theta / np.maximum(theta.sum(1, keepdims=True), EPS)
 
 
-def khop_var1(X, tr_idx):
+def khop_var1(X, tr_idx, dam=DAM):
     """VAR(1) OLS tren cac hang tr_idx. Tra ve (A, Sigma) hoac None neu thieu du."""
-    if len(tr_idx) < DAM:
+    if len(tr_idx) < dam:
         return None
     Y = X[tr_idx[1:]]
     Z = X[tr_idx[:-1]]
     ok = np.isfinite(Y).all(1) & np.isfinite(Z).all(1)
     Y, Z = Y[ok], Z[ok]
-    if len(Y) < DAM // 2:
+    if len(Y) < dam // 2:
         return None
     A, *_ = np.linalg.lstsq(Z, Y, rcond=None)     # Y = Z A  ->  A la (k,k), x_t = A^T x_{t-1}... dung dang nay cho gon
     resid = Y - Z @ A
@@ -97,27 +97,27 @@ def khop_var1(X, tr_idx):
     return A.T, Sigma      # tra ve A dang x_t = A x_{t-1} + eps
 
 
-def spillover_theo_thoi_gian(sig_pairs, dt_all, cap):
+def spillover_theo_thoi_gian(sig_pairs, dt_all, cap, buoc=BUOC, dam=DAM):
     """Tra ve dict[p] -> mang trong so NHAN duoc TU TUNG cap khac, theo thoi gian.
 
     sig_pairs: dict pair -> mang sigma^ (do dai n, da can theo dt_all chung).
-    Khop lai VAR moi BUOC phien tren log(sigma^2) da khu mua vu tho (dung log
-    de gan voi thang do QLIKE), CUA SO MO RONG, chi dung du lieu < t0."""
+    Khop lai VAR moi `buoc` don vi tren log(sigma^2), CUA SO MO RONG, chi dung
+    du lieu < t0. `buoc`/`dam` truyen tay khi doi tan suat (D1 hay H1)."""
     pairs = list(sig_pairs)
     k = len(pairs)
     n = len(dt_all)
     X = np.column_stack([np.log(np.maximum(sig_pairs[p], EPS) ** 2) for p in pairs])
     W = np.full((n, k, k), np.nan)     # W[t, i, j] = trong so cap i nhan tu cap j
     mo_cuoi = None
-    for t0 in range(DAM, n, BUOC):
+    for t0 in range(dam, n, buoc):
         tr_idx = np.arange(0, t0)
-        kq = khop_var1(X, tr_idx)
+        kq = khop_var1(X, tr_idx, dam=dam)
         if kq is None:
             continue
         A, Sigma = kq
         theta = fevd_tong_quat(A, Sigma)
         mo_cuoi = theta
-        t1 = min(t0 + BUOC, n)
+        t1 = min(t0 + buoc, n)
         W[t0:t1] = theta[None, :, :]
     # dam dau chuoi: dung theta dau tien tinh duoc (khong co gi de noi suy hon)
     if mo_cuoi is not None:
@@ -126,20 +126,20 @@ def spillover_theo_thoi_gian(sig_pairs, dt_all, cap):
     return W, pairs
 
 
-def spillover_ngoai_sinh(sig_pairs, dt_all, cap):
+def spillover_ngoai_sinh(sig_pairs, dt_all, cap, buoc=BUOC, dam=DAM):
     """Cot ngoai sinh cho HAR: tai t, TONG bien dong cac cap KHAC (chuan hoa
     z-score theo lich su chinh no), TRONG SO boi ty le FEVD cap `cap` nhan tu
     cap do. Day la ban thay cho trung binh khong trong so cua `crosspair` cu.
     """
     pairs = list(sig_pairs)
     i = pairs.index(cap)
-    W, _ = spillover_theo_thoi_gian(sig_pairs, dt_all, cap)
+    W, _ = spillover_theo_thoi_gian(sig_pairs, dt_all, cap, buoc=buoc, dam=dam)
     n = len(dt_all)
     Z = np.zeros((n, len(pairs)))
     for j, p in enumerate(pairs):
         lv = np.log(np.maximum(sig_pairs[p], EPS) ** 2)
-        mu = pd.Series(lv).expanding(min_periods=DAM).mean().shift(1).values
-        sd = pd.Series(lv).expanding(min_periods=DAM).std().shift(1).values
+        mu = pd.Series(lv).expanding(min_periods=dam).mean().shift(1).values
+        sd = pd.Series(lv).expanding(min_periods=dam).std().shift(1).values
         Z[:, j] = (lv - mu) / np.maximum(sd, EPS)
     trong_so_ngoai = W[:, i, :].copy()
     trong_so_ngoai[:, i] = 0.0                 # bo phan cap tu nhan tu chinh no
@@ -249,5 +249,102 @@ def main():
     print("TỰ KIỂM ĐẠT")
 
 
+def main_h1():
+    """Ban H1 — kiem tra gia thuyet 'lan truyen la hien tuong TRONG NGAY, da
+    hoa tan khi gop ve D1' ma ban D1 tu ghi nhan la co the.
+
+    Khong dung HAR vong 7 (danh cho D1, can rq5/rsp/rsn khong co o H1). Thay
+    vao do dung chinh EWMA da khu mua vu cua `quyluat_h1.sigma_gio` lam du bao
+    NEN, roi hoi quy log(r_t^2) ~ [1, log(sig_t^2)] (goc) so voi
+    [1, log(sig_t^2), lan_truyen_t] (co them), CUA SO MO RONG (he_so_cuon —
+    dung ham chung voi ban D1), cham QLIKE tren doan KIEM DINH.
+
+    BUOC/DAM quy doi sang gio: ~1 thang (24*21) va ~2 thang (24*60) — VAR co
+    k=6 bien, du du lieu on dinh voi vai tram quan sat, khong can dai nhu D1."""
+    import quyluat_h1 as H1
+    from api.main import PAIRS
+    from split import VALID_TU, TEST_TU
+
+    BUOC_H1 = 24 * 21
+    DAM_H1 = 24 * 60
+    t0 = time.time()
+    print("=" * 100)
+    print("LAN TRUYỀN BIẾN ĐỘNG (Diebold-Yilmaz) Ở H1 — kiểm gia thuyết 'hoà tan khi gộp D1'")
+    print("=" * 100)
+
+    D = H1.nap_h1(False)
+    rs, sigs, gios, dts = {}, {}, {}, {}
+    for p in PAIRS:
+        d = D[p]
+        c = d.close.values
+        r = np.r_[np.nan, np.diff(np.log(np.maximum(c, EPS)))]
+        gio = d.Date.dt.hour.values
+        tr = (d.Date.values < np.datetime64(VALID_TU)) & np.isfinite(r)
+        sig, _ = H1.sigma_gio(r, gio, tr)
+        rs[p] = r; sigs[p] = sig; gios[p] = gio; dts[p] = d.Date.values
+
+    chung = None
+    for p in PAIRS:
+        s = pd.DatetimeIndex(dts[p])
+        chung = s if chung is None else chung.intersection(s)
+    chung = chung.sort_values()
+    print(f"{len(chung):,} giờ chung cho cả 6 cặp\n")
+
+    sig_can = {p: pd.Series(sigs[p], index=pd.DatetimeIndex(dts[p])).reindex(chung).values
+               for p in PAIRS}
+
+    print(f"[1/2] Khớp VAR(1) cửa sổ mở rộng ở H1, khớp lại mỗi {BUOC_H1} giờ "
+          f"(~1 tháng)…", flush=True)
+    ngoai_sinh = {}
+    for p in PAIRS:
+        e, _ = spillover_ngoai_sinh(sig_can, chung.values, p, buoc=BUOC_H1, dam=DAM_H1)
+        ngoai_sinh[p] = e
+    print("      xong\n")
+
+    print("[2/2] Đo QLIKE trên đoạn KIỂM ĐỊNH: EWMA gốc so với EWMA + lan truyền…\n",
+          flush=True)
+    ra = {"tam_han": "H1", "qlike_kiem_dinh": {}}
+    for p in PAIRS:
+        dt = dts[p]
+        n = len(dt)
+        r, sig = rs[p], sigs[p]
+        y = np.log(np.maximum(r ** 2, EPS))
+        va = (dt >= np.datetime64(VALID_TU)) & (dt < np.datetime64(TEST_TU))
+
+        e_series = pd.Series(ngoai_sinh[p], index=chung)
+        e_can = e_series.reindex(pd.DatetimeIndex(dt)).ffill().fillna(0.0).values
+
+        for ten, extra_cols in (("EWMA gốc", []), ("EWMA + lan truyền", [e_can])):
+            base = [np.ones(n), np.log(np.maximum(sig ** 2, EPS))]
+            X = np.column_stack(base + extra_cols)
+            hople = np.isfinite(X).all(1) & np.isfinite(y)
+            b, A, B, S, N = V2.he_so_cuon(X, y, hople, None)
+            ssr = V2._ssr(b, A, B, S)
+            s2 = np.where(N >= 200, ssr / np.maximum(N, 1), np.nan)
+            fit = np.einsum("tk,tk->t", X, b)
+            f = np.where(np.isfinite(fit) & np.isfinite(s2),
+                        np.exp(fit + 0.5 * np.maximum(s2, 0)), np.nan)
+            ql, nn = V2.qlike_tb(f, r ** 2, va)
+            ra["qlike_kiem_dinh"].setdefault(p, {})[ten] = {"qlike": ql, "n": nn}
+        print(f"  {p:<8}" + "  ".join(
+            f"{ten}={ra['qlike_kiem_dinh'][p][ten]['qlike']:.4f}"
+            for ten in ("EWMA gốc", "EWMA + lan truyền")))
+
+    tb = {ten: np.nanmean([ra["qlike_kiem_dinh"][p][ten]["qlike"] for p in PAIRS])
+          for ten in ("EWMA gốc", "EWMA + lan truyền")}
+    chenh = tb["EWMA + lan truyền"] - tb["EWMA gốc"]
+    print(f"\n  TRUNG BÌNH 6 CẶP: gốc {tb['EWMA gốc']:.4f}  ·  "
+          f"+ lan truyền {tb['EWMA + lan truyền']:.4f}  ·  chênh {chenh:+.6f}")
+    ra["trung_binh"] = tb
+    print("  → " + (
+        "quá nhỏ để gọi là cải thiện" if abs(chenh) < 0.001 else
+        ("CẢI THIỆN THẬT ở H1 — khác kết quả D1" if chenh < 0 else "TỆ HƠN, cùng chiều với D1")))
+
+    with open(os.path.join(OUT, "spillover_dy_h1.json"), "w", encoding="utf-8") as f:
+        json.dump(ra, f, ensure_ascii=False, indent=1, default=float)
+    print(f"\nđã ghi output/spillover_dy_h1.json · {time.time()-t0:.0f}s")
+    print("TỰ KIỂM ĐẠT")
+
+
 if __name__ == "__main__":
-    main()
+    main_h1() if "--h1" in sys.argv else main()

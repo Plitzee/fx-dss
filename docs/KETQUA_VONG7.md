@@ -433,3 +433,47 @@ Ma trận TO/FROM (ảnh chụp cuối kỳ, không phải trung bình thời gi
 thấy một cặp "truyền" rõ rệt như văn liệu — mọi cặp có hệ số chéo khá đồng đều
 (0,10–0,20), khác với phát hiện "EUR truyền, GBP nhận" của bài gốc. Hợp lý vì
 đó là kết quả ở tần suất khác hẳn.
+
+### Thử lại ở H1 — giả thuyết "hoà tan khi gộp D1" KHÔNG đứng vững
+
+`python src/spillover_dy.py --h1`. Dùng chính σ̂ EWMA đã khử mùa vụ của
+`quyluat_h1.sigma_gio` làm nền (không có HAR vòng 7 ở H1 vì thiếu rq5/rsp/rsn),
+hồi quy `log(r_t²) ~ [1, log(σ̂_t²)]` so với thêm cột lan truyền, cửa sổ mở
+rộng, khớp lại mỗi 504 giờ (~1 tháng), VAR khớp trên tối thiểu 1.440 giờ.
+
+| cặp | EWMA gốc | + lan truyền | chênh |
+|---|---|---|---|
+| EURUSD | 2,1625 | 2,2181 | +0,0556 |
+| GBPUSD | 2,1520 | 2,1924 | +0,0404 |
+| USDJPY | 2,5313 | 2,5596 | +0,0283 |
+| AUDUSD | 2,2102 | 2,2263 | +0,0161 |
+| USDCAD | 2,2179 | 2,2928 | +0,0749 |
+| USDCHF | 2,2208 | 2,3083 | +0,0875 |
+| **trung bình** | **2,2491** | **2,2996** | **+0,0504** |
+
+**Tệ hơn ở CẢ 6/6 cặp** — nhất quán hơn hẳn kết quả trộn lẫn ở D1 (4/6 xấu, 2/6
+tốt). Giả thuyết "lan truyền là hiện tượng trong ngày, bị hoà tan khi gộp về
+D1" **không đứng vững**: nếu đúng thì phải thấy cải thiện ở H1, nhưng lại thấy
+xấu đi rõ và đều.
+
+**Cách giải thích hợp lý nhất:** `log(r_t²)` ở một thanh H1 đơn lẻ gần như là
+nhiễu trắng (không có realized variance nội bộ giờ đó để làm mượt như rv5 của
+D1) — thêm bất kỳ hồi quy tố nào ngoài chính σ̂ cũng dễ bắt nhiễu quá khớp
+(overfit) trong cửa sổ ước lượng, làm dự báo ngoài mẫu xấu đi. Đây không phải
+bằng chứng phản bác riêng cho ý tưởng lan truyền — nó gợi ý rằng bản thân việc
+thêm biến ngoại sinh vào một hồi quy trên log-bình-phương-lợi-suất *từng giờ*
+là bất lợi nói chung, bất kể biến đó là gì.
+
+### Kết luận cuối — hai lần đo độc lập, hai câu trả lời KHÔNG
+
+| tần suất | kết quả |
+|---|---|
+| D1 (FEVD đúng công thức) | trung bình gần như không đổi, 4/6 cặp xấu đi |
+| H1 (FEVD đúng công thức) | tệ hơn rõ rệt, 6/6 cặp xấu đi |
+
+**Lan truyền biến động chéo cặp, dù đo bằng phương pháp Diebold-Yilmaz đúng bài
+bản, không cải thiện dự báo σ̂ ở cả hai tần suất đã thử trên bộ dữ liệu này.**
+Đây là kết luận âm thứ năm của dự án, cùng dòng với momentum, carry, khai phá
+quy luật kỹ thuật, và phản ứng hướng quanh sự kiện — nhưng lần này trên một
+trục hoàn toàn mới (nhân quả giữa các mã) mà văn liệu 2025 từng báo cáo có hiệu
+ứng thật ở tần suất và bộ dữ liệu khác.
