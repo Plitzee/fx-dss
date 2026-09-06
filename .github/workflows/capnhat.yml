@@ -6,7 +6,7 @@
 # CẦN HAI BÍ MẬT (Settings → Secrets and variables → Actions):
 #   VERCEL_TOKEN  — https://vercel.com/account/tokens
 #                   Không có thì mọi bước vẫn chạy, chỉ bỏ qua triển khai.
-#   FRED_API_KEY  — https://fredaccount.stlouisfed.org/apikey (miễn phí)
+#   FRED_TOKEN    — https://fredaccount.stlouisfed.org/apikey (miễn phí)
 #                   Không có thì bỏ qua bước cập nhật lịch sự kiện, dùng lịch cũ.
 #
 # LƯU Ý NIÊM PHONG: việc này tải dữ liệu 2026, mà toàn bộ 2026 nằm trong tập
@@ -64,7 +64,8 @@ jobs:
       - name: Cập nhật lịch sự kiện (FRED)
         if: ${{ env.FRED_API_KEY != '' }}
         env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          # secret trong repo dat ten FRED_TOKEN; script doc bien FRED_API_KEY
+          FRED_API_KEY: ${{ secrets.FRED_TOKEN }}
         run: |
           python collect/lich_su_kien.py
           python src/sukien_profile.py
