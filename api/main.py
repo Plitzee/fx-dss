@@ -50,8 +50,8 @@ PIP = {"USDJPY": 0.01}
 HS = (1, 5, 20)
 # Chon theo DIEM LOG tren doan KIEM DINH (output/nen3.json). Cua so mo rong —
 # khop lai phan phoi z moi ~21 phien tren TOAN BO qua khu thay vi dong bang o
-# 2021-10 — cai thien TUNG NEN mot cach nhat quan (6/6 khong xau di, ECE tot
-# hon 5/6). Nhung to hop truc tuyen thi XAU DI ro o tam han dai khi chuyen gia
+# 2021-10 — cai thien TUNG NEN mot cach nhat quan: 6/6 khong xau di ve BSS,
+# va ECE tot hon o CA 6/6. Nhung to hop truc tuyen thi XAU DI ro o tam han dai khi chuyen gia
 # cua no tro thanh nen cuon: h=5 tut +0,0134 -> +0,0089, h=20 tut +0,0200 ->
 # +0,0055. Do la ket qua do duoc, khong giau.
 #   h=1   TO HOP (chuyen gia cuon)  log 1,0866 · BSS +0,0107 · MCE 0,0611
@@ -170,9 +170,11 @@ def tinh(p):
                   y_truoc=yt)
         # cua so mo rong cho hai nen sigma^ — khop lai moi ~21 phien
         Pns, mo_ns = B.du_bao_cuon(T, pan.sig.values,
-                                   lambda z, sg: B.ChiSigma().khop(z), tra_mo=True)
+                                   lambda z, sg: B.ChiSigma().khop(z),
+                                   canh=T["canh_P"], tra_mo=True)
         Pcd, mo_cd = B.du_bao_cuon(T, pan.sig.values,
-                                   lambda z, sg: B.SigmaCheDo().khop(z, sg), tra_mo=True)
+                                   lambda z, sg: B.SigmaCheDo().khop(z, sg),
+                                   canh=T["canh_P"], tra_mo=True)
         for Pc, nen in ((Pns, ns), (Pcd, cd)):     # dam dau chuoi: dung ban dong bang
             thieu = ~np.isfinite(Pc[:, 0])
             if thieu.any():

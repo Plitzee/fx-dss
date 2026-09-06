@@ -317,7 +317,8 @@ class NenCoSan:
         return self.P[-1:][:]
 
 
-def du_bao_cuon(T, sig, tao_nen, buoc=BUOC_KHOP, dam=DAM_TOI_THIEU, tra_mo=False):
+def du_bao_cuon(T, sig, tao_nen, canh=None, buoc=BUOC_KHOP,
+                dam=DAM_TOI_THIEU, tra_mo=False):
     """Du bao ba lop bang CUA SO MO RONG — thay vi dong bang o cuoi huan luyen.
 
     Tai moi moc khop lai, uoc phan phoi z va nguong che do tren TOAN BO quan
@@ -331,9 +332,16 @@ def du_bao_cuon(T, sig, tao_nen, buoc=BUOC_KHOP, dam=DAM_TOI_THIEU, tra_mo=False
     va giu nhan co dinh moi so sanh duoc dong bang voi cuon mot cach cong bang.
     Cai duoc cuon la phan UOC LUONG XAC SUAT.
 
+    `canh` PHAI TRUYEN THEO MUC TIEU. Muc tieu R dung T["canh_R"], muc tieu P
+    dung T["canh_P"] — hai dai khac nhau. Ban dau ham nay ghi cung T["canh_P"]
+    nen moi hang h*_R_*(cuon) trong nen3.json deu tinh bang dai cua P. Mac dinh
+    None van roi ve canh_P de khong pha cho goi cu, nhung moi cho goi trong repo
+    nay deu truyen tuong minh.
+
     NHAN QUA: khoi [t0, t0+buoc) chi dung mo hinh khop tren < t0. Tu kiem ep.
     """
-    z, canh, sh = T["z"], T["canh_P"], T["sigma_h"]
+    z, sh = T["z"], T["sigma_h"]
+    canh = T["canh_P"] if canh is None else canh
     n = len(z)
     P = np.full((n, 3), np.nan)
     sig = np.asarray(sig, float)

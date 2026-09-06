@@ -744,15 +744,22 @@ function paintFoot(i){
   // 2021–2023 và không theo dõi gì đang xảy ra hôm nay.
   // h=20 do duoc la CHUA DUNG DUOC: MCE ~0,20 nghia la thung xac suat te nhat
   // lech 20 diem phan tram. Khong go khoi giao dien, nhung phai noi ra.
+  // Đọc THẲNG từ bảng hiệu chuẩn đang phục vụ, không chép số vào mã: nếu
+  // `jobs/cap_nhat.py` chạy lại và số đổi thì câu cảnh báo phải đổi theo.
+  // `cu` là bản ĐÓNG BĂNG tương ứng, để so được trước/sau cửa sổ mở rộng.
   if(state.h === "20"){
-    const t20 = (((DATA.meta.mo_hinh||{}).tin_cay||{}).tam||{})["20"];
-    const mce = t20 ? t20.gop.mce : null;
+    const cu = H["h20_P_" + T.nen.replace(" (cuộn)", "")];
+    const dòng = [];
+    const vn = (v, n) => v.toFixed(n).replace(".", ",");   // dấu thập phân tiếng Việt
+    if(c) dòng.push(`MCE trên đoạn kiểm định là <b>${vn(c.mce,3)}</b> — `
+      + `thùng xác suất tệ nhất lệch <b>${vn(100*c.mce,1)}</b> điểm phần trăm.`);
+    if(c && cu) dòng.push(`Bản cửa sổ mở rộng ăn thêm điểm ở BSS `
+      + `(${cu.bss>=0?"+":""}${vn(cu.bss,4)} → ${c.bss>=0?"+":""}${vn(c.bss,4)}) `
+      + `nhưng <b>MCE lại xấu đi</b> (${vn(cu.mce,3)} → ${vn(c.mce,3)}). `
+      + `Quy tắc chọn đã chốt trước là điểm log nên vẫn lấy bản này, và chỗ xấu đi `
+      + `phải nói ra chứ không giấu.`);
     rows.push(`<span class="chip chi-phan-tich"><span class="dot bad"></span><span>`
-      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> MCE trên đoạn kiểm định là `
-      + `<b>0,206</b> — thùng xác suất tệ nhất lệch hơn 20 điểm phần trăm. `
-      + `Bản cửa sổ mở rộng ăn thêm điểm ở BSS (+0,0137 → +0,0148) nhưng `
-      + `<b>MCE lại xấu đi</b> (0,138 → 0,206). Quy tắc chọn đã chốt trước là điểm `
-      + `log nên vẫn lấy bản này, và chỗ xấu đi phải nói ra chứ không giấu. `
+      + `<b>Tầm hạn 20 phiên chưa dùng được.</b> ${dòng.join(" ")} `
       + `Nguyên nhân gốc đã đo: quy tắc √h giả định biến động đứng yên 20 phiên, `
       + `trong khi nó hồi quy về trung bình — tỷ lệ (thực/dự báo) chạy từ 1,085 ở `
       + `chế độ êm tới 0,770 ở chế độ căng. <b>Dùng tầm hạn 1 hoặc 5 phiên.</b>`

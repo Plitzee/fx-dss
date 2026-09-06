@@ -67,10 +67,12 @@ def chuan_bi(h):
             }
             # NEN 6/7 — CUA SO MO RONG: khop lai phan phoi z va nguong che do
             # moi ~1 thang tren TOAN BO qua khu, thay vi dong bang o 2021-10.
+            # `canh` phai theo DUNG muc tieu dang duyet — muc tieu R dung
+            # canh_R, muc tieu P dung canh_P. Truyen tuong minh.
             P["chỉ σ̂ (cuộn)"] = B.du_bao_cuon(
-                T, sig, lambda z, sg: B.ChiSigma().khop(z))
+                T, sig, lambda z, sg: B.ChiSigma().khop(z), canh=canh)
             P["σ̂ + chế độ (cuộn)"] = B.du_bao_cuon(
-                T, sig, lambda z, sg: B.SigmaCheDo().khop(z, sg))
+                T, sig, lambda z, sg: B.SigmaCheDo().khop(z, sg), canh=canh)
             # cac phien dau chua du dam thi roi ve nen dong bang tuong ung
             for tc, tg in (("chỉ σ̂ (cuộn)", "chỉ σ̂"),
                            ("σ̂ + chế độ (cuộn)", "σ̂ + chế độ")):
