@@ -97,7 +97,7 @@ flowchart TB
 lệnh). Ba ô xác suất được tính từ σ̂ cộng với lịch sự kiện. **Nhánh khai phá quy
 luật** chạy song song để trả lời câu "có chỉ báo kỹ thuật nào giúp đoán hướng
 không" — nó **không nuôi API sản xuất**, vì kết luận của nó là "không có gì cả"
-(xem mục 4).
+(xem mục 5).
 
 ---
 
@@ -115,7 +115,90 @@ không" — nó **không nuôi API sản xuất**, vì kết luận của nó l�
 
 ---
 
-## 4. Kết quả — nói thẳng, không tô hồng
+## 4. Nguồn tham khảo — mỗi phương pháp gắn đúng bài gốc
+
+Ưu tiên link **mở, đọc được không cần trả phí** (bản thảo tác giả, arXiv, kho
+lưu trữ trường/ngân hàng trung ương) thay vì link tạp chí trả phí, để ai cũng
+tra cứu được.
+
+**Tầng biến động (σ̂)**
+- Corsi (2009), *A Simple Approximate Long-Memory Model of Realized
+  Volatility* — mô hình HAR gốc.
+  [PDF (Oxford Academic)](https://academic.oup.com/jfec/article-pdf/7/2/174/2543795/nbp001.pdf) ·
+  [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1365738)
+- Bollerslev, Patton, Quaedvlieg (2016), *Exploiting the Errors: A Simple
+  Approach for Improved Volatility Forecasting* — nguồn của HARQ, thành phần
+  trong HAR vòng 7.
+  [ResearchGate](https://www.researchgate.net/publication/283686848_Exploiting_the_errors_A_simple_approach_for_improved_volatility_forecasting)
+- Barndorff-Nielsen & Shephard (2004), *Power and Bipower Variation with
+  Stochastic Volatility and Jumps* — cơ sở cho bipower variation/semivariance
+  dùng trong HAR vòng 7.
+  [PDF (Duke)](https://public.econ.duke.edu/~get/browse/courses/883/Spr16/COURSE-MATERIALS/Z_Papers/BNSJFEC2004.pdf)
+
+**Tổ hợp trực tuyến (thuật toán Hedge)**
+- Freund & Schapire (1997), *A Decision-Theoretic Generalization of On-Line
+  Learning and an Application to Boosting* — nguồn gốc thuật toán Hedge/trọng
+  số mũ mà `balop.ToHopTrucTuyen` dùng.
+  [PDF](https://www.face-rec.org/algorithms/Boosting-Ensemble/decision-theoretic_generalization.pdf)
+
+**Khai phá quy luật & kiểm định bội**
+- Westfall & Young (1993), *Resampling-Based Multiple Testing* (sách) — thủ
+  tục step-down maxT dùng trong `run_quyluat.py`/`quyluat_h1.py`. Không có bản
+  mở của sách; mô tả kỹ thuật mở tương đương:
+  [Dudoit & van der Laan, kỹ thuật báo cáo Berkeley](https://statistics.berkeley.edu/sites/default/files/tech-reports/633.pdf)
+- Hansen (2005), *A Test for Superior Predictive Ability* (SPA) — tiêu chí
+  dừng của giai đoạn khai phá quy luật (`docs/REPLAN_2026.md` §10.4).
+  [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=264569)
+- Hansen, Lunde & Nason (2011), *The Model Confidence Set* — dùng để chọn cấu
+  hình HAR vòng 7 trong lưới 1.024 cấu hình.
+  [PDF (tác giả)](https://www.kevinsheppard.com/files/teaching/mfe/advanced-econometrics/Hansen_Lunde_Nason.pdf)
+- Hutchinson, Kyziropoulos, O'Brien, O'Reilly & Sharma (2022), *Technical
+  Trading Rule Profitability in Currencies: It's All About Momentum* — bằng
+  chứng nền cho việc dùng TSMOM làm đối chứng null của trục hướng.
+  [PDF mở (Queen's University Belfast)](https://pureadmin.qub.ac.uk/ws/portalfiles/portal/370624058/1_s2.0_S0275531922001659_main_1_.pdf)
+
+**Rủi ro — VaR/ES, hiệu chuẩn**
+- Kelly (1956), *A New Interpretation of Information Rate* — công thức cỡ
+  lệnh Kelly dùng trong `position_sizing.py`.
+  [PDF](https://www.princeton.edu/~wbialek/rome/refs/kelly_56.pdf)
+- Kupiec (1995), *Techniques for Verifying the Accuracy of Risk Measurement
+  Models* — kiểm định tỷ lệ vi phạm VaR.
+  [Bản thảo Fed (RePEc, mở)](https://ideas.repec.org/p/fip/fedgfe/95-24.html)
+- Christoffersen (1998), *Evaluating Interval Forecasts* — kiểm định vi phạm
+  có dính cụm.
+  [Trang RePEc/EconPapers](https://econpapers.repec.org/RePEc:ier:iecrev:v:39:y:1998:i:4:p:841-62)
+- Engle & Manganelli (2004), *CAViaR: Conditional Autoregressive Value at Risk
+  by Regression Quantiles* — nguồn của kiểm định DQ và hướng vá đuôi phân phối
+  còn để ngỏ cho USDJPY/USDCHF.
+  [Bản thảo NBER (mở)](https://www.nber.org/papers/w7341)
+- Patton, Ziegel & Chen (2019), *Dynamic Semiparametric Models for Expected
+  Shortfall (and Value-at-Risk)* — kiểm định FZ0 cho cặp (VaR, ES).
+  [arXiv](https://arxiv.org/pdf/1707.05108)
+- Diebold, Gunther & Tay (1998), *Evaluating Density Forecasts with
+  Applications to Financial Risk Management* — kiểm định PIT.
+  [PDF (NYU, mở)](https://archive.nyu.edu/bitstream/2451/14779/1/SOR-98-6.pdf)
+
+**Lan truyền biến động giữa các cặp**
+- Diebold & Yilmaz (2012), *Better to Give than to Receive: Predictive
+  Directional Measurement of Volatility Spillovers* — công thức FEVD dùng
+  trong `spillover_dy.py`.
+  [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1536123)
+- Rubaszek, Szafranek & Uddin (2025), *Intraday Volatility Connectedness on
+  the Forex Market: The Role of Uncertainty* — bài dùng đúng bộ 5/6 cặp tiền
+  của repo này, là lý do thử nghiệm này được tiến hành.
+  [Trang RePEc/IDEAS](https://ideas.repec.org/a/eee/jimfin/v157y2025ics0261560625001330.html)
+- Baruník & Křehlík (2016), *Asymmetric Volatility Connectedness on Forex
+  Markets* — bản tiền thân mở truy cập của hướng lan truyền biến động FX.
+  [arXiv](https://arxiv.org/pdf/1607.08214)
+
+**Nguồn dữ liệu**
+- FRED (Federal Reserve Bank of St. Louis) — lịch công bố kinh tế và lãi suất.
+  [Tài liệu API](https://fred.stlouisfed.org/docs/api/fred/) ·
+  [Đăng ký khoá miễn phí](https://fredaccount.stlouisfed.org/apikey)
+
+---
+
+## 5. Kết quả — nói thẳng, không tô hồng
 
 ### Có thật, nhưng nhỏ
 
@@ -167,7 +250,7 @@ không phải hệ thống kiếm lời.
 
 ---
 
-## 5. Cấu trúc repo
+## 6. Cấu trúc repo
 
 ```
 fx-dss/
@@ -189,11 +272,11 @@ fx-dss/
 ├── web/                giao diện: HTML/CSS/JS thuần + Lightweight Charts
 ├── collect/            thu thập dữ liệu (giá, sự kiện FRED, lãi suất)
 ├── jobs/cap_nhat.py    việc định kỳ: tải giá, tính lại, ghi sổ dự báo
-├── docs/               MỌI thí nghiệm, kết quả, kể cả thất bại — xem mục 6
+├── docs/               MỌI thí nghiệm, kết quả, kể cả thất bại — xem mục 7
 └── .github/workflows/  tự động cập nhật 4 lần/ngày + triển khai Vercel
 ```
 
-## 6. Tài liệu chi tiết — nếu cần đào sâu
+## 7. Tài liệu chi tiết — nếu cần đào sâu
 
 | Muốn biết gì | Đọc file nào |
 |---|---|
@@ -205,7 +288,7 @@ fx-dss/
 | Quy tắc niêm phong dữ liệu (rất quan trọng, đọc trước khi chạy) | `docs/KHOA_SO.md` |
 | Giải thích UI theo lối nói chuyện, dùng để báo cáo | `docs/BAOCAO_UI.md` |
 
-## 7. Chạy thử
+## 8. Chạy thử
 
 ```bash
 git clone <repo> && cd fx-dss
@@ -223,7 +306,7 @@ python web/build.py
 Triển khai thật chạy tự động qua GitHub Actions 4 lần/ngày (`.github/workflows/capnhat.yml`) —
 tải giá mới, cập nhật lịch sự kiện, ghi sổ dự báo, dựng lại và đẩy lên Vercel.
 
-## 8. Ba điều phải biết trước khi động vào dữ liệu
+## 9. Ba điều phải biết trước khi động vào dữ liệu
 
 1. **Đọc `docs/KHOA_SO.md` trước.** Có một tập dữ liệu bị niêm phong (6 cặp
    tiền chéo + toàn bộ 2026) để giữ tính ngoài mẫu cho lần chấm điểm cuối
