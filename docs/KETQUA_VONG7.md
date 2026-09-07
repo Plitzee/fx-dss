@@ -381,3 +381,99 @@ biết ngày nào ngân hàng trung ương **của đúng đồng tiền đó** 
 - **Chưa làm:** P3 — chốt cấu hình, mở tập khoá sổ (6 cặp chéo + 2026), chạy một lần.
 - **Nên làm trước P3:** cập nhật `panel2_6pairs.csv` bằng dự báo của cấu hình vòng 7,
   rồi chạy lại tầng 3–6 để xem cải thiện tầng 2 chảy xuống bao nhiêu.
+
+---
+
+## Lan truyền biến động Diebold-Yilmaz — thử ở tần suất ngày, KHÔNG cải thiện (06/09/2026)
+
+Nghiên cứu văn liệu 2024-2026 tìm được một bài dùng đúng bộ 5/6 cặp tiền của
+repo (Rubaszek, Szafranek & Uddin 2025, *J. Intl Money & Finance*): TVP-VAR
+spillover index trên dữ liệu 5 phút, đo được EUR truyền cú sốc biến động, GBP
+nhận. Thử áp dụng ý tưởng này làm biến ngoại sinh cho HAR vòng 7.
+
+**Khác với `crosspair` cũ** (`volfc2.py`, trung bình không trọng số của log-RV
+các cặp khác — đã đo trong lưới 1.024 cấu hình: QLIKE trung bình 0,120570 so
+với 0,120763, gần như không đổi): `src/spillover_dy.py` dùng **trọng số phân rã
+phương sai dự báo tổng quát** (generalized FEVD, đúng công thức Diebold-Yilmaz
+2012) từ VAR(1) khớp trên cửa sổ mở rộng, khớp lại mỗi 21 phiên — mỗi cặp nhận
+đúng tỷ lệ biến động mà từng cặp khác thực sự giải thích được, không phải trung
+bình đều.
+
+### Kết quả — QLIKE trên đoạn kiểm định (không trộn lịch NHTW, so sánh sạch)
+
+| cặp | không thêm cột | + spillover DY | chênh |
+|---|---|---|---|
+| EURUSD | 0,116215 | 0,116175 | −0,000040 |
+| **GBPUSD** | 0,121983 | **0,121086** | **−0,000898** |
+| USDJPY | 0,246666 | 0,246937 | +0,000271 |
+| AUDUSD | 0,098912 | 0,098933 | +0,000022 |
+| USDCAD | 0,082950 | 0,083155 | +0,000205 |
+| USDCHF | 0,101939 | 0,102359 | +0,000420 |
+| **trung bình** | **0,128111** | **0,128108** | **−0,000003** |
+
+**Không cải thiện.** Chênh lệch trung bình là nhiễu số (−0,000003), và **4/6 cặp
+xấu đi** — chỉ GBPUSD nhích tốt hơn thật (−0,0009, ~0,7%). Kết luận mạnh hơn kết
+quả `crosspair` cũ: **kể cả khi dùng trọng số có cơ sở lý thuyết đúng đắn**
+(FEVD thay vì trung bình tho), lan truyền biến động **ở tần suất ngày** vẫn
+không mang thêm thông tin ngoài lịch sử của chính cặp đó (vốn đã có trong ba
+thành phần HAR ngày/tuần/tháng).
+
+### Vì sao — và hướng còn ngỏ
+
+Bài Rubaszek dùng dữ liệu **5 phút**, và tự ghi nhận: *"volatility connectedness
+ở tần suất trong ngày cho một bức tranh bổ sung khác với ước lượng từ dữ liệu
+ngày"*. Rất có thể lan truyền biến động là hiện tượng **trong ngày** (phiên Á
+ảnh hưởng phiên Âu ảnh hưởng phiên Mỹ, cùng ngày) mà khi gộp về D1 thì đã hoà
+tan hết — giống hệt cơ chế mùa vụ trong ngày mà `quyluat_h1.py` phải xử lý
+riêng. Thử ở H1 (đã có hạ tầng VAR + FEVD trong `spillover_dy.py`, có thể tái
+dùng) là hướng tự nhiên tiếp theo, nhưng **chưa làm** — để ngỏ, không kết luận
+trước khi đo.
+
+Ma trận TO/FROM (ảnh chụp cuối kỳ, không phải trung bình thời gian) không cho
+thấy một cặp "truyền" rõ rệt như văn liệu — mọi cặp có hệ số chéo khá đồng đều
+(0,10–0,20), khác với phát hiện "EUR truyền, GBP nhận" của bài gốc. Hợp lý vì
+đó là kết quả ở tần suất khác hẳn.
+
+### Thử lại ở H1 — giả thuyết "hoà tan khi gộp D1" KHÔNG đứng vững
+
+`python src/spillover_dy.py --h1`. Dùng chính σ̂ EWMA đã khử mùa vụ của
+`quyluat_h1.sigma_gio` làm nền (không có HAR vòng 7 ở H1 vì thiếu rq5/rsp/rsn),
+hồi quy `log(r_t²) ~ [1, log(σ̂_t²)]` so với thêm cột lan truyền, cửa sổ mở
+rộng, khớp lại mỗi 504 giờ (~1 tháng), VAR khớp trên tối thiểu 1.440 giờ.
+
+| cặp | EWMA gốc | + lan truyền | chênh |
+|---|---|---|---|
+| EURUSD | 2,1625 | 2,2181 | +0,0556 |
+| GBPUSD | 2,1520 | 2,1924 | +0,0404 |
+| USDJPY | 2,5313 | 2,5596 | +0,0283 |
+| AUDUSD | 2,2102 | 2,2263 | +0,0161 |
+| USDCAD | 2,2179 | 2,2928 | +0,0749 |
+| USDCHF | 2,2208 | 2,3083 | +0,0875 |
+| **trung bình** | **2,2491** | **2,2996** | **+0,0504** |
+
+**Tệ hơn ở CẢ 6/6 cặp** — nhất quán hơn hẳn kết quả trộn lẫn ở D1 (4/6 xấu, 2/6
+tốt). Giả thuyết "lan truyền là hiện tượng trong ngày, bị hoà tan khi gộp về
+D1" **không đứng vững**: nếu đúng thì phải thấy cải thiện ở H1, nhưng lại thấy
+xấu đi rõ và đều.
+
+**Cách giải thích hợp lý nhất:** `log(r_t²)` ở một thanh H1 đơn lẻ gần như là
+nhiễu trắng (không có realized variance nội bộ giờ đó để làm mượt như rv5 của
+D1) — thêm bất kỳ hồi quy tố nào ngoài chính σ̂ cũng dễ bắt nhiễu quá khớp
+(overfit) trong cửa sổ ước lượng, làm dự báo ngoài mẫu xấu đi. Đây không phải
+bằng chứng phản bác riêng cho ý tưởng lan truyền — nó gợi ý rằng bản thân việc
+thêm biến ngoại sinh vào một hồi quy trên log-bình-phương-lợi-suất *từng giờ*
+là bất lợi nói chung, bất kể biến đó là gì.
+
+### Kết luận cuối — hai lần đo độc lập, hai câu trả lời KHÔNG
+
+| tần suất | kết quả |
+|---|---|
+| D1 (FEVD đúng công thức) | trung bình gần như không đổi, 4/6 cặp xấu đi |
+| H1 (FEVD đúng công thức) | tệ hơn rõ rệt, 6/6 cặp xấu đi |
+
+**Lan truyền biến động chéo cặp, dù đo bằng phương pháp Diebold-Yilmaz đúng bài
+bản, không cải thiện dự báo σ̂ ở cả hai tần suất đã thử trên bộ dữ liệu này.**
+Đây là kết luận âm thứ năm của dự án, cùng dòng với momentum, carry, khai phá
+quy luật kỹ thuật, và phản ứng hướng quanh sự kiện — nhưng lần này trên một
+trục hoàn toàn mới (nhân quả giữa các mã) mà văn liệu 2025 từng báo cáo có hiệu
+ứng thật ở tần suất và bộ dữ liệu khác.
