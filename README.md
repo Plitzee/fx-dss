@@ -1,233 +1,234 @@
-# Xây dựng hệ thống hỗ trợ quyết định giao dịch ngoại hối dựa trên dự báo biến động và định cỡ vị thế theo ràng buộc rủi ro
+# FX-DSS — Hệ hỗ trợ quyết định giao dịch ngoại hối
 
-*(tên đề tài; repo này chứa dữ liệu & pipeline)*
+**Trang chạy thật:** https://fx-dss.vercel.app
+**Luận văn MIS.** Repo này chứa dữ liệu đã xử lý, toàn bộ mã, và nhật ký đầy đủ
+mọi thí nghiệm — kể cả những cái thất bại.
 
-Luận văn tốt nghiệp MIS. Repo này chứa **dữ liệu đã xử lý và toàn bộ mã**.
-Dữ liệu thô (khoảng 9,5 GB) không nằm trong git — tái tạo bằng `collect/`.
+---
 
-## Bắt đầu nhanh
+## 1. Tóm tắt cho người không đọc code
+
+Hệ thống lấy dữ liệu giá của 6 cặp ngoại hối chính (EUR/USD, GBP/USD, USD/JPY,
+AUD/USD, USD/CAD, USD/CHF) từ 2010 đến nay, rồi mỗi ngày trả lời ba câu hỏi cho
+nhà đầu tư:
+
+1. **Phiên tới giá sẽ động mạnh hay yên ắng?** — đây là câu **có** trả lời
+   đáng tin, đo được bằng số.
+2. **Phiên tới giá sẽ tăng hay giảm?** — đã kiểm bằng nhiều phương pháp độc
+   lập, và câu trả lời trung thực là: **không đoán được**, ít nhất là bằng các
+   công cụ đã thử trên dữ liệu này.
+3. **Nếu vào lệnh thì rủi ro bao nhiêu?** — trả lời bằng cỡ lệnh khuyến nghị,
+   khoảng dừng lỗ, và ước tính lỗ tối đa trong ngày xấu (VaR/ES).
+
+Giao diện có hai chế độ: **"Nhà đầu tư"** (mặc định, không thuật ngữ, đọc xong
+là biết nên làm gì) và **"Phân tích"** (đầy đủ chỉ số kỹ thuật, cho ai muốn xem
+tận gốc con số ra từ đâu).
+
+Điều quan trọng nhất về triết lý dự án: **mọi con số trên giao diện đều phải
+truy được về một phép đo cụ thể**, và **kết quả âm được báo cáo đầy đủ như kết
+quả dương** — nếu một phương pháp không mang lại gì, giao diện nói thẳng điều
+đó thay vì giấu đi.
+
+---
+
+## 2. Sơ đồ hệ thống
+
+```mermaid
+flowchart TB
+    subgraph DATA["📊 Dữ liệu"]
+        D1[Giá D1/H1 6 cặp<br/>2010 → nay]
+        D2[Lịch sự kiện<br/>FRED · 18 loại]
+        D3[Lãi suất, spread,<br/>trượt giá]
+    end
+
+    subgraph TANG2["🌊 Tầng biến động — HAR vòng 7"]
+        V1[Realized variance<br/>từ nến 5 phút]
+        V2[Mô hình HAR<br/>ngày/tuần/tháng + jump]
+        V3["σ̂ — dự báo biên độ<br/>dao động phiên tới"]
+        V1 --> V2 --> V3
+    end
+
+    subgraph TANG3["🎲 Tầng ba xác suất"]
+        P1[4 mô hình con:<br/>khí hậu học · quán tính ·<br/>chỉ σ̂ · σ̂+chế độ]
+        P2["Tổ hợp trực tuyến<br/>(Hedge) — tự học,<br/>hạ trọng số mô hình sai"]
+        P3["Ba ô: Giảm / Đi ngang / Tăng"]
+        P1 --> P2 --> P3
+    end
+
+    subgraph RUI_RO["⚠️ Tầng rủi ro"]
+        R1[VaR & ES<br/>+ backtest Kupiec/DQ]
+        R2[P chạm dừng lỗ<br/>theo thời gian giữ]
+        R3[Cỡ lệnh Kelly<br/>có trần phá sản]
+    end
+
+    subgraph NGHIEN_CUU["🔬 Nhánh nghiên cứu — khai phá quy luật"]
+        N1[1.890 giả thuyết<br/>kỹ thuật, liệt kê đầy đủ]
+        N2[Westfall–Young<br/>+ đối chứng có điều kiện]
+        N3["Kết quả: 0 quy luật<br/>sống sót (D1 và H1)"]
+        N1 --> N2 --> N3
+    end
+
+    DATA --> TANG2
+    DATA --> RUI_RO
+    D2 --> P1
+    V3 --> P1
+    V3 --> RUI_RO
+    TANG2 --> NGHIEN_CUU
+    D1 --> NGHIEN_CUU
+
+    subgraph API["⚙️ API — FastAPI"]
+        A1["/forecast /risk /events /models"]
+    end
+    TANG3 --> API
+    RUI_RO --> API
+    NGHIEN_CUU -.kết luận âm, không nuôi API.-> API
+
+    subgraph UI["🖥️ Giao diện web"]
+        U1[Biểu đồ nến<br/>+ chỉ báo kỹ thuật]
+        U2[Ba ô xác suất<br/>+ cảnh báo sự kiện]
+        U3[Phiếu rủi ro<br/>+ xuất xứ từng con số]
+    end
+    API --> UI
+    UI --> DEPLOY[Vercel<br/>+ GitHub Actions 4 lần/ngày]
+```
+
+**Đọc sơ đồ này thế nào:** dữ liệu chảy vào hai tầng chính — **tầng biến động**
+(cho ra σ̂, đã chứng minh có tín hiệu thật) và **tầng rủi ro** (VaR/ES, cỡ
+lệnh). Ba ô xác suất được tính từ σ̂ cộng với lịch sự kiện. **Nhánh khai phá quy
+luật** chạy song song để trả lời câu "có chỉ báo kỹ thuật nào giúp đoán hướng
+không" — nó **không nuôi API sản xuất**, vì kết luận của nó là "không có gì cả"
+(xem mục 4).
+
+---
+
+## 3. Phương pháp — bằng ngôn ngữ đơn giản
+
+| Câu hỏi | Phương pháp | Vì sao chọn cách này |
+|---|---|---|
+| Phiên tới giá động mạnh cỡ nào? | **HAR vòng 7** trên realized variance (dữ liệu 5 phút) | Mô hình kinh điển trong tài chính lượng, thắng cả các mạng nơ-ron hiện đại đã thử (đo trong `docs/ML_DL_VONG7.md`) |
+| Kết hợp nhiều mô hình xác suất thế nào? | **Tổ hợp trực tuyến (thuật toán Hedge)** | Trọng số tự hạ với mô hình vừa đoán sai — đúng nghĩa "học từ bài học trước", không cần huấn luyện lại từ đầu |
+| Ngày họp ngân hàng trung ương / NFP / CPI ảnh hưởng thế nào? | Đo **tỷ lệ biến động thật** so với ngày thường, kèm khoảng tin cậy | Không dùng nhãn "tác động cao/thấp" theo quy ước như các lịch kinh tế khác — chỉ tin số đã đo |
+| Cỡ lệnh bao nhiêu là an toàn? | **Kelly có trần phá sản**, điều chỉnh theo biến động và sụt giảm | Không dùng dự báo hướng làm lợi thế — chỉ dùng carry (chênh lệch lãi suất) đo được thật |
+| Lỗ tối đa ngày xấu là bao nhiêu? | **VaR / ES** với backtest Kupiec, Christoffersen, DQ | Ba phép kiểm định thống kê chuẩn để biết con số có đáng tin không, không chỉ đưa ra suông |
+| Có chỉ báo kỹ thuật nào giúp đoán hướng không? | **Khai phá quy luật có kiểm định bội** (Westfall–Young), đối chứng có điều kiện, thử cả ở D1 và H1 (592.343 quan sát) | Tránh "thấy quy luật giả" — hiện tượng rất phổ biến khi thử hàng nghìn giả thuyết mà không hiệu chỉnh |
+| Nhiều cặp tiền có ảnh hưởng lẫn nhau không? | **Lan truyền biến động Diebold-Yilmaz** (phân rã phương sai từ VAR) | Phương pháp kinh tế lượng chuẩn cho câu hỏi "biến động của cặp này có phải nguyên nhân của cặp kia" |
+
+---
+
+## 4. Kết quả — nói thẳng, không tô hồng
+
+### Có thật, nhưng nhỏ
+
+Ô giữa (đi ngang), đo **ngoài mẫu** — tức trên dữ liệu chưa từng dùng để chọn
+mô hình:
+
+| tầm hạn | BSS (so với đoán theo tần suất lịch sử) | Khoảng tin cậy 95% |
+|---|---|---|
+| 1 phiên | **+0,0152** | [+0,0103; +0,0209] — có ý nghĩa |
+| 5 phiên | **+0,0074** | [+0,0009; +0,0144] — có ý nghĩa |
+| 20 phiên | −0,0058 | [−0,0193; +0,0166] — chưa chứng minh được |
+
+Đọc là: hệ thống nhỉnh hơn "cứ đoán theo tần suất lịch sử" khoảng 1,5% ở tầm
+hạn 1 phiên. Có thật, nhưng **không phải một lợi thế lớn**.
+
+### Đã đo và xác nhận là KHÔNG có
+
+Dự báo **hướng giá** (tăng/giảm) không có tín hiệu — xác nhận độc lập bằng
+5 phương pháp khác nhau:
+
+- Momentum: Sharpe −0,16 · Carry: Sharpe −0,05
+- AUC hướng: 0,46–0,53 (không phân biệt được với việc tung đồng xu)
+- Khai phá quy luật: 1.890 giả thuyết kỹ thuật, thử ở cả D1 (21.596 quan sát)
+  và H1 (592.343 quan sát) — **0 quy luật sống sót** sau kiểm định bội
+- Phản ứng quanh sự kiện: 18 loại (NFP, CPI, GDP, họp NHTW…) — **0/18** có
+  thiên lệch hướng có ý nghĩa
+- Lan truyền biến động chéo cặp (Diebold-Yilmaz): thử ở cả D1 và H1, không cải
+  thiện dự báo, thậm chí tệ hơn ở H1 (`docs/KETQUA_VONG7.md`)
+
+### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
+
+Đáng nói vì đây chính là kỷ luật giúp kết quả đáng tin: một lần biến kiểm soát
+đặt sai dạng làm hệ số hồi quy phóng đại giả (t = 31,7 từ một quan hệ vô nghĩa
+về mặt logic), một lần lỗi định tuyến tham số làm 9 dòng kết quả tính sai. Cả
+hai đều được phát hiện, sửa, và ghi lại công khai trong `docs/`.
+
+### Rủi ro — 4/6 cặp đạt, 2/6 chưa
+
+Backtest VaR/ES (Kupiec + Christoffersen + DQ) ở mức 99%: EURUSD, GBPUSD,
+AUDUSD, USDCAD đạt cả ba. **USDJPY và USDCHF chưa đạt** — đã thử vá 2 lần,
+thất bại, nguyên nhân xác định là đuôi phân phối có cấu trúc động mà mô hình
+hiện tại (ước lượng vô điều kiện) chưa bắt được.
+
+### Toàn mạch — không phải máy in tiền
+
+Backtest ~26 năm: vốn cuối kỳ **1,004–1,037 lần** vốn ban đầu, không cấu hình
+nào cháy tài khoản. Gần như hoà vốn. Đây là hệ **hỗ trợ quyết định trung thực**,
+không phải hệ thống kiếm lời.
+
+---
+
+## 5. Cấu trúc repo
+
+```
+fx-dss/
+├── data/               dữ liệu đã xử lý (giá, sự kiện, lãi suất, spread…)
+├── src/                mã tính toán cốt lõi
+│   ├── volfc2.py          HAR vòng 7 — dự báo σ̂ (tầng biến động)
+│   ├── balop.py           ba mô hình xác suất + tổ hợp trực tuyến (Hedge)
+│   ├── position_sizing.py định cỡ vị thế Kelly có trần
+│   ├── sukien_profile.py  đo phản ứng giá quanh sự kiện
+│   ├── run_quyluat.py     phễu khai phá quy luật ở D1
+│   ├── quyluat_h1.py      phễu khai phá quy luật ở H1 (592k quan sát)
+│   ├── kiem_pheu.py       kiểm chứng độ nhạy của phễu (đối chứng âm/dương)
+│   ├── spillover_dy.py    lan truyền biến động Diebold-Yilmaz giữa các cặp
+│   ├── va_duoi.py         thử vá đuôi phân phối USDJPY/USDCHF
+│   ├── hieuchuan_lai.py   thử hiệu chuẩn lại xác suất (isotonic/nhiệt độ)
+│   ├── metrics.py         VaR/ES, Kupiec, Christoffersen, DQ, MCS…
+│   └── split.py           chia huấn luyện/kiểm định/kiểm tra — chống rò rỉ
+├── api/main.py         FastAPI — mọi endpoint phục vụ giao diện
+├── web/                giao diện: HTML/CSS/JS thuần + Lightweight Charts
+├── collect/            thu thập dữ liệu (giá, sự kiện FRED, lãi suất)
+├── jobs/cap_nhat.py    việc định kỳ: tải giá, tính lại, ghi sổ dự báo
+├── docs/               MỌI thí nghiệm, kết quả, kể cả thất bại — xem mục 6
+└── .github/workflows/  tự động cập nhật 4 lần/ngày + triển khai Vercel
+```
+
+## 6. Tài liệu chi tiết — nếu cần đào sâu
+
+| Muốn biết gì | Đọc file nào |
+|---|---|
+| Toàn bộ kế hoạch nghiên cứu, đã duyệt | `docs/REPLAN_2026.md` |
+| Kết quả tầng biến động (HAR vòng 7 vs ML/DL) | `docs/ML_DL_VONG7.md`, `docs/KETQUA_VONG7.md` |
+| Kết quả khai phá quy luật, đủ cả D1 và H1 | `docs/GIAIDOAN2_QUYLUAT.md` |
+| Backtest VaR/ES chi tiết từng cặp | `docs/CHISO_DANHGIA.md` |
+| Việc còn phải làm, xếp theo ưu tiên | `docs/KEHOACH_2026Q4.md` |
+| Quy tắc niêm phong dữ liệu (rất quan trọng, đọc trước khi chạy) | `docs/KHOA_SO.md` |
+| Giải thích UI theo lối nói chuyện, dùng để báo cáo | `docs/BAOCAO_UI.md` |
+
+## 7. Chạy thử
 
 ```bash
 git clone <repo> && cd fx-dss
-pip install pandas numpy scipy arch
-python src/cost.py          # tự kiểm mô hình chi phí
-python src/contig.py        # tự kiểm rào chắn liền mạch
+pip install numpy pandas scipy statsmodels requests fastapi "uvicorn[standard]"
+
+# tự kiểm các module cốt lõi
+python src/balop.py
+python src/split.py
+
+# chạy API + giao diện tại chỗ
+python -m uvicorn api.main:app --port 8899
+python web/build.py
 ```
 
-## Dữ liệu — `data/`
+Triển khai thật chạy tự động qua GitHub Actions 4 lần/ngày (`.github/workflows/capnhat.yml`) —
+tải giá mới, cập nhật lịch sự kiện, ghi sổ dự báo, dựng lại và đẩy lên Vercel.
 
-| File | Nội dung | Quy mô |
-|---|---|---|
-| `prices/{CAP}_d1.csv` | OHLC ngày, 6 cặp | 4.994 phiên/cặp, 2010-01-03 → 2025-12-31 |
-| `prices/{CAP}_h1.csv` | Thanh giờ | ~98.700/cặp |
-| `rv_multi.csv` | Realized variance 4 tần suất (1/5/15 phút, 1 giờ) | 29.961 dòng |
-| `rv_adv.csv` | RV + quarticity + bipower + semivariance, 5 phút | 29.961 dòng |
-| `panel2_6pairs.csv` | Panel rủi ro dựng bằng dự báo MỚI (đang dùng) | 21.596 dòng |
-| `panel_6pairs.csv` | Panel rủi ro CŨ (MA20-GK), giữ để đối chiếu | 29.843 dòng |
-| `cost_table.csv` | Chi phí giao dịch (chế độ × cặp × giờ) | 288 dòng |
-| `cost_elasticity.json` | Độ co giãn spread theo biến động | 6 cặp |
-| `spread_hourly_all.csv` | Spread thật theo giờ, 8 thời kỳ mẫu | 103.504 dòng |
-| `carry.csv` | Chênh lệch lãi suất theo cặp (tháng) | 3.828 dòng |
-| `slippage.csv` | Trượt giá qua mức dừng lỗ, đo từ M1 | 60.617 dòng |
-| `fred_rates.csv` | Lãi suất ngắn hạn 8 đồng tiền | 4.751 dòng |
-| `dukas_volume.csv` | Tick volume ngày | 29.090 dòng |
-| `fred/DEX*.csv` | Tỷ giá ngày FRED, 6 cặp, 1971–2026 | dùng cho kiểm định suy giảm |
+## 8. Ba điều phải biết trước khi động vào dữ liệu
 
-**Nguồn.** Giá và tick: HistData (nến M1 và tick quotes có bid/ask riêng),
-34,9 triệu nến M1 gộp thành H1 và D1. Lãi suất: FRED. Khối lượng: Dukascopy.
-Toàn bộ đã chuyển từ giờ New York sang UTC **có xử lý giờ mùa hè** — hiệu chuẩn
-bằng thực nghiệm, không tin tài liệu; sai số còn lại 0,350 pip khi đối chiếu
-chéo EUR/USD giữa hai nhà cung cấp trên 4.994 ngày.
-
-## Ba điều cần biết trước khi dùng
-
-**1. Đọc `docs/KHOA_SO.md` trước khi chạy bất cứ thứ gì.**
-Có một tập dữ liệu bị **niêm phong** (6 cặp chéo + toàn bộ 2026) và nó *không*
-nằm trong repo này, có chủ đích. Nó chỉ được mở đúng một lần, sau khi cấu hình
-cuối đã chốt và ghi vào biên bản. Nếu bạn phân tích nó sớm thì toàn bộ kết quả
-mất tính ngoài mẫu và không ai biết.
-
-**2. Chi phí giao dịch không phải hằng số.**
-Spread FX nén lại một lần giữa 2014 và 2016 rồi phẳng (trung bình 6 cặp:
-3,50 → 2,45 → 0,70 pip), và chênh nhau 6 lần giữa cặp rẻ nhất và đắt nhất.
-Dùng `src/cost.py`, đừng dùng số 0,91 pip trong mã cũ.
-
-**3. Dùng phân vị 95 cho chi phí thoát buộc, không dùng trung vị.**
-Tháng 3/2020 trung vị chỉ tăng 2,1–3,3 lần nhưng p95 tăng **19–115 lần**
-(EUR/USD ngày 09/03: trung vị 0,51 pip, p95 33,91 pip). Khi lệnh dừng lỗ bị
-kích hoạt giữa khủng hoảng, thứ phải trả là đuôi.
-
-## Mã — `src/`
-
-| File | Vai trò |
-|---|---|
-| `fxdata.py` | Nạp dữ liệu. `realized_var(pair, freq="m5")` là mục tiêu chuẩn |
-| `cost.py` | Mô hình chi phí `spread_pip(cặp, giờ, ngày, q)` — có tự kiểm |
-| `contig.py` | Rào chắn liền mạch: cửa sổ trượt không bắc qua lỗ hổng — có tự kiểm |
-| `vol.py` | Ước lượng biến động: cc, Parkinson, Garman-Klass, Rogers-Satchell, Yang-Zhang |
-| `position_sizing.py` | **Tầng 4 dùng cái này** — quy tắc được chọn sau khi so 9 phương pháp |
-| `sizing.py`, `sizing2.py` | Quy tắc cơ sở và harness mô phỏng |
-| `compare_sizing.py` | So sánh 9 phương pháp trên biên hiệu quả |
-| `compare_rl.py` | PPO so với CVaR-PPO, kèm chẩn đoán điều kiện hóa |
-| `split.py` | **Chia huấn luyện/kiểm định/kiểm tra** — có tự kiểm |
-| `run_final_eval.py`, `run_final_eval2.py` | Chấm điểm cuối theo quy trình sạch |
-| `run_scores.py` | **Bộ chỉ số đầy đủ**: CRPS, pinball, log score, PIT+KS, Kupiec, Christoffersen, DQ, FZ0, Mincer–Zarnowitz |
-| `metrics.py` | Cài đặt các chỉ số trên — có tự kiểm |
-| `volfc.py` | **Tầng 2 dùng cái này** — tổ hợp STHARQ+HARQ+SHAR — có tự kiểm |
-| `build_panel2.py` | Dựng lại panel rủi ro bằng dự báo mới |
-| `run_volbake.py`, `run_volstats.py` | So 14 mô hình biến động; DM + MCS |
-| `carry_test.py` | Kiểm định carry — có tự kiểm ngưỡng đặt trước |
-| `huyh_patterns.py` | Kiểm chứng lại 3 mẫu ký hiệu của HuyH trên dữ liệu này |
-| `run_symbolic.py` | Thử đưa đặc trưng ký hiệu vào tầng 2 (kết luận: không dùng) |
-| `slippage_model.py` | Trượt giá qua stop, đo từ 60.617 lần chạm — có tự kiểm |
-| `decision_record.py` | **Tầng 6** — phiếu quyết định + khoảng conformal phân tầng — có tự kiểm |
-| `rl_env.py`, `rl_agent.py` | Môi trường và tác tử học tăng cường |
-
-| `run_guard.py` | Chạy walk-forward 6 cặp, chấm điểm trên cả hai mục tiêu |
-| `momentum_decay.py` | Suy giảm momentum qua 55 năm — có tự kiểm |
-| `cost_sensitivity.py` | Độ nhạy hoa hồng, chứng minh không load-bearing — có tự kiểm |
-
-## Thu thập lại dữ liệu thô — `collect/`
-
-Chạy trên máy có mạng ra ngoài (không chạy được trong sandbox nghiên cứu):
-
-```bash
-python collect/histdata_dl.py                 # nến M1, 6 cặp × 16 năm  (~10 phút)
-python collect/prep_fx.py                     # M1 → H1 → D1, hiệu chuẩn múi giờ
-python collect/rv5.py --pair EURUSD           # realized variance, từng cặp (~19s/cặp)
-python collect/rv_advanced.py --pair EURUSD   # quarticity/bipower/semivariance (~15s/cặp)
-python collect/tick_spread.py --years 2024    # spread thật từ tick   (~15 phút)
-python collect/finish_dataset.py --phase 1    # lãi suất FRED         (~1 phút)
-```
-
-Mọi script đều có resume: ngắt giữa chừng rồi chạy lại chỉ tải phần còn thiếu.
-
-## Kết quả chính tính đến 29/08/2026
-
-Không dự báo được **hướng đi**, và lý do quan trọng hơn kết luận: momentum ngoại hối
-đã **suy giảm đơn điệu suốt bốn thập kỷ** — Sharpe gộp +1,05 giai đoạn 1971–1985, +0,50
-giai đoạn 1986–2000, −0,08 giai đoạn 2001–2009, **−0,16 giai đoạn 2010–2025**. Trên đúng
-khoảng thời gian bộ dữ liệu này phủ, momentum âm **trước cả khi trừ chi phí**. Chi phí
-giao dịch không phải nguyên nhân — đã kiểm chứng bằng phân tích độ nhạy: cho hoa hồng
-chạy từ 0,00 đến 0,70 pip, Sharpe chỉ dịch 0,015–0,076. Tái lập bằng
-`src/momentum_decay.py` và `src/cost_sensitivity.py`.
-
-Dự báo được **biến động**, và mô hình cầu kỳ CÓ đáng. Con số dưới đây đo trên
-**đoạn kiểm tra sạch** (2023-11-20 → 2025-12-31) dưới quy trình 70/15/15, sau
-khi chọn cấu hình trên đoạn kiểm định — xem `docs/KETQUA_VONG7.md`:
-
-| | QLIKE trên kiểm tra |
-|---|---|
-| **HAR vòng 7** (thêm lịch NHTW riêng từng cặp) | **0,1585** |
-| HAR gốc (tổ hợp STHARQ+HARQ+SHAR) | 0,1726 |
-| MA20-GK (nền cũ) | 0,2172 |
-
-Cải thiện **27,0%** so với nền cũ và **8,2%** so với bản HAR trước đó.
-Diebold–Mariano thắng **6/6 cặp** so với MA20-GK và **4/6 cặp** so với HAR gốc
-(p<0,05). Model Confidence Set ở α=0,10 chỉ còn lại **một mình HAR vòng 7**.
-Hiệu chuẩn phân phối sạch 6/6 cặp trên cả bốn kiểm định (Kupiec, Christoffersen,
-DQ, PIT-KS). Cây tăng cường (GBM) và các mô hình học máy thua mọi biến thể HAR.
-
-**Cải tiến đến từ đâu.** Đã backtest 1.024 cấu hình trên đoạn kiểm định; đúng
-**một** trục có tác dụng: mỗi cặp chịu ngân hàng trung ương *của riêng đồng tiền
-đó* cộng FOMC, và đưa lịch họp thật của cả bảy ngân hàng (901 ngày, 2010–2026,
-`data/cb_dates.csv`) vào mô hình. Dùng chung một lịch ECB+FOMC cho cả 6 cặp chỉ
-ăn 3%; dùng đúng lịch của từng cặp ăn 8%. Bốn cải tiến khác có cơ sở tài liệu —
-khử chu kỳ nội tuần, co ngót hệ số về panel, biến RV chéo cặp, hiệu chuẩn
-Mincer–Zarnowitz — đều cho **kết quả âm**; chi tiết và lý do ở `docs/KETQUA_VONG7.md`.
-
-**Toàn bộ giá trị nằm ở chế độ căng.** Chấm điểm phân tầng theo ngũ phân vị biến
-động dự báo: MA20-GK có QLIKE Q5/Q1 = **1,82**, HAR vòng 7 là **1,01**. Khoảng
-cách giữa hai mô hình là +0,0122 ở chế độ êm nhất nhưng **+0,1609 ở chế độ căng
-nhất** — rộng gấp 13 lần. Trung bình gộp giấu kín đúng chỗ này.
-
-*Lịch sử con số này: 24% đo trên tập vừa dùng để chọn vừa dùng để báo cáo; dưới
-quy trình huấn luyện/kiểm định/kiểm tra 60/20/20 nó là 19,7%; nay dưới 70/15/15
-với lịch NHTW là 27,0%. Chênh 24% → 19,7% chính là phần lạc quan do rò rỉ lựa
-chọn — đã đo được thay vì ẩn.*
-
-*Kết luận cũ ở đây — "MA20-GK và GARCH-t cùng thắng mọi biến thể HAR ở
-p<0,01" — là **sai**, và sai vì một lỗi xử lý dữ liệu: phiên Chủ nhật của FX
-chỉ dài 2 giờ, phương sai nhỏ hơn 24 lần, chiếm 17% số hàng, và nằm nguyên
-trong chuỗi hồi quy. Gộp nó vào ngày giao dịch kế tiếp làm QLIKE của HAR đi
-từ 0,4616 xuống 0,1648. Chi tiết và cách phát hiện: `docs/TANG2_BIENDONG.md`.*
-
-**Nhưng cải thiện nhỏ dần khi đi xuống dưới.** Tương quan dự báo/thực tế lên
-0,52–0,72 (trước là 0,435–0,647), lỗ đuôi 1% của vị thế giảm 7,47% → 7,05%,
-còn điểm khoảng của tầng 6 chỉ tốt hơn 1,4%. Lý do: tầng 4 và 6 tiêu thụ phân
-vị đuôi của lợi suất đã chuẩn hóa, thứ bị chi phối bởi độ dày đuôi chứ không
-phải bởi mức phương sai. Dự báo biến động tốt hơn **không** tự động thành hệ
-thống quyết định tốt hơn.
-
-**Nhánh khai phá mẫu của HuyH ra cùng kết luận bằng phương pháp khác.** Chuỗi
-ký hiệu + mẫu tuần tự trên FRED daily, phễu lọc bốn bước (4.722 → 11 → 7 → 3):
-ba mẫu sống sót qua kiểm tra ngoài thời gian 2022–2026 **đều là mẫu biến động**,
-**không** mẫu hướng đi nào sống sót. Tôi kiểm chứng lại cả ba trên realized
-variance 5 phút: **3/3 tái lập**, lift còn cao hơn (1,69 · 1,32 · 1,69). Nhưng
-thêm đặc trưng ký hiệu vào STHARQ chỉ cải thiện QLIKE 0,15–0,49% và thắng 0/6
-cặp — mô hình liên tục đã bắt hết thông tin đó. Dùng làm **lời giải thích** trên
-phiếu quyết định, không dùng để dự báo. `docs/TICHHOP_HUYH.md`.
-
-**Carry cũng không phải tín hiệu hướng đi.** Sharpe sau chi phí trên đúng
-khoảng hệ thống vận hành (2010–2025) là **−0,05**; mẫu cân bằng 2002–2025 cho
-+0,09. Trước đó nó có thật: 1994–2000 là +1,05. Độ lệch −1,56, đúng đặc trưng
-"carry crash". Ngưỡng đặt trước là Sharpe > 0,30 nên carry **không** được đưa
-vào tầng quyết định. `src/carry_test.py`.
-
-**Trượt giá qua mức dừng lỗ giờ là số đo, không còn là giả định.** 60.617 lần
-chạm mức dừng lỗ đo từ nến M1: trượt p95 bằng **35% khoảng cách dừng lỗ**. Đưa
-phân phối thật vào mô phỏng làm xác suất phá sản **tăng 2,5 lần**; hệ số cắt
-0,92 đưa nó về mức cũ. Giờ trượt tệ nhất là 12–13h UTC, *không* trùng giờ
-spread đắt nhất (21h UTC). `src/slippage_model.py`.
-
-**Phiếu chỉ hiệu chuẩn cho một phiên — đã sửa.** Stop 2σ: đọc "5%" rồi giữ mười
-phiên thì thực tế là **50%**. Công thức phản xạ kéo dài được (lệch 1,3–1,7% ở
-h=5/10/20, lệch theo hướng lạc quan) nên chỉ cần in ra, và phiếu giờ có in.
-Quy tắc √h đúng trung bình (1,006–1,011) nhưng lệch tới ±14% theo chế độ biến
-động; hệ số hiệu chỉnh ước lượng trên tập huấn luyện giảm biên độ đó một nửa.
-`docs/TANG6_TAMHAN.md`.
-
-**Biến động phụ thuộc đường đi (Guyon–Lekeufack) đã thử và không dùng.** Cải
-thiện QLIKE 0,3%, nhất quán 5/6 cặp nhưng không cặp nào đạt p<0,05 — nhỏ hơn 80
-lần so với lần đổi mô hình trước. Đổi mô hình sản xuất vì một cải thiện không có
-ý nghĩa thống kê là đúng kiểu điều chỉnh mà `KHOA_SO.md` ngăn.
-
-**Trần rủi ro có hai lỗ hổng phạm vi, cả hai đã vá.** (a) Nó tính cho MỘT vị
-thế: mở 6 lệnh cùng hướng USD ở đúng cỡ khuyến nghị cho phá sản **73,6%** trong
-khi phiếu ghi 1%. Sáu cặp nhìn như tự phòng hộ (tương quan −0,09) nhưng đó là
-ảo giác của quy ước yết giá — quy về cùng chiều USD thì tương quan là **+0,44**.
-Luật `k_danh_mục = 1/√(k + k(k−1)ρ)` đưa mọi cấu hình về dưới 1%. (b) Bảo đảm
-"250 phiên" chỉ đúng nếu định cỡ lại **mỗi phiên**: đặt một lần rồi giữ cho
-1,95%, mỗi tháng cho 1,15%, mỗi phiên cho 0,41%. `docs/TANG4_DANHMUC.md`.
-
-**Học tăng cường không tìm ra điều kiện hóa theo trạng thái.** PPO và CVaR-PPO
-đều có sụt giảm trong vector trạng thái nhưng học ra hệ số gần như hằng số —
-biên độ 0,018 và 0,030, so với 0,800 của một quy tắc thiết kế tay. Chạy lại trên
-panel mới cho cùng kết luận (biên độ 0,045 và 0,026), và PPO còn học **sai
-hướng**: hệ số TĂNG khi sụt giảm sâu hơn (1,013 ở đỉnh → 1,057 khi lỗ 30%). Huấn luyện
-lâu hơn làm biên độ **nhỏ đi**. Quy tắc tay cho phá sản thấp hơn 26 lần ở cùng
-tăng trưởng. Fuzzy Mamdani không hơn một tích hai hệ số tuyến tính (+0,08%).
-Chi tiết: `docs/SIZING_COMPARISON.md`.
-
-**Khoảng dự báo của tầng 6 phải là conformal phân tầng, không phải Student-t.**
-Trên tập giữ riêng, conformal lệch hiệu chuẩn trung bình 0,37% so với 1,25% của
-Student-t, và còn hẹp hơn ở mức 99% (145,6 so với 158,0 pip). Bảo đảm của
-conformal chỉ là biên, nên phải phân tầng theo chế độ biến động: lệch tối đa
-theo chế độ giảm từ 1,9% xuống 0,8%. Xác suất chạm stop theo nguyên lý phản xạ
-lệch trung bình 1,44% (0,10% ở stop 3σ). Cả ba phương pháp đều phủ thiếu ~1%
-khi tài khoản đang lỗ — giới hạn đã đo, in thẳng trên phiếu.
-Bản đang dùng là **conformal thích ứng theo tầng** (ACI của Gibbs–Candès 2021
-ghép với phân tầng Mondrian): lệch tối đa theo chế độ 1,2% so với 2,4–3,2% của
-năm phương án còn lại, và điểm khoảng cũng tốt nhất.
-**Chấm bằng quy tắc chấm điểm chính đáng thì cách dựng đuôi gần như không quan
-trọng — chất lượng σ̂ mới quan trọng.** CRPS trên đoạn kiểm tra: Gauss 26,28 ·
-Student-t 26,22 · Mondrian 2 26,23 pip; nhưng dùng σ̂ **cũ** thì 26,33 và điểm
-khoảng xấu hơn 1,5%. Ngược lại, PIT + Kolmogorov–Smirnov **bác bỏ giả định
-chuẩn ở p = 0,0001** trong khi chính nó vượt qua mọi backtest VaR — bằng chứng
-rằng độ phủ thôi thì chưa đủ. Chi tiết: `docs/CHISO_DANHGIA.md`,
-`docs/TANG6_HIEU_CHUAN.md`, `docs/DANHGIA_CUOI.md`.
-
-## Chưa làm
-
-Tầng fuzzy; phiếu quyết định và tầng giải thích (tầng 6 — phần lõi MIS, chưa ai
-nhận); giao diện; module báo cáo backtest; văn bản luận văn.
+1. **Đọc `docs/KHOA_SO.md` trước.** Có một tập dữ liệu bị niêm phong (6 cặp
+   tiền chéo + toàn bộ 2026) để giữ tính ngoài mẫu cho lần chấm điểm cuối
+   cùng. Mở sớm là mất vĩnh viễn giá trị kiểm chứng của nó.
+2. **Sổ dự báo (`data/so_dubao/`) chỉ được thêm, không được sửa.** Đây là bằng
+   chứng sống — mỗi dự báo được ghi trước khi biết kết quả, rồi chấm điểm sau.
+3. **Mọi con số trên giao diện phải truy được về một phép đo trong `docs/`.**
+   Không thêm chỉ số nào chỉ vì "nhìn có vẻ hợp lý" — nếu chưa đo, đừng hiển thị.
