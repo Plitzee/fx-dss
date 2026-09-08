@@ -228,6 +228,27 @@ Dự báo **hướng giá** (tăng/giảm) không có tín hiệu — xác nhậ
 - Lan truyền biến động chéo cặp (Diebold-Yilmaz): thử ở cả D1 và H1, không cải
   thiện dự báo, thậm chí tệ hơn ở H1 (`docs/KETQUA_VONG7.md`)
 
+### Phương pháp đã thử để cải tiến — kết quả hoà, không đưa vào sản xuất
+
+Mỗi dòng dưới đây là một phương pháp **đã cài, đã chạy, đã đo** — không phải
+suy đoán. Không đưa vào sản xuất **không có nghĩa là nó tệ**: kết quả là *hoà*
+(không thắng rõ ràng so với cái đang dùng), và hệ thống chỉ đổi phương pháp khi
+đo được lợi ích rõ ràng, không đổi vì phương pháp mới hay hơn trên lý thuyết.
+Đây là bảng để tra lại sau này, khỏi phải hỏi "cái này thử chưa":
+
+| phương pháp | thay cho / mục tiêu | kết quả | vì sao không ăn tiền |
+|---|---|---|---|
+| FDR Benjamini–Yekutieli | Westfall–Young (kiểm soát đa kiểm định) | Hoà | cửa đa kiểm định không phải chỗ nghẽn — cửa lọc theo σ̂ mới chặn 97% |
+| CAViaR (Engle–Manganelli) | Phân vị tĩnh cho VaR/ES | Hoà | dạng tốt nhất hơn mốc đúng 1 cặp, và cặp đó đổi kết luận theo hạt giống ngẫu nhiên |
+| Fixed-Share (Herbster–Warmuth) | Hedge trơn cho tổ hợp chuyên gia | Hoà | ΔBSS âm đơn điệu theo α — các chuyên gia gần hoà nên đuổi theo đổi chế độ chỉ tốn thêm |
+| 14 mô hình biến động ML/DL | HAR (biến động) | Thua nền | đo hai lần, độc lập |
+| Kiến trúc CAIFormer | — | Thua bản rút gọn | ablation của chính nó: bỏ hết bộ máy nhân quả tốt hơn bản đầy đủ 3/3 cặp |
+| Mô hình nền lớn (Chronos, MOIRAI) | — | Bằng chứng ngược, chi phí cao | — |
+| RL sâu (PPO…) | — | Đã loại | văn liệu 2025–2026 xác nhận cùng lý do |
+
+Chi tiết từng phép đo: `docs/CHISO_DANHGIA.md` mục 9 (ba dòng đầu, đo 08/09/2026)
+và `docs/KEHOACH_CAITIEN.md` mục "Không làm" (các dòng còn lại).
+
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 
 Đáng nói vì đây chính là kỷ luật giúp kết quả đáng tin: một lần biến kiểm soát
