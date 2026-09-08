@@ -198,27 +198,8 @@ def _tu_kiem():
     return d_cuoi, d_nq, d_lt
 
 
-def main():
-    t0 = time.time()
-    print("=" * 112)
-    print("H6 — HMM / MARKOV SWITCHING (trạng thái ẩn), họ thứ sáu của Giai đoạn 2")
-    print("=" * 112)
-
-    print("tự kiểm bộ lọc tiến…", flush=True)
-    d_cuoi, d_nq, d_lt = _tu_kiem()
-    print(f"  (1) khôi phục tham số từ HMM mô phỏng: ĐẠT")
-    print(f"  (2) lọc ≡ làm trơn ở bước cuối       : lệch {d_cuoi:.2e}  ĐẠT")
-    print(f"  (3) NHÂN QUẢ — α[t] không đổi khi nối thêm tương lai: lệch {d_nq:.2e}  ĐẠT")
-    print(f"      (đối chiếu: hậu nghiệm LÀM TRƠN lệch {d_lt:.3f} — tức phép kiểm (3) có lực)")
-
-    du = nap_du_lieu()
-    Ms, dts = du["Ms"], du["dts"]
-    y, cap = du["y"], du["cap"]
-    kiem_soat, cum = du["kiem_soat"], du["cum"]
-    tr, va, te, pha = du["tr"], du["va"], du["te"], du["pha"]
-
-    print(f"\nKhớp HMM (Baum-Welch, {N_KHOI_DAU} lần khởi động) trên HUẤN LUYỆN, "
-          f"riêng từng cặp, K = {CAC_K}…", flush=True)
+def vi_tu_hmm(Ms, dts, pha, im_lang=False):
+    """Dung vi tu HMM: (M, ten, mo_ta). Tach ra de run_spa_ho2.py dung lai."""
     lit_cap = {K: [] for K in CAC_K}
     mo_ta = {}
     for i, p in enumerate(B.PAIRS):
@@ -248,25 +229,49 @@ def main():
             if i == 0:
                 mo_ta[K] = [f"sd={sd[j]*1e4:.0f}pip, mu={mu[j]*1e4:+.1f}pip, "
                             f"dai={1/max(1-ch[j,j],1e-9):.0f} phiên" for j in thu]
-    for K in CAC_K:
-        print(f"  K={K} (EURUSD, xếp theo biến động): " + " · ".join(mo_ta.get(K, [])))
 
     M = np.concatenate([np.concatenate(lit_cap[K], axis=1) for K in CAC_K], axis=0)
     ten = [f"HMM K={K} trạng thái {j}" for K in CAC_K for j in range(K)]
-    print(f"\nKHÔNG GIAN GIẢ THUYẾT H6: {len(ten)} vị từ × 3 lớp = {len(ten)*3} "
-          f"giả thuyết — liệt kê đầy đủ, biết trước")
-
     # TRAN DO PHU — xem giai thich o hang so MAX_PHU
     phu = (M & pha[None, :]).sum(1) / max(int(pha.sum()), 1)
     qua_rong = phu > MAX_PHU
     if qua_rong.any():
-        print(f"\nloại {int(qua_rong.sum())} vị từ phủ > {MAX_PHU:.0%} mẫu "
-              f"(trạng thái NỀN, không phải quy luật — xem hằng số MAX_PHU):")
-        for i in np.where(qua_rong)[0]:
-            print(f"    {ten[i]:<26} phủ {phu[i]:.1%}")
+        if not im_lang:
+            print(f"\nloại {int(qua_rong.sum())} vị từ phủ > {MAX_PHU:.0%} mẫu "
+                  f"(trạng thái NỀN, không phải quy luật — xem hằng số MAX_PHU):")
+            for i in np.where(qua_rong)[0]:
+                print(f"    {ten[i]:<26} phủ {phu[i]:.1%}")
         M = M[~qua_rong]
         ten = [t for t, b in zip(ten, qua_rong) if not b]
-        print(f"  → còn {len(ten)} vị từ × 3 lớp = {len(ten)*3} giả thuyết")
+    return M, ten, mo_ta
+
+
+def main():
+    t0 = time.time()
+    print("=" * 112)
+    print("H6 — HMM / MARKOV SWITCHING (trạng thái ẩn), họ thứ sáu của Giai đoạn 2")
+    print("=" * 112)
+
+    print("tự kiểm bộ lọc tiến…", flush=True)
+    d_cuoi, d_nq, d_lt = _tu_kiem()
+    print(f"  (1) khôi phục tham số từ HMM mô phỏng: ĐẠT")
+    print(f"  (2) lọc ≡ làm trơn ở bước cuối       : lệch {d_cuoi:.2e}  ĐẠT")
+    print(f"  (3) NHÂN QUẢ — α[t] không đổi khi nối thêm tương lai: lệch {d_nq:.2e}  ĐẠT")
+    print(f"      (đối chiếu: hậu nghiệm LÀM TRƠN lệch {d_lt:.3f} — tức phép kiểm (3) có lực)")
+
+    du = nap_du_lieu()
+    Ms, dts = du["Ms"], du["dts"]
+    y, cap = du["y"], du["cap"]
+    kiem_soat, cum = du["kiem_soat"], du["cum"]
+    tr, va, te, pha = du["tr"], du["va"], du["te"], du["pha"]
+
+    print(f"\nKhớp HMM (Baum-Welch, {N_KHOI_DAU} lần khởi động) trên HUẤN LUYỆN, "
+          f"riêng từng cặp, K = {CAC_K}…", flush=True)
+    M, ten, mo_ta = vi_tu_hmm(Ms, dts, pha)
+    for K in CAC_K:
+        print(f"  K={K} (EURUSD, xếp theo biến động): " + " · ".join(mo_ta.get(K, [])))
+    print(f"\nKHÔNG GIAN GIẢ THUYẾT H6: {len(ten)} vị từ × 3 lớp = {len(ten)*3} "
+          f"giả thuyết (đã loại trạng thái nền phủ > {MAX_PHU:.0%})")
     print(f"phát hiện {int(pha.sum()):,} hàng · xác nhận {int(te.sum()):,} hàng\n")
 
     print(f"[1/4] Westfall–Young, {NPERM} hoán vị, null khối {KHOI} ngày…", flush=True)

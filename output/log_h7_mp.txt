@@ -1,0 +1,35 @@
+================================================================================================================
+H7 — MATRIX PROFILE / ANALOG LỊCH SỬ, họ thứ bảy của Giai đoạn 2
+================================================================================================================
+tự kiểm…
+  (1) công thức ||a−b||² = 2L − 2a·b khớp khoảng cách Euclid: ĐẠT
+  (2) NHÂN QUẢ — đặc trưng tại t không đổi khi cắt bỏ tương lai: lệch 0.00e+00  ĐẠT
+  (3) đối chiếu stumpy.stump: 0.937739 vs tự tính 0.937739  ĐẠT
+
+Tìm 20 analog gần nhất cho từng phiên (nhân quả, không chồng lấn)…
+  L=5 xong
+  L=10 xong
+  L=20 xong
+
+KHÔNG GIAN GIẢ THUYẾT H7: 36 vị từ × 3 lớp = 108 giả thuyết — liệt kê đầy đủ, biết trước
+phát hiện 18,306 hàng · xác nhận 4,324 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 2.71 · 95% 2.88 · 99% 3.26
+      36/36 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 1 (nếu toàn nhiễu kỳ vọng 5)
+
+→ KHÔNG vị từ nào sống sót Westfall–Young.
+
+================================================================================================================
+PHỄU H7 (Matrix Profile)                         còn lại
+không gian giả thuyết                                108
+đủ số lần khớp                                        36
+thô p<0,05                                             1
+sống sót Westfall–Young                                0
+còn tin riêng sau đối chứng                            0
+chuyển giao được (LOPO)                                0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/h7_matrixprofile.json — 65s
+TỰ KIỂM ĐẠT

@@ -25,5 +25,23 @@
   "bac_bo": false,
   "ung_vien_tot_nhat": "|z| hôm nay cao & tính dai vol thấp [trung tính]",
   "dbar_tot": 0.0010994495308226599
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "HMM K=3 trạng thái 2",
+  "dbar_tot": 0.0
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 0.972,
+  "T_SPA": 0.1022161396619179,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=10 cao",
+  "dbar_tot": 8.420067336317886e-05
  }
 }

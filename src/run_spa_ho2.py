@@ -188,6 +188,17 @@ def main():
     ket["H5_chedo"] = chay_spa("H5 — chế độ tự tương quan", M5, ten5, y, tr, va,
                                kh_forecast, max_ung_vien=630)
 
+    print("\nĐang dựng lại vị từ H6 (HMM)…", flush=True)
+    from run_h6_hmm import vi_tu_hmm
+    M6, ten6, _ = vi_tu_hmm(Ms, dts, du["pha"], im_lang=True)
+    ket["H6_hmm"] = chay_spa("H6 — HMM", M6, ten6, y, tr, va, kh_forecast)
+
+    print("\nĐang dựng lại vị từ H7 (Matrix Profile)…", flush=True)
+    from run_h7_matrixprofile import vi_tu_analog
+    M7, ten7 = vi_tu_analog(zs, dts, y, du["pha"], im_lang=True)
+    ket["H7_matrixprofile"] = chay_spa("H7 — Matrix Profile", M7, ten7, y, tr, va,
+                                       kh_forecast)
+
     print("\n" + "=" * 100)
     print("TỔNG KẾT SPA THEO HỌ (so nền \"chỉ σ̂\", kiểm soát nhiều ứng viên)")
     print(f"  {'họ':<20}{'n ứng viên':>12}{'p-value':>10}{'bác bỏ α=0,05':>15}")
