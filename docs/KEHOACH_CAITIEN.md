@@ -31,7 +31,15 @@ phải thủ tục hình thức.
 Ba việc này đều có bằng chứng đo được, và đều nằm ở phần *sản phẩm* chứ không
 phải phần *nghiên cứu*.
 
-### A1. Đuôi dưới của USDJPY — ưu tiên cao nhất
+### A1. Đuôi dưới của USDJPY — **đã thử hết ba hướng, đóng lại (08/09/2026)**
+
+Cập nhật: cả ba hướng đề xuất bên dưới đã chạy — vô điều kiện cuộn/mở rộng
+(`va_duoi.py`, giữ V1), CAViaR động (`caviar.py`, mục 9.2 CHISO_DANHGIA.md),
+phân vị theo chế độ (`va_duoi_chedo.py`, mục 5d CHISO_DANHGIA.md). Không hướng
+nào vượt được V1 mở rộng đang chạy trên kiểm định. Cảnh báo USDJPY trên giao
+diện **giữ nguyên**; muốn cải thiện tiếp phải có dữ liệu mới (xem mục "Còn để
+ngỏ" cuối văn bản này), không phải biến thể thống kê khác của cùng một phân
+vị. Nội dung dưới đây giữ nguyên làm hồ sơ chẩn đoán gốc.
 
 **Bằng chứng.** Ba phép đo độc lập cùng chỉ một chỗ:
 
@@ -199,16 +207,19 @@ lịch sử) và kéo tới 2026-08 (chồng tập khoá sổ, phải cắt).
 ## Thứ tự đề nghị
 
 ```
-A1 đuôi USDJPY  →  A2 hiệu chuẩn lại  →  A3 chọn theo chế độ
-                        ↓
-              B1 Hansen SPA  →  B2 FDR + đo lại lực
-                        ↓
-              C chốt cấu hình, ký biên bản
-                        ↓
-              D mở niêm phong — MỘT LẦN
+A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn theo chế độ
+                                  ↓
+                    B1 Hansen SPA  →  B2 FDR (ĐÓNG) + CAViaR (ĐÓNG)
+                                  ↓
+                    C chốt cấu hình, ký biên bản
+                                  ↓
+                    D mở niêm phong — MỘT LẦN
 
      (E chạy song song suốt: sổ dự báo, token, merge)
 ```
 
-A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện. B1 trước B2 vì SPA
-là điều kiện đã ghi trong kế hoạch, còn B2 là cải tiến tuỳ chọn.
+A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện — nay đã đóng (ba
+hướng đều thử, không hướng nào ăn tiền, xem mục A1 và `CHISO_DANHGIA.md` mục
+5c/5d/9.2). B1 trước B2 vì SPA là điều kiện đã ghi trong kế hoạch, còn B2 là
+cải tiến tuỳ chọn (đã đóng — xem `CHISO_DANHGIA.md` mục 9.1). Việc còn mở:
+**A3** (chọn mô hình theo chế độ) và **B1** (Hansen SPA) — cả hai chưa chạm.

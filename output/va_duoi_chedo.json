@@ -1,0 +1,585 @@
+{
+ "buoc": 21,
+ "dam": 750,
+ "dam_cd": 150,
+ "muc": [
+  0.05,
+  0.01
+ ],
+ "kiem_dinh": {
+  "0.05": {
+   "EURUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0622,
+     "ky_vong": 0.05,
+     "kupiec": 0.208,
+     "chris": 0.3669,
+     "dq": 0.5481,
+     "ty_le_es": 1.0021,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0585,
+     "ky_vong": 0.05,
+     "kupiec": 0.3738,
+     "chris": 0.4603,
+     "dq": 0.8045,
+     "ty_le_es": 0.9961,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0622,
+     "ky_vong": 0.05,
+     "kupiec": 0.208,
+     "chris": 0.3669,
+     "dq": 0.4851,
+     "ty_le_es": 0.9879,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0622,
+     "ky_vong": 0.05,
+     "kupiec": 0.208,
+     "chris": 0.3669,
+     "dq": 0.4758,
+     "ty_le_es": 1.0025,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0041,
+     0.0052
+    ]
+   },
+   "GBPUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0512,
+     "ky_vong": 0.05,
+     "kupiec": 0.8989,
+     "chris": 0.6375,
+     "dq": 0.6196,
+     "ty_le_es": 1.0086,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0512,
+     "ky_vong": 0.05,
+     "kupiec": 0.8989,
+     "chris": 0.6375,
+     "dq": 0.6289,
+     "ty_le_es": 1.0128,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.6023,
+     "ty_le_es": 1.0113,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.6048,
+     "ty_le_es": 1.017,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0045,
+     0.0055
+    ]
+   },
+   "USDJPY": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.053,
+     "ky_vong": 0.05,
+     "kupiec": 0.7484,
+     "chris": 0.6559,
+     "dq": 0.6629,
+     "ty_le_es": 0.9063,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.053,
+     "ky_vong": 0.05,
+     "kupiec": 0.7484,
+     "chris": 0.6559,
+     "dq": 0.675,
+     "ty_le_es": 0.9149,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.5961,
+     "dq": 0.632,
+     "ty_le_es": 0.9379,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.5961,
+     "dq": 0.6576,
+     "ty_le_es": 0.9475,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.004,
+     0.0055
+    ]
+   },
+   "AUDUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0713,
+     "ky_vong": 0.05,
+     "kupiec": 0.0312,
+     "chris": 0.5959,
+     "dq": 0.0141,
+     "ty_le_es": 1.0174,
+     "dat": false
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0676,
+     "ky_vong": 0.05,
+     "kupiec": 0.0717,
+     "chris": 0.7229,
+     "dq": 0.0425,
+     "ty_le_es": 1.0108,
+     "dat": false
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0695,
+     "ky_vong": 0.05,
+     "kupiec": 0.0479,
+     "chris": 0.658,
+     "dq": 0.0197,
+     "ty_le_es": 1.0413,
+     "dat": false
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.064,
+     "ky_vong": 0.05,
+     "kupiec": 0.1495,
+     "chris": 0.3253,
+     "dq": 0.0869,
+     "ty_le_es": 1.0282,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0054,
+     0.0067
+    ]
+   },
+   "USDCAD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0512,
+     "ky_vong": 0.05,
+     "kupiec": 0.8989,
+     "chris": 0.6866,
+     "dq": 0.6759,
+     "ty_le_es": 0.9837,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0512,
+     "ky_vong": 0.05,
+     "kupiec": 0.8989,
+     "chris": 0.6866,
+     "dq": 0.6789,
+     "ty_le_es": 0.9784,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0512,
+     "ky_vong": 0.05,
+     "kupiec": 0.8989,
+     "chris": 0.6866,
+     "dq": 0.6738,
+     "ty_le_es": 0.9804,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.7504,
+     "dq": 0.7006,
+     "ty_le_es": 0.9729,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0041,
+     0.005
+    ]
+   },
+   "USDCHF": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0585,
+     "ky_vong": 0.05,
+     "kupiec": 0.3738,
+     "chris": 0.0342,
+     "dq": 0.0756,
+     "ty_le_es": 1.1031,
+     "dat": false
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0585,
+     "ky_vong": 0.05,
+     "kupiec": 0.3738,
+     "chris": 0.0342,
+     "dq": 0.0796,
+     "ty_le_es": 1.0887,
+     "dat": false
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.0189,
+     "dq": 0.0634,
+     "ty_le_es": 1.0167,
+     "dat": false
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.0189,
+     "dq": 0.0638,
+     "ty_le_es": 1.0174,
+     "dat": false
+    },
+    "ngưỡng_chế_độ": [
+     0.0044,
+     0.0053
+    ]
+   }
+  },
+  "0.01": {
+   "EURUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0183,
+     "ky_vong": 0.01,
+     "kupiec": 0.081,
+     "chris": 0.5413,
+     "dq": 0.018,
+     "ty_le_es": 0.9487,
+     "dat": false
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0165,
+     "ky_vong": 0.01,
+     "kupiec": 0.1652,
+     "chris": 0.5828,
+     "dq": 0.0658,
+     "ty_le_es": 0.9498,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.3069,
+     "ty_le_es": 0.9605,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.2794,
+     "ty_le_es": 0.9777,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0041,
+     0.0052
+    ]
+   },
+   "GBPUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.0318,
+     "ty_le_es": 1.078,
+     "dat": false
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.0278,
+     "ty_le_es": 1.0698,
+     "dat": false
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0091,
+     "ky_vong": 0.01,
+     "kupiec": 0.8376,
+     "chris": 0.7611,
+     "dq": 0.9988,
+     "ty_le_es": 1.0015,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0091,
+     "ky_vong": 0.01,
+     "kupiec": 0.8376,
+     "chris": 0.7611,
+     "dq": 0.9988,
+     "ty_le_es": 1.0012,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0045,
+     0.0055
+    ]
+   },
+   "USDJPY": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.9806,
+     "ty_le_es": 0.7868,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.9784,
+     "ty_le_es": 0.8361,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.9875,
+     "ty_le_es": 0.7963,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9957,
+     "ty_le_es": 0.8126,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.004,
+     0.0055
+    ]
+   },
+   "AUDUSD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.9862,
+     "ty_le_es": 0.9815,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.9857,
+     "ty_le_es": 0.9831,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9981,
+     "ty_le_es": 1.0239,
+     "dat": true
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9981,
+     "ty_le_es": 1.0237,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0054,
+     0.0067
+    ]
+   },
+   "USDCAD": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.8959,
+     "ty_le_es": 1.0432,
+     "dat": true
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.8843,
+     "ty_le_es": 1.0356,
+     "dat": true
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0165,
+     "ky_vong": 0.01,
+     "kupiec": 0.1652,
+     "chris": 0.5828,
+     "dq": 0.0486,
+     "ty_le_es": 1.0732,
+     "dat": false
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.0621,
+     "ty_le_es": 1.0589,
+     "dat": true
+    },
+    "ngưỡng_chế_độ": [
+     0.0041,
+     0.005
+    ]
+   },
+   "USDCHF": {
+    "V0 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0201,
+     "ky_vong": 0.01,
+     "kupiec": 0.0367,
+     "chris": 0.2097,
+     "dq": 0.0021,
+     "ty_le_es": 1.5342,
+     "dat": false
+    },
+    "V1 chế độ": {
+     "n": 547,
+     "vi_pham": 0.0201,
+     "ky_vong": 0.01,
+     "kupiec": 0.0367,
+     "chris": 0.2097,
+     "dq": 0.0034,
+     "ty_le_es": 1.5167,
+     "dat": false
+    },
+    "V0 mốc": {
+     "n": 547,
+     "vi_pham": 0.0219,
+     "ky_vong": 0.01,
+     "kupiec": 0.0154,
+     "chris": 0.2563,
+     "dq": 0.0031,
+     "ty_le_es": 1.3292,
+     "dat": false
+    },
+    "V1 mốc": {
+     "n": 547,
+     "vi_pham": 0.0219,
+     "ky_vong": 0.01,
+     "kupiec": 0.0154,
+     "chris": 0.2563,
+     "dq": 0.0031,
+     "ty_le_es": 1.3245,
+     "dat": false
+    },
+    "ngưỡng_chế_độ": [
+     0.0044,
+     0.0053
+    ]
+   }
+  }
+ },
+ "tong_ket": {
+  "V0 mốc": {
+   "dat_05": 4,
+   "dat_01": 4
+  },
+  "V1 mốc": {
+   "dat_05": 5,
+   "dat_01": 5
+  },
+  "V0 chế độ": {
+   "dat_05": 4,
+   "dat_01": 3
+  },
+  "V1 chế độ": {
+   "dat_05": 4,
+   "dat_01": 4
+  }
+ }
+}

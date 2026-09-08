@@ -264,6 +264,47 @@ hỏng, vì đó đúng là data snooping mà cả giao thức này sinh ra đ�
 
 ---
 
+## 5d. Phân vị theo chế độ — hướng cuối của A1, **cũng không ăn tiền** (08/09/2026)
+
+`src/va_duoi_chedo.py`, `output/va_duoi_chedo.json`. CAViaR (mục 9.2) đã thử
+hướng "đuôi động"; đây là hướng còn lại — "đuôi có điều kiện theo chế độ" —
+đóng nốt danh sách hướng đề nghị ở mục 5c.
+
+**Chế độ**: tam phân vị của σ̂ trên huấn luyện, đúng công thức `SigmaCheDo`
+(`balop.py`), 3 nhóm êm/vừa/căng, ngưỡng chốt trên huấn luyện áp cho cả chuỗi.
+
+**Hai biến thể**, so trực tiếp với mốc V0/V1 vô điều kiện, chọn trên kiểm định:
+
+| phương án | α=0,05 | α=0,01 |
+|---|---|---|
+| V0 mốc (vô điều kiện, huấn luyện) | 4/6 | 4/6 |
+| **V1 mốc (vô điều kiện, mở rộng — đang chạy)** | **5/6** | **5/6** |
+| V0 chế độ (cố định theo chế độ) | 4/6 | 3/6 |
+| V1 chế độ (mở rộng theo chế độ) | 4/6 | 4/6 |
+
+Cả hai biến thể theo chế độ đều **kém hơn** mốc đang chạy (V1), không phải chỉ
+hoà. Phân tổ theo chế độ làm hỏng thêm những cặp mà V1 vô điều kiện đang đạt
+(EURUSD, GBPUSD, AUDUSD ở α=0,01) — mẫu bị chia nhỏ theo ba nhóm làm phân vị
+kém ổn định hơn, mà đổi lại không sửa được gì ở đúng chỗ cần sửa.
+
+Về USDJPY: **cả bốn phương án đều đạt** trên kiểm định (DQ 0,978–0,996) — nhất
+quán với ghi chú ở mục 5c rằng vấn đề JPY chỉ **lộ ra ở đoạn kiểm tra**, không
+phải kiểm định. Vì đoạn kiểm tra chưa được mở (đúng luật), không có cách nào
+xác nhận trên dữ liệu này liệu phân vị theo chế độ có sửa được lỗi thật hay
+không — nhưng vì bản thân nó đã thua ngay trên kiểm định, không có cơ sở để
+đẩy nó đi xa hơn.
+
+**Quyết định: giữ nguyên V1 mở rộng vô điều kiện — hướng A1 coi như đã đóng.**
+Ba hướng độc lập cho đuôi (phân vị vô điều kiện cuộn/mở rộng, CAViaR động,
+phân vị theo chế độ) đều không vượt được mốc trên kiểm định. Cảnh báo USDJPY
+trên giao diện tiếp tục giữ nguyên; A1 trong `docs/KEHOACH_CAITIEN.md` chuyển
+từ "còn một hướng chưa thử" sang "đã thử hết ba hướng, không hướng nào ăn
+tiền" — nếu muốn tiếp tục thì cần dữ liệu mới (biến ngoại sinh, xem mục "Còn
+để ngỏ" của `KEHOACH_CAITIEN.md`) chứ không phải biến thể thống kê khác của
+cùng một phân vị.
+
+---
+
 ## 7. Phản ứng đo được của 14 loại sự kiện (05/09/2026)
 
 Sau khi nối FRED (`collect/lich_su_kien.py`), lịch mở rộng từ **7 NHTW / 901

@@ -240,14 +240,15 @@ suy đoán. Không đưa vào sản xuất **không có nghĩa là nó tệ**: k
 |---|---|---|---|
 | FDR Benjamini–Yekutieli | Westfall–Young (kiểm soát đa kiểm định) | Hoà | cửa đa kiểm định không phải chỗ nghẽn — cửa lọc theo σ̂ mới chặn 97% |
 | CAViaR (Engle–Manganelli) | Phân vị tĩnh cho VaR/ES | Hoà | dạng tốt nhất hơn mốc đúng 1 cặp, và cặp đó đổi kết luận theo hạt giống ngẫu nhiên |
+| Phân vị đuôi theo chế độ (kiểu `SigmaCheDo`) | Phân vị tĩnh cho VaR/ES (đuôi USDJPY) | Hoà, kém hơn mốc | chia mẫu theo 3 chế độ làm phân vị kém ổn định hơn, không sửa đúng chỗ hỏng |
 | Fixed-Share (Herbster–Warmuth) | Hedge trơn cho tổ hợp chuyên gia | Hoà | ΔBSS âm đơn điệu theo α — các chuyên gia gần hoà nên đuổi theo đổi chế độ chỉ tốn thêm |
 | 14 mô hình biến động ML/DL | HAR (biến động) | Thua nền | đo hai lần, độc lập |
 | Kiến trúc CAIFormer | — | Thua bản rút gọn | ablation của chính nó: bỏ hết bộ máy nhân quả tốt hơn bản đầy đủ 3/3 cặp |
 | Mô hình nền lớn (Chronos, MOIRAI) | — | Bằng chứng ngược, chi phí cao | — |
 | RL sâu (PPO…) | — | Đã loại | văn liệu 2025–2026 xác nhận cùng lý do |
 
-Chi tiết từng phép đo: `docs/CHISO_DANHGIA.md` mục 9 (ba dòng đầu, đo 08/09/2026)
-và `docs/KEHOACH_CAITIEN.md` mục "Không làm" (các dòng còn lại).
+Chi tiết từng phép đo: `docs/CHISO_DANHGIA.md` mục 9 và 5d (bốn dòng đầu, đo
+08/09/2026) và `docs/KEHOACH_CAITIEN.md` mục "Không làm" (các dòng còn lại).
 
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 
