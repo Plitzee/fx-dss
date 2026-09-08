@@ -1,0 +1,82 @@
+====================================================================================================
+A3 — CHỌN MÔ HÌNH THEO CHẾ ĐỘ: chế độ "vừa" rơi về khí hậu học
+====================================================================================================
+Mô hình sản xuất mỗi h (api/main.py NEN_THEO_H): {1: 'tổ hợp trực tuyến', 5: 'σ̂ + chế độ (cuộn)', 20: 'σ̂ + chế độ (cuộn)'}
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 1 phiên  ·  mô hình sản xuất: tổ hợp trực tuyến
+
+  ── mục tiêu P ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (tổ hợp trực tuyến)   1.0866  +0.0107  [+0.0040, +0.0170]
+  vừa → khí hậu học            1.0843  +0.0131  [+0.0068, +0.0194]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0000, +0.0053]
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=+0.0245   chọn-theo-chế-độ BSS=+0.0245
+    vừa          n= 1,115  sản xuất BSS=-0.0072   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=+0.0180   chọn-theo-chế-độ BSS=+0.0180
+
+  ── mục tiêu R ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (tổ hợp trực tuyến)   1.0988  -0.0009  [-0.0022, +0.0002]
+  vừa → khí hậu học            1.0989  -0.0010  [-0.0019, -0.0000]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0008, +0.0006]
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=-0.0018   chọn-theo-chế-độ BSS=-0.0018
+    vừa          n= 1,115  sản xuất BSS=+0.0003   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=-0.0014   chọn-theo-chế-độ BSS=-0.0014
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 5 phiên  ·  mô hình sản xuất: σ̂ + chế độ (cuộn)
+
+  ── mục tiêu P ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (σ̂ + chế độ (cuộn))   1.0804  +0.0148  [+0.0063, +0.0227]
+  vừa → khí hậu học            1.0850  +0.0101  [+0.0035, +0.0156]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0093, -0.0008] (xấu hơn có ý nghĩa)
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=+0.0055   chọn-theo-chế-độ BSS=+0.0055
+    vừa          n= 1,115  sản xuất BSS=+0.0139   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=+0.0191   chọn-theo-chế-độ BSS=+0.0191
+
+  ── mục tiêu R ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (σ̂ + chế độ (cuộn))   1.0950  +0.0008  [-0.0023, +0.0026]
+  vừa → khí hậu học            1.0957  +0.0001  [-0.0025, +0.0014]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0021, +0.0011]
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=+0.0035   chọn-theo-chế-độ BSS=+0.0035
+    vừa          n= 1,115  sản xuất BSS=+0.0020   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=-0.0012   chọn-theo-chế-độ BSS=-0.0012
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 20 phiên  ·  mô hình sản xuất: σ̂ + chế độ (cuộn)
+
+  ── mục tiêu P ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (σ̂ + chế độ (cuộn))   1.0744  +0.0148  [+0.0047, +0.0306]
+  vừa → khí hậu học            1.0709  +0.0187  [+0.0108, +0.0328]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0016, +0.0092]
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=+0.0290   chọn-theo-chế-độ BSS=+0.0290
+    vừa          n= 1,115  sản xuất BSS=-0.0113   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=+0.0279   chọn-theo-chế-độ BSS=+0.0279
+
+  ── mục tiêu R ── n=3,282
+  phương án                       log      BSS         KTC 95% BSS
+  sản xuất (σ̂ + chế độ (cuộn))   1.0889  +0.0016  [-0.0088, +0.0083]
+  vừa → khí hậu học            1.0892  +0.0012  [-0.0072, +0.0071]
+  Δ BSS (chọn theo chế độ − sản xuất), KTC ghép cặp: [-0.0032, +0.0041]
+
+  theo từng chế độ:
+    bình tĩnh    n=   618  sản xuất BSS=+0.0011   chọn-theo-chế-độ BSS=+0.0011
+    vừa          n= 1,115  sản xuất BSS=+0.0013   chọn-theo-chế-độ BSS=+0.0000
+    căng thẳng   n= 1,549  sản xuất BSS=+0.0021   chọn-theo-chế-độ BSS=+0.0021
+
+====================================================================================================
+→ output/balop_chedo.json

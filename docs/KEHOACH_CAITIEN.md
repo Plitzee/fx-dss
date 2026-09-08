@@ -87,38 +87,50 @@ xuất. Đây là kỹ thuật chuẩn, không phải nghiên cứu.
 **Nó mua gì.** Không thêm tính năng — nó **gỡ bớt một lời cảnh báo**. Với một
 hệ thống bán niềm tin thì việc đó đáng hơn.
 
-### A3. Bộ chọn mô hình theo chế độ
+### A3. Bộ chọn mô hình theo chế độ — **đã thử, không ăn tiền (08/09/2026)**
 
-**Bằng chứng.** Chế độ "vừa" là chỗ duy nhất mô hình **thua** khí hậu học, và
-nó lặp lại ở cả hai tầm hạn:
+**Bằng chứng ban đầu.** Chế độ "vừa" là chỗ duy nhất mô hình **thua** khí hậu
+học, và nó lặp lại ở cả hai tầm hạn, đo trên mô hình **tĩnh**:
 
 | | chế độ êm | **chế độ vừa** | chế độ căng |
 |---|---|---|---|
 | h=1, chỉ σ̂ | +0,0249 | **−0,0081** | +0,0182 |
 | h=20, σ̂+chế độ | +0,0326 | **−0,0154** | +0,0270 |
 
-Hiện dùng **một** mô hình cho cả ba chế độ, nên phần lãi ở hai chế độ ngoài
-đang bị chế độ giữa ăn bớt.
+**Đã đo lại đúng trên mô hình SẢN XUẤT** (`src/run_balop_chedo.py`, kết quả
+đầy đủ ở `docs/CHISO_DANHGIA.md` mục 10) — khác mô hình tĩnh ở trên, sản xuất
+dùng bản **cuộn**/tổ hợp trực tuyến. Kết quả: ở h=5, mô hình sản xuất đã ổn ở
+chế độ "vừa" (BSS +0,0139, không âm như bảng tĩnh), và ép về khí hậu học ở đó
+làm **xấu đi có ý nghĩa** (KTC ghép cặp [−0,0093; −0,0008]). Ở h=1, h=20, gộp
+lại là hoà, không có KTC nào tách khỏi 0 theo hướng tốt.
 
-**Làm gì.** Chọn mô hình theo chế độ (chế độ vừa rơi về khí hậu học), chọn trên
-kiểm định. Rẻ, dư địa nhìn thấy được.
+**Quyết định: giữ nguyên mô hình sản xuất.** Bài học: bằng chứng đo trên biến
+thể tĩnh không tự động áp dụng được cho biến thể cuộn/động đang thực sự chạy
+— phải đo lại đúng cấu hình sản xuất trước khi đổi.
 
 ---
 
 ## Đợt B — đóng tiêu chí dừng của giai đoạn 2
 
-### B1. Hansen SPA — chưa chạy, mà nó là điều kiện
+### B1. Hansen SPA — **đã cài xong, mới đóng được một phần (08/09/2026)**
 
 `REPLAN_2026.md` §10.4 định nghĩa tiền đề khai phá bị coi là không đứng được
 nếu **cả ba** điều sau đúng, điều đầu tiên là:
 
 > cả năm họ đều không bác bỏ được **Hansen SPA** so nền chỉ-σ̂ ở α = 0,05
 
-`src/metrics.py` có **MCS** (Hansen–Lunde–Nason 2011) nhưng **không có SPA**
-(Hansen 2005). Nên tiêu chí dừng hiện **chưa đóng được** — luận văn không phát
-biểu được "cả họ mô hình không thắng nền" một cách chính thức.
+`src/metrics.py::spa_test()` **đã viết xong** (Hansen 2005, phiên bản p-value
+nhất quán, tự kiểm đạt) và đã áp dụng qua `src/run_spa.py` cho họ mô hình
+**Giai đoạn 1** (`run_balop.py`) so nền "chỉ σ̂" — kết quả đầy đủ ở
+`docs/CHISO_DANHGIA.md` mục 11: bác bỏ H0 có ý nghĩa ở h=5, h=20 (khớp với lý
+do sản xuất chọn "σ̂ + chế độ (cuộn)" ở hai tầm hạn đó), không bác bỏ ở h=1.
 
-Việc: cài SPA vào `metrics.py`, chạy trên năm họ, ghi vào `GIAIDOAN2_QUYLUAT.md`.
+**Chưa đóng toàn bộ điều kiện "cả năm họ".** Kiến trúc H1–H5 ở mục 3.1 phần
+lớn chưa tồn tại thành code (`rules/mining/` không có trong repo; H2 motif,
+H3 rule-list chưa viết; H5 chế độ mới nửa vời) — viết đủ 5 họ là một khối
+lượng công việc khác hẳn việc cài thêm một phép kiểm thống kê, không làm vội
+trong một phiên. Việc còn treo: viết H2/H3/H5 thành code sinh chuỗi tổn thất,
+rồi chạy `spa_test()` đã có sẵn cho từng họ.
 
 ### B2. Nâng lực phát hiện của phễu
 
@@ -207,9 +219,11 @@ lịch sử) và kéo tới 2026-08 (chồng tập khoá sổ, phải cắt).
 ## Thứ tự đề nghị
 
 ```
-A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn theo chế độ
+A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn theo chế độ (ĐÓNG)
                                   ↓
-                    B1 Hansen SPA  →  B2 FDR (ĐÓNG) + CAViaR (ĐÓNG)
+        B1 Hansen SPA (MỘT PHẦN — Giai đoạn 1 xong, Giai đoạn 2 còn treo)
+                                  ↓
+                       B2 FDR (ĐÓNG) + CAViaR (ĐÓNG)
                                   ↓
                     C chốt cấu hình, ký biên bản
                                   ↓
@@ -220,6 +234,10 @@ A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn
 
 A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện — nay đã đóng (ba
 hướng đều thử, không hướng nào ăn tiền, xem mục A1 và `CHISO_DANHGIA.md` mục
-5c/5d/9.2). B1 trước B2 vì SPA là điều kiện đã ghi trong kế hoạch, còn B2 là
-cải tiến tuỳ chọn (đã đóng — xem `CHISO_DANHGIA.md` mục 9.1). Việc còn mở:
-**A3** (chọn mô hình theo chế độ) và **B1** (Hansen SPA) — cả hai chưa chạm.
+5c/5d/9.2). A3 cũng đã thử và không ăn tiền trên mô hình sản xuất thật (mục
+A3, `CHISO_DANHGIA.md` mục 10). B1 trước B2 vì SPA là điều kiện đã ghi trong
+kế hoạch — nay đã cài công cụ và đóng được phần Giai đoạn 1 (`CHISO_DANHGIA.md`
+mục 11), còn phần Giai đoạn 2 (5 họ H1–H5) treo vì H2/H3/H5 chưa có code. Đợt
+A và phần đo được của Đợt B coi như xong; việc còn lại trước khi vào Đợt C là
+quyết định có đầu tư viết H2/H3/H5 để đóng nốt B1 hay chấp nhận đóng Đợt B ở
+mức hiện tại rồi chuyển sang C.

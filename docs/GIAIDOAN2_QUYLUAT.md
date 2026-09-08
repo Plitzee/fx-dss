@@ -114,7 +114,7 @@ Hiện có:
 | không quy luật nào qua ngưỡng sau LOPO | **đúng** — 0 quy luật thậm chí chưa tới được cửa LOPO |
 | trên cả hai mục tiêu | mới đo mục tiêu P, h=1 |
 | trên cả ba tầm hạn | mới đo h=1 |
-| Hansen SPA cho cả họ | chưa chạy |
+| Hansen SPA cho cả họ | **công cụ đã cài** (`metrics.py::spa_test`, 08/09/2026) — mới chạy được cho họ mô hình Giai đoạn 1 (`run_spa.py`, bác bỏ ở h=5/h=20, không bác bỏ ở h=1). H2/H3/H5 của Giai đoạn 2 chưa có code, nên "cả năm họ" vẫn treo — xem `CHISO_DANHGIA.md` mục 11 |
 
 **Chưa kích hoạt đầy đủ, nhưng đã nghiêng hẳn.** Cộng với `run_ml3.py` (LightGBM
 −0,0148 và GRU −0,0594 — trần GBM nằm **dưới** nền) thì họ H4 cũng đã trả lời:

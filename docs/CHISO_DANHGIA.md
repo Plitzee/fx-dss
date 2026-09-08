@@ -568,3 +568,83 @@ Fixed-Share đuổi theo đổi chế độ trong khi các chuyên gia hoà nhau
 độ chẳng tốn gì. Trước khi thay một phương pháp, phải đo xem **ràng buộc đang
 nằm ở đâu**, và phải **kiểm tra lại bằng seed/lát cắt khác** trước khi tin một
 con số hơn — nếu không thì hiện đại hoá chỉ là thay đồ.
+
+---
+
+## 10. A3 — chọn mô hình theo chế độ, **cũng không ăn tiền trên mô hình đang chạy** (08/09/2026)
+
+`src/run_balop_chedo.py`, `output/balop_chedo.json`. Bằng chứng gốc trong
+`docs/KEHOACH_CAITIEN.md` mục A3: bảng BSS theo chế độ của **`run_balop.py`**
+cho thấy chế độ "vừa" là nơi duy nhất mô hình thua khí hậu học, ở cả h=1 (chỉ
+σ̂: −0,0081) và h=20 (σ̂+chế độ: −0,0154). Ý tưởng: ở chế độ "vừa", trả về dự
+báo khí hậu học thay vì dự báo mô hình, giữ nguyên mô hình ở hai chế độ còn
+lại — rẻ, không cần huấn luyện gì mới.
+
+**Điểm mấu chốt bị bỏ sót lúc viết kế hoạch**: bảng bằng chứng đo trên mô hình
+**tĩnh** (chỉ σ̂ đóng băng huấn luyện / σ̂+chế độ đóng băng huấn luyện), nhưng
+mô hình **thật sự đang chạy sản xuất** (`api/main.py NEN_THEO_H`) là bản
+**cuộn** (khớp lại mỗi 21 phiên) hoặc **tổ hợp trực tuyến** — khác hẳn. Đo lại
+đúng trên mô hình sản xuất, mục tiêu P (mục tiêu hiện trên giao diện), KTC
+bootstrap khối **ghép cặp** (`diem3.delta_bss_ktc`, viết thêm cho việc này):
+
+| h | mô hình sản xuất | BSS "vừa" (sản xuất) | Δ BSS gộp cả 3 chế độ (chọn theo chế độ − sản xuất) |
+|---|---|---|---|
+| 1 | tổ hợp trực tuyến | −0,0072 | [−0,0000; +0,0053] — hoà |
+| 5 | σ̂ + chế độ (cuộn) | **+0,0139** | **[−0,0093; −0,0008] — xấu hơn có ý nghĩa** |
+| 20 | σ̂ + chế độ (cuộn) | −0,0113 | [−0,0016; +0,0092] — hoà |
+
+Ở h=5, mô hình sản xuất **đã ổn** ở chế độ "vừa" (BSS dương +0,0139) — khác
+hẳn số liệu tĩnh (−0,0154) mà kế hoạch trích dẫn. Khớp lại định kỳ (cuộn) tự
+nó đã thích nghi với chế độ đổi, nên ép về khí hậu học ở đây là **bỏ đi lợi
+thế đang có**, và KTC ghép cặp xác nhận điều đó có ý nghĩa (không phủ 0). Ở
+h=1 và h=20, gộp lại là hoà — "vừa" cải thiện (về 0) nhưng bù lại mẫu bị chia
+nhỏ theo chế độ ở nơi khác làm KTC rộng ra, không đủ để kết luận hơn.
+
+**Quyết định: giữ nguyên mô hình sản xuất, không chọn theo chế độ.** Bài học
+lặp lại đúng hình dạng của mục 9: bằng chứng ban đầu đúng, nhưng đo trên biến
+thể **tĩnh** trong khi hệ thống thật đã dùng biến thể **cuộn/động** — chẩn
+đoán không tự động chuyển sang toa thuốc nếu không đo lại trên đúng cấu hình
+đang chạy. `docs/KEHOACH_CAITIEN.md` mục A3 cập nhật theo kết quả này.
+
+---
+
+## 11. B1 (một phần) — Hansen SPA cài xong, áp cho họ mô hình Giai đoạn 1 (08/09/2026)
+
+`src/metrics.py::spa_test()` (mới), `src/run_spa.py`, `output/spa.json`.
+`docs/REPLAN_2026.md` mục 10.4 đòi Hansen SPA (2005) để đóng tiêu chí dừng của
+Giai đoạn 2; trước đây `metrics.py` chỉ có MCS (Hansen-Lunde-Nason 2011), thiếu
+SPA. Đã viết `spa_test()` theo đúng phiên bản **p-value nhất quán** của Hansen
+(2005) — tái tâm (recentering) ứng viên rám trước khi dựng phân phối null
+bootstrap khối, cùng phong cách code với `mcs()`. Tự kiểm: tỷ lệ bác bỏ dưới
+H0 ≈ danh nghĩa (0,057 so với 0,05 kỳ vọng), bác bỏ 97% khi có ứng viên thắng
+nền rõ ràng.
+
+**Phạm vi trung thực — chưa đóng được toàn bộ B1.** Kiến trúc "năm họ" H1–H5
+mà `REPLAN_2026.md` mục 3.1 mô tả (SAX, motif, rule-list, trần GBM, chế độ)
+phần lớn **chưa tồn tại thành code**: thư mục `rules/mining/` không có trong
+repo, H2 (motif) và H3 (rule-list) chưa viết, H5 (chế độ) mới làm một nửa.
+Viết đủ năm họ là khối lượng công việc khác hẳn "cài thêm một phép kiểm" —
+không làm giả trong phiên này.
+
+Thay vào đó, `run_spa.py` áp `spa_test()` ngay cho dữ liệu đã có sẵn và THẬT:
+họ mô hình biến động của chính `run_balop.py` (Giai đoạn 1) so nền "chỉ σ̂" —
+đúng nền mà REPLAN định nghĩa là mức phải vượt. Kết quả, mục tiêu P (giao
+protocol KHOI theo tầm hạn, bootstrap khối theo cặp):
+
+| h | T_SPA | p-value | bác bỏ H0 ở α=0,05 |
+|---|---|---|---|
+| 1 | 0,805 | 0,467 | không — đúng dự kiến, "tổ hợp trực tuyến" gần như không khác nền ở h=1 |
+| 5 | 2,213 | **0,024** | **có** — "σ̂ + chế độ (cuộn)" thắng nền có ý nghĩa |
+| 20 | 3,253 | **0,000** | **có** — cùng ứng viên, thắng rõ hơn |
+
+Đọc: nền tảng mô hình biến động (Giai đoạn 1) **đã** vượt qua SPA ở h=5, h=20
+— khớp với lý do `api/main.py` chọn "σ̂ + chế độ (cuộn)" cho hai tầm hạn đó.
+Ở h=1, không có ứng viên nào thắng nền có ý nghĩa — cũng khớp với thực tế
+"tổ hợp trực tuyến" ở h=1 gần như hoà với nền (Δlog thô +0,00008).
+
+**Đây KHÔNG PHẢI là điều kiện "cả năm họ SPA" ở mục 10.4** — đó vẫn treo, chờ
+H2/H3/H5 được viết thành code sinh chuỗi tổn thất. Nhưng `spa_test()` giờ là
+công cụ sẵn có trong `metrics.py`, sẵn sàng dùng ngay khi các họ đó có dữ liệu.
+`docs/GIAIDOAN2_QUYLUAT.md` mục 5 cập nhật dòng "Hansen SPA cho cả họ" thành
+"đã cài công cụ, mới chạy được cho Giai đoạn 1 — Giai đoạn 2 (H2/H3/H5) còn
+treo".

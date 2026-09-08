@@ -208,6 +208,42 @@ def bss_ktc(P, y, P_nen, nhom=None, nboot=400, khoi=20, seed=0):
     return (float(np.quantile(ra, 0.025)), float(np.quantile(ra, 0.975)))
 
 
+def delta_bss_ktc(P_a, P_b, y, P_nen, nhom=None, nboot=400, khoi=20, seed=0):
+    """KTC bootstrap KHOI, GHEP CAP, cho HIEU BSS(P_a) - BSS(P_b).
+
+    Dung khi hai du bao la HAI BIEN THE CUA CUNG MOT MO HINH (vd them logic
+    chon theo che do) — so hai KTC rieng (tu bss_ktc) co the ca hai deu chua
+    0 ma van khong noi duoc hieu co dau tin hay khong, vi khong loai duoc phan
+    bien dong CHUNG giua hai lan resample. Ghep cap (dung CUNG mot idx cho ca
+    P_a lan P_b o moi lan lap) huy phan chung do, giu lai dung phan do sai
+    biet giua hai mo hinh."""
+    P_a, y = _kiem(P_a, y)
+    P_b, _ = _kiem(P_b, y)
+    n = len(y)
+    if n < 100:
+        return (np.nan, np.nan)
+    rng = np.random.default_rng(seed)
+    g = np.zeros(n, int) if nhom is None else np.asarray(nhom)
+    chi = [np.flatnonzero(g == v) for v in np.unique(g)]
+    ra = []
+    for _ in range(nboot):
+        lay = []
+        for c in chi:
+            m = len(c)
+            nk = int(np.ceil(m / khoi))
+            b = rng.integers(0, max(m - khoi, 1), nk)
+            lay.append(c[np.concatenate([np.arange(s, min(s + khoi, m))
+                                         for s in b])[:m]])
+        idx = np.concatenate(lay)
+        va = bss(P_a[idx], y[idx], P_nen[idx])
+        vb = bss(P_b[idx], y[idx], P_nen[idx])
+        if np.isfinite(va) and np.isfinite(vb):
+            ra.append(va - vb)
+    if len(ra) < 20:
+        return (np.nan, np.nan)
+    return (float(np.quantile(ra, 0.025)), float(np.quantile(ra, 0.975)))
+
+
 def bang(P, y, P_nen=None, nbin=10, nhom=None):
     """Mot dong chi so day du. Truyen `nhom` khi da gop nhieu cap."""
     r = dict(n=int(len(y)), log=diem_log(P, y), brier=brier(P, y),
@@ -295,5 +331,13 @@ if __name__ == "__main__":
     # do_tin_cay: tong n moi lop phai bang n
     for c in range(3):
         assert sum(r[2] for r in do_tin_cay(a, y, c)) == n
+
+    # ── delta_bss_ktc: ghep cap phai HEP hon so hai KTC rieng cong lai ────
+    lo0, hi0 = delta_bss_ktc(a, a, y, kh, nboot=200, seed=3)
+    print(f"  Δ(mô hình, chính nó)        : [{lo0:+.4f}, {hi0:+.4f}]  (phải quanh 0)")
+    assert lo0 <= 0.0 <= hi0 and (hi0 - lo0) < 0.01, "so voi chinh no KTC phai het suc hep va phu 0"
+    lo1, hi1 = delta_bss_ktc(a, kh, y, kh, nboot=200, seed=3)
+    print(f"  Δ(mô hình có tín hiệu, khí hậu học) : [{lo1:+.4f}, {hi1:+.4f}]  (phải > 0)")
+    assert lo1 > 0.0, "mo hinh co tin hieu phai thang khi hau hoc CO Y NGHIA khi ghep cap"
 
     print("TỰ KIỂM ĐẠT")
