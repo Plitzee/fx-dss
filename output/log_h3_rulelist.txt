@@ -1,0 +1,35 @@
+================================================================================================================
+H3 — RULE LIST (CART nông, đọc được), họ thứ ba của Giai đoạn 2
+================================================================================================================
+Đang tính đặc trưng + chuyển hạng phân vị (chốt trên huấn luyện)…
+đặc trưng: σ̂, ATR phân vị, RSI, ADX, Bollinger %B, khoảng cách EMA50, Supertrend chiều, MACD hist, |z| hôm nay, z hôm nay, TSMOM 20, tính dai vol
+18,294/25,942 hàng đủ toàn bộ 12 đặc trưng
+cây (max_depth=3, min_samples_leaf=200) sinh 8 lá
+KHÔNG GIAN GIẢ THUYẾT H3: 8 vị từ × 3 lớp = 24 giả thuyết — liệt kê đầy đủ, biết trước (cấu hình max_depth/min_samples_leaf CHỐT TRƯỚC khi chạy)
+phát hiện 18,294 hàng · xác nhận 4,318 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      8/8 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 3 / thô p<0,05: 16 (nếu toàn nhiễu kỳ vọng 1)
+
+[2/4] Đối chứng có điều kiện (|t| > 3.0)…
+      1/3 vị từ còn tin riêng sau điều kiện hoá
+
+[3/4] Bỏ-một-cặp (lift ≥ 1.15, ≥4/6 cặp dương)…
+      1/1 chuyển giao được qua các cặp
+
+[4/4] Xác nhận trên đoạn KIỂM TRA…
+      1/1 tái lập trên kiểm tra
+
+================================================================================================================
+PHỄU H3                                          còn lại
+không gian giả thuyết                                 24
+đủ số lần khớp                                         8
+thô p<0,05                                            16
+sống sót Westfall–Young                                3
+còn tin riêng sau đối chứng                            1
+chuyển giao được (LOPO)                                1
+tái lập trên KIỂM TRA                                  1
+
+đã ghi output/h3_rulelist.json — 16s
+TỰ KIỂM ĐẠT

@@ -107,20 +107,109 @@ lại gì.
 quy luật nào qua ngưỡng 3.5 sau LOPO, **và** đúng trên cả hai mục tiêu lẫn cả ba
 tầm hạn.
 
-Hiện có:
+Cập nhật 08/09/2026 — **cả năm họ H1–H5 giờ đã có code và đã chạy** (xem mục 6):
 
 | điều kiện | trạng thái |
 |---|---|
-| không quy luật nào qua ngưỡng sau LOPO | **đúng** — 0 quy luật thậm chí chưa tới được cửa LOPO |
-| trên cả hai mục tiêu | mới đo mục tiêu P, h=1 |
+| không quy luật nào qua ngưỡng sau LOPO | **KHÔNG còn đúng tuyệt đối** — H3 (rule-list) tạo ra đúng **một** quy luật qua hết LOPO và tái lập trên kiểm tra (mục 6.2). Bốn họ còn lại (H1 ba-lớp, H1 SAX-hướng, H2, H5) vẫn 0 |
+| trên cả hai mục tiêu | mới đo mục tiêu P, h=1 (như cũ — H2/H3/H5 mới chỉ chạy ở cấu hình này) |
 | trên cả ba tầm hạn | mới đo h=1 |
-| Hansen SPA cho cả họ | **công cụ đã cài** (`metrics.py::spa_test`, 08/09/2026) — mới chạy được cho họ mô hình Giai đoạn 1 (`run_spa.py`, bác bỏ ở h=5/h=20, không bác bỏ ở h=1). H2/H3/H5 của Giai đoạn 2 chưa có code, nên "cả năm họ" vẫn treo — xem `CHISO_DANHGIA.md` mục 11 |
+| Hansen SPA cho cả họ | **đóng được cho cả 5 họ ở cấu hình đã chạy** (`run_spa.py` cho Giai đoạn 1, `run_spa_ho2.py` cho H2/H3/H5) — **không họ nào bác bỏ được H0** so nền "chỉ σ̂" (mục 6.3): H2 p=0,929 · H3 p=0,902 · H5 p=0,562 |
 
-**Chưa kích hoạt đầy đủ, nhưng đã nghiêng hẳn.** Cộng với `run_ml3.py` (LightGBM
-−0,0148 và GRU −0,0594 — trần GBM nằm **dưới** nền) thì họ H4 cũng đã trả lời:
-trần khai thác được của bộ đặc trưng này thấp hơn chính nền σ̂.
+**Đọc kết quả này thế nào.** Điều kiện SPA ("cả họ không thắng nền") **giờ đã
+đúng cho cả 5 họ** ở cấu hình h=1/mục tiêu P đã chạy — đây là phần khó nhất và
+giờ đã đóng. Nhưng điều kiện LOPO ("không quy luật nào qua ngưỡng") **không**
+còn đúng tuyệt đối vì H3 có một trường hợp ngoại lệ — cần đọc kỹ mục 6.2 để
+hiểu vì sao một quy luật ĐƠN LẺ qua được LOPO trong khi CẢ HỌ vẫn trượt SPA
+(hai câu hỏi khác nhau, không mâu thuẫn nhau). Tiêu chí dừng 10.4 vì vậy
+**vẫn chưa kích hoạt được theo đúng nghĩa đen** (đòi tuyệt đối "không quy luật
+nào"), nhưng bằng chứng nghiêng rất mạnh về hướng "khai phá không đẻ thêm được
+gì đáng kể" — một ngoại lệ hẹp, tự nó không đủ lực thắng nền khi dùng làm hệ
+thống dự báo.
+
+Cộng với `run_ml3.py` (LightGBM −0,0148 và GRU −0,0594 — trần GBM nằm **dưới**
+nền) thì H4 cũng đã trả lời: trần khai thác được của bộ đặc trưng này thấp hơn
+chính nền σ̂.
 
 ---
+
+## 6. H2, H3, H5 — ba họ còn lại đã chạy (08/09/2026)
+
+Tiếp tục đóng B1 (`docs/KEHOACH_CAITIEN.md` mục B1): viết code cho ba họ chưa
+tồn tại (`src/run_h2_motif.py`, `src/run_h3_rulelist.py`, `src/run_h5_chedo.py`),
+dùng lại **đúng** bộ máy WY/đối chứng/LOPO của `run_quyluat.py` (nay tách ra
+`nap_du_lieu()` để ba script này gọi lại, không viết lại).
+
+### 6.1 H2 — motif (VQ codebook): 0 sống sót, nhưng bắt được một lỗi rò rỉ đáng nói
+
+Ý tưởng: 3 độ dài cửa sổ (5/10/20 phiên) × K=8 cụm hình dạng (KMeans trên z
+chuẩn hoá trong cửa sổ, học trên huấn luyện) = 24 vị từ × 3 lớp = 72 giả thuyết.
+
+**Lần chạy đầu tiên cho kết quả vô lý: 72/72 giả thuyết "sống sót" W-Y** — tức
+100%, trong khi kỳ vọng dưới nhiễu chỉ ~4. Truy ra nguyên nhân: phiên **THIẾU**
+cửa sổ hợp lệ (do `merge_thin_days` gộp ngày mỏng dữ liệu) có tỷ lệ lớp "đi
+ngang" **99,3%**, trong khi tỷ lệ nền toàn tập là 30,8% — tức bản thân việc "có
+đủ 20 phiên liên tục không thiếu dữ liệu" **đã là một dự báo gần hoàn hảo**,
+không liên quan gì đến hình dạng cửa sổ. Vì mọi cụm đều kế thừa đúng điều kiện
+"có cửa sổ" giống hệt nhau, tất cả cùng "có tín hiệu" như nhau — giả.
+
+**Sửa**: giới hạn phép so sánh về đúng tập phiên có đủ cả ba độ dài cửa sổ
+(mẫu số đồng nhất cho mọi giả thuyết). Sau khi sửa: 9/72 thô p<0,05 (gần đúng
+kỳ vọng nhiễu ~4), **0/72 sống sót Westfall–Young**. Không có quy luật.
+
+### 6.2 H3 — rule-list (CART nông): một quy luật mới, qua hết mọi cửa
+
+Cấu hình **chốt trước khi chạy** (không dò nhiều độ sâu rồi chọn): CART
+`max_depth=3, min_samples_leaf=200` trên 12 đặc trưng đã có (chuyển hạng phân
+vị trong từng cặp để gộp công bằng), sinh 8 lá → 24 giả thuyết.
+
+Phễu: 16 thô p<0,05 → **3 sống sót W-Y** → 1 còn tin riêng sau đối chứng có
+điều kiện (|t|=4,34) → **1/1 chuyển giao qua LOPO** (6/6 cặp dương) → **1/1 tái
+lập trên KIỂM TRA** (z=4,31).
+
+**Quy luật**: lá cây ứng với `σ̂ ≤ decile-1 nền` **VÀ** `ATR phân vị ≤ ~p23`
+(cả hai đều RẤT thấp cùng lúc) → lớp **"đi ngang"**, lift 1,67 (n=949 trên
+huấn luyện+kiểm định). Đáng chú ý: σ̂ dùng riêng lẻ (H1, mục 3) có lift **0,715**
+cho đi ngang (tức σ̂ thấp một mình lại làm GIẢM xác suất đi ngang, ngược trực
+giác) — nhưng khi **σ̂ VÀ ATR cùng cực thấp**, hướng đảo ngược thành lift 1,67.
+Đây là một tương tác **không nằm trong không gian 630 vị từ gốc** của
+`run_quyluat.py` (vốn chỉ chia mỗi đặc trưng theo tam phân vị — ngưỡng decile-1
+mà CART tự chọn ở đây cực đoan hơn nhiều). Ghi ở `rules/rules_h3.csv`.
+
+**Quan trọng — không tự động đẩy vào sản xuất**: đây là quy luật ĐẦU TIÊN của
+toàn bộ Giai đoạn 2 qua hết bốn cửa (WY → đối chứng → LOPO → kiểm tra). Nhưng
+xem mục 6.3: dùng CẢ HỌ H3 làm hệ dự báo vẫn KHÔNG thắng được nền "chỉ σ̂" có ý
+nghĩa (SPA p=0,902) — một quy luật đơn lẻ, dù qua hết các cửa kiểm định thống
+kê, không đủ mạnh để cải thiện dự báo tổng thể. Cần thêm một vòng xác nhận độc
+lập (dữ liệu mới) trước khi cân nhắc đưa vào sản xuất; hiện tại chỉ ghi nhận.
+
+### 6.3 SPA cho cả năm họ — không họ nào thắng nền "chỉ σ̂"
+
+`src/run_spa_ho2.py`, `output/spa_ho2.json`. Biến mỗi vị từ của một họ thành
+MỘT ứng viên dự báo ba lớp (tần suất có điều kiện trên huấn luyện nếu vị từ
+đang active, ngược lại dùng chính dự báo nền "chỉ σ̂" của phiên đó — dịch đúng
+1 phiên để khớp chỉ số hàng của `run_quyluat.py`), rồi áp `spa_test()` cho
+TOÀN BỘ ứng viên của họ đó cùng lúc trên đoạn kiểm định:
+
+| họ | số ứng viên | p-value | bác bỏ H0 ở α=0,05 |
+|---|---|---|---|
+| H2 (motif) | 24 | 0,929 | không |
+| H3 (rule-list) | 8 | 0,902 | không |
+| H5 (chế độ tự tương quan) | 630 (giới hạn từ 1.890 theo \|z\| thô) | 0,562 | không |
+
+Cộng với Giai đoạn 1 (`CHISO_DANHGIA.md` mục 11: bác bỏ ở h=5/h=20 — nhưng đó
+LÀ nền đang chạy, không phải một họ quy luật thay thế), **cả năm họ ứng viên
+của Giai đoạn 2 đều không thắng nền "chỉ σ̂" có ý nghĩa** khi dùng làm hệ dự
+báo toàn diện — dù H3 có đúng một quy luật hẹp qua được kiểm định (mục 6.2).
+
+### 6.4 H5 — chế độ tự tương quan làm lớp điều kiện: 0 sống sót
+
+Trục chế độ MỚI (khác σ̂): tam phân vị của tự tương quan lag-1 cuộn 20 phiên
+(âm/trung tính/dương), giao với toàn bộ 630 vị từ gốc → 1.890 vị từ × 3 lớp =
+5.670 giả thuyết. 1.734/1.890 đủ mẫu, 3.287 thô p<0,05 (kỳ vọng nhiễu ~260 —
+thổi phồng rõ, đúng như dự đoán khi tăng không gian giả thuyết), nhưng
+**0/5.670 sống sót Westfall–Young**. Chế độ tự tương quan không mở khoá thêm
+quy luật nào.
 
 ## 6. Sản phẩm nếu tiền đề không đứng — theo đúng mục 10.4
 

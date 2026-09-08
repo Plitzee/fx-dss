@@ -1,0 +1,29 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.929,
+  "T_SPA": 0.8703188956242864,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "motif L=10 cụm 3",
+  "dbar_tot": 0.0007727936572403544
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 8,
+  "n_va": 3282,
+  "p": 0.902,
+  "T_SPA": 0.5485379683233961,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "lá CART #7",
+  "dbar_tot": 0.0004794710148266827
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.562,
+  "T_SPA": 2.7687713785628096,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "khoảng cách EMA50 cao & |z| hôm nay vừa [tự-tương-quan âm]",
+  "dbar_tot": 0.001044462539958466
+ }
+}

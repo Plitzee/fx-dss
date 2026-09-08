@@ -642,9 +642,29 @@ protocol KHOI theo tầm hạn, bootstrap khối theo cặp):
 Ở h=1, không có ứng viên nào thắng nền có ý nghĩa — cũng khớp với thực tế
 "tổ hợp trực tuyến" ở h=1 gần như hoà với nền (Δlog thô +0,00008).
 
-**Đây KHÔNG PHẢI là điều kiện "cả năm họ SPA" ở mục 10.4** — đó vẫn treo, chờ
-H2/H3/H5 được viết thành code sinh chuỗi tổn thất. Nhưng `spa_test()` giờ là
-công cụ sẵn có trong `metrics.py`, sẵn sàng dùng ngay khi các họ đó có dữ liệu.
-`docs/GIAIDOAN2_QUYLUAT.md` mục 5 cập nhật dòng "Hansen SPA cho cả họ" thành
-"đã cài công cụ, mới chạy được cho Giai đoạn 1 — Giai đoạn 2 (H2/H3/H5) còn
-treo".
+**Cập nhật cùng ngày — H2/H3/H5 đã viết xong và chạy** (mục 12 dưới đây), nên
+điều kiện "cả năm họ SPA" ở mục 10.4 giờ đã đóng được cho cấu hình h=1/mục
+tiêu P: không họ nào (Giai đoạn 1, H2, H3, H5) bác bỏ được H0 so nền "chỉ σ̂".
+Xem `docs/GIAIDOAN2_QUYLUAT.md` mục 5–6 cho bảng đầy đủ và một ngoại lệ đáng
+chú ý (H3 có một quy luật đơn lẻ qua LOPO, dù cả họ vẫn không thắng SPA).
+
+---
+
+## 12. H2, H3, H5 — viết xong ba họ còn thiếu, và một phát hiện thật (08/09/2026)
+
+Tiếp nối mục 11: viết `src/run_h2_motif.py`, `src/run_h3_rulelist.py`,
+`src/run_h5_chedo.py` (dùng lại bộ máy WY/đối chứng/LOPO của `run_quyluat.py`
+qua hàm `nap_du_lieu()` mới tách ra), đóng nốt phần "cả năm họ" của tiêu chí
+10.4. Chi tiết đầy đủ, kể cả một lỗi rò rỉ dữ liệu đã bắt và sửa (H2) và một
+quy luật mới qua hết bốn cửa (H3), nằm ở `docs/GIAIDOAN2_QUYLUAT.md` mục 6 —
+không lặp lại ở đây, chỉ tóm tắt:
+
+- **H2 (motif)**: 0/72 sống sót. Bắt được lỗi rò rỉ (phiên thiếu dữ liệu ≈99%
+  rơi vào lớp "đi ngang"), đã sửa trước khi kết luận.
+- **H3 (rule-list, CART nông)**: **1 quy luật** qua hết WY → đối chứng →
+  LOPO → kiểm tra — `σ̂ rất thấp VÀ ATR rất thấp` → đi ngang, lift 1,67. Ghi ở
+  `rules/rules_h3.csv`. Không tự động đưa vào sản xuất (xem lý do ở
+  GIAIDOAN2_QUYLUAT.md 6.2).
+- **H5 (chế độ tự tương quan)**: 0/5.670 sống sót.
+- **SPA cho cả ba họ** (`run_spa_ho2.py`, nền "chỉ σ̂" đúng chỉ số hàng): H2
+  p=0,929 · H3 p=0,902 · H5 p=0,562 — không họ nào bác bỏ H0.

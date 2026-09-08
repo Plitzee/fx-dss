@@ -257,6 +257,14 @@ mới vào `metrics.py` và xác nhận **có ý nghĩa** — họ mô hình bi�
 đúng như lý do hệ thống chọn "σ̂ + chế độ (cuộn)" ở hai tầm hạn đó. Xem
 `docs/CHISO_DANHGIA.md` mục 11.
 
+Viết tiếp ba họ khai phá quy luật còn thiếu (motif, rule-list, chế độ tự tương
+quan — `docs/CHISO_DANHGIA.md` mục 12) tìm ra đúng **một** quy luật mới qua hết
+mọi cửa kiểm định (Westfall–Young, đối chứng có điều kiện, bỏ-một-cặp, tái lập
+trên kiểm tra): `σ̂ rất thấp VÀ ATR phân vị rất thấp` → thị trường đi ngang,
+lift 1,67. Cả ba họ vẫn không thắng được nền "chỉ σ̂" khi dùng làm hệ dự báo
+toàn diện (SPA không bác bỏ H0) — một quy luật hẹp, chưa đưa vào sản xuất, chỉ
+ghi nhận ở `rules/rules_h3.csv`.
+
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 
 Đáng nói vì đây chính là kỷ luật giúp kết quả đáng tin: một lần biến kiểm soát

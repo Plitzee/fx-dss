@@ -112,25 +112,30 @@ thể tĩnh không tự động áp dụng được cho biến thể cuộn/đ�
 
 ## Đợt B — đóng tiêu chí dừng của giai đoạn 2
 
-### B1. Hansen SPA — **đã cài xong, mới đóng được một phần (08/09/2026)**
+### B1. Hansen SPA — **đã cài xong, đóng được điều kiện SPA cho cả năm họ (08/09/2026)**
 
 `REPLAN_2026.md` §10.4 định nghĩa tiền đề khai phá bị coi là không đứng được
 nếu **cả ba** điều sau đúng, điều đầu tiên là:
 
 > cả năm họ đều không bác bỏ được **Hansen SPA** so nền chỉ-σ̂ ở α = 0,05
 
-`src/metrics.py::spa_test()` **đã viết xong** (Hansen 2005, phiên bản p-value
-nhất quán, tự kiểm đạt) và đã áp dụng qua `src/run_spa.py` cho họ mô hình
-**Giai đoạn 1** (`run_balop.py`) so nền "chỉ σ̂" — kết quả đầy đủ ở
-`docs/CHISO_DANHGIA.md` mục 11: bác bỏ H0 có ý nghĩa ở h=5, h=20 (khớp với lý
-do sản xuất chọn "σ̂ + chế độ (cuộn)" ở hai tầm hạn đó), không bác bỏ ở h=1.
+`src/metrics.py::spa_test()` viết xong (Hansen 2005, tự kiểm đạt). Áp dụng cho
+**Giai đoạn 1** (`run_spa.py`) và ba họ còn thiếu của Giai đoạn 2 — **H2 motif**
+(`run_h2_motif.py`), **H3 rule-list** (`run_h3_rulelist.py`), **H5 chế độ tự
+tương quan** (`run_h5_chedo.py`), so SPA qua `run_spa_ho2.py` — kết quả đầy đủ
+ở `docs/GIAIDOAN2_QUYLUAT.md` mục 6.3: **không họ nào bác bỏ H0** so nền
+"chỉ σ̂" (H2 p=0,929 · H3 p=0,902 · H5 p=0,562), khớp Giai đoạn 1 (bác bỏ ở
+h=5/h=20 nhưng đó chính là nền đang chạy, không phải quy luật thay thế).
 
-**Chưa đóng toàn bộ điều kiện "cả năm họ".** Kiến trúc H1–H5 ở mục 3.1 phần
-lớn chưa tồn tại thành code (`rules/mining/` không có trong repo; H2 motif,
-H3 rule-list chưa viết; H5 chế độ mới nửa vời) — viết đủ 5 họ là một khối
-lượng công việc khác hẳn việc cài thêm một phép kiểm thống kê, không làm vội
-trong một phiên. Việc còn treo: viết H2/H3/H5 thành code sinh chuỗi tổn thất,
-rồi chạy `spa_test()` đã có sẵn cho từng họ.
+**Điều kiện SPA giờ đã đóng cho cấu hình h=1/mục tiêu P.** Nhưng điều kiện thứ
+hai của 10.4 ("không quy luật nào qua ngưỡng sau LOPO") **không còn đúng tuyệt
+đối**: H3 tạo ra đúng một quy luật (`σ̂ rất thấp & ATR rất thấp` → đi ngang)
+qua hết WY → đối chứng → LOPO → kiểm tra, ghi ở `rules/rules_h3.csv`. Một
+ngoại lệ hẹp — không đủ mạnh để cả họ H3 thắng SPA — nhưng khiến tiêu chí dừng
+10.4 (đòi "không quy luật nào", tuyệt đối) chưa kích hoạt đúng nghĩa đen. Xem
+`docs/GIAIDOAN2_QUYLUAT.md` mục 5 để đọc đầy đủ cách diễn giải hai kết quả
+không mâu thuẫn này. Việc còn ngỏ nếu muốn khép hẳn: đo lại trên mục tiêu R và
+các tầm hạn 5/20 (hiện mới có h=1/mục tiêu P).
 
 ### B2. Nâng lực phát hiện của phễu
 
@@ -221,7 +226,7 @@ lịch sử) và kéo tới 2026-08 (chồng tập khoá sổ, phải cắt).
 ```
 A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn theo chế độ (ĐÓNG)
                                   ↓
-        B1 Hansen SPA (MỘT PHẦN — Giai đoạn 1 xong, Giai đoạn 2 còn treo)
+     B1 Hansen SPA (ĐÓNG cho cả 5 họ ở h=1/P — 1 ngoại lệ hẹp ở LOPO, xem trên)
                                   ↓
                        B2 FDR (ĐÓNG) + CAViaR (ĐÓNG)
                                   ↓
@@ -235,9 +240,9 @@ A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn
 A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện — nay đã đóng (ba
 hướng đều thử, không hướng nào ăn tiền, xem mục A1 và `CHISO_DANHGIA.md` mục
 5c/5d/9.2). A3 cũng đã thử và không ăn tiền trên mô hình sản xuất thật (mục
-A3, `CHISO_DANHGIA.md` mục 10). B1 trước B2 vì SPA là điều kiện đã ghi trong
-kế hoạch — nay đã cài công cụ và đóng được phần Giai đoạn 1 (`CHISO_DANHGIA.md`
-mục 11), còn phần Giai đoạn 2 (5 họ H1–H5) treo vì H2/H3/H5 chưa có code. Đợt
-A và phần đo được của Đợt B coi như xong; việc còn lại trước khi vào Đợt C là
-quyết định có đầu tư viết H2/H3/H5 để đóng nốt B1 hay chấp nhận đóng Đợt B ở
-mức hiện tại rồi chuyển sang C.
+A3, `CHISO_DANHGIA.md` mục 10). B1 giờ đã đóng cho cấu hình h=1/mục tiêu P
+(cả năm họ, kể cả H2/H3/H5 mới viết) — xem `docs/GIAIDOAN2_QUYLUAT.md` mục
+5–6. Đợt A và Đợt B coi như xong ở cấu hình đã chạy; việc còn ngỏ trước Đợt C
+là quyết định có cần đo thêm mục tiêu R và các tầm hạn 5/20 để khép B1 tuyệt
+đối, hay chấp nhận bằng chứng hiện tại (nghiêng rất mạnh, một ngoại lệ hẹp
+không đủ sức thắng SPA) và chuyển sang C.

@@ -403,12 +403,15 @@ def nhan_to_usd(Ms, dts):
     return [nt.reindex(pd.DatetimeIndex(d)).values for d in dts]
 
 
-def main():
-    t0 = time.time()
-    print("=" * 112)
-    print("GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT")
-    print("=" * 112)
+def nap_du_lieu():
+    """Nap toan bo du lieu + bo kiem soat dung chung cho Giai doan 2.
+
+    Tach ra tu main() de cac ho H2/H3/H5 (run_h2_*.py, run_h3_*.py, run_h5_*.py)
+    dung LAI dung mot lan nap, khong copy-paste — tranh sai lech giao thuc giua
+    cac ho. Tra ve dict voi moi thu can de tu dung dac_trung/roi_rac/vet_can/
+    westfall_young/doi_chung cho MOT khong gian gia thuyet MOI."""
     from api.main import noi_chuoi
+    import optimal_stop as OS
 
     Ms, sigs, zs, ys, caps, dts = [], [], [], [], [], []
     for p in B.PAIRS:
@@ -427,22 +430,9 @@ def main():
         Ms.append(m); sigs.append(sig); zs.append(T["z"]); ys.append(yv)
         caps.append(np.full(len(m), p)); dts.append(d.Date.values)
 
-    # dac trung + roi rac hoa, nguong chot tren HUAN LUYEN cua tung cap
-    lit_all, ten_lit = [], None
-    for i, p in enumerate(B.PAIRS):
-        F = dac_trung(Ms[i], sigs[i], zs[i])
-        tr = doan(dts[i]) == 0
-        L, tn = roi_rac(F, tr)
-        lit_all.append(L)
-        ten_lit = tn
-    lit = np.concatenate(lit_all, axis=1)          # (n_lit, N)
     y = np.concatenate(ys)
     cap = np.concatenate(caps)
     dt = pd.DatetimeIndex(np.concatenate(dts))
-    # BON null, khong phai hai. Them nhan to do-la chung (sau cap deu dinh USD)
-    # va carry (chenh lech lai suat — dong luc chung kinh dien cua FX, repo da
-    # co san `optimal_stop.carry_ngay` nhung chua bao gio dua vao bo kiem soat).
-    import optimal_stop as OS
     nt_usd = nhan_to_usd(Ms, dts)
     carry = []
     for i, p in enumerate(B.PAIRS):
@@ -452,16 +442,45 @@ def main():
             carry.append(np.full(len(dts[i]), np.nan))
     sig_all = np.concatenate(sigs)
     tr_all = np.concatenate([doan(d) == 0 for d in dts])
-    # CUM cho sai so vung: cap x khoi 20 phien
     cum = np.concatenate([[f"{p}_{i//20}" for i in range(len(dts[j]))]
                           for j, p in enumerate(B.PAIRS)])
     kiem_soat = np.column_stack([
-        kiem_soat_sigma(sig_all, cap, tr_all),                    # null biến động MỀM DẺO
+        kiem_soat_sigma(sig_all, cap, tr_all),
         np.concatenate([pd.Series(np.r_[np.nan, np.diff(np.log(np.maximum(
-            m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),  # TSMOM
-        np.concatenate(nt_usd),                                   # nhân tố đô-la
-        np.concatenate(carry),                                    # carry
+            m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),
+        np.concatenate(nt_usd),
+        np.concatenate(carry),
     ])
+    tr = (dt < VALID_TU) & (y >= 0)
+    va = (dt >= VALID_TU) & (dt < TEST_TU) & (y >= 0)
+    te = (dt >= TEST_TU) & (y >= 0)
+    pha = tr | va
+    return dict(Ms=Ms, sigs=sigs, zs=zs, ys=ys, caps=caps, dts=dts,
+                y=y, cap=cap, dt=dt, kiem_soat=kiem_soat, cum=cum,
+                sig_all=sig_all, tr=tr, va=va, te=te, pha=pha)
+
+
+def main():
+    t0 = time.time()
+    print("=" * 112)
+    print("GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT")
+    print("=" * 112)
+
+    du = nap_du_lieu()
+    Ms, sigs, zs, dts = du["Ms"], du["sigs"], du["zs"], du["dts"]
+    y, cap, dt = du["y"], du["cap"], du["dt"]
+    kiem_soat, cum = du["kiem_soat"], du["cum"]
+    tr, va, te, pha = du["tr"], du["va"], du["te"], du["pha"]
+
+    # dac trung + roi rac hoa, nguong chot tren HUAN LUYEN cua tung cap
+    lit_all, ten_lit = [], None
+    for i, p in enumerate(B.PAIRS):
+        F = dac_trung(Ms[i], sigs[i], zs[i])
+        tri = doan(dts[i]) == 0
+        L, tn = roi_rac(F, tri)
+        lit_all.append(L)
+        ten_lit = tn
+    lit = np.concatenate(lit_all, axis=1)          # (n_lit, N)
     du_ks = np.isfinite(kiem_soat).all(1)
     print(f"bộ kiểm soát: {', '.join(TEN_KIEM_SOAT)} — "
           f"{du_ks.sum():,}/{len(du_ks):,} hàng đủ cả bốn")
@@ -471,10 +490,6 @@ def main():
     print(f"KHÔNG GIAN GIẢ THUYẾT: {len(ten):,} vị từ × 3 lớp = "
           f"{len(ten)*3:,} giả thuyết — liệt kê đầy đủ, biết trước")
 
-    tr = (dt < VALID_TU) & (y >= 0)
-    va = (dt >= VALID_TU) & (dt < TEST_TU) & (y >= 0)
-    te = (dt >= TEST_TU) & (y >= 0)
-    pha = tr | va                                  # phát hiện trên huấn luyện+kiểm định
     print(f"phát hiện {int(pha.sum()):,} hàng · xác nhận {int(te.sum()):,} hàng\n")
 
     print(f"[1/4] Westfall–Young, {NPERM} hoán vị, null khối {KHOI} ngày…",
