@@ -208,6 +208,34 @@ def bss_ktc(P, y, P_nen, nhom=None, nboot=400, khoi=20, seed=0):
     return (float(np.quantile(ra, 0.025)), float(np.quantile(ra, 0.975)))
 
 
+def chinh_xac(P, y):
+    """Ty le doan dung khi lay lop co xac suat lon nhat.
+
+    CANH BAO — do chinh xac la chi so KEM cho bai toan nay, va muc 1 cua
+    docs/CHISO_DANHGIA.md da giai thich vi sao: no chi doc cot LON NHAT roi
+    vut bo toan bo phan phoi, trong khi san pham giao cho nguoi dung la BA
+    con so. Mot du bao (0,34 / 0,33 / 0,33) va mot du bao (0,90 / 0,05 / 0,05)
+    cho CUNG mot du doan nhung khac han nhau ve gia tri. Bao cao o day vi ke
+    hoach Pha 1 doi, nhung quyet dinh van dua tren log score / Brier."""
+    P, y = _kiem(P, y)
+    return float((P.argmax(1) == y).mean())
+
+
+def f1_vi_mo(P, y):
+    """Macro F1 — trung binh F1 cua ba lop, khong trong so.
+
+    Cung canh bao nhu chinh_xac(): day la chi so tren NHAN CUNG."""
+    P, y = _kiem(P, y)
+    du = P.argmax(1)
+    f1 = []
+    for c in range(3):
+        tp = float(((du == c) & (y == c)).sum())
+        fp = float(((du == c) & (y != c)).sum())
+        fn = float(((du != c) & (y == c)).sum())
+        f1.append(2 * tp / max(2 * tp + fp + fn, EPS))
+    return float(np.mean(f1))
+
+
 def delta_bss_ktc(P_a, P_b, y, P_nen, nhom=None, nboot=400, khoi=20, seed=0):
     """KTC bootstrap KHOI, GHEP CAP, cho HIEU BSS(P_a) - BSS(P_b).
 
@@ -248,7 +276,8 @@ def bang(P, y, P_nen=None, nbin=10, nhom=None):
     """Mot dong chi so day du. Truyen `nhom` khi da gop nhieu cap."""
     r = dict(n=int(len(y)), log=diem_log(P, y), brier=brier(P, y),
              ece=ece(P, y, nbin), mce=mce(P, y, nbin),
-             auc=auc_huong(P, y, nhom))
+             auc=auc_huong(P, y, nhom),
+             chinh_xac=chinh_xac(P, y), f1_vi_mo=f1_vi_mo(P, y))
     if P_nen is not None:
         r["bss"] = bss(P, y, P_nen)
     return r
@@ -331,6 +360,15 @@ if __name__ == "__main__":
     # do_tin_cay: tong n moi lop phai bang n
     for c in range(3):
         assert sum(r[2] for r in do_tin_cay(a, y, c)) == n
+
+    # ── chinh_xac / f1_vi_mo: du bao HANG SO phai cho dung ty le lop lon nhat
+    tan_lon = float(tan.max())
+    assert abs(chinh_xac(kh, y) - tan_lon) < 1e-9, "hang so phai doan lop pho bien nhat"
+    assert chinh_xac(a, y) > chinh_xac(kh, y), "du bao that phai chinh xac hon hang so"
+    # macro F1 cua du bao hang so phai THAP (chi mot lop co F1 > 0)
+    assert f1_vi_mo(kh, y) < f1_vi_mo(a, y), "macro F1 phai phat hien du bao hang so"
+    print(f"  chính xác: hằng số {chinh_xac(kh, y):.4f} · thật {chinh_xac(a, y):.4f}"
+          f"   macro F1: hằng số {f1_vi_mo(kh, y):.4f} · thật {f1_vi_mo(a, y):.4f}")
 
     # ── delta_bss_ktc: ghep cap phai HEP hon so hai KTC rieng cong lai ────
     lo0, hi0 = delta_bss_ktc(a, a, y, kh, nboot=200, seed=3)
