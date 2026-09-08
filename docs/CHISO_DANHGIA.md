@@ -424,6 +424,20 @@ hai cái thất bại — vì cái học được từ chúng đáng giá hơn b
 
 ### 9.1 FDR thay FWER — cải thiện 1,2%, và cải thiện đó là giả
 
+> **Số đã chạy lại 08/09/2026** sau khi sửa lỗi bịa lợi suất (mục 13). Kết luận
+> **giữ nguyên: không đổi sang FDR.** Các con số then chốt sau khi sửa:
+>
+> | | trước | sau |
+> |---|---|---|
+> | ngưỡng \|z\| W-Y 95% (hạng 1) | 4,72 | **3,90** |
+> | ngưỡng \|z\| BY (hạng 1) | 4,71 | **4,36** — nay **chặt hơn** W-Y |
+> | BY bác bỏ trên dữ liệu thật | ~1.059 | **~295** |
+> | MDES W-Y / BY (k=1) | 1,306 / 1,290 | **1,188 / 1,175** |
+>
+> Lập luận chính càng vững hơn: BY nay **chặt hơn** W-Y ở hạng 1, và lợi thế
+> MDES vẫn chỉ ~1%. Phần bên dưới giữ nguyên bản gốc làm hồ sơ; các con số cụ
+> thể trong đó là của lần chạy trước khi sửa lỗi.
+
 `src/kiem_fdr.py`, `output/kiem_fdr.json`. 1.890 giả thuyết, 21.606 hàng.
 
 Trước hết phải vượt một rào kỹ thuật: ngưỡng BY ở hạng 1 là α/(m·c) = 3,3e-6,
@@ -532,6 +546,11 @@ script CAViaR nào được gọi trong pipeline sản xuất; `src/caviar.py` g
 như tài liệu đối chứng, không bật.
 
 ### 9.3 Fixed-Share — đo được, và xấu đơn điệu
+
+> **Đã chạy lại 08/09/2026** sau khi sửa lỗi ở mục 13. Kết luận **không đổi**:
+> α = 0 vẫn tối ưu, ΔBSS ở α tốt nhất là −0,00000 KTC [−0,00025; +0,00027]
+> (mục tiêu P) và −0,00019 KTC [−0,00037; +0,00001] (mục tiêu R) — vẫn hoà,
+> vẫn xấu đơn điệu khi α tăng. Giữ Hedge trơn.
 
 `src/kiem_fixshare.py`, `output/kiem_fixshare.json`. Chọn trên **kiểm định**
 (3.282 hàng); đoạn kiểm tra không mở.
@@ -668,3 +687,157 @@ không lặp lại ở đây, chỉ tóm tắt:
 - **H5 (chế độ tự tương quan)**: 0/5.670 sống sót.
 - **SPA cho cả ba họ** (`run_spa_ho2.py`, nền "chỉ σ̂" đúng chỉ số hàng): H2
   p=0,929 · H3 p=0,902 · H5 p=0,562 — không họ nào bác bỏ H0.
+
+> ⚠️ **MỌI CON SỐ TRONG MỤC 12 ĐÃ BỊ THAY THẾ.** Vài giờ sau khi viết mục này,
+> việc soi lại quy luật H3 lộ ra một lỗi dữ liệu làm hỏng toàn bộ Giai đoạn 2 —
+> kể cả quy luật H3, vốn hoá ra chỉ là artefact của chính lỗi đó. Số đúng và
+> toàn bộ câu chuyện ở **mục 13**. Giữ nguyên mục 12 làm hồ sơ, không sửa số,
+> vì trình tự "tưởng tìm được → soi kỹ → hoá ra lỗi" chính là phần đáng đọc.
+
+---
+
+## 13. Lỗi BỊA LỢI SUẤT BẰNG 0 — bắt được khi soi lại H3, và nó sửa lại cả chương (08/09/2026)
+
+Mục này thay thế mục 12 và sửa mọi con số của Giai đoạn 2. Nó cũng là **cải
+tiến lớn nhất đo được trong ngày**: lực phát hiện của phễu tăng từ lift 1,35
+xuống 1,20 — nhiều hơn tất cả các thủ thuật thống kê đã thử ở mục 9 cộng lại.
+
+### 13.1 Đường đi từ nghi ngờ đến lỗi
+
+Quy luật H3 (mục 12) đáng ngờ ở đúng một điểm: **cả hai vế của nó đều là thước
+đo biến động** (σ̂ và ATR). Nguyên tắc `la_vi_tu_nen()` của chính repo nói một
+vị từ chỉ nói về nền thì không phải quy luật. Nên trước khi mừng, phải kiểm tra
+chéo — `src/kiem_h3.py`.
+
+Phép kiểm đầu tiên đã lộ ra chuyện lạ: **lift của cùng một vị từ, trên cùng
+một mẫu, ra 1,67 hay 0,995 tuỳ theo lấy mẫu nền nào**. Truy tiếp:
+
+| mẫu | n | tỷ lệ lớp "đi ngang" |
+|---|---|---|
+| toàn bộ mẫu phát hiện | 21.606 | 30,8% |
+| ... phần **đủ 12 đặc trưng** | 18.294 | **18,4%** |
+| ... phần **thiếu đặc trưng** | 3.312 | **99,7%** ← bất thường |
+| lá CART #0 (quy luật H3) | 949 | 30,7% |
+
+3.312 hàng gần như 100% "đi ngang" là chuyện không thể có trên dữ liệu thật.
+Xem thẳng vào chúng:
+
+```
+ t   sig      r        b       yP
+  0      nan  0.00000  0.00108    1      <- sigma^ NaN, nhưng r = 0 (KHÔNG PHẢI NaN)
+550      nan  0.00000  0.00108    1
+551  0.00667 -0.00197  0.00108    0      <- hết warm-up, mọi thứ bình thường
+```
+
+### 13.2 Cơ chế
+
+`balop.loi_suat_h()` tính lợi suất h phiên bằng hiệu của tổng tích luỹ:
+
+```python
+cs = np.concatenate([[0.0], np.nancumsum(r)])    # nancumsum coi NaN là 0
+ra[: n - h + 1] = cs[h:] - cs[: n - h + 1]
+```
+
+`nancumsum` coi NaN là 0 — đúng ý ban đầu là *chịu được khe hở lẻ tẻ*. Nhưng khi
+**mọi** ngày trong cửa sổ đều thiếu, hiệu hai tổng tích luỹ ra đúng **0,0**, chứ
+không phải NaN. Rồi `gan_lop()` thấy |0| ≤ dải → xếp vào lớp **"đi ngang"**.
+
+Đó là 551 phiên đầu mỗi cặp — giai đoạn khởi động khi HAR chưa đủ dữ liệu để
+cho σ̂, nên `r = zT × sig = NaN`. Sáu cặp × 551 = **3.306 hàng lợi suất bịa ra,
+tất cả bị gán "đi ngang"**.
+
+### 13.3 Vì sao chỉ Giai đoạn 2 dính
+
+Bốn đường nạp dữ liệu, chỉ một loại không có chốt chặn:
+
+| đường | lọc σ̂ NaN? | dính lỗi? |
+|---|---|---|
+| `balop.nap()` → `data/panel2_6pairs.csv` (Giai đoạn 1) | dữ liệu bắt đầu 2012-02, **0 hàng NaN** | không |
+| `api/main.py` (sản xuất) | có, dòng 156–157 | không |
+| `tincay.py`, `hieuchuan_lai.py` | có | không |
+| `run_quyluat.py`, `kiem_pheu.py`, `run_ml3.py` | **không** | **có** |
+
+Kiểm chứng trực tiếp: chạy song song hàm cũ và hàm mới trên đúng dữ liệu Giai
+đoạn 1, 6 cặp × 3 tầm hạn → **0 hàng khác nhau**. Nên **mọi kết quả của Giai
+đoạn 1, của tầng VaR/ES, của SPA Giai đoạn 1 (mục 11) và của giao diện sản xuất
+đều KHÔNG đổi.** Chỉ chương khai phá quy luật phải viết lại số.
+
+### 13.4 Bản vá
+
+`loi_suat_h()` đếm số ngày **có thật** trong mỗi cửa sổ; cửa sổ không có ngày
+nào thì trả NaN. Giữ nguyên ý ban đầu là chịu được khe hở lẻ tẻ.
+
+### 13.5 Số trước và sau
+
+**Phễu Giai đoạn 2** (`run_quyluat.py`):
+
+| bước | trước | sau |
+|---|---|---|
+| mẫu phát hiện | 21.606 hàng | 18.306 hàng |
+| tỷ lệ ba lớp (phát hiện) | 33,9 / 30,8 / 35,3 | **33,0 / 32,9 / 34,1** — đúng thiết kế "ba ô cân nhau" |
+| ngưỡng max\|z\| null 95% | 4,83 | **3,89** |
+| thô p<0,05 | 1.186 (thổi phồng 13,5×) | **522 (6,0×)** |
+| sống sót Westfall–Young | 9 | **3** |
+| lift "σ̂ thấp → đi ngang" | 0,715 | **1,179** |
+| **quy luật cuối cùng** | **0** | **0** |
+
+Dấu hiệu lẽ ra phải thấy sớm hơn: trước khi sửa, **cả ba** ô σ̂ (thấp 0,715 ·
+vừa 0,608 · cao 0,482) đều có lift < 1 với lớp "đi ngang". Ba ô phủ kín mẫu thì
+trung bình có trọng số của chúng **bắt buộc** bằng 1 — cả ba cùng < 1 chỉ có thể
+xảy ra nếu mẫu nền chứa những hàng không thuộc ô nào. Đó chính là 3.306 hàng bịa.
+
+**Lực phát hiện của phễu** (`kiem_pheu.py`) — cải thiện lớn nhất:
+
+| lift | lực TRƯỚC | lực SAU |
+|---|---|---|
+| 1,15 | 8% | **62%** |
+| 1,20 | 40% | **88%** |
+| 1,35 | 80% | **98%** |
+| **MDES (lực 80%)** | **1,35** | **1,20** |
+
+Đối chứng âm vẫn 0,0 dương tính giả — phễu vẫn hiệu chuẩn đúng.
+
+Đáng nói: mục 9.1 đã thử FDR để nâng lực, hứa hẹn MDES 1,35 → 1,29, và bị loại
+vì "không ăn tiền". **Sửa lỗi dữ liệu này cho 1,35 → 1,20** — hơn hẳn mọi thủ
+thuật thống kê. Phát biểu của luận văn mạnh lên tương ứng: từ "loại trừ được
+quy luật có lift ≥ 1,35" thành **"loại trừ được quy luật có lift ≥ 1,20"**.
+
+**Ba họ mới** (H2/H3/H5):
+
+| họ | thô p<0,05 trước → sau | sống sót W-Y trước → sau |
+|---|---|---|
+| H2 motif | 9 → **2** (kỳ vọng nhiễu ~4) | 0 → 0 |
+| H3 rule-list | 16 → **17** | **3 → 0** |
+| H5 chế độ | 3.287 → **938** | 0 → 0 |
+
+### 13.6 RÚT LẠI quy luật H3
+
+**Quy luật H3 không tồn tại.** Sau khi sửa, không lá CART nào sống sót
+Westfall–Young (trước: 3 sống sót, 1 qua hết bốn cửa). `rules/rules_h3.csv` đã
+xoá.
+
+Nó được sinh ra thế nào: lá đó gom những phiên rất yên tĩnh — cũng chính là
+những phiên *giống* các hàng bịa. Vì mẫu nền bị 3.306 hàng bịa (99,7% "đi
+ngang") kéo tỷ lệ nền lên, còn mẫu "đủ 12 đặc trưng" thì không có chúng nên tỷ
+lệ tụt xuống 18,4%, một vị từ có tỷ lệ *bình thường* 30,7% bỗng trông như lift
+1,67 so với 18,4%. Toàn bộ "phát hiện" là chênh lệch giữa hai mẫu nền, không
+phải tín hiệu.
+
+Bốn phép kiểm chéo ở `kiem_h3.py` cũng đã độc lập kết luận như vậy **trước cả
+khi** tìm ra nguyên nhân gốc: quy luật chết trên mục tiêu R (dải theo σ̂ — khử
+quan hệ cơ học), chết ở h=5 và h=20, và đóng góp BSS có KTC chứa 0. Ba dấu hiệu
+đó đều đã chỉ đúng hướng.
+
+### 13.7 Cái học được
+
+Kết luận khoa học **không đổi**: 0 quy luật, trên cả năm họ. Nhưng giờ nó đứng
+trên số đúng, mẫu nền cân bằng, và một phễu mạnh hơn hẳn.
+
+Bài học thì đắt hơn con số: **kết quả DƯƠNG đầu tiên sau hàng loạt kết quả âm
+là lúc phải nghi ngờ nhất, không phải lúc mừng nhất.** Quy luật H3 qua được cả
+bốn cửa kiểm định thống kê — Westfall–Young, đối chứng có điều kiện, bỏ-một-cặp,
+tái lập trên kiểm tra — mà vẫn sai, vì cả bốn cửa đều đo trên cùng một mẫu nền
+đã hỏng. Không phép kiểm nào cứu được dữ liệu sai; chỉ có nhìn thẳng vào từng
+hàng mới cứu được.
+
+Và dấu vết luôn để lại: ba ô của một phân hoạch không thể cùng có lift < 1.

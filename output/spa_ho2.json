@@ -2,28 +2,28 @@
  "H2_motif": {
   "n_ung_vien": 24,
   "n_va": 3282,
-  "p": 0.929,
-  "T_SPA": 0.8703188956242864,
+  "p": 0.99,
+  "T_SPA": 0.49534958276858454,
   "bac_bo": false,
-  "ung_vien_tot_nhat": "motif L=10 cụm 3",
-  "dbar_tot": 0.0007727936572403544
+  "ung_vien_tot_nhat": "motif L=20 cụm 0",
+  "dbar_tot": 0.0005560320224756378
  },
  "H3_rulelist": {
   "n_ung_vien": 8,
   "n_va": 3282,
-  "p": 0.902,
-  "T_SPA": 0.5485379683233961,
+  "p": 0.59,
+  "T_SPA": 0.9990731695550126,
   "bac_bo": false,
-  "ung_vien_tot_nhat": "lá CART #7",
-  "dbar_tot": 0.0004794710148266827
+  "ung_vien_tot_nhat": "lá CART #6",
+  "dbar_tot": 0.0008488022209427646
  },
  "H5_chedo": {
   "n_ung_vien": 630,
   "n_va": 3282,
-  "p": 0.562,
-  "T_SPA": 2.7687713785628096,
+  "p": 0.872,
+  "T_SPA": 2.4673898851449176,
   "bac_bo": false,
-  "ung_vien_tot_nhat": "khoảng cách EMA50 cao & |z| hôm nay vừa [tự-tương-quan âm]",
-  "dbar_tot": 0.001044462539958466
+  "ung_vien_tot_nhat": "|z| hôm nay cao & tính dai vol thấp [trung tính]",
+  "dbar_tot": 0.0010994495308226599
  }
 }

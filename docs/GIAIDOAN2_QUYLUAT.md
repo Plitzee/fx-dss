@@ -36,47 +36,53 @@ trưng của ngày t nói về lớp của ngày t+1 (bài học từ rò rỉ �
 
 ## 2. Phễu
 
-| bước | còn lại |
-|---|---|
-| không gian giả thuyết (liệt kê đầy đủ) | **1.890** |
-| đủ 100 lần khớp | 1.764 |
-| thô p<0,05 (chưa hiệu chỉnh) | **1.186** |
-| sống sót Westfall–Young | **9** |
-| còn tin riêng sau đối chứng có điều kiện | **0** |
-| chuyển giao được (bỏ-một-cặp) | 0 |
-| tái lập trên kiểm tra | 0 |
+> **Số đã cập nhật 08/09/2026** sau khi sửa lỗi bịa lợi suất bằng 0
+> (`CHISO_DANHGIA.md` mục 13). Mẫu phát hiện giảm từ 21.606 xuống 18.306 hàng
+> vì 3.306 hàng khởi động có lợi suất bịa ra đã bị loại đúng cách. Kết luận
+> cuối (**0 quy luật**) không đổi; mọi con số trung gian đều đổi, và phễu mạnh
+> lên rõ rệt.
 
-Ngưỡng `max|z|` của null khối 5 ngày: 90% **4,58** · 95% **4,83** · 99% **5,41**.
+| bước | còn lại | *(số cũ, sai)* |
+|---|---|---|
+| không gian giả thuyết (liệt kê đầy đủ) | **1.890** | 1.890 |
+| đủ 100 lần khớp | 1.749 | *1.764* |
+| thô p<0,05 (chưa hiệu chỉnh) | **522** | *1.186* |
+| sống sót Westfall–Young | **3** | *9* |
+| còn tin riêng sau đối chứng có điều kiện | **0** | *0* |
+| chuyển giao được (bỏ-một-cặp) | 0 | *0* |
+| tái lập trên kiểm tra | 0 | *0* |
 
-**Hệ số thổi phồng: 1.186 so với 88 kỳ vọng nếu toàn nhiễu — gấp 13,5 lần.**
+Ngưỡng `max|z|` của null khối 5 ngày: 90% **3,70** · 95% **3,89** · 99% **4,36**.
+
+**Hệ số thổi phồng: 522 so với 87 kỳ vọng nếu toàn nhiễu — gấp 6,0 lần.**
 
 Đây là con số phải đưa vào luận văn. Nó nói: nếu ai đó chạy đúng bộ đặc trưng
-này, không hiệu chỉnh bội, họ sẽ "tìm ra" **1.186 quy luật có ý nghĩa thống kê**
+này, không hiệu chỉnh bội, họ sẽ "tìm ra" **522 quy luật có ý nghĩa thống kê**
 và không cái nào là thật.
 
 ---
 
-## 3. Chín vị từ sống sót — và tất cả đều là cùng một thứ
+## 3. Ba vị từ sống sót — và tất cả đều là cùng một thứ
 
 | vị từ | lớp | n | lift | z | b sau điều kiện | **t sau điều kiện** |
 |---|---|---|---|---|---|---|
-| σ̂ cao | đi ngang | 6.559 | 0,482 | −28,02 | +0,0038 | **0,47** |
-| σ̂ vừa | đi ngang | 6.119 | 0,608 | −20,47 | −0,0041 | **−0,75** |
-| σ̂ cao | tăng | 6.559 | 1,246 | 14,68 | +0,0128 | **1,25** |
-| σ̂ thấp | đi ngang | 5.622 | 0,715 | −14,27 | +0,0047 | **0,61** |
-| σ̂ cao | giảm | 6.559 | 1,216 | 12,52 | −0,0166 | **−1,64** |
-| σ̂ vừa | tăng | 6.119 | 1,174 | 10,07 | +0,0005 | **0,08** |
-| σ̂ vừa | giảm | 6.119 | 1,175 | 9,81 | +0,0036 | **0,52** |
-| σ̂ thấp | giảm | 5.622 | 1,144 | 7,73 | +0,0082 | **0,84** |
-| σ̂ thấp | tăng | 5.622 | 1,111 | 6,13 | −0,0129 | **−1,31** |
+| σ̂ thấp | đi ngang | 5.622 | 1,179 | 9,41 | +0,0366 | **1,70** |
+| σ̂ thấp | tăng | 5.622 | 0,901 | −5,33 | −0,0160 | **−0,80** |
+| σ̂ thấp | giảm | 5.622 | 0,923 | −4,04 | −0,0206 | **−1,04** |
 
-**Cả chín đều là σ̂ rời rạc hoá.** Không một chỉ báo kỹ thuật nào lọt vào:
-không RSI, không ADX, không Bollinger, không MACD, không Supertrend, không
-khoảng cách EMA, không ATR phân vị, không TSMOM.
+**Cả ba đều là σ̂ rời rạc hoá.** Không một chỉ báo kỹ thuật nào lọt vào: không
+RSI, không ADX, không Bollinger, không MACD, không Supertrend, không khoảng
+cách EMA, không ATR phân vị, không TSMOM.
 
-Và cả chín đều **rớt ở cửa đối chứng có điều kiện** — |t| lớn nhất là 1,64,
+Và cả ba đều **rớt ở cửa đối chứng có điều kiện** — |t| lớn nhất là 1,70,
 ngưỡng là 3,0. Hiển nhiên, vì vị từ **chính là** σ̂, mà biến kiểm soát cũng là
 log σ̂. Chúng không mang thông tin độc lập nào.
+
+Hướng của con số cũng đúng trực giác: **σ̂ thấp → nhiều "đi ngang" hơn**
+(lift 1,179), ít "tăng"/"giảm" hơn. Bảng cũ (trước khi sửa lỗi ở
+`CHISO_DANHGIA.md` mục 13) cho cả ba ô σ̂ đều có lift < 1 với "đi ngang" —
+điều **không thể xảy ra** với một phân hoạch phủ kín mẫu, và đó chính là dấu
+vết đã dẫn tới việc tìm ra lỗi.
 
 **Đọc theo cách khác:** trong toàn bộ không gian 1.890 giả thuyết, thứ duy nhất
 sống sót hiệu chỉnh bội đúng cách là **chính dự báo biến động mà hệ thống đã
@@ -84,13 +90,16 @@ có**. Khai phá không tìm thêm được gì.
 
 ---
 
-## 4. Ba nhánh độc lập, cùng một kết luận
+## 4. Sáu nhánh độc lập, cùng một kết luận
 
 | nhánh | không gian | sống sót W-Y | còn tin riêng |
 |---|---|---|---|
 | SAX **biến động** (`run_sax_stats.py`) | 336 | **41** | **2** (t = 8,94 và 6,05 khi có HAR) |
 | SAX **hướng giá** (`run_sax_gia.py`) | 351 | **0** | — |
-| Ngưỡng đặc trưng **ba lớp** (file này) | 1.890 | 9 | **0** |
+| Ngưỡng đặc trưng **ba lớp** (file này) | 1.890 | 3 | **0** |
+| **H2 motif** (`run_h2_motif.py`) | 72 | **0** | — |
+| **H3 rule-list** (`run_h3_rulelist.py`) | 24 | **0** | — |
+| **H5 chế độ tự tương quan** (`run_h5_chedo.py`) | 5.670 | **0** | — |
 
 Bất đối xứng rất rõ và rất nhất quán: **trục biến động có cấu trúc khai phá
 được; trục hướng đi và trục ba-lớp thì không.**
@@ -107,25 +116,26 @@ lại gì.
 quy luật nào qua ngưỡng 3.5 sau LOPO, **và** đúng trên cả hai mục tiêu lẫn cả ba
 tầm hạn.
 
-Cập nhật 08/09/2026 — **cả năm họ H1–H5 giờ đã có code và đã chạy** (xem mục 6):
+Cập nhật 08/09/2026 — **cả năm họ H1–H5 giờ đã có code và đã chạy** (xem mục 6),
+số đã sửa sau lỗi bịa lợi suất (`CHISO_DANHGIA.md` mục 13):
 
 | điều kiện | trạng thái |
 |---|---|
-| không quy luật nào qua ngưỡng sau LOPO | **KHÔNG còn đúng tuyệt đối** — H3 (rule-list) tạo ra đúng **một** quy luật qua hết LOPO và tái lập trên kiểm tra (mục 6.2). Bốn họ còn lại (H1 ba-lớp, H1 SAX-hướng, H2, H5) vẫn 0 |
-| trên cả hai mục tiêu | mới đo mục tiêu P, h=1 (như cũ — H2/H3/H5 mới chỉ chạy ở cấu hình này) |
+| không quy luật nào qua ngưỡng sau LOPO | **ĐÚNG** — cả sáu nhánh đều 0 quy luật. (Bản đầu của mục này ghi H3 có một ngoại lệ; ngoại lệ đó là artefact của lỗi dữ liệu, đã rút lại — mục 6.2) |
+| trên cả hai mục tiêu | mới đo mục tiêu P, h=1 |
 | trên cả ba tầm hạn | mới đo h=1 |
-| Hansen SPA cho cả họ | **đóng được cho cả 5 họ ở cấu hình đã chạy** (`run_spa.py` cho Giai đoạn 1, `run_spa_ho2.py` cho H2/H3/H5) — **không họ nào bác bỏ được H0** so nền "chỉ σ̂" (mục 6.3): H2 p=0,929 · H3 p=0,902 · H5 p=0,562 |
+| Hansen SPA cho cả họ | **ĐÚNG, đóng được cho cả 5 họ ở cấu hình đã chạy** (`run_spa.py` cho Giai đoạn 1, `run_spa_ho2.py` cho H2/H3/H5) — **không họ nào bác bỏ được H0** so nền "chỉ σ̂" (mục 6.3) |
 
-**Đọc kết quả này thế nào.** Điều kiện SPA ("cả họ không thắng nền") **giờ đã
-đúng cho cả 5 họ** ở cấu hình h=1/mục tiêu P đã chạy — đây là phần khó nhất và
-giờ đã đóng. Nhưng điều kiện LOPO ("không quy luật nào qua ngưỡng") **không**
-còn đúng tuyệt đối vì H3 có một trường hợp ngoại lệ — cần đọc kỹ mục 6.2 để
-hiểu vì sao một quy luật ĐƠN LẺ qua được LOPO trong khi CẢ HỌ vẫn trượt SPA
-(hai câu hỏi khác nhau, không mâu thuẫn nhau). Tiêu chí dừng 10.4 vì vậy
-**vẫn chưa kích hoạt được theo đúng nghĩa đen** (đòi tuyệt đối "không quy luật
-nào"), nhưng bằng chứng nghiêng rất mạnh về hướng "khai phá không đẻ thêm được
-gì đáng kể" — một ngoại lệ hẹp, tự nó không đủ lực thắng nền khi dùng làm hệ
-thống dự báo.
+**Đọc kết quả này thế nào.** Hai trong ba điều kiện của mục 10.4 giờ đã **đúng
+hoàn toàn** ở cấu hình h=1/mục tiêu P: không quy luật nào qua LOPO, và không họ
+nào thắng nền qua SPA. Điều kiện còn lại (đúng trên **cả hai** mục tiêu và **cả
+ba** tầm hạn) chưa đo hết — mới có h=1/mục tiêu P. Nên tiêu chí dừng **chưa
+kích hoạt đủ theo nghĩa đen**, nhưng phần khó nhất đã đóng và bằng chứng nhất
+quán qua sáu nhánh độc lập.
+
+Và bằng chứng giờ **mạnh hơn trước**, không chỉ sạch hơn: phễu sau khi sửa lỗi
+bắt được quy luật có lift ≥ **1,20** với lực 80% (trước là 1,35) — nên câu "không
+tìm thấy gì" nay loại trừ được một dải quy luật rộng hơn hẳn.
 
 Cộng với `run_ml3.py` (LightGBM −0,0148 và GRU −0,0594 — trần GBM nằm **dưới**
 nền) thì H4 cũng đã trả lời: trần khai thác được của bộ đặc trưng này thấp hơn
@@ -154,34 +164,53 @@ không liên quan gì đến hình dạng cửa sổ. Vì mọi cụm đều k�
 "có cửa sổ" giống hệt nhau, tất cả cùng "có tín hiệu" như nhau — giả.
 
 **Sửa**: giới hạn phép so sánh về đúng tập phiên có đủ cả ba độ dài cửa sổ
-(mẫu số đồng nhất cho mọi giả thuyết). Sau khi sửa: 9/72 thô p<0,05 (gần đúng
-kỳ vọng nhiễu ~4), **0/72 sống sót Westfall–Young**. Không có quy luật.
+(mẫu số đồng nhất cho mọi giả thuyết). Sau khi sửa: **0/72 sống sót
+Westfall–Young**. Không có quy luật.
 
-### 6.2 H3 — rule-list (CART nông): một quy luật mới, qua hết mọi cửa
+**Đây là lần đầu của cùng một lỗi, chưa nhận ra tận gốc.** Lúc đó vá bằng cách
+thu hẹp mẫu so sánh cho riêng H2, và tưởng nguyên nhân là `merge_thin_days`.
+Nguyên nhân thật sâu hơn một tầng — 3.306 hàng có lợi suất **bịa thành 0** vì
+`nancumsum`, ảnh hưởng tới **mọi** nhánh chứ không riêng H2. Chỉ khi soi lại
+quy luật H3 (mục 6.2) mới lần ra được. Sau khi sửa tận gốc, H2 còn 2/72 thô
+p<0,05 — đúng bằng kỳ vọng nhiễu ~4, sạch hơn cả bản vá cục bộ (9/72).
+
+### 6.2 H3 — rule-list (CART nông): 0 sống sót, sau khi RÚT LẠI một phát hiện sai
 
 Cấu hình **chốt trước khi chạy** (không dò nhiều độ sâu rồi chọn): CART
 `max_depth=3, min_samples_leaf=200` trên 12 đặc trưng đã có (chuyển hạng phân
 vị trong từng cặp để gộp công bằng), sinh 8 lá → 24 giả thuyết.
 
-Phễu: 16 thô p<0,05 → **3 sống sót W-Y** → 1 còn tin riêng sau đối chứng có
-điều kiện (|t|=4,34) → **1/1 chuyển giao qua LOPO** (6/6 cặp dương) → **1/1 tái
-lập trên KIỂM TRA** (z=4,31).
+Phễu sau khi sửa lỗi dữ liệu: 17 thô p<0,05 → **0 sống sót Westfall–Young**.
+Không quy luật nào.
 
-**Quy luật**: lá cây ứng với `σ̂ ≤ decile-1 nền` **VÀ** `ATR phân vị ≤ ~p23`
-(cả hai đều RẤT thấp cùng lúc) → lớp **"đi ngang"**, lift 1,67 (n=949 trên
-huấn luyện+kiểm định). Đáng chú ý: σ̂ dùng riêng lẻ (H1, mục 3) có lift **0,715**
-cho đi ngang (tức σ̂ thấp một mình lại làm GIẢM xác suất đi ngang, ngược trực
-giác) — nhưng khi **σ̂ VÀ ATR cùng cực thấp**, hướng đảo ngược thành lift 1,67.
-Đây là một tương tác **không nằm trong không gian 630 vị từ gốc** của
-`run_quyluat.py` (vốn chỉ chia mỗi đặc trưng theo tam phân vị — ngưỡng decile-1
-mà CART tự chọn ở đây cực đoan hơn nhiều). Ghi ở `rules/rules_h3.csv`.
+**Đã rút lại một phát hiện.** Bản chạy đầu tiên (trước khi sửa lỗi ở
+`CHISO_DANHGIA.md` mục 13) báo 3 sống sót W-Y và **một quy luật qua hết bốn
+cửa**: `σ̂ rất thấp VÀ ATR rất thấp → đi ngang`, lift 1,67, t|đk 4,34, LOPO 6/6,
+tái lập kiểm tra z=4,31. Nó đã được ghi vào `rules/rules_h3.csv` và báo cáo là
+quy luật đầu tiên của cả Giai đoạn 2.
 
-**Quan trọng — không tự động đẩy vào sản xuất**: đây là quy luật ĐẦU TIÊN của
-toàn bộ Giai đoạn 2 qua hết bốn cửa (WY → đối chứng → LOPO → kiểm tra). Nhưng
-xem mục 6.3: dùng CẢ HỌ H3 làm hệ dự báo vẫn KHÔNG thắng được nền "chỉ σ̂" có ý
-nghĩa (SPA p=0,902) — một quy luật đơn lẻ, dù qua hết các cửa kiểm định thống
-kê, không đủ mạnh để cải thiện dự báo tổng thể. Cần thêm một vòng xác nhận độc
-lập (dữ liệu mới) trước khi cân nhắc đưa vào sản xuất; hiện tại chỉ ghi nhận.
+**Nó không có thật.** Nguyên nhân: 3.306 hàng khởi động có lợi suất bị *bịa*
+thành 0 và bị gán hết vào lớp "đi ngang" (99,7%). Chúng nằm trong mẫu nền nhưng
+không nằm trong bất kỳ vị từ nào, nên kéo tỷ lệ nền của "đi ngang" lệch hẳn:
+30,8% trên toàn mẫu so với 18,4% trên phần đủ đặc trưng. Một lá có tỷ lệ hoàn
+toàn bình thường (30,7%) vì thế trông như lift 1,67 khi so với 18,4%. Toàn bộ
+"phát hiện" là chênh lệch giữa hai mẫu nền. Chi tiết đầy đủ: `CHISO_DANHGIA.md`
+mục 13.6.
+
+**Bốn phép kiểm chéo ở `src/kiem_h3.py` đã bác nó trước cả khi tìm ra nguyên
+nhân gốc** — đáng ghi lại vì đó là bộ khung dùng lại được cho mọi quy luật ứng
+viên sau này:
+
+| phép kiểm | ý tưởng | kết quả |
+|---|---|---|
+| A. đối chứng mạnh hơn | thêm biến giả phân vị **ATR** vào bộ kiểm soát (không chỉ σ̂) | t 4,34 → 3,22 — yếu đi rõ |
+| B. **mục tiêu R** | dải chia theo σ̂ nên khử quan hệ cơ học "biến động thấp → nằm trong dải" | **chết** (t = 1,20) |
+| C. tầm hạn 5, 20 | quy luật thật phải để lại dấu vết ở tầm hạn dài hơn | **chết, và đảo dấu** (lift 0,71 · z = −5,9) |
+| D. đóng góp thật | thêm quy luật vào nền, đo ΔBSS trên kiểm định | KTC chứa 0; chỉ bật 0,6% số phiên |
+
+Phép B là phép sắc nhất: mục tiêu R chia biên độ cho σ̂, nên nếu "quy luật" chỉ
+là quan hệ cơ học *biến động thấp → biên độ nhỏ → nằm trong dải pip cố định*
+thì nó phải biến mất — và nó biến mất.
 
 ### 6.3 SPA cho cả năm họ — không họ nào thắng nền "chỉ σ̂"
 
@@ -193,21 +222,21 @@ TOÀN BỘ ứng viên của họ đó cùng lúc trên đoạn kiểm định:
 
 | họ | số ứng viên | p-value | bác bỏ H0 ở α=0,05 |
 |---|---|---|---|
-| H2 (motif) | 24 | 0,929 | không |
-| H3 (rule-list) | 8 | 0,902 | không |
-| H5 (chế độ tự tương quan) | 630 (giới hạn từ 1.890 theo \|z\| thô) | 0,562 | không |
+| H2 (motif) | 24 | 0,990 | không |
+| H3 (rule-list) | 8 | 0,590 | không |
+| H5 (chế độ tự tương quan) | 630 (giới hạn từ 1.890 theo \|z\| thô) | 0,872 | không |
 
 Cộng với Giai đoạn 1 (`CHISO_DANHGIA.md` mục 11: bác bỏ ở h=5/h=20 — nhưng đó
 LÀ nền đang chạy, không phải một họ quy luật thay thế), **cả năm họ ứng viên
 của Giai đoạn 2 đều không thắng nền "chỉ σ̂" có ý nghĩa** khi dùng làm hệ dự
-báo toàn diện — dù H3 có đúng một quy luật hẹp qua được kiểm định (mục 6.2).
+báo toàn diện.
 
 ### 6.4 H5 — chế độ tự tương quan làm lớp điều kiện: 0 sống sót
 
 Trục chế độ MỚI (khác σ̂): tam phân vị của tự tương quan lag-1 cuộn 20 phiên
 (âm/trung tính/dương), giao với toàn bộ 630 vị từ gốc → 1.890 vị từ × 3 lớp =
-5.670 giả thuyết. 1.734/1.890 đủ mẫu, 3.287 thô p<0,05 (kỳ vọng nhiễu ~260 —
-thổi phồng rõ, đúng như dự đoán khi tăng không gian giả thuyết), nhưng
+5.670 giả thuyết. 1.734/1.890 đủ mẫu, 938 thô p<0,05 (kỳ vọng nhiễu ~260 — vẫn
+thổi phồng, đúng như dự đoán khi tăng không gian giả thuyết), nhưng
 **0/5.670 sống sót Westfall–Young**. Chế độ tự tương quan không mở khoá thêm
 quy luật nào.
 

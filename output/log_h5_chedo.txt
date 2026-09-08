@@ -8,11 +8,11 @@ không gian gốc (dùng lại run_quyluat.py): 630 vị từ
   tự-tương-quan dương    n=8,662
 
 KHÔNG GIAN GIẢ THUYẾT H5: 630 vị từ × 3 chế độ = 1,890 vị từ × 3 lớp = 5,670 giả thuyết
-phát hiện 21,606 hàng · xác nhận 4,330 hàng
+phát hiện 18,306 hàng · xác nhận 4,324 hàng
 
 [1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
       1,734/1,890 vị từ đủ 100 lần khớp
-      sống sót W-Y p<0,05: 0 / thô p<0,05: 3287 (nếu toàn nhiễu kỳ vọng 260)
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 938 (nếu toàn nhiễu kỳ vọng 260)
 
 → KHÔNG vị từ nào sống sót Westfall–Young.
 
@@ -20,11 +20,11 @@ phát hiện 21,606 hàng · xác nhận 4,330 hàng
 PHỄU H5                                          còn lại
 không gian giả thuyết                              5,670
 đủ số lần khớp                                     1,734
-thô p<0,05                                         3,287
+thô p<0,05                                           938
 sống sót Westfall–Young                                0
 còn tin riêng sau đối chứng                            0
 chuyển giao được (LOPO)                                0
 tái lập trên KIỂM TRA                                  0
 
-đã ghi output/h5_chedo.json — 715s
+đã ghi output/h5_chedo.json — 963s
 TỰ KIỂM ĐẠT

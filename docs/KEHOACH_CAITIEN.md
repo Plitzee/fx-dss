@@ -127,17 +127,29 @@ tương quan** (`run_h5_chedo.py`), so SPA qua `run_spa_ho2.py` — kết quả 
 "chỉ σ̂" (H2 p=0,929 · H3 p=0,902 · H5 p=0,562), khớp Giai đoạn 1 (bác bỏ ở
 h=5/h=20 nhưng đó chính là nền đang chạy, không phải quy luật thay thế).
 
-**Điều kiện SPA giờ đã đóng cho cấu hình h=1/mục tiêu P.** Nhưng điều kiện thứ
-hai của 10.4 ("không quy luật nào qua ngưỡng sau LOPO") **không còn đúng tuyệt
-đối**: H3 tạo ra đúng một quy luật (`σ̂ rất thấp & ATR rất thấp` → đi ngang)
-qua hết WY → đối chứng → LOPO → kiểm tra, ghi ở `rules/rules_h3.csv`. Một
-ngoại lệ hẹp — không đủ mạnh để cả họ H3 thắng SPA — nhưng khiến tiêu chí dừng
-10.4 (đòi "không quy luật nào", tuyệt đối) chưa kích hoạt đúng nghĩa đen. Xem
-`docs/GIAIDOAN2_QUYLUAT.md` mục 5 để đọc đầy đủ cách diễn giải hai kết quả
-không mâu thuẫn này. Việc còn ngỏ nếu muốn khép hẳn: đo lại trên mục tiêu R và
-các tầm hạn 5/20 (hiện mới có h=1/mục tiêu P).
+**Điều kiện SPA đã đóng cho cấu hình h=1/mục tiêu P**, và điều kiện thứ hai
+("không quy luật nào qua ngưỡng sau LOPO") **cũng đúng** — cả sáu nhánh đều 0
+quy luật.
 
-### B2. Nâng lực phát hiện của phễu
+*(Bản đầu của mục này ghi H3 tìm được một quy luật ngoại lệ. Soi kỹ lại thì đó
+là artefact của một lỗi dữ liệu — 3.306 hàng bị bịa lợi suất bằng 0; đã sửa,
+đã rút lại quy luật, đã chạy lại toàn bộ. Xem `docs/CHISO_DANHGIA.md` mục 13.
+Phần thưởng đi kèm: lực phát hiện của phễu tăng từ lift 1,35 lên **1,20**.)*
+
+Việc còn ngỏ nếu muốn khép 10.4 tuyệt đối: đo thêm mục tiêu R và các tầm hạn
+5/20 (hiện mới có h=1/mục tiêu P).
+
+### B2. Nâng lực phát hiện của phễu — **ĐÃ ĐẠT, nhưng bằng đường không ai ngờ (08/09/2026)**
+
+> **Kết quả cuối:** MDES đi từ **1,35 xuống 1,20** — đúng mức mà mục này đặt ra
+> làm mục tiêu ở dòng cuối. Nhưng nó **không** đến từ FDR (đã thử, không ăn
+> tiền — `CHISO_DANHGIA.md` mục 9.1), mà từ việc **sửa một lỗi dữ liệu**:
+> 3.306 hàng khởi động bị bịa lợi suất bằng 0 và gán hết vào lớp "đi ngang",
+> làm hỏng mẫu nền của cả Giai đoạn 2 (`CHISO_DANHGIA.md` mục 13). Bài học đáng
+> ghi vào luận văn: khi lực phát hiện yếu, hãy **kiểm tra dữ liệu trước khi đổi
+> phương pháp thống kê** — ở đây dữ liệu cho nhiều gấp bội mọi thủ thuật.
+>
+> Số bên dưới là bằng chứng gốc lúc lập kế hoạch, giữ nguyên làm hồ sơ.
 
 **Bằng chứng.** `kiem_pheu.py` đo được: hiệu ứng nhỏ nhất phát hiện được ở lực
 80% là **lift 1,35**. Ở 1,20 lực chỉ 40%, ở 1,15 còn 8%. Nên kết luận hiện tại

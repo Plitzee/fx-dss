@@ -7,29 +7,29 @@ SPA cho từng họ Giai đoạn 2 — so với nền "chỉ σ̂"
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 H2 — motif: 24 vị từ (ứng viên)
-  n(kiểm định)=3,282  T_SPA=0.8703  p=0.9290  không bác bỏ H0
-  ứng viên tốt nhất (thô): motif L=10 cụm 3  Δlog=+0.00077
+  n(kiểm định)=3,282  T_SPA=0.4953  p=0.9900  không bác bỏ H0
+  ứng viên tốt nhất (thô): motif L=20 cụm 0  Δlog=+0.00056
 
 Đang dựng lại vị từ H3 (rule-list)…
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 H3 — rule-list: 8 vị từ (ứng viên)
-  n(kiểm định)=3,282  T_SPA=0.5485  p=0.9020  không bác bỏ H0
-  ứng viên tốt nhất (thô): lá CART #7  Δlog=+0.00048
+  n(kiểm định)=3,282  T_SPA=0.9991  p=0.5900  không bác bỏ H0
+  ứng viên tốt nhất (thô): lá CART #6  Δlog=+0.00085
 
 Đang dựng lại vị từ H5 (chế độ tự tương quan)…
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 H5 — chế độ tự tương quan: 1,890 vị từ (ứng viên)
   (giới hạn còn 630 ứng viên mạnh nhất theo |z| thô, để SPA khả thi)
-  n(kiểm định)=3,282  T_SPA=2.7688  p=0.5620  không bác bỏ H0
-  ứng viên tốt nhất (thô): khoảng cách EMA50 cao & |z| hôm nay vừa [tự-tương-quan âm]  Δlog=+0.00104
+  n(kiểm định)=3,282  T_SPA=2.4674  p=0.8720  không bác bỏ H0
+  ứng viên tốt nhất (thô): |z| hôm nay cao & tính dai vol thấp [trung tính]  Δlog=+0.00110
 
 ====================================================================================================
 TỔNG KẾT SPA THEO HỌ (so nền "chỉ σ̂", kiểm soát nhiều ứng viên)
   họ                    n ứng viên   p-value  bác bỏ α=0,05
-  H2_motif                      24    0.9290          không
-  H3_rulelist                    8    0.9020          không
-  H5_chedo                     630    0.5620          không
+  H2_motif                      24    0.9900          không
+  H3_rulelist                    8    0.5900          không
+  H5_chedo                     630    0.8720          không
 
 → output/spa_ho2.json

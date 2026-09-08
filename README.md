@@ -221,8 +221,12 @@ Dự báo **hướng giá** (tăng/giảm) không có tín hiệu — xác nhậ
 
 - Momentum: Sharpe −0,16 · Carry: Sharpe −0,05
 - AUC hướng: 0,46–0,53 (không phân biệt được với việc tung đồng xu)
-- Khai phá quy luật: 1.890 giả thuyết kỹ thuật, thử ở cả D1 (21.596 quan sát)
-  và H1 (592.343 quan sát) — **0 quy luật sống sót** sau kiểm định bội
+- Khai phá quy luật: **sáu nhánh độc lập** (ngưỡng đặc trưng, SAX biến động,
+  SAX hướng giá, motif, rule-list/CART, chế độ tự tương quan) — tổng cộng hơn
+  8.000 giả thuyết liệt kê đầy đủ, thử ở cả D1 (21.596 quan sát) và H1
+  (592.343 quan sát) — **0 quy luật sống sót** sau kiểm định bội. Phễu đã được
+  đo lực: nó bắt được quy luật có lift ≥ **1,20** với xác suất 80%, nên mọi quy
+  luật mạnh hơn thế đã bị loại trừ trên dữ liệu này
 - Phản ứng quanh sự kiện: 18 loại (NFP, CPI, GDP, họp NHTW…) — **0/18** có
   thiên lệch hướng có ý nghĩa
 - Lan truyền biến động chéo cặp (Diebold-Yilmaz): thử ở cả D1 và H1, không cải
@@ -258,12 +262,19 @@ mới vào `metrics.py` và xác nhận **có ý nghĩa** — họ mô hình bi�
 `docs/CHISO_DANHGIA.md` mục 11.
 
 Viết tiếp ba họ khai phá quy luật còn thiếu (motif, rule-list, chế độ tự tương
-quan — `docs/CHISO_DANHGIA.md` mục 12) tìm ra đúng **một** quy luật mới qua hết
-mọi cửa kiểm định (Westfall–Young, đối chứng có điều kiện, bỏ-một-cặp, tái lập
-trên kiểm tra): `σ̂ rất thấp VÀ ATR phân vị rất thấp` → thị trường đi ngang,
-lift 1,67. Cả ba họ vẫn không thắng được nền "chỉ σ̂" khi dùng làm hệ dự báo
-toàn diện (SPA không bác bỏ H0) — một quy luật hẹp, chưa đưa vào sản xuất, chỉ
-ghi nhận ở `rules/rules_h3.csv`.
+quan) thoạt tiên **tưởng** tìm ra một quy luật qua hết mọi cửa kiểm định. Soi
+kỹ lại thì nó không có thật — và việc soi đó lần ra một **lỗi dữ liệu** đã âm
+thầm làm hỏng cả chương khai phá quy luật: 3.306 phiên khởi động bị *bịa* lợi
+suất bằng 0 rồi gán hết vào lớp "đi ngang". Sửa xong:
+
+- kết luận **0 quy luật vẫn nguyên**, nhưng đứng trên số đúng
+- lực phát hiện của phễu tăng từ lift **1,35 → 1,20** — lớn hơn mọi thủ thuật
+  thống kê đã thử ở bảng trên
+- Giai đoạn 1, tầng rủi ro và giao diện sản xuất **không đổi một hàng nào**
+  (đã kiểm chứng trực tiếp)
+
+Toàn bộ câu chuyện — dấu vết dẫn tới lỗi, cơ chế, bản đồ ảnh hưởng, số trước và
+sau — ở `docs/CHISO_DANHGIA.md` mục 13.
 
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 

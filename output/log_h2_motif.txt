@@ -3,11 +3,11 @@ H2 — MOTIF (VQ codebook trên z chuẩn hoá), họ thứ hai của Giai đo�
 ================================================================================================================
 Đang khớp codebook KMeans (K=8) cho 3 độ dài cửa sổ trên HUẤN LUYỆN…
 KHÔNG GIAN GIẢ THUYẾT H2: 24 vị từ × 3 lớp = 72 giả thuyết — liệt kê đầy đủ, biết trước
-lọc còn phiên có đủ cả 3 cửa sổ: phát hiện 18,186 hàng · xác nhận 4,210 hàng
+lọc còn phiên có đủ cả 3 cửa sổ: phát hiện 18,186 hàng · xác nhận 4,204 hàng
 
 [1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
       24/72 giả thuyết đủ 100 lần khớp
-      sống sót W-Y p<0,05: 0 / thô p<0,05: 9 (nếu toàn nhiễu kỳ vọng 4)
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 2 (nếu toàn nhiễu kỳ vọng 4)
 
 → KHÔNG vị từ nào sống sót Westfall–Young.
 
@@ -15,11 +15,11 @@ lọc còn phiên có đủ cả 3 cửa sổ: phát hiện 18,186 hàng · xác
 PHỄU H2                                          còn lại
 không gian giả thuyết                                 72
 đủ số lần khớp                                        24
-thô p<0,05                                             9
+thô p<0,05                                             2
 sống sót Westfall–Young                                0
 còn tin riêng sau đối chứng                            0
 chuyển giao được (LOPO)                                0
 tái lập trên KIỂM TRA                                  0
 
-đã ghi output/h2_motif.json — 21s
+đã ghi output/h2_motif.json — 38s
 TỰ KIỂM ĐẠT

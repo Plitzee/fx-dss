@@ -61,12 +61,33 @@ def nap(duong=None):
 
 # ── muc tieu ────────────────────────────────────────────────────────────
 def loi_suat_h(d, h):
-    """r_h[t] = tong loi suat log tu t den t+h-1. NaN o duoi khi thieu ngay."""
+    """r_h[t] = tong loi suat log tu t den t+h-1. NaN o duoi khi thieu ngay.
+
+    LOI DA SUA (08/09/2026) — BIA LOI SUAT BANG 0. `nancumsum` coi NaN la 0,
+    nen mot cua so ma MOI ngay deu thieu cho tong = 0,0 chu khong phai NaN.
+    Voi 551 phien dau moi cap (sigma^ chua co du lieu khoi dong, r = zT*sig =
+    NaN) dieu do sinh ra 3.306 hang co "loi suat" dung bang 0 — roi gan_lop()
+    xep het chung vao lop "di ngang" vi |0| <= dai.
+
+    Hau qua da do duoc: ty le lop "di ngang" tren mau khai pha cua Giai doan 2
+    bi thoi tu 18,4% (that) len 30,8% (co 3.312 hang bia). Moi con so lift cua
+    Giai doan 2 deu bi meo theo — dau hieu lo ra la ca ba o cua sigma^ (thap,
+    vua, cao) cung cho lift < 1 voi lop "di ngang" (0,715 · 0,608 · 0,482),
+    dieu KHONG THE xay ra neu ba o phu kin mau, tru khi mau nen chua nhung
+    hang khong thuoc o nao. 3.306/3.312 hang do nam o doan HUAN LUYEN nen
+    Giai doan 1 (cham tren kiem dinh) khong bi anh huong.
+
+    Sua: dem so ngay CO THAT trong moi cua so; cua so khong co ngay nao thi
+    tra NaN. Giu nguyen dung y ban dau la CHIU DUOC khe ho le te (cua so con
+    it nhat mot ngay that van cong duoc phan quan sat duoc)."""
     r = d.zT.values * d.sig.values
     n = len(r)
     cs = np.concatenate([[0.0], np.nancumsum(r)])
+    co = np.concatenate([[0.0], np.cumsum(np.isfinite(r).astype(float))])
     ra = np.full(n, np.nan)
-    ra[: n - h + 1] = cs[h:] - cs[: n - h + 1]
+    tong = cs[h:] - cs[: n - h + 1]
+    du = (co[h:] - co[: n - h + 1]) > 0
+    ra[: n - h + 1] = np.where(du, tong, np.nan)
     return ra
 
 
