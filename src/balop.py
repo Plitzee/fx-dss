@@ -384,12 +384,27 @@ class ToHopTrucTuyen:
 
     ten = "tổ hợp trực tuyến"
 
-    def __init__(self, chuyen_gia, eta=0.5, tre=1):
+    def __init__(self, chuyen_gia, eta=0.5, tre=1, alpha=0.0):
         """chuyen_gia: [(ten, doi_tuong_co_du_bao)]. eta chot 0,5 — la gia tri
-        da do o src/run_ml3.py, KHONG duoc chinh lai tren doan kiem tra."""
+        da do o src/run_ml3.py, KHONG duoc chinh lai tren doan kiem tra.
+
+        alpha — CHIA SE CO DINH (Herbster & Warmuth 1998). Hedge tran khong co
+        quen: mot chuyen gia da bi dim xuong 1e-6 phai thang rat nhieu phien
+        moi ngoi len lai. Neu che do thi truong DOI — va thi truong tien te thi
+        doi — thi cai cham do la ton that thuc. Fixed-Share tron lai alpha
+        phan trong so ve deu moi phien, dat mot san cho moi chuyen gia:
+
+            w <- (1 - alpha) w + alpha / N
+
+        Doi lai, chan hoi tiec khong con so voi CHUYEN GIA tot nhat ma so voi
+        DAY chuyen gia tot nhat co k lan chuyen — dung thu ta muon khi co che
+        do. alpha = 0 la Hedge tran, va do la MAC DINH: alpha chi duoc bat sau
+        khi da do tren doan hop le (src/kiem_fixshare.py).
+        """
         self.cg = list(chuyen_gia)
         self.eta = float(eta)
         self.tre = max(1, int(tre))
+        self.alpha = float(alpha)
 
     def khop(self, *a, **k):
         return self
@@ -414,6 +429,8 @@ class ToHopTrucTuyen:
             ton = -np.log(np.maximum(A[:, j, y[j]], 1e-9))
             w = w * np.exp(-self.eta * (ton - ton.min()))
             w = w / max(w.sum(), EPS)
+            if self.alpha > 0:                      # chia se co dinh
+                w = (1.0 - self.alpha) * w + self.alpha / N
         self.trong_so = {t: float(v) for (t, _), v in zip(self.cg, w)}
         self.lich_su = lich_su
         return _chuan(ra)

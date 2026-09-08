@@ -158,8 +158,13 @@ def hoan_vi_khoi(y, rng, khoi=KHOI):
     return y[idx[:n]]
 
 
-def westfall_young(M, y, mask, nperm=NPERM, seed=SEED):
-    """maxT tung buoc xuong. Tra ve p_wy cho tung (vi tu, lop) da lam phang."""
+def westfall_young(M, y, mask, nperm=NPERM, seed=SEED, tra_null=False):
+    """maxT tung buoc xuong. Tra ve p_wy cho tung (vi tu, lop) da lam phang.
+
+    `tra_null=True` tra them (p_tho, Zb): p BIEN duyen tung gia thuyet — khong
+    hieu chinh max — va ca ma tran null. Hai thu do la nguyen lieu cho cong
+    FDR (`fdr_bh`), vi FDR can p THO cua ca ho chu khong can max|z|.
+    """
     Z, L, nk = z_lift(M, y, mask)
     z = np.abs(np.nan_to_num(Z.ravel(), nan=0.0))
     rng = np.random.default_rng(seed)
@@ -178,7 +183,82 @@ def westfall_young(M, y, mask, nperm=NPERM, seed=SEED):
         mx = con[:, i:].max(1) if i < len(thu) else np.zeros(nperm)
         p[thu[i]] = (mx >= z[thu[i]]).mean()
     p = np.maximum.accumulate(p)                 # ep don dieu
-    return Z, L, nk, p.reshape(Z.shape), np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
+    ng = np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
+    if tra_null:
+        return (Z, L, nk, p.reshape(Z.shape), ng,
+                p_tho_tu_null(z, Zb).reshape(Z.shape), Zb.astype(np.float32))
+    return Z, L, nk, p.reshape(Z.shape), ng
+
+
+def p_tho_tu_null(z, Zb):
+    """p bien duyen hai phia tung gia thuyet, DEM truc tiep tren cot null.
+
+    Cong (b + 1)/(B + 1) — uoc luong khong chech duoi hoan vi, va quan trong
+    hon la khong bao gio tra ve p = 0 (mot p = 0 se lam thu tuc BH nhan bua
+    bai o hang dau).
+
+    GIOI HAN CUNG: p nho nhat co the tra ve la 1/(B + 1). Voi B = 1.000 thi
+    do la 1e-3 — trong khi nguong BY o hang 1 la alpha/(m c) = 9,6e-7. Tuc
+    dem truc tiep KHONG BAO GIO bac bo duoc gi qua cong FDR. Dung ham nay de
+    KIEM CHUNG, con de chay cong thi dung `p_duoi_chuan`.
+    """
+    return (1.0 + (Zb >= z[None, :]).sum(0)) / (Zb.shape[0] + 1.0)
+
+
+def he_so_phong(Zb):
+    """lambda_j = do lech chuan cua |z| duoi null, tung gia thuyet.
+
+    Duoi null doc lap, z ~ N(0,1) nen sd(z) = 1. Phu thuoc khoi trong chuoi
+    lam sd phong len; lambda do CHINH cai phong do. Day la "genomic control"
+    (Devlin & Roeder 1999), lay tung cot vi so lan khop moi vi tu moi khac.
+
+    Uoc tu MOMENT BAC HAI cua |z| chu khong tu var(|z|): duoi null z doi xung
+    quanh 0 nen E[z] = 0 va E[z^2] = lambda^2, con var(|z|) thi khong.
+    """
+    return np.sqrt(np.maximum(np.mean(np.asarray(Zb, float) ** 2, 0), EPS))
+
+
+def p_duoi_chuan(z, lam):
+    """p hai phia tu duoi chuan da hieu chuan: p = 2(1 - Phi(|z| / lambda)).
+
+    NGOAI SUY, va phai duoc noi ro nhu vay. Hoan vi chi do duoc toi 1e-3; moi
+    thu duoi do la suy ra tu gia dinh duoi chuan. `kiem_fdr.py` KIEM CHUNG gia
+    dinh nay o vung 1e-3..1 noi ca hai cach deu do duoc, roi moi dam dung no
+    o vung sau hon.
+    """
+    from scipy.stats import norm
+    return np.clip(2.0 * norm.sf(np.abs(z) / np.maximum(lam, EPS)), 1e-300, 1.0)
+
+
+def fdr_bh(p, alpha=0.05, bang_bo=True):
+    """Benjamini-Hochberg, hoac Benjamini-Yekutieli khi `bang_bo=True`.
+
+    TRA VE (bac_bo, p_hieu_chinh, nguong_p).
+
+    BH kiem soat FDR khi cac gia thuyet doc lap hoac PRDS. Ho gia thuyet o day
+    KHONG the gia dinh la PRDS: cac vi tu long nhau ("σ̂ cao" va "σ̂ cao & thu
+    Hai"), va ba lop cua cung mot vi tu buoc phai co tuong quan AM. Nen mac
+    dinh la BY (Benjamini-Yekutieli 2001), dung duoi PHU THUOC TUY Y, doi lai
+    bang cach chia cho c(m) = sum(1/i) ~ ln m + 0,577.
+
+    Voi m = 5.670 gia thuyet, c(m) = 9,22. Do la mot cai gia RAT dat — va no
+    la ly do phai DO chu khong duoc doan xem FDR co manh hon FWER khong.
+    """
+    p = np.asarray(p, float).ravel()
+    m = len(p)
+    thu = np.argsort(p)
+    ps = p[thu]
+    c = np.log(m) + 0.5772156649 + 1.0 / (2 * m) if bang_bo else 1.0
+    # p hieu chinh BH/BY: min tu phai sang trai cua m*c*p_(i)/i
+    ph = np.minimum.accumulate((m * c * ps / np.arange(1, m + 1))[::-1])[::-1]
+    ph = np.minimum(ph, 1.0)
+    bb = np.zeros(m, bool)
+    bb[thu] = ph <= alpha
+    ra = np.empty(m)
+    ra[thu] = ph
+    k = np.where(ph <= alpha)[0]
+    ngp = float(ps[k[-1]]) if len(k) else 0.0
+    return bb.reshape(np.shape(p)), ra, ngp
 
 
 R2_TRUNG = 0.99          # nguong coi vi tu la TRUNG voi bo kiem soat

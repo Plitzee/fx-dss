@@ -1,0 +1,211 @@
+{
+ "n_gia_thuyet": 1890,
+ "n_hang": 21606,
+ "alpha": 0.05,
+ "c_by": 8.121812323218238,
+ "gia_tri_toi_han_wy": 4.720302836439412,
+ "lambda_trungvi": 1.011309032888366,
+ "lifts": [
+  1.05,
+  1.1,
+  1.15,
+  1.2,
+  1.35
+ ],
+ "n_lap": 60,
+ "k_tin_hieu": [
+  1,
+  5
+ ],
+ "kiem_xap_xi": [
+  {
+   "muc": 0.1,
+   "hoan_vi_trungvi": 1.6402777748822404,
+   "chuan": 1.6448536269514722,
+   "lech_ty_le": -0.00278192052730708
+  },
+  {
+   "muc": 0.05,
+   "hoan_vi_trungvi": 1.951600510935985,
+   "chuan": 1.959963984540054,
+   "lech_ty_le": -0.004267156779430126
+  },
+  {
+   "muc": 0.01,
+   "hoan_vi_trungvi": 2.542871754303067,
+   "chuan": 2.5758293035489004,
+   "lech_ty_le": -0.012794927521177502
+  }
+ ],
+ "lech_xap_xi_max": 0.012794927521177502,
+ "z_tuong_duong": {
+  "wy_95": 4.720302836439412,
+  "bh_hang1": 4.249535150472512,
+  "by_hang1": 4.706522595748154
+ },
+ "doi_chung_am": [
+  {
+   "lan": 0,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 1,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 2,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 3,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 4,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 5,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 6,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 7,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 8,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  },
+  {
+   "lan": 9,
+   "bac_bo_by": 0,
+   "qua_dieu_kien": 0
+  }
+ ],
+ "doi_chung_duong": [
+  {
+   "k": 1,
+   "lift": 1.05,
+   "n_co_hoi": 60,
+   "bat_wy": 0,
+   "luc_wy": 0.0,
+   "bat_by": 0,
+   "luc_by": 0.0,
+   "by_bac_bo_tb": 1059.3
+  },
+  {
+   "k": 1,
+   "lift": 1.1,
+   "n_co_hoi": 60,
+   "bat_wy": 1,
+   "luc_wy": 0.016666666666666666,
+   "bat_by": 4,
+   "luc_by": 0.06666666666666667,
+   "by_bac_bo_tb": 1062.8166666666666
+  },
+  {
+   "k": 1,
+   "lift": 1.15,
+   "n_co_hoi": 60,
+   "bat_wy": 9,
+   "luc_wy": 0.15,
+   "bat_by": 20,
+   "luc_by": 0.3333333333333333,
+   "by_bac_bo_tb": 1061.5333333333333
+  },
+  {
+   "k": 1,
+   "lift": 1.2,
+   "n_co_hoi": 60,
+   "bat_wy": 24,
+   "luc_wy": 0.4,
+   "bat_by": 33,
+   "luc_by": 0.55,
+   "by_bac_bo_tb": 1072.6333333333334
+  },
+  {
+   "k": 1,
+   "lift": 1.35,
+   "n_co_hoi": 60,
+   "bat_wy": 58,
+   "luc_wy": 0.9666666666666667,
+   "bat_by": 58,
+   "luc_by": 0.9666666666666667,
+   "by_bac_bo_tb": 1087.4
+  },
+  {
+   "k": 5,
+   "lift": 1.05,
+   "n_co_hoi": 300,
+   "bat_wy": 5,
+   "luc_wy": 0.016666666666666666,
+   "bat_by": 11,
+   "luc_by": 0.03666666666666667,
+   "by_bac_bo_tb": 1056.9166666666667
+  },
+  {
+   "k": 5,
+   "lift": 1.1,
+   "n_co_hoi": 300,
+   "bat_wy": 7,
+   "luc_wy": 0.023333333333333334,
+   "bat_by": 24,
+   "luc_by": 0.08,
+   "by_bac_bo_tb": 1063.9833333333333
+  },
+  {
+   "k": 5,
+   "lift": 1.15,
+   "n_co_hoi": 300,
+   "bat_wy": 48,
+   "luc_wy": 0.16,
+   "bat_by": 91,
+   "luc_by": 0.30333333333333334,
+   "by_bac_bo_tb": 1073.2833333333333
+  },
+  {
+   "k": 5,
+   "lift": 1.2,
+   "n_co_hoi": 300,
+   "bat_wy": 120,
+   "luc_wy": 0.4,
+   "bat_by": 156,
+   "luc_by": 0.52,
+   "by_bac_bo_tb": 1088.9
+  },
+  {
+   "k": 5,
+   "lift": 1.35,
+   "n_co_hoi": 300,
+   "bat_wy": 281,
+   "luc_wy": 0.9366666666666666,
+   "bat_by": 283,
+   "luc_by": 0.9433333333333334,
+   "by_bac_bo_tb": 1143.1666666666667
+  }
+ ],
+ "mdes": {
+  "1": {
+   "wy": 1.3058823529411765,
+   "by": 1.29
+  },
+  "5": {
+   "wy": 1.311801242236025,
+   "by": 1.299212598425197
+  }
+ },
+ "giay": 304.9
+}

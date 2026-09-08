@@ -366,3 +366,164 @@ liệu ra **hàng tuần**, thị trường ít bất ngờ hơn số liệu hà
 Vẫn không loại nào có thiên lệch hướng có ý nghĩa. Số lần kiểm độc lập tăng từ
 14 lên 18 loại, kết luận "sự kiện khuếch đại biên độ, không chỉ ra chiều" tiếp
 tục đứng vững.
+
+---
+
+## 9. Ba phương pháp hiện đại — đã thử, **cả ba không ăn tiền** (08/09/2026)
+
+Rà lại xem các phương pháp đang dùng có lỗi thời không, ba ứng viên được chọn vì
+đều đo được bằng công cụ sẵn có, không cần hạ tầng mới. Mục này ghi cả ba, kể cả
+hai cái thất bại — vì cái học được từ chúng đáng giá hơn bản thân phép thử.
+
+| # | Phương pháp | Thay cho | Kết quả |
+|---|---|---|---|
+| 1 | FDR Benjamini–Yekutieli | Westfall–Young FWER | **Không ăn tiền** — sai chỗ nghẽn |
+| 2 | CAViaR (Engle–Manganelli 2004) | Phân vị tĩnh `va_duoi.py` | **Không ăn tiền** — lãi chỉ đến từ nhiễu seed |
+| 3 | Fixed-Share (Herbster–Warmuth 1998) | Hedge trơn | **Không ăn tiền** — đo được, xấu đơn điệu |
+
+### 9.1 FDR thay FWER — cải thiện 1,2%, và cải thiện đó là giả
+
+`src/kiem_fdr.py`, `output/kiem_fdr.json`. 1.890 giả thuyết, 21.606 hàng.
+
+Trước hết phải vượt một rào kỹ thuật: ngưỡng BY ở hạng 1 là α/(m·c) = 3,3e-6,
+trong khi 1.000 hoán vị chỉ phân giải được tới 1e-3. Nên p thô đếm trực tiếp
+**không bao giờ** bác bỏ được gì qua cổng FDR. Cách vá là hiệu chuẩn đuôi chuẩn
+bằng hệ số phồng λ đo từ null (genomic control), rồi **kiểm chứng xấp xỉ đó** ở
+vùng cả hai cách đều đo được — lệch lớn nhất **1,3%**, chấp nhận được.
+
+Ngưỡng |z| tương đương ở hạng 1: W-Y 4,72 · BH 4,25 · **BY 4,71**. BY gần như
+trùng W-Y, đúng như lý thuyết dự báo (với một tín hiệu, BH = Bonferroni, BY còn
+chia thêm cho c(m) = 8,12).
+
+MDES đo bằng đối chứng dương, 60 lần lặp mỗi mức:
+
+| số tín hiệu tiêm | MDES W-Y | MDES BY |
+|---|---|---|
+| 1 | 1,306 | 1,290 |
+| 5 | 1,312 | 1,299 |
+
+BY nhạy hơn 1,2%. **Nhưng con số đó không dùng được**, vì ba lý do đo được:
+
+1. **k = 5 không khá hơn k = 1.** Nếu FDR đang ăn tiền nhờ nhiều tín hiệu cùng
+   lúc thì k = 5 phải hơn hẳn. Nó không hơn.
+2. **BY bác bỏ trung bình 1.056 giả thuyết** trên dữ liệu thật. Ngưỡng BH/BY
+   nới ra tỷ lệ thuận với số bị bác bỏ, nên cả lợi thế của BY đến từ 1.056 cái
+   đó — mà chúng là gì? 892 giả thuyết có |z| > 4,71, max |z| = 28, và chúng là
+   **các biến thể của σ̂**: "tính dai vol cao", "ATR phân vị cao", "|z| hôm nay
+   thấp" — tất cả đều là thước đo biến động, tất cả đều chỉ vào lớp *đi ngang*.
+   Lớp đi ngang định nghĩa bằng dải pip cố định, nên biến động thấp → đi ngang.
+   Đó đúng là phép lặp thừa mà `la_vi_tu_nen` sinh ra để chặn — nhưng nó chỉ bắt
+   đúng chữ "σ̂", bỏ lọt 11 đặc trưng biến động khác. **BY đang cưỡi lên phép
+   lặp thừa để nới ngưỡng của chính nó.**
+3. **Cổng đa kiểm định không phải chỗ nghẽn.** Đo trực tiếp trên dữ liệu thật:
+
+   | cổng | còn lại |
+   |---|---|
+   | 1.890 giả thuyết | 1.890 |
+   | cửa 1 — đa kiểm định, \|z\| > 4,72 | **891** (47%) |
+   | cửa 2 — điều kiện hoá theo σ̂ | **31** (3,5% số qua cửa 1) |
+   | *nếu bỏ hẳn cửa 1*, cửa 2 một mình | 55 |
+
+   Cửa 1 đang loại thêm đúng **24** giả thuyết mà cửa 2 sẽ cho qua. Tức toàn bộ
+   dư địa của việc nới cửa 1 — dù nới bằng FDR, e-value hay bỏ hẳn — là 24 giả
+   thuyết. Tinh chỉnh một cái cửa cho qua 47% là tinh chỉnh sai chỗ.
+
+**Quyết định: giữ Westfall–Young.** Ghi vào đây để `KEHOACH_2026Q4.md` §1.2
+được đóng lại, không phải vì quên mà vì đã đo.
+
+**Việc nên làm thay vào đó** (chưa làm): `la_vi_tu_nen` hiện chỉ loại 3/630 vị
+từ. Đúng ra phải loại mọi vị từ chỉ nói về biến động — thêm 11 đặc trưng nữa.
+Đó không phải mẹo thống kê mà là sửa **định nghĩa không gian quy luật**, và nó
+ảnh hưởng tới con số "0/1.890" đang báo cáo.
+
+### 9.2 CAViaR — 6/6 so với 5/6, và cái hơn đó không đứng vững
+
+`src/caviar.py`, `output/caviar.json`. Ba dạng động lực (SAV, AS, IG — Engle &
+Manganelli 2004) khớp trên **z** (sau khi đã chia σ̂), giao thức cuộn giống hệt
+V1 mở rộng của `va_duoi.py`, chọn trên kiểm định.
+
+Chạy đầu (`output/log_caviar.txt`) lộ ra một lỗi trước khi so được gì: đệ quy
+`b1` không bị chặn dưới 1, nên vài cửa sổ nổ theo hàm mũ — SAV ở USDJPY ra
+pinball 52.205 (đáng lẽ ~0,04), AS ở USDCHF ra tỷ lệ ES −4061. Vá bằng cách
+chặn phân kỳ ngay trong hàm mục tiêu (`abs(b[1]) >= 0.999 → inf`), chạy lại
+(`log_caviar2.txt`) mới có bảng sạch để so.
+
+Tổng kết trên kiểm định, sáu cặp:
+
+| biến thể | α=0,05 | α=0,01 | pinball TB |
+|---|---|---|---|
+| V1 mở rộng (mốc, phân vị tĩnh) | 5/6 | 5/6 | 0,07050 |
+| CAViaR SAV | 4/6 | 4/6 | 0,07086 |
+| CAViaR AS | 4/6 | 4/6 | 0,07050 |
+| **CAViaR IG** | 5/6 | **6/6** | 0,07067 |
+
+IG là dạng duy nhất **hơn** mốc — 6/6 so với 5/6 ở α=0,01, nhờ đúng một cặp
+đổi từ trượt sang đạt: USDCHF (DQ 0,0031 → 0,0620). Nhìn thoáng qua đây là
+bằng chứng CAViaR bắt được động lực đuôi mà phân vị tĩnh bỏ lỡ.
+
+**Nhưng kiểm tra ổn định theo hạt giống ngẫu nhiên lật lại kết luận đó.**
+`output/log_ondinh.txt` chạy lại đúng cấu hình IG với 5 seed (11, 101, 202,
+303, 404) trên ba cặp — hai cặp "có vấn đề" (USDCHF, USDCAD) và một cặp làm
+đối chứng (USDJPY):
+
+| cặp | seed đạt DQ | khoảng DQ quan sát |
+|---|---|---|
+| USDJPY (đối chứng) | **5/5** | [0,9966; 0,9981] — ổn định |
+| USDCHF | 4/5 | [0,0034; 0,0640] — sát ngưỡng 0,05 |
+| USDCAD | **2/5** | [0,0163; 0,8822] — đổi kết luận theo seed |
+
+USDCAD đã đạt ở mốc V1 (DQ 0,8715) — CAViaR IG không thêm gì ở đây, chỉ là
+phép đo bấp bênh. Còn đúng cặp làm nên lợi thế "6/6" — USDCHF — có DQ dao
+động ba bậc độ lớn (0,0034 → 0,0640) chỉ vì đổi hạt giống khởi tạo Nelder-Mead,
+tức "đạt" hay "trượt" phụ thuộc may rủi tối ưu hoá chứ không phải tín hiệu.
+
+Đã thử loại giả thuyết "thiếu điểm khởi động": `output/log_ondinh2.txt` chạy
+lại với `n_dau=60` (gấp 5 lần số điểm khởi đầu ngẫu nhiên mặc định 12) — kết
+quả **không đổi**, vẫn 4/5 và 2/5. Vậy không phải do tối ưu hoá chưa hội tụ đủ
+sâu; bất định nằm ở chính bài toán (bề mặt pinball loss nhiều cực tiểu địa
+phương gần nhau, giống hệt tình huống Fixed-Share ở 9.3 — "hạng nhất đổi tay
+nhưng các phương án gần hoà nhau").
+
+**Quyết định: giữ phân vị tĩnh (V1 mở rộng) của `va_duoi.py`.** CAViaR không
+sai về lý thuyết — chạy trên z, có tự kiểm đệ quy, có chặn phân kỳ — nhưng cái
+"hơn" duy nhất nó tạo ra so với mốc không sống sót qua đổi hạt giống. Không có
+script CAViaR nào được gọi trong pipeline sản xuất; `src/caviar.py` giữ lại
+như tài liệu đối chứng, không bật.
+
+### 9.3 Fixed-Share — đo được, và xấu đơn điệu
+
+`src/kiem_fixshare.py`, `output/kiem_fixshare.json`. Chọn trên **kiểm định**
+(3.282 hàng); đoạn kiểm tra không mở.
+
+Chẩn đoán trước đã: chuyên gia giỏi nhất **có** đổi — 3 chuyên gia khác nhau
+chiếm ngôi đầu qua 13 cửa sổ 250 phiên. Nên tiền đề của Fixed-Share đúng. Nhưng
+*cách biệt* giữa hạng nhất và hạng nhì chỉ 0,0002–0,0086 log-loss: ngôi đầu đổi
+tay, mà các chuyên gia gần như hoà nhau. Đuổi theo kẻ dẫn đầu thì không có gì
+để ăn, còn chi phí kéo trọng số về đều thì trả thật.
+
+ΔBSS so với α = 0, KTC bootstrap khối **ghép cặp**:
+
+| α | mục tiêu P | mục tiêu R |
+|---|---|---|
+| 0,001 | −0,00008 [−0,00029; +0,00012] | −0,00019 [−0,00037; +0,00001] |
+| 0,010 | −0,00110 [−0,00248; +0,00016] | −0,00162 [−0,00270; −0,00037] |
+| 0,050 | −0,00335 [−0,00612; −0,00081] | −0,00404 [−0,00661; −0,00146] |
+| 0,200 | −0,00487 [−0,00864; −0,00150] | −0,00550 [−0,00875; −0,00236] |
+
+Đơn điệu, cả hai mục tiêu, không có cực đại trong: **α = 0 là tối ưu**. Ở α lớn
+KTC nằm hẳn dưới 0 — không phải "không đo được", mà là *đo được rằng nó hại*.
+
+**Quyết định: giữ Hedge trơn.** `ToHopTrucTuyen.alpha` được thêm vào `balop.py`
+với mặc định 0,0 (đúng hành vi cũ, tự kiểm đạt) và giữ lại để lần sau có thêm
+chuyên gia thực sự khác nhau thì đo lại — không phải để bật.
+
+### Cái học được
+
+Cả ba thất bại có chung một hình dạng: **phương pháp mới đúng, nhưng vá vào chỗ
+không đau — hoặc cái "hơn" nó tạo ra không sống sót qua kiểm tra thứ hai.** FDR
+nới cửa 1 trong khi cửa 2 mới chặn. CAViaR hơn mốc đúng 1 cặp, và cặp đó đổi
+kết luận theo hạt giống ngẫu nhiên — lợi thế là nhiễu đo, không phải tín hiệu.
+Fixed-Share đuổi theo đổi chế độ trong khi các chuyên gia hoà nhau nên đổi chế
+độ chẳng tốn gì. Trước khi thay một phương pháp, phải đo xem **ràng buộc đang
+nằm ở đâu**, và phải **kiểm tra lại bằng seed/lát cắt khác** trước khi tin một
+con số hơn — nếu không thì hiện đại hoá chỉ là thay đồ.
