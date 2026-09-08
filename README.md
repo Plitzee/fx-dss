@@ -221,10 +221,11 @@ Dự báo **hướng giá** (tăng/giảm) không có tín hiệu — xác nhậ
 
 - Momentum: Sharpe −0,16 · Carry: Sharpe −0,05
 - AUC hướng: 0,46–0,53 (không phân biệt được với việc tung đồng xu)
-- Khai phá quy luật: **sáu nhánh độc lập** (ngưỡng đặc trưng, SAX biến động,
-  SAX hướng giá, motif, rule-list/CART, chế độ tự tương quan) — tổng cộng hơn
-  8.000 giả thuyết liệt kê đầy đủ, thử ở cả D1 (21.596 quan sát) và H1
-  (592.343 quan sát) — **0 quy luật sống sót** sau kiểm định bội. Phễu đã được
+- Khai phá quy luật: **tám nhánh độc lập** (ngưỡng đặc trưng, SAX biến động,
+  SAX hướng giá, motif, rule-list/CART, chế độ tự tương quan, **HMM**,
+  **Matrix Profile**) — tổng cộng hơn 8.000 giả thuyết liệt kê đầy đủ, thử ở cả
+  D1 (21.596 quan sát) và H1 (592.343 quan sát) — **0 quy luật sống sót** sau
+  kiểm định bội, và **không nhánh nào thắng nền** qua Hansen SPA. Phễu đã được
   đo lực: nó bắt được quy luật có lift ≥ **1,20** với xác suất 80%, nên mọi quy
   luật mạnh hơn thế đã bị loại trừ trên dữ liệu này
 - Phản ứng quanh sự kiện: 18 loại (NFP, CPI, GDP, họp NHTW…) — **0/18** có
@@ -275,6 +276,21 @@ suất bằng 0 rồi gán hết vào lớp "đi ngang". Sửa xong:
 
 Toàn bộ câu chuyện — dấu vết dẫn tới lỗi, cơ chế, bản đồ ảnh hưởng, số trước và
 sau — ở `docs/CHISO_DANHGIA.md` mục 13.
+
+### Ổn định qua thời gian — không phải trung bình che đi vài năm tệ
+
+Chia chuỗi dự báo theo từng năm (`docs/CHISO_DANHGIA.md` mục 14):
+
+| tầm hạn | số năm BSS dương | BSS trung vị |
+|---|---|---|
+| **1 phiên** | **14/14 năm** | +0,0135 |
+| 5 phiên | 10/14 | +0,0028 |
+| 20 phiên | 8/14 | +0,0063 |
+
+Ở tầm hạn 1 phiên hệ thống dương **liên tục suốt 14 năm**, kể cả 2020, 2022 và
+đoạn kiểm tra 2024–2025. Ở tầm hạn 20 phiên thì chỉ 8/14 — gần như tung đồng
+xu theo năm. **Độ tin cậy giảm mạnh theo tầm hạn**, và giao diện nói đúng như
+vậy thay vì báo cáo một con số gộp.
 
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 

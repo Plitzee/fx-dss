@@ -841,3 +841,68 @@ tái lập trên kiểm tra — mà vẫn sai, vì cả bốn cửa đều đo t
 hàng mới cứu được.
 
 Và dấu vết luôn để lại: ba ô của một phân hoạch không thể cùng có lift < 1.
+
+---
+
+## 14. Walk-forward — hiệu năng có trôi theo thời gian không? (08/09/2026)
+
+`src/run_walkforward.py`, `output/walkforward.json`. Kế hoạch Pha 1 của HuyH
+(Week 3, mục 1) đòi "đi xa hơn một lần chia 80/20": chia trục thời gian thành
+nhiều khối liên tiếp và đo **performance drift**. Repo có ba đoạn cố định
+nhưng chưa có bảng trải theo từng năm.
+
+**Không phải huấn luyện lại.** Mô hình sản xuất vốn đã là mô hình **cuộn** —
+`du_bao_cuon` khớp lại mỗi 21 phiên trên cửa sổ mở rộng — nên dự báo tại ngày t
+đã chỉ dùng thông tin đến t. Walk-forward ở đây là việc **chia** chuỗi dự báo
+nhân quả có sẵn theo từng năm rồi chấm điểm từng khối. Mốc BSS là khí hậu học
+**đóng băng trên huấn luyện**; nếu lấy khí hậu học của từng năm thì mỗi năm sẽ
+tự chuẩn hoá về 0 và bảng mất sạch ý nghĩa. Đây là **chẩn đoán**, không lựa
+chọn nào phụ thuộc nó.
+
+| tầm hạn | số năm BSS dương | BSS trung vị | khoảng |
+|---|---|---|---|
+| **h = 1** | **14/14** | +0,0135 | [+0,0010; +0,0491] |
+| h = 5 | 10/14 | +0,0028 | [−0,0238; +0,0276] |
+| h = 20 | 8/14 | +0,0063 | [−0,0377; +0,0330] |
+
+**Đây là con số nên đưa vào luận văn thay cho một BSS gộp.** Ở h=1 hệ thống
+dương **liên tục 14/14 năm** — kể cả 2020 (COVID), 2022 (chu kỳ tăng lãi suất),
+và cả đoạn kiểm tra 2024–2025. Đó là độ ổn định thật, không phải trung bình che
+đi vài năm tệ.
+
+Nhưng ở **h = 20 chỉ 8/14 năm** — gần như tung đồng xu theo năm, và năm tệ nhất
+(−0,0377) sâu hơn năm tốt nhất (+0,0330) ở h=1. **Độ tin cậy giảm mạnh theo tầm
+hạn**, và phải nói rõ điều đó thay vì báo cáo một con số gộp. Năm tệ nhất của cả
+h=5 lẫn h=20 đều là **2017** — năm biến động FX thấp bất thường: khi biến động
+vừa thấp vừa phẳng, lợi thế của mô hình dựa trên σ̂ không còn gì để khai thác.
+
+Khớp với `docs/BAOCAO_UI.md`: giao diện nên tự tin ở ô 1 phiên và dè dặt ở ô 20
+phiên — giờ đã có con số cụ thể để nói vì sao.
+
+---
+
+## 15. Độ chính xác và macro F1 — kế hoạch đòi, và chúng cho thấy vì sao mục 1 đúng
+
+`src/diem3.py::chinh_xac()`, `f1_vi_mo()`. Kế hoạch Pha 1 (muc 6) đòi hai chỉ số
+này nên chúng đã có trong `results/experiment_summary.csv`. Bảng A trên đoạn
+kiểm định, mục tiêu P, h = 1:
+
+| mô hình | log | BSS | **chính xác** | macro F1 | ECE |
+|---|---|---|---|---|---|
+| khí hậu học | 1,0980 | +0,0000 | **0,3620** | 0,2777 | 0,0160 |
+| quán tính | 1,0991 | −0,0010 | 0,3278 | 0,3186 | 0,0158 |
+| chỉ σ̂ | 1,0867 | +0,0105 | 0,3690 | 0,2974 | 0,0156 |
+| σ̂ + chế độ (cuộn) | 1,0871 | +0,0103 | 0,3742 | 0,3534 | 0,0120 |
+| **tổ hợp trực tuyến** | **1,0866** | **+0,0107** | **0,3751** | 0,3518 | 0,0132 |
+
+Đọc bảng này chính là bằng chứng cho lập luận ở **mục 1**: từ khí hậu học (một
+hằng số, không có kỹ năng nào) lên tổ hợp trực tuyến, **độ chính xác chỉ nhúc
+nhích 0,362 → 0,375** — 1,3 điểm phần trăm, nghe như không có gì. Trong khi log
+score và BSS tách bạch rõ ràng và có KTC không phủ 0.
+
+Lý do: độ chính xác chỉ đọc cột **lớn nhất** rồi vứt bỏ toàn bộ phân phối. Dự
+báo (0,34 / 0,33 / 0,33) và (0,90 / 0,05 / 0,05) cho **cùng** một dự đoán nhưng
+khác hẳn nhau về giá trị sử dụng — mà sản phẩm giao cho người dùng lại là **ba
+con số**, không phải một nhãn. Báo cáo hai chỉ số này để hội đồng có cái quen
+thuộc mà đối chiếu, nhưng **mọi quyết định trong repo vẫn dựa trên quy tắc chấm
+điểm chính đáng**.

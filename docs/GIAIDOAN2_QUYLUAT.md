@@ -90,16 +90,18 @@ có**. Khai phá không tìm thêm được gì.
 
 ---
 
-## 4. Sáu nhánh độc lập, cùng một kết luận
+## 4. Tám nhánh độc lập, cùng một kết luận
 
-| nhánh | không gian | sống sót W-Y | còn tin riêng |
-|---|---|---|---|
-| SAX **biến động** (`run_sax_stats.py`) | 336 | **41** | **2** (t = 8,94 và 6,05 khi có HAR) |
-| SAX **hướng giá** (`run_sax_gia.py`) | 351 | **0** | — |
-| Ngưỡng đặc trưng **ba lớp** (file này) | 1.890 | 3 | **0** |
-| **H2 motif** (`run_h2_motif.py`) | 72 | **0** | — |
-| **H3 rule-list** (`run_h3_rulelist.py`) | 24 | **0** | — |
-| **H5 chế độ tự tương quan** (`run_h5_chedo.py`) | 5.670 | **0** | — |
+| nhánh | không gian | sống sót W-Y | còn tin riêng | SPA vs nền |
+|---|---|---|---|---|
+| SAX **biến động** (`run_sax_stats.py`) | 336 | **41** | **2** (t = 8,94 và 6,05 khi có HAR) | — |
+| SAX **hướng giá** (`run_sax_gia.py`) | 351 | **0** | — | — |
+| Ngưỡng đặc trưng **ba lớp** (file này) | 1.890 | 3 | **0** | — |
+| **H2 motif** (`run_h2_motif.py`) | 72 | **0** | — | p = 0,990 |
+| **H3 rule-list** (`run_h3_rulelist.py`) | 24 | **0** | — | p = 0,590 |
+| **H5 chế độ tự tương quan** (`run_h5_chedo.py`) | 5.670 | **0** | — | p = 0,872 |
+| **H6 HMM** (`run_h6_hmm.py`) | 18 | 6 | **0** | p = 1,000 |
+| **H7 Matrix Profile** (`run_h7_matrixprofile.py`) | 108 | **0** | — | p = 0,972 |
 
 Bất đối xứng rất rõ và rất nhất quán: **trục biến động có cấu trúc khai phá
 được; trục hướng đi và trục ba-lớp thì không.**
@@ -225,6 +227,8 @@ TOÀN BỘ ứng viên của họ đó cùng lúc trên đoạn kiểm định:
 | H2 (motif) | 24 | 0,990 | không |
 | H3 (rule-list) | 8 | 0,590 | không |
 | H5 (chế độ tự tương quan) | 630 (giới hạn từ 1.890 theo \|z\| thô) | 0,872 | không |
+| H6 (HMM) | 6 | **1,000** | không |
+| H7 (Matrix Profile) | 36 | 0,972 | không |
 
 Cộng với Giai đoạn 1 (`CHISO_DANHGIA.md` mục 11: bác bỏ ở h=5/h=20 — nhưng đó
 LÀ nền đang chạy, không phải một họ quy luật thay thế), **cả năm họ ứng viên
@@ -239,6 +243,84 @@ Trục chế độ MỚI (khác σ̂): tam phân vị của tự tương quan la
 thổi phồng, đúng như dự đoán khi tăng không gian giả thuyết), nhưng
 **0/5.670 sống sót Westfall–Young**. Chế độ tự tương quan không mở khoá thêm
 quy luật nào.
+
+### 6.5 H6 — HMM / Markov switching: trạng thái ẩn có thật, nhưng là σ̂ trá hình
+
+`src/run_h6_hmm.py`, `output/h6_hmm.json`. Đây là thuật toán **duy nhất** mà kế
+hoạch Pha 1 của HuyH (Week 2, mục A) đòi mà repo chưa từng thử. Mọi "chế độ"
+đang có (`SigmaCheDo`, A3, H5) đều là chế độ **quan sát được** — chia theo phân
+vị của một đại lượng đã tính được. HMM khác về bản chất: trạng thái **ẩn**, có
+ma trận chuyển riêng, phải suy ra từ chuỗi.
+
+**Chặn rò rỉ nhìn trước — chỗ dễ sai nhất.** `hmmlearn.predict()` chạy Viterbi
+trên **toàn** chuỗi và `predict_proba()` trả hậu nghiệm **làm trơn**; cả hai đều
+để trạng thái tại t phụ thuộc quan sát **sau** t. Dùng làm đặc trưng dự báo thì
+mọi kết quả đều vô nghĩa. Nên chỉ dùng `hmmlearn` để **khớp** tham số
+(Baum–Welch trên huấn luyện), còn **suy diễn thì tự viết bộ lọc tiến**. Ba tự
+kiểm, cái thứ ba là cái quyết định:
+
+| tự kiểm | kết quả |
+|---|---|
+| khôi phục tham số từ HMM mô phỏng | ĐẠT |
+| lọc ≡ làm trơn **tại bước cuối** (đồng nhất thức toán học) | lệch 3·10⁻¹³ |
+| **α[t] không đổi khi nối thêm tương lai** | lệch **0,00** |
+| *đối chiếu*: hậu nghiệm làm trơn ở cùng vị trí | lệch **0,092** ← phép kiểm có lực |
+
+**Hai lỗi đã bắt trong lúc làm** — cả hai đều thuộc loại "nếu không để ý thì
+kết quả trông vẫn hợp lý":
+
+1. **Label switching.** Baum–Welch đánh số trạng thái tuỳ ý, nên "trạng thái 0"
+   của EURUSD và của GBPUSD có thể là hai chế độ khác nghĩa nhau. Gộp theo chỉ
+   số thô là trộn lẫn. Sửa: sắp lại theo σ tăng dần, để chỉ số luôn cùng nghĩa.
+2. **Không có trần độ phủ.** Phễu có sẵn *sàn* (≥100 lần khớp) nhưng không có
+   *trần*. Trạng thái nền của HMM phủ **96%** chuỗi, làm phân phối null của
+   max|z| gần như suy biến — lấy gần hết mẫu thì xáo trộn cũng chẳng đổi z, nên
+   ngay cả |z| = 0,5 cũng "vượt" ngưỡng W-Y. Dấu hiệu lộ ra không thể bỏ qua:
+   **số sống sót W-Y (12) lớn hơn số vị từ đạt |z| > 1,96 (8)** — bất khả với
+   một hiệu chỉnh bội lành mạnh. Thêm trần `MAX_PHU = 2/3`, chốt theo lý do cấu
+   trúc (không gian chính của repo phủ tối đa ~1/3), không ràng buộc họ nào khác.
+
+**Kết quả.** K = 2, 3, 4 chốt trước → 18 giả thuyết sau khi loại trạng thái nền.
+HMM tìm được trạng thái biến động cao **có thật và đọc được**: σ = 109 pip so
+với 49 pip, kỳ vọng kéo dài 14 phiên so với 102 — đúng phân loại mà kế hoạch mô
+tả ("low-volatility sideways" / "high-volatility stress"). Trạng thái đó **có**
+liên hệ với lớp: lift 0,672 cho "đi ngang" (|z| = 6,0), 6 vị từ sống sót W-Y.
+
+Nhưng **0/6 còn tin riêng sau đối chứng có điều kiện** (|t| lớn nhất 2,16 <
+3,0). Tức trạng thái ẩn của HMM chủ yếu là **khám phá lại chính biến động** mà
+HAR đã mô hình hoá tốt hơn. K = 3 và K = 4 còn thoái hoá: các trạng thái phụ có
+kỳ vọng kéo dài **1 phiên** và σ tới 4.195 pip — chúng chỉ đang gán mỗi ngày cực
+đoan vào một trạng thái riêng, không phải chế độ.
+
+### 6.6 H7 — Matrix Profile: kết quả âm sạch nhất của cả dự án
+
+`src/run_h7_matrixprofile.py`, `output/h7_matrixprofile.json`. H2 mới làm
+**proxy** bằng codebook KMeans — nó trả lời "cửa sổ hôm nay thuộc cụm hình dạng
+nào", chứ không trả lời được câu hỏi cốt lõi của analog forecasting:
+
+> những lần quá khứ thị trường trông **giống hôm nay nhất**, hôm sau đã xảy ra
+> chuyện gì?
+
+H7 làm đúng câu đó, với bốn đặc trưng kế hoạch liệt kê: khoảng cách tới analog
+gần nhất, và tỷ lệ kết cục giảm / đi ngang / tăng trong K = 20 analog gần nhất.
+
+**Chặn rò rỉ.** `stumpy.stump()` tự nối trên **toàn** chuỗi nên "láng giềng gần
+nhất" của cửa sổ tại t có thể nằm **sau** t. Nên tự viết tìm kiếm nhân quả: ứng
+viên t′ phải thoả `t′ + L ≤ t` (không chồng lấn — loại trùng khớp tầm thường
+với cửa sổ hôm qua) **và** `y[t′] ≥ 0` (kết cục đã biết tại t). Dùng đồng nhất
+thức `‖a−b‖² = 2L − 2a·b` trên cửa sổ đã z-chuẩn hoá nên mỗi hàng chỉ tốn một
+phép nhân ma trận–vector. Ba tự kiểm: công thức khớp khoảng cách Euclid trực
+tiếp; đặc trưng tại t **không đổi** khi cắt bỏ tương lai (lệch 0,00); và **đối
+chiếu với `stumpy.stump`** ở cùng vùng loại trừ — **0,937739 so với 0,937739**.
+
+**Kết quả**: 108 giả thuyết, 36/36 vị từ đủ mẫu, và chỉ **1** giả thuyết đạt
+p < 0,05 **thô** — *ít hơn* cả kỳ vọng nhiễu thuần (~5). **0 sống sót W-Y.**
+
+Đây là kết quả âm sạch nhất của cả dự án: analog lịch sử gần như **không mang
+thông tin gì** về lớp của phiên kế tiếp. Đáng nói vì analog forecasting là trực
+giác lâu đời nhất của phân tích kỹ thuật ("lịch sử lặp lại"), và ở đây nó được
+đo bằng đúng công cụ hiện đại của nó, nhân quả, với kiểm soát bội — và không
+còn lại gì.
 
 ## 6. Sản phẩm nếu tiền đề không đứng — theo đúng mục 10.4
 
