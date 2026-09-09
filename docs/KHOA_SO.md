@@ -220,7 +220,7 @@ về mô hình.
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
 
 Con số 8.469 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
-đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số ~680
+đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số ~685
 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát biểu trên
 đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
 
