@@ -1,0 +1,80 @@
+========================================================================================================
+CONFORMAL PREDICTION — tập dự báo có BẢO ĐẢM độ phủ 90%
+========================================================================================================
+tự kiểm…
+  (1) i.i.d. — split conformal phủ 0.892 (mục tiêu 0.90)  ĐẠT
+  (2) TRÔI phân phối — TĨNH phủ 0.777 (HỤT) · ACI phủ 0.900 (kéo lại được)  ĐẠT
+      → phép so sánh có lực thật, không phải hai cách cho cùng kết quả
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 1 phiên
+
+  ── đánh giá trên kiểm định (n = 3,282) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.835           2.38     0.000  ← lệch mục tiêu
+  LAC      ACI            0.902           2.60     0.000
+  APS      tĩnh           0.991           2.97     0.000  ← lệch mục tiêu
+  APS      ACI            0.904           2.66     0.000
+  mốc khí hậu học LAC     0.907           2.71            → thông tin thật +0.11 lớp
+  mốc khí hậu học APS     0.907           2.71            → thông tin thật +0.04 lớp
+
+  ── đánh giá trên kiểm tra (n = 3,296) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.884           2.52     0.000
+  LAC      ACI            0.902           2.61     0.000
+  APS      tĩnh           0.992           2.98     0.000  ← lệch mục tiêu
+  APS      ACI            0.904           2.64     0.000
+             độ phủ theo năm (APS + ACI): 2023: 0.916 · 2024: 0.910 · 2025: 0.898
+  mốc khí hậu học LAC     0.907           2.70            → thông tin thật +0.10 lớp
+  mốc khí hậu học APS     0.907           2.71            → thông tin thật +0.07 lớp
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 5 phiên
+
+  ── đánh giá trên kiểm định (n = 3,282) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.878           2.48     0.000  ← lệch mục tiêu
+  LAC      ACI            0.901           2.57     0.000
+  APS      tĩnh           1.000           3.00     0.000  ← lệch mục tiêu
+  APS      ACI            0.906           2.52     0.000
+  mốc khí hậu học LAC     0.907           2.56            → thông tin thật -0.01 lớp
+  mốc khí hậu học APS     0.907           2.52            → thông tin thật +0.01 lớp
+
+  ── đánh giá trên kiểm tra (n = 3,272) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.882           2.59     0.000
+  LAC      ACI            0.903           2.66     0.000
+  APS      tĩnh           1.000           3.00     0.000  ← lệch mục tiêu
+  APS      ACI            0.907           2.61     0.000
+             độ phủ theo năm (APS + ACI): 2023: 0.955 · 2024: 0.910 · 2025: 0.898
+  mốc khí hậu học LAC     0.907           2.57            → thông tin thật -0.09 lớp
+  mốc khí hậu học APS     0.907           2.55            → thông tin thật -0.07 lớp
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 20 phiên
+
+  ── đánh giá trên kiểm định (n = 3,282) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.893           2.46     0.000
+  LAC      ACI            0.902           2.50     0.000
+  APS      tĩnh           0.999           3.00     0.000  ← lệch mục tiêu
+  APS      ACI            0.908           2.39     0.000
+  mốc khí hậu học LAC     0.908           2.43            → thông tin thật -0.07 lớp
+  mốc khí hậu học APS     0.908           2.41            → thông tin thật +0.02 lớp
+
+  ── đánh giá trên kiểm tra (n = 3,182) ──
+  điểm số  giao thức     độ phủ  kích thước TB  tập rỗng
+  LAC      tĩnh           0.814           2.28     0.000  ← lệch mục tiêu
+  LAC      ACI            0.903           2.56     0.000
+  APS      tĩnh           0.999           3.00     0.000  ← lệch mục tiêu
+  APS      ACI            0.906           2.41     0.000
+             độ phủ theo năm (APS + ACI): 2023: 0.949 · 2024: 0.920 · 2025: 0.886
+  mốc khí hậu học LAC     0.909           2.46            → thông tin thật -0.10 lớp
+  mốc khí hậu học APS     0.909           2.41            → thông tin thật -0.01 lớp
+
+========================================================================================================
+ĐỌC BẢNG: độ phủ phải ≈ 0,90. Kích thước TB là thứ nói hệ thống biết
+bao nhiêu — 3,00 nghĩa là không loại trừ được gì; càng gần 2,00 càng
+loại được một khả năng, và ĐÓ mới là giá trị sử dụng thật.
+
+→ output/conformal.json · 384s

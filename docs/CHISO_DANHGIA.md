@@ -906,3 +906,95 @@ khác hẳn nhau về giá trị sử dụng — mà sản phẩm giao cho ngư�
 con số**, không phải một nhãn. Báo cáo hai chỉ số này để hội đồng có cái quen
 thuộc mà đối chiếu, nhưng **mọi quyết định trong repo vẫn dựa trên quy tắc chấm
 điểm chính đáng**.
+
+---
+
+## 16. Conformal prediction — từ "đo được hiệu chuẩn" sang "BẢO ĐẢM độ phủ" (09/09/2026)
+
+`src/run_conformal.py`, `output/conformal.json`. Đây là **kết quả dương** đầu
+tiên của đợt thử phương pháp hiện đại, và nó cho hai thứ mà repo chưa có.
+
+### 16.1 Nó giải quyết vấn đề gì
+
+Repo đã đo hiệu chuẩn rất kỹ (ECE, MCE, PIT-KS, biểu đồ tin cậy). Nhưng **"đo"
+khác "bảo đảm"**: ECE = 0,013 nói rằng *trên trung bình* xác suất khớp tần
+suất — nó không hứa gì cho một phiên cụ thể, và không hứa gì khi thị trường
+đổi chế độ.
+
+Conformal prediction (Vovk et al.; Angelopoulos & Bates 2023) đổi lại một thứ
+khác: thay vì một con số xác suất, nó trả về một **tập nhãn** kèm **bảo đảm độ
+phủ hữu hạn mẫu, không cần giả định phân phối**:
+
+```
+thay vì   P(giảm)=0,34  P(đi ngang)=0,31  P(tăng)=0,35
+trả về    {giảm, tăng}  — bảo đảm phủ 90%
+```
+
+Điểm quan trọng: **bảo đảm này không cần có tín hiệu mới có giá trị.** Bất định
+lớn thì tập rộng ra, và đó chính là thông tin trung thực cho người ra quyết
+định. Rất hợp với một dự án mà kết luận trung tâm là "hướng đi không dự báo
+được".
+
+Hai điểm số không phù hợp (chốt trước): **LAC** (Sadinle et al. 2019, tập nhỏ
+nhất) và **APS** (Romano et al. 2020, độ phủ có điều kiện tốt hơn). Hai giao
+thức: **tĩnh** (split conformal) và **ACI** (Gibbs & Candès 2021, cập nhật α
+trực tuyến theo độ phủ đã thực hiện).
+
+### 16.2 ACI là BẮT BUỘC ở đây, không phải trang trí
+
+Tự kiểm dựng sẵn một tình huống trôi phân phối có chủ ý:
+
+| | độ phủ (mục tiêu 0,90) |
+|---|---|
+| i.i.d., split conformal tĩnh | 0,892 ✓ |
+| **trôi phân phối, tĩnh** | **0,777** ✗ hụt 12 điểm |
+| **trôi phân phối, ACI** | **0,900** ✓ kéo lại được |
+
+Và trên dữ liệu thật thì đúng như vậy — conformal **tĩnh hỏng ở cả hai hướng**:
+
+| | h=1 kiểm định | h=20 kiểm tra |
+|---|---|---|
+| LAC tĩnh | 0,835 (hụt) | **0,814** (hụt) |
+| APS tĩnh | 0,991 (phồng, tập = cả 3 lớp) | 0,999 (phồng) |
+| **LAC + ACI** | **0,902** | **0,903** |
+| **APS + ACI** | **0,904** | **0,906** |
+
+ACI giữ độ phủ trong dải **0,901–0,908** ở *mọi* tầm hạn, *mọi* điểm số, *cả
+hai* đoạn. Và giữ được qua từng năm: 2023: 0,916 · 2024: 0,910 · 2025: 0,898.
+
+Đây là bằng chứng thực nghiệm cho chính điều mà walk-forward (mục 14) đã gợi
+ý: dữ liệu này **có trôi phân phối thật**, đủ để làm hỏng một bảo đảm tĩnh.
+
+### 16.3 Con số đáng giá nhất: hệ thống thật sự biết bao nhiêu
+
+Kích thước tập trung bình cho biết hệ thống loại trừ được bao nhiêu. Nhưng
+2,60 trên 3 lớp tự nó không đọc được — phải biết **một dự báo không có thông
+tin gì thì ra bao nhiêu**. Nên chạy đúng thủ tục đó trên **khí hậu học** (hằng
+số) làm mốc:
+
+| tầm hạn | đoạn | kích thước mô hình | mốc khí hậu học | **thông tin thật** |
+|---|---|---|---|---|
+| **h = 1** | kiểm định | 2,60 | 2,71 | **+0,11 lớp** |
+| **h = 1** | **kiểm tra** | 2,61 | 2,70 | **+0,10 lớp** |
+| h = 5 | kiểm định | 2,57 | 2,56 | −0,01 |
+| h = 5 | kiểm tra | 2,66 | 2,57 | **−0,09** |
+| h = 20 | kiểm định | 2,50 | 2,43 | −0,07 |
+| h = 20 | kiểm tra | 2,56 | 2,46 | **−0,10** |
+
+*(cột kích thước dùng LAC; APS cho cùng hình dạng kết luận)*
+
+Đọc thẳng:
+
+- **h = 1 có thông tin thật, đo được: +0,10 lớp trên đoạn kiểm tra.** Nhỏ,
+  nhưng dương và nhất quán qua cả hai đoạn lẫn cả hai điểm số.
+- **h = 5 và h = 20 thì bằng không hoặc ÂM.** Tập dự báo của mô hình *không
+  nhỏ hơn* tập của một hằng số — đôi khi còn rộng hơn.
+
+**Hai phương pháp hoàn toàn khác nhau đang chỉ về cùng một chỗ.** Walk-forward
+(mục 14) đo độ ổn định theo năm: h=1 dương 14/14, h=20 chỉ 8/14. Conformal đo
+lượng thông tin: h=1 dương +0,10 lớp, h=20 âm. Hai cách đo độc lập, cùng một
+kết luận — **kỹ năng của hệ thống nằm ở tầm hạn 1 phiên, và gần như tan biến ở
+5 và 20 phiên.**
+
+Đó là con số nên đưa vào luận văn, và là lý do giao diện phải nói khác nhau ở
+ba ô — không phải vì "thận trọng cho chắc" mà vì **đã đo**.
