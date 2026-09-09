@@ -330,6 +330,7 @@ def meta():
     return {
         "cap": list(PAIRS), "tam_han": list(HS),
         "nen_theo_h": {str(k): v for k, v in NEN_THEO_H.items()},
+        "ky_nang_theo_h": {str(k): v for k, v in KY_NANG_THEO_H.items()},
         "moc_noi_nguon": str(MOC_NOI.date()),
         "valid_tu": str(VALID_TU.date()), "test_tu": str(TEST_TU.date()),
         "moi_noi": json.load(open(mn, encoding="utf-8")) if os.path.exists(mn) else None,
@@ -506,7 +507,10 @@ def forecast_series(pair: str = Query(...), n: int = Query(1500)):
             "b_pip": [round(float(v), 2) for v in sang_pip(X["b"][sl], _gia, pair)],
             "sig_pip": [round(float(v), 2) for v in sang_pip(X["sigma_h"][sl], _gia, pair)],
             "kP": round(float(X["kP"]), 4), "c_h": round(float(X["c_h"]), 4),
-            "nen": NEN_THEO_H[h]}
+            "nen": NEN_THEO_H[h],
+            # tap conformal — giao dien doc de noi "loai tru duoc gi"
+            "tap": ([[bool(v) for v in row] for row in X["tap"][sl]]
+                    if X.get("tap") is not None else None)}
         s = pd.Series(X["P"][:, 1]).rolling(252, min_periods=60).mean().iloc[-1]
         ra["nen12"][str(h)] = round(float(s), 4) if np.isfinite(s) else 0.33
     return ra

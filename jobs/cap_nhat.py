@@ -78,6 +78,7 @@ def chup_ban_tinh(day_du=True):
          "hieu_chuan": g("/calibration").get("bang", {}),
          "so_dubao": {h: g(f"/journal?h={h}") for h in HS},
          "mo_hinh": g("/models"),
+         "ky_nang_theo_h": meta.get("ky_nang_theo_h", {}),
          "rui_ro": {},
          "chi_phi_gio": {}, "tom_tat": {}}
 
@@ -106,7 +107,8 @@ def chup_ban_tinh(day_du=True):
             tam[h] = {"p": [v or [1 / 3, 1 / 3, 1 / 3] for v in sel(t["p"])],
                       "b_pip": [v or 0 for v in sel(t["b_pip"])],
                       "sig_pip": [v or 0 for v in sel(t["sig_pip"])],
-                      "kP": t["kP"], "c_h": t["c_h"], "nen": t["nen"]}
+                      "kP": t["kP"], "c_h": t["c_h"], "nen": t["nen"],
+                      "tap": (sel(t["tap"]) if t.get("tap") else None)}
         D_ = {"ngay": s_["ngay"], "o": s_["o"], "h": s_["h"], "l": s_["l"],
               "c": s_["c"], "pip": s_["pip"], "nguon": s_.get("nguon"),
               "rv_uoc": s_.get("rv_uoc"),

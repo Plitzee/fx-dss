@@ -1253,6 +1253,37 @@ function paintTQ(){
       <div class="tqb u"><span class="t">Giá lên</span><span class="v">${(100*p[2]).toFixed(0)}%</span><span class="g">tăng quá ${b.toFixed(0)} pip</span></div>
     </div>
 
+    ${(()=>{
+      // TAP DU BAO CONFORMAL — cai duy nhat tren trang nay co BAO DAM.
+      // Ba o tren noi "kha nang bao nhieu"; o nay noi "loai tru duoc gi".
+      // Kich thuoc doc duoc ngay: 3 = khong loai duoc gi, 2 = loai duoc mot.
+      // Chi tiet: docs/CHISO_DANHGIA.md muc 16.
+      const tp = (T.tap||[])[i]; if(!tp) return "";
+      const ten = ["giảm","đi ngang","tăng"], con = ten.filter((_,k)=>tp[k]);
+      const bo = ten.filter((_,k)=>!tp[k]);
+      const KN = ((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{};
+      const yeu = (KN.muc||"").indexOf("không tách") >= 0;
+      return `<div class="tqcanh${bo.length?"":" do"}" style="margin-top:14px">
+        <b>Loại trừ được gì — có bảo đảm:</b>
+        ${bo.length
+          ? `còn lại <b>${con.join(", ")}</b> (${con.length}/3). Đã loại <b>${bo.join(", ")}</b>.`
+          : `<b>không loại được khả năng nào</b> — cả ba đều còn (3/3).`}
+        <br>Đây là <b>tập dự báo conformal</b>, bảo đảm phủ đúng <b>90%</b> số phiên —
+        và bảo đảm này giữ được ngay cả khi thị trường đổi chế độ, khác với ba con
+        số phần trăm ở trên vốn chỉ <i>đo được</i> là hiệu chuẩn tốt trên trung bình.
+        ${yeu ? `<br><b>Nhưng ở tầm hạn ${state.h} phiên thì đừng dùng ô này để ra
+        quyết định:</b> ${KN.chi_tiet||""}.` : ``}
+      </div>`;
+    })()}
+
+    <div class="tqrow" style="margin-top:12px">
+      <span class="k">Kỹ năng đo được ở tầm hạn ${state.h} phiên</span>
+      <span class="v">${(()=>{const KN=((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{};
+        const yeu=(KN.muc||"").indexOf("không tách")>=0;
+        return `<b style="color:${yeu?"var(--warn,#b45309)":"var(--ok,#15803d)"}">${KN.muc||"—"}</b>`;})()}</span>
+    </div>
+    <p class="lead" style="margin-top:4px">${(((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{}).chi_tiet||""}</p>
+
     <div class="tqcanh"><b>Hệ thống không đoán được giá lên hay xuống.</b>
       Hai ô ngoài chênh nhau vài phần trăm — <b>đừng đọc chênh lệch đó như tín hiệu</b>.
       Đã đo trên toàn bộ lịch sử: độ lệch giữa hai bên chỉ nằm trong khoảng −2,6 đến
@@ -1647,6 +1678,7 @@ async function napMeta(){
   DATA = {meta:{cap:M.cap, valid_tu:M.valid_tu, test_tu:M.test_tu,
                 canh_bao:M.canh_bao, cap_nhat_luc:M.cap_nhat_luc,
                 tom_tat:M.tom_tat, moc_noi:M.moc_noi, mo_hinh:M.mo_hinh,
+                ky_nang_theo_h:M.ky_nang_theo_h,
                 rui_ro:M.rui_ro},
           cap:{}, su_kien:M.su_kien||[], hieu_chuan:M.hieu_chuan||{},
           so_dubao:M.so_dubao||{}, _chiphi:M.chi_phi_gio||{}};
