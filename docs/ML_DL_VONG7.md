@@ -186,6 +186,42 @@ và GRU. Mọi thứ cần đã có trong `src/run_dl.py` và `output/_dl_pred.n
   thêm vấn đề kiểm định bội trên đoạn kiểm định.
 - **Một kiến trúc Transformer duy nhất**, rút gọn (2 lớp, 4 đầu, hidden 64).
   Không phải PatchTST đầy đủ, không phải iTransformer, không phải foundation model.
-- **Không thử foundation model** (Chronos, TimesFM, Moirai, TTM) — không tải được
-  trọng số trong môi trường này. Brini (2026) đã đo giúp: chỉ TTM hơn Log-HAR
-  1,3–1,8%, các mô hình khác không thắng.
+- **Chronos-bolt-small đã thử thật, 09/09/2026** (`src/kiem_chronos.py`,
+  `output/chronos.json`, `output/log_chronos.txt`). Lần trước ghi "không tải
+  được trọng số" — kiểm tra lại thì đó là **xung đột phiên bản thư viện**
+  (`transformers` cũ đòi hàm `is_offline_mode` mà `huggingface_hub` mới đã
+  bỏ), không phải giới hạn môi trường thật. Sửa bằng
+  `pip install -U "transformers<4.50" "huggingface_hub<0.28"`, tải trọng số
+  `amazon/chronos-bolt-small` trong 2 giây.
+
+  **Zero-shot** (không khớp riêng tham số cho từng cặp), cùng giao thức QLIKE
+  với bảng 14 mô hình trên: cùng dữ liệu (`volfc2.nap_bang()`), cùng phân đoạn
+  (`split.doan()`), cùng công thức QLIKE bất biến thang đo
+  `r − log(r) − 1` (`r = proxy/h`) — **không phải** `metrics.qlike()` sách
+  giáo khoa, vốn cho kết quả sai lệch hàng nghìn phần trăm vì phụ thuộc thang
+  đo tuyệt đối của RV (một lỗi đã bắt và sửa trong lúc làm, xem log). Dự báo
+  quy về phương sai bằng trung bình cộng của exp(9 phân vị) — xấp xỉ Monte
+  Carlo của E[RV] = E[exp(log RV)], có tự kiểm đối chiếu giá trị kỳ vọng lý
+  thuyết của log-normal.
+
+  | cặp | QLIKE kiểm định | QLIKE kiểm tra |
+  |---|---|---|
+  | EURUSD | 0,1247 | 0,1702 |
+  | GBPUSD | 0,1322 | 0,1335 |
+  | USDJPY | 0,2787 | 0,3285 |
+  | AUDUSD | **0,1024** | 0,1475 |
+  | USDCAD | **0,0842** | 0,1521 |
+  | USDCHF | 0,1074 | 0,1790 |
+  | **gộp 6 cặp** | **0,1383** | **0,1851** |
+  | HAR vòng 7 (mốc) | 0,1162 | 0,1585 |
+  | chênh | +19,0% | +16,8% |
+
+  **Kết luận: Chronos-bolt-small (zero-shot) THUA HAR vòng 7** — gộp 6 cặp
+  tệ hơn 17–19%, đúng hạng #10-11 nếu chèn vào bảng 14 mô hình trên (giữa
+  Transformer rút gọn và HAR gốc). Nhưng KHÔNG đều: thắng rõ ở AUDUSD, USDCAD
+  (kiểm định); thua nặng nhất ở USDJPY (+87% kiểm định — đúng cặp đã biết khó
+  ở tầng VaR/ES). Khớp với Brini (arXiv 2607.05291, đo trên 50 tài sản gồm cả
+  FX): TSFM nói chung không thắng Log-HAR nhất quán, chỉ TTM thắng sát nút.
+  **Đáng thử tiếp TTM** (Tiny Time Mixers, IBM) — mô hình DUY NHẤT trong tài
+  liệu thắng HAR có đo, nay hạ tầng đã sẵn sàng (thư viện đã sửa, giao thức
+  đã viết) nên chi phí thử thêm rất thấp.
