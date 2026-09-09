@@ -222,6 +222,65 @@ và GRU. Mọi thứ cần đã có trong `src/run_dl.py` và `output/_dl_pred.n
   (kiểm định); thua nặng nhất ở USDJPY (+87% kiểm định — đúng cặp đã biết khó
   ở tầng VaR/ES). Khớp với Brini (arXiv 2607.05291, đo trên 50 tài sản gồm cả
   FX): TSFM nói chung không thắng Log-HAR nhất quán, chỉ TTM thắng sát nút.
-  **Đáng thử tiếp TTM** (Tiny Time Mixers, IBM) — mô hình DUY NHẤT trong tài
-  liệu thắng HAR có đo, nay hạ tầng đã sẵn sàng (thư viện đã sửa, giao thức
-  đã viết) nên chi phí thử thêm rất thấp.
+
+- **TTM (Tiny Time Mixers, IBM Granite) đã thử thật, 10/09/2026**
+  (`src/kiem_ttm.py`, `src/kiem_ttm_mz.py`, `output/ttm.json`,
+  `output/ttm_mz.json`, `output/log_ttm.txt`, `output/log_ttm_mz.txt`).
+  Đây là mô hình DUY NHẤT trong Brini (2607.05291) được báo cáo thắng
+  Log-HAR ở chân trời ngắn — nên có động lực thử riêng, dù hạ tầng đòi nâng
+  cấp `transformers` lên `>=4.57.6` (xung đột trực tiếp với bản `<4.50` cần
+  cho Chronos ở trên — muốn chạy lại Chronos/TabPFN sau TTM phải hạ cấp lại).
+
+  **Zero-shot**, cùng giao thức QLIKE với Chronos và bảng 14 mô hình
+  (`ibm-granite/granite-timeseries-ttm-r2`, ngữ cảnh cố định 512 phiên, chỉ
+  lấy bước dự báo đầu tiên trong 96 bước). Vì TTM chỉ cho dự báo điểm (không
+  có phân vị như Chronos) nên thử **hai cách quy đổi log-RV điểm → phương
+  sai**, để tránh kết luận "thua HAR" chỉ vì hiệu chỉnh yếu:
+
+  1. **Hiệu chỉnh log-chuẩn đơn giản**: `h = exp(dự_báo + 0,5·var(dư))`,
+     hệ số hiệu chỉnh ước trên đoạn huấn luyện mỗi cặp (có tự kiểm đối chiếu
+     giá trị kỳ vọng lý thuyết của log-normal, lệch 1,7% thay vì 11,3% nếu
+     không hiệu chỉnh).
+  2. **Hồi quy tái hiệu chuẩn Mincer-Zarnowitz** (đúng kỹ thuật Brini dùng):
+     khớp OLS `log_rv_thật = a + b·dự_báo` trên đoạn huấn luyện, rồi
+     `h = exp(a + b·dự_báo + 0,5·var(dư))`. Brini chỉ rõ phần lớn lợi thế
+     ngắn hạn của TSFM đến từ bước tái hiệu chuẩn này (better-scaled), không
+     phải từ mô hình động lực tốt hơn — nên đây là phép thử công bằng nhất
+     với TTM.
+
+  | cặp | QLIKE kiểm định (đơn giản / MZ) | QLIKE kiểm tra (đơn giản / MZ) |
+  |---|---|---|
+  | EURUSD | 0,1248 / 0,1241 | 0,1741 / 0,1733 |
+  | GBPUSD | 0,1301 / 0,1290 | 0,1342 / 0,1337 |
+  | USDJPY | 0,2653 / 0,2633 | 0,3160 / 0,3143 |
+  | AUDUSD | **0,1067 / 0,1065** | 0,1542 / 0,1540 |
+  | USDCAD | **0,0925 / 0,0924** | 0,1508 / 0,1516 |
+  | USDCHF | 0,1069 / 0,1067 | 0,1836 / 0,1832 |
+  | **gộp 6 cặp** | **0,1377 / 0,1370** | **0,1855 / 0,1850** |
+  | Chronos-bolt-small (mốc) | 0,1383 | 0,1851 |
+  | HAR vòng 7 (mốc) | 0,1162 | 0,1585 |
+  | chênh so HAR | +18,5% / +17,9% | +17,0% / +16,7% |
+
+  **Kết luận: TTM zero-shot cũng THUA HAR vòng 7**, gần như giống hệt
+  Chronos (chênh nhau <1 điểm phần trăm giữa hai mô hình, giữa hai cách hiệu
+  chỉnh). Đây là kết quả **KHÔNG khớp** với phát hiện của Brini rằng TTM
+  thắng Log-HAR — quan trọng là hồi quy MZ (tái hiệu chuẩn đúng kỹ thuật
+  Brini dùng để giải thích lợi thế của TSFM) hầu như không thay đổi gì so
+  với hiệu chỉnh đơn giản (0,1370 vs 0,1377 kiểm định) — nên kết quả âm này
+  KHÔNG phải do hiệu chỉnh yếu, mà là do TTM zero-shot thực sự dự báo kém
+  hơn HAR trên đúng 6 cặp FX và giao thức đo của repo. Khả năng khác biệt
+  với Brini: (a) Brini có thể đã fine-tune hoặc dùng tập tài sản/chân trời
+  khác khi báo cáo TTM thắng — kết quả "TTM thắng" trong paper không chắc
+  là zero-shot thuần; (b) 6 cặp FX chính là tập hẹp, khác biệt với 50 tài
+  sản đa dạng của Brini; (c) mẫu 1.095 phiên kiểm định+kiểm tra mỗi cặp khá
+  nhỏ so với các mốc trong paper gốc.
+
+  **Khuyến nghị: dừng nhánh foundation-model zero-shot ở đây.** Cả Chronos
+  và TTM đều thua HAR vòng 7 nhất quán ~17-19%, kể cả sau khi tái hiệu chuẩn
+  đúng kỹ thuật của paper cho rằng TTM thắng. Việc HAR (một mô hình tuyến
+  tính 3 tham số) vẫn thắng hai foundation model hiện đại một cách nhất
+  quán, có tự kiểm và cùng giao thức đo, là bằng chứng thực nghiệm mạnh cho
+  luận điểm cốt lõi của luận văn: RV có cấu trúc phụ thuộc dài hạn đơn giản
+  (long-memory) mà HAR nắm bắt hiệu quả hơn các mô hình tổng quát chưa được
+  tinh chỉnh riêng cho FX intraday. Muốn TSFM thắng thật sự cần fine-tune
+  trên chính dữ liệu FX — ngoài phạm vi zero-shot đã thử ở đây.

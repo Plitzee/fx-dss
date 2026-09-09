@@ -1,0 +1,35 @@
+INFO:p-2964:t-18768:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+INFO:p-2964:t-18768:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/ibm-granite/granite-timeseries-ttm-r2/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/config.json?%2Fibm-granite%2Fgranite-timeseries-ttm-r2%2Fresolve%2Fmain%2Fconfig.json=&etag=%2209e937ef5082573c0785a180f23753110b78696c%22 "HTTP/1.1 200 OK"
+INFO:p-2964:t-18768:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+============================================================================================================
+TTM + TÁI HIỆU CHUẨN MINCER-ZARNOWITZ (đúng kỹ thuật Brini 2026)
+============================================================================================================
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4615.18it/s]
+model tải xong, context_length=512
+
+[EURUSD] hồi quy MZ: log_rv = -0.514 + 0.954·dự_báo  (n=2,542, hệ số dư +0.1194)
+  kiem_dinh    n= 547  QLIKE 0.1241
+  kiem_tra     n= 548  QLIKE 0.1733
+[GBPUSD] hồi quy MZ: log_rv = +0.071 + 1.006·dự_báo  (n=2,542, hệ số dư +0.1035)
+  kiem_dinh    n= 547  QLIKE 0.1290
+  kiem_tra     n= 548  QLIKE 0.1337
+[USDJPY] hồi quy MZ: log_rv = +0.053 + 1.005·dự_báo  (n=2,542, hệ số dư +0.1505)
+  kiem_dinh    n= 547  QLIKE 0.2633
+  kiem_tra     n= 548  QLIKE 0.3143
+[AUDUSD] hồi quy MZ: log_rv = -0.054 + 0.995·dự_báo  (n=2,542, hệ số dư +0.1060)
+  kiem_dinh    n= 547  QLIKE 0.1065
+  kiem_tra     n= 548  QLIKE 0.1540
+[USDCAD] hồi quy MZ: log_rv = -0.686 + 0.938·dự_báo  (n=2,542, hệ số dư +0.1125)
+  kiem_dinh    n= 547  QLIKE 0.0924
+  kiem_tra     n= 548  QLIKE 0.1516
+[USDCHF] hồi quy MZ: log_rv = -0.350 + 0.969·dự_báo  (n=2,542, hệ số dư +0.1121)
+  kiem_dinh    n= 547  QLIKE 0.1067
+  kiem_tra     n= 548  QLIKE 0.1832
+
+============================================================================================================
+TỔNG KẾT — TTM+MZ so với TTM đơn giản, Chronos, HAR v7
+  đoạn            TTM+MZ  TTM đơn giản   Chronos   HAR v7   TTM+MZ so HAR
+  kiem_dinh       0.1370        0.1377    0.1383   0.1162          +17.9%
+  kiem_tra        0.1850        0.1855    0.1851   0.1585          +16.7%
+
+→ output/ttm_mz.json · 41s
