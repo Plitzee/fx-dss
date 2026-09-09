@@ -284,3 +284,60 @@ và GRU. Mọi thứ cần đã có trong `src/run_dl.py` và `output/_dl_pred.n
   (long-memory) mà HAR nắm bắt hiệu quả hơn các mô hình tổng quát chưa được
   tinh chỉnh riêng cho FX intraday. Muốn TSFM thắng thật sự cần fine-tune
   trên chính dữ liệu FX — ngoài phạm vi zero-shot đã thử ở đây.
+
+## Tổ hợp dự báo (forecast combination) — có nên kết hợp nhiều mô hình?
+
+`run_ml_final.py` đã thử MỘT kiểu tổ hợp: trung bình hình học đều tay giữa
+HAR v7 và GRU/LSTM, và nó đã thắng — "Tổ hợp HAR v7 + GRU + LSTM" đứng #1
+trong bảng 14 mô hình (QLIKE kiểm tra 0,1550, so HAR 0,1585). File
+`src/kiem_tohop2.py` (10/09/2026) đào sâu hơn theo đúng tinh thần đó,
+thử CÓ HỆ THỐNG mọi tập con của {HAR, LightGBM (QLIKE trực tiếp), GRU,
+LSTM, Ridge} (31 tập con) với BA cách tổ hợp:
+
+1. **Trung bình hình học đều tay** trên thang log (như đã có, mở rộng ra
+   nhiều tập con hơn).
+2. **Trung bình trọng số nghịch đảo QLIKE(kiểm định)** — trọng số
+   `w_k ∝ 1/QLIKE_valid_k`, không cần khớp hồi quy.
+3. **Hồi quy Granger-Ramanathan** (1984, *J. Forecasting*) không ràng buộc,
+   trên thang log: `log(rv_thật) = a + Σ b_k·log(f_k) + e`, khớp OLS
+   **chỉ trên đoạn kiểm định** (đoạn kiểm tra chỉ cham điểm một lần), rồi
+   `h = exp(a + Σ b_k·log(f_k) + 0,5·var(dư))`. Đây là kỹ thuật tổ hợp kinh
+   điển cho phép trọng số khác nhau mỗi mô hình thay vì ép bằng nhau — xem
+   Granger & Ramanathan (1984) và tổng quan Wang et al., "Forecast
+   combinations: an over 50-year review" (arXiv 2205.04216). Có tự kiểm
+   (`_tu_kiem_gr`): cho hồi quy một dự báo hoàn hảo + một dự báo toàn nhiễu,
+   hồi quy phải học được trọng số ~1 cho dự báo tốt và ~0 cho dự báo nhiễu.
+
+**Kết quả: CẢ 45 tổ hợp thử đều thắng HAR đơn** trên đoạn kiểm tra (2,9%
+đến 0,7%), không có ngoại lệ. Ba tổ hợp tốt nhất:
+
+| # | tổ hợp | QLIKE kiểm định | QLIKE kiểm tra | so HAR | DM p |
+|---|---|---|---|---|---|
+| 1 | Hồi quy GR · HAR+LightGBM+GRU | 0,1128 | **0,1539** | −2,9% | 0,071 |
+| 2 | Hồi quy GR · HAR+GRU | 0,1138 | 0,1541 | −2,8% | **0,029** |
+| 3 | TB đều · HAR+LightGBM+GRU | 0,1126 | 0,1542 | −2,7% | 0,119 |
+
+Quan sát quan trọng: **hồi quy GR không thắng rõ trung bình đều tay** — hệ
+số hồi quy của các cặp tốt nhất gần bằng nhau (vd. HAR+GRU: a=−0,20,
+HAR:0,51, GRU:0,48 — gần như 50/50). Đây chính là "câu đố tổ hợp dự báo"
+(forecast combination puzzle) kinh điển trong tài liệu: trọng số ước lượng
+tối ưu hiếm khi thắng trọng số đều tay đơn giản trên dữ liệu ngoài mẫu,
+vì sai số ước lượng trọng số ăn hết phần lợi thế lý thuyết.
+
+**Nhưng: Model Confidence Set (α=0,10) trên 15 tổ hợp đầu + HAR gốc cho
+16/16 SỐNG SÓT** — kể cả HAR đơn lẻ. Nghĩa là, dù mọi tổ hợp đều có QLIKE
+điểm số tốt hơn HAR (nhất quán, không ngẫu nhiên — luôn thắng ở mọi tập
+con thử), khoảng cách đó **không đủ lớn để phân biệt có ý nghĩa thống kê**
+với mẫu 548 phiên kiểm tra. Đây đúng là hiện tượng Brini (2607.05291) đã
+mô tả: tổ hợp đều tay giữa TSFM/ML và Log-HAR thường rơi vào MCS 98–100%
+cùng với HAR — cải thiện có thật về mặt điểm số nhưng chưa "chứng minh
+được" theo chuẩn thống kê nghiêm ngặt.
+
+**Khuyến nghị thực tế**: nếu cần chọn MỘT mô hình sản xuất, **tổ hợp trung
+bình đều tay HAR + GRU (hoặc + LightGBM)** là lựa chọn hợp lý nhất — đơn
+giản (không cần khớp hồi quy, không có nguy cơ overfit trọng số), nhất
+quán thắng HAR trên mọi lát cắt đã thử, và đứng trong MCS. Không có bằng
+chứng cho thấy hồi quy GR phức tạp hơn đáng giá so với trung bình đều tay
+ở quy mô dữ liệu này. Toàn bộ 46 dòng kết quả, hệ số hồi quy GR từng tổ
+hợp, và danh sách MCS: `output/ketqua_tohop2.json`,
+`output/log_tohop2.txt`, mã nguồn `src/kiem_tohop2.py`.
