@@ -90,7 +90,7 @@ có**. Khai phá không tìm thêm được gì.
 
 ---
 
-## 4. Tám nhánh độc lập, cùng một kết luận
+## 4. Chín nhánh độc lập, cùng một kết luận
 
 | nhánh | không gian | sống sót W-Y | còn tin riêng | SPA vs nền |
 |---|---|---|---|---|
@@ -102,6 +102,7 @@ có**. Khai phá không tìm thêm được gì.
 | **H5 chế độ tự tương quan** (`run_h5_chedo.py`) | 5.670 | **0** | — | p = 0,872 |
 | **H6 HMM** (`run_h6_hmm.py`) | 18 | 6 | **0** | p = 1,000 |
 | **H7 Matrix Profile** (`run_h7_matrixprofile.py`) | 108 | **0** | — | p = 0,972 |
+| **H8 tin tức FOMC** (`run_h8_tintuc.py`) — **PHA 2** | 54 | **0** | — | p = **0,162** |
 
 Bất đối xứng rất rõ và rất nhất quán: **trục biến động có cấu trúc khai phá
 được; trục hướng đi và trục ba-lớp thì không.**

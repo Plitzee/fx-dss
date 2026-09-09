@@ -251,7 +251,7 @@ Model is not converging.  Current: 11695.635371508297 is not greater than 11697.
 Model is not converging.  Current: 11663.056795664093 is not greater than 11663.757550213286. Delta is -0.7007545491924247
 Model is not converging.  Current: 11676.751172599472 is not greater than 11676.82354213957. Delta is -0.07236954009749752
 Model is not converging.  Current: 11675.624395918496 is not greater than 11675.629382761821. Delta is -0.004986843325241352
-Model is not converging.  Current: 11512.450220352719 is not greater than 11512.45050461399. Delta is -0.0002842612702806946
+Model is not converging.  Current: 11512.45022035271 is not greater than 11512.450504613973. Delta is -0.000284261263004737
 Model is not converging.  Current: 11676.709632178137 is not greater than 11676.76556270258. Delta is -0.05593052444237401
 Model is not converging.  Current: 11676.839055465996 is not greater than 11676.879586023735. Delta is -0.04053055773874803
 Model is not converging.  Current: 11679.167172568741 is not greater than 11679.205999287842. Delta is -0.03882671910105273
@@ -269,19 +269,19 @@ Model is not converging.  Current: 11710.113017454327 is not greater than 11710.
 Model is not converging.  Current: 11676.041992507062 is not greater than 11677.428029075696. Delta is -1.3860365686341538
 Model is not converging.  Current: 11774.285235051 is not greater than 11776.685433985545. Delta is -2.4001989345451875
 Model is not converging.  Current: 11657.867142570083 is not greater than 11658.474543381692. Delta is -0.607400811608386
-Model is not converging.  Current: 11651.367463451064 is not greater than 11651.55380012071. Delta is -0.1863366696452431
+Model is not converging.  Current: 11651.367463450193 is not greater than 11651.553800120288. Delta is -0.18633667009453347
 Model is not converging.  Current: 11709.108559299884 is not greater than 11709.500260365325. Delta is -0.3917010654404294
 Model is not converging.  Current: 11675.436502078186 is not greater than 11675.761009919086. Delta is -0.32450784089996887
-Model is not converging.  Current: 11117.617154928486 is not greater than 11117.71166836358. Delta is -0.09451343509317667
+Model is not converging.  Current: 11117.617154928683 is not greater than 11117.711668363954. Delta is -0.09451343527143763
 Model is not converging.  Current: 11117.492708323382 is not greater than 11117.581719836979. Delta is -0.08901151359714277
 Model is not converging.  Current: 11117.370131848076 is not greater than 11117.404694619652. Delta is -0.03456277157602017
-Model is not converging.  Current: 11117.654320336987 is not greater than 11117.785263417038. Delta is -0.1309430800502014
+Model is not converging.  Current: 11117.654320337337 is not greater than 11117.78526341733. Delta is -0.13094307999381272
 Model is not converging.  Current: 11110.5047850807 is not greater than 11110.561910657345. Delta is -0.05712557664446649
 Model is not converging.  Current: 11113.176637650911 is not greater than 11113.202566244108. Delta is -0.025928593197022565
 Model is not converging.  Current: 11111.609299626878 is not greater than 11111.695663166616. Delta is -0.08636353973815858
-Model is not converging.  Current: 11138.182369202465 is not greater than 11138.384022125892. Delta is -0.20165292342790053
+Model is not converging.  Current: 11138.18236920271 is not greater than 11138.384022125558. Delta is -0.2016529228476429
 Model is not converging.  Current: 11097.757826102152 is not greater than 11097.772052242603. Delta is -0.014226140450773528
-Model is not converging.  Current: 11095.979666873114 is not greater than 11096.00644507313. Delta is -0.026778200015542097
+Model is not converging.  Current: 11095.979666872916 is not greater than 11096.006445072773. Delta is -0.02677819985729002
 Model is not converging.  Current: 11933.477844572679 is not greater than 11933.537071079882. Delta is -0.05922650720276579
 Model is not converging.  Current: 11927.282374889608 is not greater than 11927.585830535954. Delta is -0.303455646346265
 Model is not converging.  Current: 11879.667332244348 is not greater than 11880.009302296647. Delta is -0.3419700522990752
@@ -293,7 +293,7 @@ Model is not converging.  Current: 11931.59398185517 is not greater than 11931.7
 Model is not converging.  Current: 11922.789828676068 is not greater than 11922.882108225856. Delta is -0.09227954978814523
 Model is not converging.  Current: 11615.997309742683 is not greater than 11615.99732433048. Delta is -1.4587796613341197e-05
 Model is not converging.  Current: 11615.99706605643 is not greater than 11615.99712363504. Delta is -5.757860890298616e-05
-Model is not converging.  Current: 11615.998411260953 is not greater than 11615.99894878412. Delta is -0.000537523166713072
+Model is not converging.  Current: 11615.998411261018 is not greater than 11615.998948784038. Delta is -0.0005375230193749303
 Model is not converging.  Current: 11618.537928057423 is not greater than 11618.72744295621. Delta is -0.18951489878600114
 Model is not converging.  Current: 11615.997009263674 is not greater than 11615.997065749994. Delta is -5.64863203180721e-05
 Model is not converging.  Current: 11659.83036745414 is not greater than 11659.9728707976. Delta is -0.14250334345888405
@@ -301,7 +301,7 @@ Model is not converging.  Current: 11628.047395639513 is not greater than 11628.
 Model is not converging.  Current: 11660.645317915238 is not greater than 11660.666691559869. Delta is -0.021373644631239586
 Model is not converging.  Current: 11651.941101215292 is not greater than 11651.975733868185. Delta is -0.034632652892469196
 Model is not converging.  Current: 11644.451313911215 is not greater than 11644.53340115302. Delta is -0.08208724180440186
-Model is not converging.  Current: 11650.112290041128 is not greater than 11651.2201555218. Delta is -1.107865480671535
+Model is not converging.  Current: 11650.112290040528 is not greater than 11651.220155521689. Delta is -1.107865481160843
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 H6 — HMM: 6 vị từ (ứng viên)
@@ -315,6 +315,13 @@ H7 — Matrix Profile: 36 vị từ (ứng viên)
   n(kiểm định)=3,282  T_SPA=0.1022  p=0.9720  không bác bỏ H0
   ứng viên tốt nhất (thô): khoảng cách analog gần nhất L=10 cao  Δlog=+0.00008
 
+Đang dựng lại vị từ H8 (nội dung thông cáo FOMC — PHA 2)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H8 — tin tức (FOMC): 18 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=2.1068  p=0.1620  không bác bỏ H0
+  ứng viên tốt nhất (thô): giọng điệu vừa [1 phiên sau]  Δlog=+0.00056
+
 ====================================================================================================
 TỔNG KẾT SPA THEO HỌ (so nền "chỉ σ̂", kiểm soát nhiều ứng viên)
   họ                    n ứng viên   p-value  bác bỏ α=0,05
@@ -323,5 +330,6 @@ TỔNG KẾT SPA THEO HỌ (so nền "chỉ σ̂", kiểm soát nhiều ứng vi
   H5_chedo                     630    0.8720          không
   H6_hmm                         6    1.0000          không
   H7_matrixprofile              36    0.9720          không
+  H8_tintuc_FOMC                18    0.1620          không
 
 → output/spa_ho2.json

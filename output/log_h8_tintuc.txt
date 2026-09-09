@@ -1,0 +1,35 @@
+================================================================================================================
+PHA 2 / H8 — NỘI DUNG THÔNG CÁO FOMC (Historical + News)
+================================================================================================================
+129 thông cáo FOMC · 2010-01-27 → 2025-12-10
+128 thông cáo có đủ ba đặc trưng (bản đầu thiếu vì không có kỳ trước)
+  thay đổi câu chữ : trung vị 0.183 · khoảng [0.021; 0.882]
+  đổi độ dài       : trung vị -0.002
+  giọng điệu       : trung vị +0.01432
+
+tự kiểm rò rỉ — đặc trưng KHÔNG được xuất hiện ở chính phiên họp…
+  0 vi phạm  ĐẠT
+
+KHÔNG GIAN GIẢ THUYẾT H8: 18 vị từ × 3 lớp = 54 giả thuyết — liệt kê đầy đủ, biết trước
+bộ kiểm soát: 4 biến gốc + chỉ báo lịch họp (3,870 phiên trong cửa sổ sau họp)
+phát hiện 18,306 hàng · xác nhận 4,342 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 3.00 · 95% 3.21
+      18/18 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 6 (nếu toàn nhiễu kỳ vọng 3)
+
+→ KHÔNG vị từ nào sống sót Westfall–Young.
+
+================================================================================================================
+PHỄU H8 (nội dung thông cáo FOMC)                còn lại
+không gian giả thuyết                                 54
+đủ số lần khớp                                        18
+thô p<0,05                                             6
+sống sót Westfall–Young                                0
+còn tin riêng sau đối chứng (đã khử lịch)              0
+chuyển giao được (LOPO)                                0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/h8_tintuc.json — 25s
+TỰ KIỂM ĐẠT

@@ -43,5 +43,14 @@
   "bac_bo": false,
   "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=10 cao",
   "dbar_tot": 8.420067336317886e-05
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.162,
+  "T_SPA": 2.106795944880266,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "giọng điệu vừa [1 phiên sau]",
+  "dbar_tot": 0.0005568608143366791
  }
 }

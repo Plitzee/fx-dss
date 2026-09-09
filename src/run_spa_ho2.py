@@ -199,6 +199,19 @@ def main():
     ket["H7_matrixprofile"] = chay_spa("H7 — Matrix Profile", M7, ten7, y, tr, va,
                                        kh_forecast)
 
+    # ── PHA 2 — ho dau tien co dung THONG TIN NGOAI GIA ────────────────
+    print("\nĐang dựng lại vị từ H8 (nội dung thông cáo FOMC — PHA 2)…",
+          flush=True)
+    from run_h8_tintuc import nap_thong_cao, dac_trung_van_ban, vi_tu_tintuc
+    tc = nap_thong_cao()
+    if len(tc) >= 30:
+        F8 = dac_trung_van_ban(tc)
+        M8, ten8 = vi_tu_tintuc(F8, dts, tr, du["pha"])
+        ket["H8_tintuc_FOMC"] = chay_spa("H8 — tin tức (FOMC)", M8, ten8, y,
+                                         tr, va, kh_forecast)
+    else:
+        print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
+
     print("\n" + "=" * 100)
     print("TỔNG KẾT SPA THEO HỌ (so nền \"chỉ σ̂\", kiểm soát nhiều ứng viên)")
     print(f"  {'họ':<20}{'n ứng viên':>12}{'p-value':>10}{'bác bỏ α=0,05':>15}")
