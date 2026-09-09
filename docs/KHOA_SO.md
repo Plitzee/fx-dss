@@ -182,12 +182,38 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 20 | 08/09/2026 | **Lỗi bịa lợi suất bằng 0** — phát hiện, sửa, chạy lại toàn bộ Giai đoạn 2 | — | Rút lại 1 quy luật sai; **lực phễu 1,35 → 1,20**; Giai đoạn 1 **không đổi** (đã kiểm chứng 2 lần độc lập) |
 | 21 | 08/09/2026 | **H6 HMM** (K = 2, 3, 4) và **H7 Matrix Profile** (K=20 analog, L=5/10/20) | **126 giả thuyết** | 0 quy luật; SPA p = 1,000 và 0,972 |
 | 22 | 08/09/2026 | Walk-forward theo từng năm, 3 tầm hạn | — | h=1 dương **14/14 năm**; h=20 chỉ 8/14 |
+| 23 | 09/09/2026 | **TabPFN v2** (mô hình nền cho dữ liệu bảng, Nature 2025) | 1 | +0,0085 — **ML tốt nhất từng thử**, vượt xa LightGBM/GRU, nhưng vẫn thua nền σ̂ (+0,0110) → không đổi mô hình |
+| 24 | 09/09/2026 | **Conformal prediction**: 2 điểm số (LAC, APS) × 2 giao thức (tĩnh, ACI) | 4 | **ACI ĐẠT** — độ phủ 0,901–0,908 ở mọi tầm hạn; tĩnh hỏng (0,814–1,000) → **áp dụng vào sản xuất** |
+
+### Thay đổi sau ngày chốt — theo quy tắc 3
+
+Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
+do trước khi mở tập khoá sổ:
+
+**(1) Thêm tầng tập dự báo conformal (ACI) vào `api/main.py` — 09/09/2026.**
+
+*Không* đổi mô hình nào ở mục 4. Đây là một tầng **cộng thêm** trên chính ba xác
+suất đã có: cùng đầu vào, cùng mô hình, chỉ thêm một đầu ra mới. Lý do đưa vào:
+nó cho thứ mà toàn bộ mục 4 không cho được — **bảo đảm** độ phủ 90% thay vì
+*đo được* hiệu chuẩn tốt, và bảo đảm đó giữ ngay cả khi thị trường đổi chế độ
+(`CHISO_DANHGIA.md` mục 16). Đã kiểm chứng conformal **tĩnh** hỏng trên chính dữ
+liệu này (0,814–1,000) trong khi ACI giữ 0,901–0,908.
+
+**(2) Công bố mức kỹ năng ĐO ĐƯỢC riêng cho từng tầm hạn — 09/09/2026.**
+
+`KY_NANG_THEO_H` trong `api/main.py`. Hai phép đo độc lập (walk-forward theo
+năm, và lượng thông tin conformal) đều cho cùng kết luận: kỹ năng nằm ở **h = 1**
+(BSS dương 14/14 năm, 6/6 cặp có ý nghĩa trên kiểm tra, tập conformal nhỏ hơn mốc
+khí hậu học 0,10–0,21 lớp), còn ở h = 5 và h = 20 thì tập dự báo **không** nhỏ
+hơn tập của một hằng số (−0,09 và −0,10 lớp). Giao diện phải nói đúng như vậy
+thay vì trình bày ba ô như nhau. Đây là thay đổi về **cách công bố**, không phải
+về mô hình.
 
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~680** |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~685** |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.469** (8 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |

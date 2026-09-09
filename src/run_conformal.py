@@ -68,72 +68,8 @@ TEN_LOP = ("giảm", "đi ngang", "tăng")
 EPS = 1e-12
 
 
-# ── hai diem so khong phu hop ───────────────────────────────────────────
-def diem_lac(P, y=None):
-    """s(x,y) = 1 - p_y. Neu y=None tra ve ma tran (n,3) cho MOI nhan."""
-    P = np.asarray(P, float)
-    return 1.0 - P if y is None else 1.0 - P[np.arange(len(y)), y]
-
-
-def diem_aps(P, y=None):
-    """APS: tong xac suat da sap giam dan den khi cham nhan y."""
-    P = np.asarray(P, float)
-    thu = np.argsort(-P, axis=1)
-    cong = np.cumsum(np.take_along_axis(P, thu, axis=1), axis=1)
-    S = np.empty_like(P)
-    np.put_along_axis(S, thu, cong, axis=1)
-    return S if y is None else S[np.arange(len(y)), y]
-
-
-DIEM = {"LAC": diem_lac, "APS": diem_aps}
-
-
-def nguong(diem_hc, alpha):
-    """Phan vi conformal (hieu chinh huu han mau (n+1)(1-alpha)/n)."""
-    d = np.asarray(diem_hc, float)
-    d = d[np.isfinite(d)]
-    n = len(d)
-    if n < 20:
-        return np.inf
-    k = min(int(np.ceil((n + 1) * (1 - alpha))), n)
-    return float(np.sort(d)[k - 1])
-
-
-def chay_tinh(P_hc, y_hc, P_dg, ham, alpha=ALPHA):
-    """Split conformal TINH: q^ chot mot lan tren tap hieu chuan."""
-    q = nguong(ham(P_hc, y_hc), alpha)
-    return ham(P_dg) <= q, np.full(len(P_dg), alpha)
-
-
-def chay_aci(P_hc, y_hc, P_dg, y_dg, ham, alpha=ALPHA, gamma=GAMMA,
-             cua_so=CUA_SO_HC):
-    """ACI (Gibbs & Candes 2021) — alpha cap nhat TRUC TUYEN.
-
-    NHAN QUA: tai phien t, nguong lay tu cac diem so DA THUC HIEN (hieu chuan
-    ban dau + moi ket cuc da biet den t-1). Ket cuc cua chinh phien t chi duoc
-    dung SAU khi da phat tap du bao cho no."""
-    d_hc = list(ham(P_hc, y_hc))
-    a_t = float(alpha)
-    n = len(P_dg)
-    S_dg = ham(P_dg)                       # (n,3) diem so moi nhan
-    tap = np.zeros((n, 3), bool)
-    alphas = np.empty(n)
-    for t in range(n):
-        alphas[t] = a_t
-        q = nguong(d_hc[-cua_so:], min(max(a_t, 1e-4), 0.999))
-        tap[t] = S_dg[t] <= q
-        # SAU khi da phat tap: cap nhat bang ket cuc that
-        err = 0.0 if tap[t, y_dg[t]] else 1.0
-        a_t = float(np.clip(a_t + gamma * (alpha - err), 1e-4, 0.999))
-        d_hc.append(float(S_dg[t, y_dg[t]]))
-    return tap, alphas
-
-
-def cham(tap, y):
-    """(do phu thuc te, kich thuoc tap trung binh, ty le tap rong)."""
-    phu = float(tap[np.arange(len(y)), y].mean())
-    kt = tap.sum(1)
-    return phu, float(kt.mean()), float((kt == 0).mean())
+from conformal import (diem_lac, diem_aps, DIEM, nguong,   # noqa: E402
+                       chay_tinh, chay_aci, cham)          # noqa: E402
 
 
 def _tu_kiem():
