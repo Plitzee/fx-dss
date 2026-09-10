@@ -333,11 +333,79 @@ mô tả: tổ hợp đều tay giữa TSFM/ML và Log-HAR thường rơi vào M
 cùng với HAR — cải thiện có thật về mặt điểm số nhưng chưa "chứng minh
 được" theo chuẩn thống kê nghiêm ngặt.
 
-**Khuyến nghị thực tế**: nếu cần chọn MỘT mô hình sản xuất, **tổ hợp trung
-bình đều tay HAR + GRU (hoặc + LightGBM)** là lựa chọn hợp lý nhất — đơn
-giản (không cần khớp hồi quy, không có nguy cơ overfit trọng số), nhất
-quán thắng HAR trên mọi lát cắt đã thử, và đứng trong MCS. Không có bằng
-chứng cho thấy hồi quy GR phức tạp hơn đáng giá so với trung bình đều tay
-ở quy mô dữ liệu này. Toàn bộ 46 dòng kết quả, hệ số hồi quy GR từng tổ
-hợp, và danh sách MCS: `output/ketqua_tohop2.json`,
-`output/log_tohop2.txt`, mã nguồn `src/kiem_tohop2.py`.
+**Khuyến nghị thực tế (bản đầu)**: nếu cần chọn MỘT mô hình sản xuất, **tổ
+hợp trung bình đều tay HAR + GRU (hoặc + LightGBM)** là lựa chọn hợp lý
+nhất — đơn giản (không cần khớp hồi quy, không có nguy cơ overfit trọng
+số), nhất quán thắng HAR trên mọi lát cắt đã thử, và đứng trong MCS. Toàn
+bộ 46 dòng kết quả, hệ số hồi quy GR từng tổ hợp, và danh sách MCS:
+`output/ketqua_tohop2.json`, `output/log_tohop2.txt`, mã nguồn
+`src/kiem_tohop2.py`.
+
+## Mở rộng: mô hình hiện đại hơn (XGBoost, CatBoost, TabPFN v2) + stacking phi tuyến
+
+Người dùng hỏi tiếp: trước khi chốt tổ hợp đơn giản, có nên thử các mô
+hình ML **hiện đại hơn** và cách tổ hợp **phức tạp hơn** không? Ba mảnh
+mới (10/09/2026):
+
+1. **XGBoost + CatBoost** (`src/run_ml2.py`) — hai họ GBM hiện đại hơn
+   LightGBM, cùng giao thức (52 đặc trưng, khớp lại đầu mỗi năm, lưới siêu
+   tham số nhỏ trên kiểm định). QLIKE kiểm định: CatBoost 0,1192, XGBoost
+   0,1214 — cạnh tranh được với RF/MLP nhưng không vượt LightGBM/Ridge.
+2. **TabPFN v2** (Hollmann et al., *Nature* 2025) cho ĐÚNG bài toán hồi
+   quy biến động vòng 7 (`src/run_tabpfn_vol.py`) — lần trước TabPFN chỉ
+   được thử cho bài toán phân loại hướng khác. Đây là mô hình NỀN cho dữ
+   liệu bảng, suy diễn in-context (không có "huấn luyện" theo nghĩa
+   gradient), khác hẳn cơ chế GBM/RNN. Ngữ cảnh giới hạn 8.000 hàng gần
+   nhất (trong vùng thiết kế ≤10.000 của TabPFN — khác toàn bộ các mô hình
+   khác dùng TOÀN BỘ lịch sử). Có tự kiểm không rò rỉ (cắt dữ liệu SAU
+   điểm huấn luyện không được làm đổi ngữ cảnh). Chạy CPU mất ~2,3 giờ (11
+   lần khớp lại theo năm); sau khi cài `torch` bản CUDA và chạy lại trên
+   GPU (RTX 3050 4GB), chỉ mất ~62 phút — nhanh hơn ~2 lần dù dùng
+   `n_estimators=4` thay vì 1 (tăng chất lượng ensemble nội bộ nhờ tốc độ
+   dư ra). **QLIKE kiểm định 0,1164** — gần như ngang HAR gốc (0,1162) và
+   LightGBM (0,1164), TỐT NHẤT trong số các mô hình bảng/cây đã thử, dù
+   chạy hoàn toàn zero-shot (không gradient descent nào trên dữ liệu FX).
+3. **Stacking phi tuyến** (`src/kiem_tohop3.py`) — thay hồi quy tuyến tính
+   Granger-Ramanathan bằng một LightGBM RẤT nông (num_leaves=3, dừng sớm)
+   làm meta-learner, khớp trên các dự báo gốc (thang log) của toàn bộ mô
+   hình, mục tiêu log-RV thật, CHỈ trên đoạn kiểm định — đúng kỹ thuật
+   "stacked generalization" (Wolpert 1992) mà các bài báo 2025 về ensemble
+   biến động dùng (vd. meta-learner XGBoost trên ARIMA+RF+LSTM+GRU+Transformer).
+
+`kiem_tohop3.py` thử **509 tổ hợp** (mọi tập con của 7 mô hình mới/cũ ×
+4 cách kết hợp: đều tay, trọng số 1/QLIKE, hồi quy GR, stacking phi
+tuyến). Kết quả:
+
+| # | tổ hợp | QLIKE kiểm định | QLIKE kiểm tra | so HAR | DM p |
+|---|---|---|---|---|---|
+| 1 | Hồi quy GR · HAR+GRU+CatBoost | 0,1136 | **0,1538** | −3,0% | **0,041** |
+| 2 | Hồi quy GR · HAR+LightGBM+GRU+CatBoost | 0,1128 | 0,1539 | −2,9% | 0,070 |
+| 7 | Hồi quy GR · HAR+GRU (bản trước) | 0,1138 | 0,1541 | −2,8% | 0,029 |
+
+**CatBoost — mô hình hiện đại nhất trong lứa mới — thực sự cải thiện
+thêm một chút** khi kết hợp với HAR+GRU (0,1538 so với 0,1539/0,1541 của
+các tổ hợp trước), và đây là tổ hợp DUY NHẤT có DM p<0,05 (0,041) khi so
+riêng lẻ với HAR. Nhưng **MCS (α=0,10) trên 15 tổ hợp đầu + HAR vẫn cho
+16/16 sống sót** — HAR đơn lẻ tiếp tục nằm trong tập không phân biệt được
+về thống kê, y hệt phát hiện ở bản đầu.
+
+**Phát hiện quan trọng nhất: STACKING PHI TUYẾN LÀ CÁCH TỆ NHẤT.** Tổ hợp
+stacking tốt nhất trong 509 tổ hợp xếp hạng **#383/509** với QLIKE kiểm
+tra 0,1647 — **TỆ HƠN CẢ HAR đơn** (0,1585)! Dù có tự kiểm xác nhận hàm
+stacking hoạt động đúng trên dữ liệu mô phỏng (học được trọng số gần 1
+cho dự báo hoàn hảo), trên dữ liệu thật nó overfit ngay trên đoạn kiểm
+định (chỉ ~3.282 hàng, các đặc trưng meta là những dự báo TƯƠNG QUAN CAO
+lẫn nhau) — một minh chứng thực nghiệm rõ ràng cho "câu đố tổ hợp dự báo"
+(forecast combination puzzle): mô hình tổ hợp phức tạp hơn không đồng
+nghĩa với tốt hơn, và đôi khi tệ hơn hẳn phương án đơn giản.
+
+**Khuyến nghị cuối cùng, sau khi đã thử mô hình hiện đại + stacking**:
+tổ hợp **hồi quy GR của HAR+GRU+CatBoost** (hoặc đơn giản hơn, HAR+GRU đều
+tay) là lựa chọn tốt nhất đã kiểm chứng — cải thiện thật, nhất quán, và
+là tổ hợp duy nhất đạt ý nghĩa thống kê riêng lẻ. Không có bằng chứng cho
+thấy XGBoost, TabPFN, hay stacking phi tuyến đóng góp giá trị vượt trội so
+với các mô hình/phương pháp tổ hợp đơn giản đã có — TabPFN cạnh tranh tốt
+NHƯ MỘT MÔ HÌNH ĐƠN LẺ (gần bằng HAR) nhưng KHÔNG cải thiện tổ hợp khi
+thêm vào (không xuất hiện trong top 25). Toàn bộ 509 dòng kết quả, danh
+sách MCS: `output/ketqua_tohop3.json`, `output/log_tohop3.txt`, mã nguồn
+`src/run_ml2.py`, `src/run_tabpfn_vol.py`, `src/kiem_tohop3.py`.

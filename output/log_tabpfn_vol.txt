@@ -1,0 +1,21 @@
+========================================================================================================
+TabPFN v2 — HỒI QUY log-RV, đúng giao thức vòng 7 (khớp lại đầu mỗi năm)
+========================================================================================================
+thiết bị: cuda (NVIDIA GeForce RTX 3050 Laptop GPU)
+  tự kiểm không rò rỉ: cắt dữ liệu SAU điểm huấn luyện không đổi ngữ cảnh — ĐẠT
+ngữ cảnh giới hạn 8,000 hàng gần nhất (trong vùng thiết kế TabPFN ≤10.000), n_estimators=4
+
+  [2015] ngữ cảnh 6,282  dự báo 1,554 phiên  (129s, tổng 137s)
+  [2016] ngữ cảnh 7,836  dự báo 1,554 phiên  (280s, tổng 416s)
+  [2017] ngữ cảnh 8,000  dự báo 1,554 phiên  (378s, tổng 794s)
+  [2018] ngữ cảnh 8,000  dự báo 1,560 phiên  (403s, tổng 1197s)
+  [2019] ngữ cảnh 8,000  dự báo 1,560 phiên  (407s, tổng 1605s)
+  [2020] ngữ cảnh 8,000  dự báo 1,554 phiên  (401s, tổng 2006s)
+  [2021] ngữ cảnh 8,000  dự báo 1,554 phiên  (400s, tổng 2406s)
+  [2022] ngữ cảnh 8,000  dự báo 1,560 phiên  (325s, tổng 2731s)
+  [2023] ngữ cảnh 8,000  dự báo 1,548 phiên  (334s, tổng 3066s)
+  [2024] ngữ cảnh 8,000  dự báo 1,560 phiên  (325s, tổng 3391s)
+  [2025] ngữ cảnh 8,000  dự báo 1,548 phiên  (323s, tổng 3713s)
+
+QLIKE kiểm định: 0.1164
+→ output/_tabpfn_vol_pred.npz · 3713s
