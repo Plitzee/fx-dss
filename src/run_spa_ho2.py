@@ -234,6 +234,17 @@ def main():
     else:
         print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
 
+    print("\nĐang dựng lại vị từ H8e (trích xuất LLM từ thông cáo FOMC — PHA 2)…",
+          flush=True)
+    from run_h8e_llm import nap_nhan, vi_tu_llm
+    F8e = nap_nhan()
+    if F8e is not None and len(F8e) >= 30:
+        M8e, ten8e = vi_tu_llm(F8e, dts, tr, du["pha"])
+        ket["H8e_llm_FOMC"] = chay_spa("H8e — trích xuất LLM (FOMC)", M8e, ten8e, y,
+                                       tr, va, kh_forecast)
+    else:
+        print("  bỏ qua — chưa có nhãn LLM")
+
     print("\n" + "=" * 100)
     print("TỔNG KẾT SPA THEO HỌ (so nền \"chỉ σ̂\", kiểm soát nhiều ứng viên)")
     print(f"  {'họ':<20}{'n ứng viên':>12}{'p-value':>10}{'bác bỏ α=0,05':>15}")

@@ -194,6 +194,81 @@ chuyên biệt như FinBERT); PCA tuyến tính có thể bỏ lỡ cấu trúc 
 một probe phi tuyến nhỏ (không phải deep) có thể bắt được — nhưng với n≈128,
 rủi ro overfit của một probe phức tạp hơn lớn hơn lợi ích kỳ vọng.
 
+## 8b. H8c — chủ đề chính, và H8e — trích xuất có cấu trúc bằng LLM (11/09/2026)
+
+Roadmap Pha 2 (`02_PHASE_2_NEWS_AWARE.md`, Week 2) liệt kê năm họ biểu diễn
+văn bản. Bốn họ nay đã thử hết trên cùng 129 thông cáo FOMC:
+
+| họ | cách biểu diễn | script |
+|---|---|---|
+| B | cảm xúc/giọng điệu (từ điển HAWK/DOVE) + TF-IDF + độ dài | `run_h8_tintuc.py` |
+| C | **chủ đề chính** (4 nhóm theo từ điển, chốt trước) | `run_h8c_chude.py` |
+| D | **embedding** ngữ nghĩa pretrained + PCA | `run_h8b_embedding.py` |
+| E | **trích xuất có cấu trúc bằng LLM** (4 trường phân loại) | `run_h8e_llm.py` |
+
+*(Họ A — số lượng/độ mới/đa dạng nguồn — không áp dụng được: FOMC chỉ có
+MỘT thông cáo mỗi kỳ họp từ MỘT nguồn, nên "đếm tin" và "đa dạng nguồn" là
+hằng số. Cần dữ liệu tin tức dạng dòng (wire) mới đo được, mà nguồn đó đã bị
+loại vì rủi ro dấu thời gian — xem mục 2.)*
+
+**H8c — chủ đề chính.** Bốn chủ đề chốt trước (lạm phát / việc làm / tăng
+trưởng / ổn định tài chính), lấy chủ đề có mật độ từ khoá cao nhất. Phân bố
+rất lệch: **109/129 kỳ là "lạm phát"**, 19 kỳ "việc làm", 1 kỳ "ổn định tài
+chính", 0 kỳ "tăng trưởng" — phản ánh đúng cấu trúc ngôn ngữ mục tiêu ổn
+định giá của FOMC, nhưng cũng khiến chỉ 3/8 vị từ đủ 100 lần khớp. Kết quả:
+**0 quy luật qua phễu, SPA p=0,669**.
+
+**H8e — trích xuất có cấu trúc bằng LLM.** Đây là họ E của roadmap, và là
+họ DUY NHẤT trong bốn họ **đọc hiểu toàn văn** thay vì đếm từ hay đo khoảng
+cách vector. Schema bốn trường, **chốt trước và commit trước khi đọc bất kỳ
+thông cáo nào** (commit `cc4df90`, xem lịch sử git — đây là điểm kiểm toán
+quan trọng nhất của họ này):
+
+| trường | các mức | phân bố trên 129 kỳ |
+|---|---|---|
+| điều hướng | diều hâu / bồ câu / trung lập / hỗn hợp | 31 / 48 / 0 / 50 |
+| bất định | thấp / trung bình / cao | 7 / 84 / 38 |
+| đổi lập trường | có / không | 69 / 60 |
+| phụ thuộc dữ liệu | mạnh / vừa / yếu | 110 / 11 / 8 |
+
+Nhãn do **chính mô hình chạy phiên làm việc này (Claude Opus 5) đọc toàn văn
+129 thông cáo và gán**, lưu đầy đủ ở `data/tin_tuc/fomc_llm_nhan.json` để
+kiểm toán — đúng yêu cầu roadmap *"LLM không được dùng như opaque final
+oracle; output phải được lưu để reproducible/audit"*. Phân bố cân đối hơn
+hẳn H8c (không có mức nào chiếm >85%), nên 17/17 vị từ đều đủ số lần khớp.
+
+Kết quả: **0 quy luật qua phễu** (4 thô p<0,05, kỳ vọng nhiễu 3 — đúng mức
+ngẫu nhiên).
+
+### Bốn cách biểu diễn, xếp theo Hansen SPA — một quy luật ngược đời
+
+| họ | cách biểu diễn | độ "hiểu" văn bản | SPA p |
+|---|---|---|---|
+| **H8** | từ điển HAWK/DOVE + TF-IDF + độ dài | thấp nhất (đếm từ) | **0,162** |
+| H8c | chủ đề chính (từ điển chủ đề) | thấp | 0,669 |
+| H8b | embedding pretrained + PCA | trung bình (vector ngữ nghĩa) | 0,861 |
+| H8e | trích xuất có cấu trúc bằng LLM | **cao nhất (đọc hiểu toàn văn)** | **1,000** |
+
+**Biểu diễn càng "hiểu" văn bản sâu, tín hiệu đo được càng YẾU** — thứ tự
+đơn điệu hoàn hảo, ngược hẳn trực giác thông thường.
+
+Cách đọc đúng: đây **không** phải bằng chứng rằng LLM đọc hiểu kém hơn đếm
+từ. Nó nhất quán với giả thuyết **không có tín hiệu nào để bắt** ngay từ
+đầu. Khi không có tín hiệu, cái quyết định p-value là **phương sai của
+phép đo**, không phải chất lượng biểu diễn: ba đặc trưng liên tục của H8
+chia theo tam phân vị cho các vị từ cân bằng và biến thiên mượt; còn nhãn
+phân loại của H8e (và H8c) gộp mỗi kỳ họp vào một trong vài nhóm, làm mất
+độ phân giải mà không thêm thông tin thật. Nói cách khác: p=0,162 của H8
+nhiều khả năng là **nhiễu may mắn nhất trong bốn lần thử**, chứ không phải
+tín hiệu mà ba họ kia bỏ lỡ — và kết luận này càng được củng cố bởi MDES ở
+mục 9 (phễu chỉ bắt được hiệu ứng ≥1,35, không loại trừ được hiệu ứng yếu).
+
+**Hạn chế phải nêu:** nhãn LLM mang phán định chủ quan của một mô hình tại
+một thời điểm; đổi mô hình hoặc phiên bản có thể cho nhãn khác, nên họ này
+**không tái lập được chính xác** như ba họ kia (vốn thuần thuật toán). Đây
+là đánh đổi cố hữu của phương pháp, không phải lỗi triển khai — và là lý do
+nhãn được lưu ra file thay vì sinh lại mỗi lần chạy.
+
 ## 9. MDES cho H8+H8b (11/09/2026) — "không tìm thấy gì" mạnh tới đâu?
 
 *Tái lập: `python src/kiem_pheu_h8.py`. Kết quả: `output/kiem_pheu_h8.json`.*

@@ -70,5 +70,14 @@
   "bac_bo": false,
   "ung_vien_tot_nhat": "chủ đề việc làm [5 phiên sau]",
   "dbar_tot": 2.887171156604695e-05
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "điều hướng=bo_cau [1 phiên sau]",
+  "dbar_tot": 0.0
  }
 }

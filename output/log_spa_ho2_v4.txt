@@ -1,0 +1,362 @@
+====================================================================================================
+SPA cho từng họ Giai đoạn 2 — so với nền "chỉ σ̂"
+====================================================================================================
+Đang dựng nền "chỉ σ̂" (dịch 1 phiên, đúng chỉ số hàng)…
+
+Đang dựng lại vị từ H2 (motif)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H2 — motif: 24 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.4953  p=0.9900  không bác bỏ H0
+  ứng viên tốt nhất (thô): motif L=20 cụm 0  Δlog=+0.00056
+
+Đang dựng lại vị từ H3 (rule-list)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H3 — rule-list: 8 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.9991  p=0.5900  không bác bỏ H0
+  ứng viên tốt nhất (thô): lá CART #6  Δlog=+0.00085
+
+Đang dựng lại vị từ H5 (chế độ tự tương quan)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H5 — chế độ tự tương quan: 1,890 vị từ (ứng viên)
+  (giới hạn còn 630 ứng viên mạnh nhất theo |z| thô, để SPA khả thi)
+  n(kiểm định)=3,282  T_SPA=2.4674  p=0.8720  không bác bỏ H0
+  ứng viên tốt nhất (thô): |z| hôm nay cao & tính dai vol thấp [trung tính]  Δlog=+0.00110
+
+Đang dựng lại vị từ H6 (HMM)…
+Model is not converging.  Current: 11583.983983359545 is not greater than 11583.984407491167. Delta is -0.0004241316219122382
+Model is not converging.  Current: 11628.433793839238 is not greater than 11628.716764243209. Delta is -0.2829704039704666
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Model is not converging.  Current: 11770.395608661163 is not greater than 11770.44219128852. Delta is -0.04658262735574681
+Model is not converging.  Current: 11670.192467449953 is not greater than 11670.559427703633. Delta is -0.36696025367928087
+Model is not converging.  Current: 11761.187743188419 is not greater than 11763.134850758268. Delta is -1.9471075698493223
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Some rows of transmat_ have zero sum because no transition from the state was ever observed.
+Model is not converging.  Current: 11640.63582116542 is not greater than 11640.80691028211. Delta is -0.17108911668947258
+Model is not converging.  Current: 11695.635371508297 is not greater than 11697.05531556378. Delta is -1.4199440554839384
+Model is not converging.  Current: 11663.056795664368 is not greater than 11663.757550214896. Delta is -0.700754550527563
+Model is not converging.  Current: 11676.751172599472 is not greater than 11676.82354213957. Delta is -0.07236954009749752
+Model is not converging.  Current: 11675.624395918496 is not greater than 11675.629382761821. Delta is -0.004986843325241352
+Model is not converging.  Current: 11512.450220352719 is not greater than 11512.45050461399. Delta is -0.0002842612702806946
+Model is not converging.  Current: 11676.709632178137 is not greater than 11676.76556270258. Delta is -0.05593052444237401
+Model is not converging.  Current: 11676.839055465996 is not greater than 11676.879586023735. Delta is -0.04053055773874803
+Model is not converging.  Current: 11679.167172568741 is not greater than 11679.205999287842. Delta is -0.03882671910105273
+Model is not converging.  Current: 11685.234203197362 is not greater than 11685.303991893978. Delta is -0.06978869661543285
+Model is not converging.  Current: 11686.502724173153 is not greater than 11686.935556774302. Delta is -0.4328326011491299
+Model is not converging.  Current: 11679.944568412522 is not greater than 11680.057971047825. Delta is -0.1134026353029185
+Model is not converging.  Current: 11651.459386375169 is not greater than 11651.470595038898. Delta is -0.011208663729121326
+Model is not converging.  Current: 11697.161030043062 is not greater than 11697.380022718598. Delta is -0.21899267553635582
+Model is not converging.  Current: 11648.323846507827 is not greater than 11648.455751096344. Delta is -0.1319045885175001
+Model is not converging.  Current: 11649.573884184623 is not greater than 11649.611048115614. Delta is -0.037163930990573135
+Model is not converging.  Current: 11675.716759185221 is not greater than 11676.207842295835. Delta is -0.4910831106135447
+Model is not converging.  Current: 11679.129061310725 is not greater than 11679.144541449927. Delta is -0.015480139201827114
+Model is not converging.  Current: 11642.22104308249 is not greater than 11642.828921129167. Delta is -0.6078780466759781
+Model is not converging.  Current: 11710.113017454327 is not greater than 11710.182599815325. Delta is -0.0695823609985382
+Model is not converging.  Current: 11676.041992507062 is not greater than 11677.428029075696. Delta is -1.3860365686341538
+Model is not converging.  Current: 11774.285235051 is not greater than 11776.685433985545. Delta is -2.4001989345451875
+Model is not converging.  Current: 11657.867142571326 is not greater than 11658.474543382506. Delta is -0.6074008111809235
+Model is not converging.  Current: 11651.367463450193 is not greater than 11651.553800120288. Delta is -0.18633667009453347
+Model is not converging.  Current: 11709.108559299884 is not greater than 11709.500260365325. Delta is -0.3917010654404294
+Model is not converging.  Current: 11675.436502078186 is not greater than 11675.761009919086. Delta is -0.32450784089996887
+Model is not converging.  Current: 11117.617154928683 is not greater than 11117.711668363954. Delta is -0.09451343527143763
+Model is not converging.  Current: 11117.492708323382 is not greater than 11117.581719836979. Delta is -0.08901151359714277
+Model is not converging.  Current: 11117.370131848076 is not greater than 11117.404694619652. Delta is -0.03456277157602017
+Model is not converging.  Current: 11117.654320336987 is not greater than 11117.785263417038. Delta is -0.1309430800502014
+Model is not converging.  Current: 11110.5047850807 is not greater than 11110.561910657345. Delta is -0.05712557664446649
+Model is not converging.  Current: 11113.176637650911 is not greater than 11113.202566244108. Delta is -0.025928593197022565
+Model is not converging.  Current: 11111.609299626878 is not greater than 11111.695663166616. Delta is -0.08636353973815858
+Model is not converging.  Current: 11138.182369202465 is not greater than 11138.384022125892. Delta is -0.20165292342790053
+Model is not converging.  Current: 11097.757826102152 is not greater than 11097.772052242603. Delta is -0.014226140450773528
+Model is not converging.  Current: 11095.979666872916 is not greater than 11096.006445072773. Delta is -0.02677819985729002
+Model is not converging.  Current: 11933.477844572679 is not greater than 11933.537071079882. Delta is -0.05922650720276579
+Model is not converging.  Current: 11927.282374889608 is not greater than 11927.585830535954. Delta is -0.303455646346265
+Model is not converging.  Current: 11879.667332244348 is not greater than 11880.009302296647. Delta is -0.3419700522990752
+Model is not converging.  Current: 11939.312320234945 is not greater than 11939.600135262832. Delta is -0.28781502788660873
+Model is not converging.  Current: 11929.220738832559 is not greater than 11931.188255820716. Delta is -1.967516988157513
+Model is not converging.  Current: 11889.151846540823 is not greater than 11889.18226931477. Delta is -0.030422773947066162
+Model is not converging.  Current: 11880.625826358779 is not greater than 11880.873025475834. Delta is -0.24719911705506092
+Model is not converging.  Current: 11931.59398185517 is not greater than 11931.757438529105. Delta is -0.1634566739339789
+Model is not converging.  Current: 11922.789828676068 is not greater than 11922.882108225856. Delta is -0.09227954978814523
+Model is not converging.  Current: 11615.997309742683 is not greater than 11615.99732433048. Delta is -1.4587796613341197e-05
+Model is not converging.  Current: 11615.99706605643 is not greater than 11615.99712363504. Delta is -5.757860890298616e-05
+Model is not converging.  Current: 11615.998411260953 is not greater than 11615.99894878412. Delta is -0.000537523166713072
+Model is not converging.  Current: 11618.537928057423 is not greater than 11618.72744295621. Delta is -0.18951489878600114
+Model is not converging.  Current: 11615.997009263674 is not greater than 11615.997065749994. Delta is -5.64863203180721e-05
+Model is not converging.  Current: 11659.83036745414 is not greater than 11659.9728707976. Delta is -0.14250334345888405
+Model is not converging.  Current: 11628.04739563825 is not greater than 11628.061877228954. Delta is -0.014481590704235714
+Model is not converging.  Current: 11660.645317915238 is not greater than 11660.666691559869. Delta is -0.021373644631239586
+Model is not converging.  Current: 11651.941101214681 is not greater than 11651.975733868221. Delta is -0.03463265354002942
+Model is not converging.  Current: 11644.451313911215 is not greater than 11644.53340115302. Delta is -0.08208724180440186
+Model is not converging.  Current: 11650.112290041128 is not greater than 11651.2201555218. Delta is -1.107865480671535
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H6 — HMM: 6 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.0000  p=1.0000  không bác bỏ H0
+  ứng viên tốt nhất (thô): HMM K=3 trạng thái 2  Δlog=+0.00000
+
+Đang dựng lại vị từ H7 (Matrix Profile)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H7 — Matrix Profile: 36 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.1022  p=0.9720  không bác bỏ H0
+  ứng viên tốt nhất (thô): khoảng cách analog gần nhất L=10 cao  Δlog=+0.00008
+
+Đang dựng lại vị từ H8 (nội dung thông cáo FOMC — PHA 2)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H8 — tin tức (FOMC): 18 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=2.1068  p=0.1620  không bác bỏ H0
+  ứng viên tốt nhất (thô): giọng điệu vừa [1 phiên sau]  Δlog=+0.00056
+
+Đang dựng lại vị từ H8b (embedding ngữ nghĩa thông cáo FOMC — PHA 2)…
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 3218.72it/s]
+  PCA 3 thành phần giải thích 51.4% phương sai embedding
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H8b — embedding (FOMC): 18 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.7240  p=0.8610  không bác bỏ H0
+  ứng viên tốt nhất (thô): embedding pc2 vừa [1 phiên sau]  Δlog=+0.00010
+
+Đang dựng lại vị từ H8c (chủ đề chính thông cáo FOMC — PHA 2)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H8c — chủ đề (FOMC): 3 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.1312  p=0.6690  không bác bỏ H0
+  ứng viên tốt nhất (thô): chủ đề việc làm [5 phiên sau]  Δlog=+0.00003
+
+Đang dựng lại vị từ H8e (trích xuất LLM từ thông cáo FOMC — PHA 2)…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+H8e — trích xuất LLM (FOMC): 17 vị từ (ứng viên)
+  n(kiểm định)=3,282  T_SPA=0.0000  p=1.0000  không bác bỏ H0
+  ứng viên tốt nhất (thô): điều hướng=bo_cau [1 phiên sau]  Δlog=+0.00000
+
+====================================================================================================
+TỔNG KẾT SPA THEO HỌ (so nền "chỉ σ̂", kiểm soát nhiều ứng viên)
+  họ                    n ứng viên   p-value  bác bỏ α=0,05
+  H2_motif                      24    0.9900          không
+  H3_rulelist                    8    0.5900          không
+  H5_chedo                     630    0.8720          không
+  H6_hmm                         6    1.0000          không
+  H7_matrixprofile              36    0.9720          không
+  H8_tintuc_FOMC                18    0.1620          không
+  H8b_embedding_FOMC            18    0.8610          không
+  H8c_chude_FOMC                 3    0.6690          không
+  H8e_llm_FOMC                  17    1.0000          không
+
+→ output/spa_ho2.json

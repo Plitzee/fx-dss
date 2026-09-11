@@ -196,6 +196,9 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 34 | 11/09/2026 | **MDES cho H8+H8b** (`kiem_pheu_h8.py`): đối chứng âm/dương, tiêm hiệu ứng biết trước vào 126 vị từ gộp | — | lift ≥ **1,35** đạt lực 80% (yếu hơn lift 1,20 của phễu Giai đoạn 1, do mẫu chỉ 129 thông cáo); đối chứng âm 0,0/108 — phễu không rò rỉ |
 | 35 | 11/09/2026 | **Vá đuôi VaR/ES — hướng thứ tư**: phân vị điều kiện theo cửa sổ K=5 phiên sau họp NHTW/FOMC (`va_duoi_nhtw.py`), 2 biến thể | 2 | KHÔNG thắng mốc V1 vô điều kiện trên kiểm định (3-5/6 so 5/6, làm hỏng thêm EURUSD/AUDUSD); USDJPY đạt ở MỌI phương án trên kiểm định — không mở đoạn kiểm tra theo đúng quy tắc. Phát hiện thêm: giao thức chọn-trên-kiểm-định về cấu trúc không thể phân biệt cách vá cho lỗi chỉ hiện ở kiểm tra (xem `CHISO_DANHGIA.md` mục 5e) |
 
+| 36 | 11/09/2026 | **H8c — chủ đề chính thông cáo FOMC** (Pha 2, `run_h8c_chude.py`): 4 chủ đề theo từ điển chốt trước | **24 giả thuyết** | 0 quy luật; SPA p=0,669. Phân bố rất lệch (109/129 kỳ là "lạm phát") |
+| 37 | 11/09/2026 | **H8e — trích xuất có cấu trúc bằng LLM** (Pha 2, `run_h8e_llm.py`): schema 4 trường CHỐT TRƯỚC và commit trước khi đọc văn bản (commit cc4df90); nhãn do chính model phiên này đọc toàn văn 129 thông cáo, lưu ở `data/tin_tuc/fomc_llm_nhan.json` | **51 giả thuyết** | 0 quy luật; **SPA p=1,000 — YẾU NHẤT trong 4 cách biểu diễn văn bản**. Thứ tự đơn điệu: càng hiểu sâu văn bản, tín hiệu càng yếu (xem `PHA2_TINTUC.md` mục 8b) |
+
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
 Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
@@ -231,25 +234,34 @@ ghi vào biên bản: quy tắc 4 đòi *"mọi cấu hình đã thử trên t�
 văn. Kết luận không đổi cấu hình sản xuất: không tổ hợp/mô hình mới nào vượt
 qua được MCS so với HAR đơn (xem `docs/ML_DL_VONG7.md`).
 
-**(4) 108 giả thuyết quy luật bổ sung — Pha 2 / tin tức (dòng 32–33).** H8
-(nội dung thông cáo FOMC, 09/09) và H8b (embedding ngữ nghĩa cùng thông cáo,
-11/09) là hai nhánh MỚI, độc lập với 8 nhánh Giai đoạn 1 đã đếm trong tổng
-8.469 — cả hai đến SAU ngày chốt 08/09/2026 nên chưa từng được cộng vào. Tổng
-giả thuyết quy luật nay là 8.469 + 54 + 54 = **8.577** (10 nhánh độc lập). Cả
-hai đều 0 quy luật qua phễu; SPA p=0,162 (H8) và 0,861 (H8b) — **embedding
-không tốt hơn đặc trưng thủ công**, trả lời một phần RQ5 của roadmap Pha 2.
+**(4) 183 giả thuyết quy luật bổ sung — Pha 2 / tin tức (dòng 32–33, 36–37).**
+Bốn nhánh MỚI trên cùng 129 thông cáo FOMC, đều đến SAU ngày chốt 08/09/2026
+nên chưa từng được cộng vào tổng 8.469 của Giai đoạn 1:
+
+| nhánh | cách biểu diễn | giả thuyết | SPA p |
+|---|---|---|---|
+| H8 (09/09) | từ điển HAWK/DOVE + TF-IDF + độ dài | 54 | 0,162 |
+| H8b (11/09) | embedding pretrained + PCA | 54 | 0,861 |
+| H8c (11/09) | chủ đề chính theo từ điển | 24 | 0,669 |
+| H8e (11/09) | trích xuất có cấu trúc bằng LLM | 51 | 1,000 |
+
+Tổng giả thuyết quy luật nay là 8.469 + 54 + 54 + 24 + 51 = **8.652**
+(12 nhánh độc lập). Cả bốn đều 0 quy luật qua phễu. **Biểu diễn càng hiểu sâu
+văn bản, SPA p càng cao** — thứ tự đơn điệu, nhất quán với giả thuyết không có
+tín hiệu nào để bắt (xem `PHA2_TINTUC.md` mục 8b), trả lời RQ5 của roadmap
+Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá trị đo được.
 
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
 | Cấu hình **mô hình** đã thử trên tập phát triển | **~1.253** (685 đến 08/09 + 568 bổ sung 09–11/09) |
-| Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.577** (10 nhánh độc lập) |
+| Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
 
-Con số 8.577 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
+Con số 8.652 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
 ~1.253 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
 biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
