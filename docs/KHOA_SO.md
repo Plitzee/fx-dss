@@ -199,6 +199,9 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 36 | 11/09/2026 | **H8c — chủ đề chính thông cáo FOMC** (Pha 2, `run_h8c_chude.py`): 4 chủ đề theo từ điển chốt trước | **24 giả thuyết** | 0 quy luật; SPA p=0,669. Phân bố rất lệch (109/129 kỳ là "lạm phát") |
 | 37 | 11/09/2026 | **H8e — trích xuất có cấu trúc bằng LLM** (Pha 2, `run_h8e_llm.py`): schema 4 trường CHỐT TRƯỚC và commit trước khi đọc văn bản (commit cc4df90); nhãn do chính model phiên này đọc toàn văn 129 thông cáo, lưu ở `data/tin_tuc/fomc_llm_nhan.json` | **51 giả thuyết** | 0 quy luật; **SPA p=1,000 — YẾU NHẤT trong 4 cách biểu diễn văn bản**. Thứ tự đơn điệu: càng hiểu sâu văn bản, tín hiệu càng yếu (xem `PHA2_TINTUC.md` mục 8b) |
 
+| 38 | 11/09/2026 | **M1 vs M2 trên trục BIẾN ĐỘNG** (`run_m2_bien_dong.py`): 4 cách biểu diễn văn bản (nhãn LLM / trục ngữ nghĩa / PCA embedding / thủ công) đưa vào mô hình học được, thay vì phễu quy luật | 5 | KHÔNG cách nào thắng M1. Hai cách tốt nhất trên kiểm định đều tệ hơn trên kiểm tra (overfit mẫu chọn 510 hàng) |
+| 39 | 11/09/2026 | **Bất ngờ chính sách market-implied** (`run_m2_batngo.py`), dữ liệu USMPD/SF Fed (Acosta et al. 2025) — cửa sổ 100 phút quanh công bố FOMC | 7 | **KẾT QUẢ DƯƠNG ĐẦU TIÊN của nhánh tin tức**: |phản ứng EURUSD| thắng M1 −2,7% trên kiểm tra (DM p=0,0009), chọn đúng luật trên kiểm định trước; 6/6 cặp cải thiện. Nhưng |MP1| thuần lãi suất THẤT BẠI (+2,5%). Xem `PHA2_TINTUC.md` mục 8c–8d |
+
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
 Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
@@ -255,7 +258,7 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.253** (685 đến 08/09 + 568 bổ sung 09–11/09) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.265** (685 đến 08/09 + 580 bổ sung 09–11/09) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
@@ -263,7 +266,7 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 Con số 8.652 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
-~1.253 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
+~1.265 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
 biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
 
 ---

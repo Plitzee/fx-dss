@@ -269,6 +269,100 @@ một thời điểm; đổi mô hình hoặc phiên bản có thể cho nhãn k
 là đánh đổi cố hữu của phương pháp, không phải lỗi triển khai — và là lý do
 nhãn được lưu ra file thay vì sinh lại mỗi lần chạy.
 
+## 8c. M1 vs M2 trên trục BIẾN ĐỘNG — phép so sánh roadmap thực sự đòi (11/09/2026)
+
+*Tái lập: `python src/run_m2_bien_dong.py` rồi `python src/run_m2_batngo.py`.*
+
+Bốn họ H8/H8b/H8c/H8e đều dùng **phễu khai phá quy luật** trên trục **hướng
+giá**. Hai sai lầm: (a) phễu chỉ kiểm từng vị từ riêng lẻ, không kết hợp,
+không có trọng số, không học — riêng H8e còn nén ~500 từ xuống 4 nhãn ≈10 bit;
+(b) trục hướng giá đã cạn kiệt (0/8.469), trong khi repo đã biết *"sự kiện
+khuếch đại biên độ, không chỉ ra chiều"*.
+
+`run_m2_bien_dong.py` làm đúng phép so sánh Week 3 đòi — **M1 vs M2 trên trục
+biên độ**, bằng mô hình học được, chỉ trên các phiên trong cửa sổ 5 phiên sau
+họp (3.330 hàng: 2.310 huấn luyện / 510 kiểm định / 510 kiểm tra):
+
+```
+M1  log_rv(t+1) ~ log h_HAR(t) + số phiên kể từ họp
+M2  M1 + đặc trưng tin tức
+```
+
+| biểu diễn | QLIKE kiểm định | QLIKE kiểm tra | DM p |
+|---|---|---|---|
+| M1 (mốc) | 0,2027 | **0,1866** | — |
+| R1 nhãn LLM | **0,1979** (−2,4%) | 0,1931 (+3,5%) | 0,154 |
+| R2 trục ngữ nghĩa | 0,2241 | 0,1907 (+2,2%) | **0,0015** |
+| R3 PCA embedding | **0,1979** (−2,4%) | 0,1886 (+1,1%) | 0,292 |
+| R4 thủ công | 0,2238 | 0,1856 (−0,5%) | 0,512 |
+
+**Không cách nào thắng.** Hai cách tốt nhất trên kiểm định (R1, R3) đều tệ
+hơn trên kiểm tra — overfit trên mẫu chọn 510 hàng. Theo quy tắc chọn, phải
+lấy R1, và R1 thua 3,5%.
+
+## 8d. Vì sao văn bản thất bại — và cái gì thay thế được (11/09/2026)
+
+Tra cứu tài liệu cho lý do căn bản, và nó áp dụng cho **cả bốn** cách biểu
+diễn cùng lúc:
+
+> Nội dung thông cáo **phần lớn đã được thị trường dự đoán trước**. Cái làm
+> giá động không phải thông cáo *nói gì*, mà là nó *khác bao nhiêu so với kỳ
+> vọng*. Phần bất ngờ đó — theo định nghĩa — **không nằm trong văn bản**; nó
+> nằm ở khoảng cách giữa văn bản và kỳ vọng, chỉ đọc được từ **giá thị trường**.
+
+Đó là lý do mã hoá văn bản ngày càng tinh vi không giúp gì: ta mã hoá ngày
+càng tốt **một thứ vốn không chứa thông tin mới**. Cách làm chuẩn của tài liệu
+(Kuttner 1998; Gürkaynak–Sack–Swanson 2005; Nakamura–Steinsson 2018;
+Bauer–Swanson 2023) là **high-frequency identification**: đo bất ngờ bằng thay
+đổi giá hợp đồng tương lai lãi suất trong cửa sổ hẹp quanh công bố.
+
+**Dữ liệu**: U.S. Monetary Policy Event-Study Database (SF Fed; Acosta, Ajello,
+Bauer, Loria & Miranda-Agrippino 2025) — công khai, miễn phí, cập nhật tới
+07/2026, lưu ở `data/usmpd/USMPD.xlsx`. Cửa sổ 100 phút quanh công bố; 148 kỳ
+FOMC phủ trọn 2010–2025. Không rò rỉ: cửa sổ đóng ~15:00 giờ New York ngày
+họp, đặc trưng chỉ áp từ phiên kế tiếp.
+
+| biến thể | QLIKE kiểm định | QLIKE kiểm tra | DM p |
+|---|---|---|---|
+| M1 (mốc) | 0,2027 | 0,1866 | — |
+| S1 **\|MP1\|** độ lớn bất ngờ lãi suất | 0,2046 (+0,9%) | 0,1914 (+2,5%) | 0,0058 |
+| S2 \|MP1\| + MP1 có dấu | 0,2020 (−0,4%) | 0,1911 (+2,4%) | 0,0179 |
+| S3 độ lớn đa tài sản | 0,2353 (+16,1%) | 0,1826 (−2,2%) | 0,0816 |
+| **S4 \|phản ứng EURUSD\|** | **0,1994 (−1,6%)** | **0,1816 (−2,7%)** | **0,0009** |
+| R4 văn bản thủ công | 0,2238 | 0,1856 (−0,5%) | 0,512 |
+| S1+R4 bất ngờ + văn bản | 0,2015 (−0,6%) | 0,1902 (+1,9%) | 0,0485 |
+
+**S4 thắng — và được chọn đúng luật** (tốt nhất trên kiểm định TRƯỚC, rồi mới
+mở kiểm tra). Đây là **kết quả dương đầu tiên của toàn bộ nhánh tin tức**.
+
+Kiểm tra quan trọng nhất — có phải chỉ do chính EURUSD không?
+
+| cặp | QLIKE M1 | + \|EURUSD\| | chênh |
+|---|---|---|---|
+| EURUSD | 0,1859 | 0,1815 | −2,4% |
+| GBPUSD | 0,1605 | 0,1583 | −1,4% |
+| USDJPY | 0,2042 | 0,1989 | −2,6% |
+| AUDUSD | 0,1679 | 0,1638 | −2,5% |
+| USDCAD | 0,1802 | 0,1770 | −1,8% |
+| **USDCHF** | 0,2221 | 0,2139 | **−3,7%** |
+| **gộp** | 0,1866 | **0,1816** | **−2,7%** (p=0,0009) |
+
+**6/6 cặp cải thiện, và EURUSD KHÔNG phải cặp hưởng lợi nhất** — nên đây không
+phải hiệu ứng tự quy chiếu. Đúng dạng của một hiệu ứng thật, nhỏ và rộng: từng
+cặp riêng không đạt ý nghĩa (n=85, p 0,13–0,42) nhưng gộp lại thì rất rõ.
+
+**Phải diễn giải cho đúng.** Đây **không** cứu được giả thuyết "nội dung tin
+tức dự báo được"; nó **thay thế** giả thuyết đó. Thứ có tác dụng là **độ lớn
+phản ứng tức thời của thị trường FX** với công bố — một thước đo "cú sốc này
+lớn cỡ nào", không phải "thông cáo nói gì". Nó nằm ở ranh giới giữa *tín hiệu
+tin tức* và *độ dai của biến động*: về bản chất nó cho HAR biết phần biến động
+trong đúng cửa sổ công bố mà nến ngày đã gộp mất.
+
+**Hạn chế đã khai báo:** 6 biến thể đã thử nên có đa kiểm định — Bonferroni
+cho p = 0,0009 × 6 = 0,0054, vẫn có ý nghĩa; chỉ 510 hàng kiểm tra (85/cặp);
+và |MP1| thuần lãi suất **thất bại** (+2,5%, p=0,0058) — bất ngờ lãi suất Mỹ
+không đủ, phải là phản ứng của chính thị trường FX.
+
 ## 9. MDES cho H8+H8b (11/09/2026) — "không tìm thấy gì" mạnh tới đâu?
 
 *Tái lập: `python src/kiem_pheu_h8.py`. Kết quả: `output/kiem_pheu_h8.json`.*
