@@ -363,6 +363,61 @@ cho p = 0,0009 × 6 = 0,0054, vẫn có ý nghĩa; chỉ 510 hàng kiểm tra (8
 và |MP1| thuần lãi suất **thất bại** (+2,5%, p=0,0058) — bất ngờ lãi suất Mỹ
 không đủ, phải là phản ứng của chính thị trường FX.
 
+## 8e. Độ vững của S4 — và **cơ chế thật hoá ra ngược với giả thuyết** (11/09/2026)
+
+*Tái lập: `python src/run_m2_vung.py`. Kết quả: `output/m2_vung.json`.*
+
+Roadmap Week 3 đòi bốn lát cắt độ vững trước khi quyết định STOP/GO. Cắt theo
+cặp đã làm ở mục 8d (6/6). Ba lát còn lại, **giữ nguyên biến đã chọn**, không
+tinh chỉnh gì:
+
+| theo năm | n | QLIKE M1 | + \|EURUSD\| | chênh | DM p |
+|---|---|---|---|---|---|
+| 2021 (một phần) | 60 | 0,0677 | 0,0689 | +1,8% | 0,0040 |
+| 2022 | 240 | 0,2979 | 0,2926 | −1,8% | 0,290 |
+| 2023 | 240 | 0,1271 | 0,1240 | −2,4% | 0,0017 |
+| 2024 | 240 | 0,2142 | 0,2058 | −3,9% | 0,0001 |
+| 2025 | 240 | 0,1711 | 0,1700 | −0,6% | 0,544 |
+
+**4/5 năm cải thiện.** Năm trượt là 2021 — chỉ 60 hàng, một phần năm.
+
+| độ mạnh phản ứng (tam phân vị chốt trên huấn luyện) | n | chênh | DM p |
+|---|---|---|---|
+| tin yếu (< 0,138%) | 210 | −3,0% | 0,018 |
+| vừa | 480 | −1,6% | 0,233 |
+| tin mạnh (> 0,462%) | 330 | −2,2% | 0,023 |
+
+Cải thiện **đều khắp thang đo**, không tập trung ở đuôi — dấu hiệu của một số
+hạng hiệu chỉnh liên tục chứ không phải một luật ngưỡng.
+
+**Walk-forward** (khớp lại đầu mỗi năm, cửa sổ mở rộng, 1.020 hàng):
+QLIKE 0,1948 → 0,1906, **−2,1%, DM p=0,0031, 4/5 năm dương.**
+
+### Cơ chế: giả thuyết chốt trước đã bị bác bỏ
+
+`run_m2_batngo.py` chốt trước giả thuyết *"bất ngờ lớn → định giá lại mạnh →
+biến động thực hiện CAO HƠN ở các phiên sau"*. Hệ số ước lượng nói ngược lại:
+
+```
+log_rv(t+1) ~ −0,955 + 0,931·log h_HAR(t) + 0,035·bước − 0,122·|EURUSD|
+```
+
+**Hệ số âm**, và ổn định trên mọi cửa sổ mở rộng (−0,124 / −0,121 / −0,118 /
+−0,128 / −0,156). Trong khi tương quan thô lại **dương** (+0,104).
+
+Đọc đúng: phản ứng mạnh trong cửa sổ công bố làm phồng RV của **chính ngày
+họp**; HAR mang phần phồng đó sang dự báo ngày kế tiếp; nhưng cú nhảy cửa sổ
+công bố **không dai** — nó mất đi ngay. Biến \|EURUSD\| vì vậy hoạt động như
+**số hạng chiết khấu phần ngoại suy thừa của HAR**, không phải như thước đo
+cú sốc dự báo biến động cao hơn.
+
+Điều này thay đổi cách phải trình bày kết quả, không thay đổi chính kết quả:
+mức cải thiện ngoài mẫu là thật, vững qua bốn lát cắt, nhưng **cơ chế chốt
+trước đã sai**. Ghi nhận đúng như vậy: *dự báo cải thiện, giả thuyết bị bác bỏ*.
+Hệ quả kèm theo: đây gần như chắc chắn **không** phải "tín hiệu tin tức" theo
+nghĩa Pha 2 muốn nói — nó là một hiệu chỉnh **vi cấu trúc biến động trong ngày**
+mà nến ngày gộp mất, và lẽ ra thuộc về Tầng 2 chứ không phải nhánh tin tức.
+
 ## 9. MDES cho H8+H8b (11/09/2026) — "không tìm thấy gì" mạnh tới đâu?
 
 *Tái lập: `python src/kiem_pheu_h8.py`. Kết quả: `output/kiem_pheu_h8.json`.*

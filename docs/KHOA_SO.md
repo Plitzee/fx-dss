@@ -201,6 +201,8 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 
 | 38 | 11/09/2026 | **M1 vs M2 trên trục BIẾN ĐỘNG** (`run_m2_bien_dong.py`): 4 cách biểu diễn văn bản (nhãn LLM / trục ngữ nghĩa / PCA embedding / thủ công) đưa vào mô hình học được, thay vì phễu quy luật | 5 | KHÔNG cách nào thắng M1. Hai cách tốt nhất trên kiểm định đều tệ hơn trên kiểm tra (overfit mẫu chọn 510 hàng) |
 | 39 | 11/09/2026 | **Bất ngờ chính sách market-implied** (`run_m2_batngo.py`), dữ liệu USMPD/SF Fed (Acosta et al. 2025) — cửa sổ 100 phút quanh công bố FOMC | 7 | **KẾT QUẢ DƯƠNG ĐẦU TIÊN của nhánh tin tức**: |phản ứng EURUSD| thắng M1 −2,7% trên kiểm tra (DM p=0,0009), chọn đúng luật trên kiểm định trước; 6/6 cặp cải thiện. Nhưng |MP1| thuần lãi suất THẤT BẠI (+2,5%). Xem `PHA2_TINTUC.md` mục 8c–8d |
+| 40 | 11/09/2026 | **Độ vững của S4** (`run_m2_vung.py`) — CHẨN ĐOÁN của mô hình đã chấm ở dòng 39, biến GIỮ NGUYÊN | **0** (không cấu hình mới, không chọn lại) | Vững: 4/5 năm · 3/3 nhóm độ mạnh · walk-forward −2,1% (p=0,0031). **Nhưng hệ số ÂM (−0,122, ổn định mọi cửa sổ) trong khi giả thuyết chốt trước là DƯƠNG** → cơ chế đăng ký bị bác bỏ; biến hoạt động như chiết khấu phần ngoại suy thừa của HAR, không phải thước đo cú sốc. Xem `PHA2_TINTUC.md` mục 8e |
+| 41 | 11/09/2026 | **Đóng băng Pha 2** — `docs/PHA2_KETQUA.md` (biên bản PHASE2_NEWS_RESULT theo roadmap Week 3–4) | — | Quyết định TÁCH ĐÔI: **STOP** nhánh nội dung văn bản (kết luận âm đáng tin, 183 giả thuyết, MDES lift ≥1,35); **CHUYỂN** phát hiện S4 sang Tầng 2 vì cơ chế thật là vi cấu trúc trong ngày, không phải tín hiệu tin tức. **KHÔNG mở bộ niêm phong** |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
