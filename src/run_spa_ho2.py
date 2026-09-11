@@ -223,6 +223,17 @@ def main():
     else:
         print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
 
+    print("\nĐang dựng lại vị từ H8c (chủ đề chính thông cáo FOMC — PHA 2)…",
+          flush=True)
+    from run_h8c_chude import dac_trung_chu_de, vi_tu_chude
+    if len(tc) >= 30:
+        F8c = dac_trung_chu_de(tc)
+        M8c, ten8c = vi_tu_chude(F8c, dts, tr, du["pha"])
+        ket["H8c_chude_FOMC"] = chay_spa("H8c — chủ đề (FOMC)", M8c, ten8c, y,
+                                         tr, va, kh_forecast)
+    else:
+        print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
+
     print("\n" + "=" * 100)
     print("TỔNG KẾT SPA THEO HỌ (so nền \"chỉ σ̂\", kiểm soát nhiều ứng viên)")
     print(f"  {'họ':<20}{'n ứng viên':>12}{'p-value':>10}{'bác bỏ α=0,05':>15}")
