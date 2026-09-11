@@ -184,6 +184,13 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 22 | 08/09/2026 | Walk-forward theo từng năm, 3 tầm hạn | — | h=1 dương **14/14 năm**; h=20 chỉ 8/14 |
 | 23 | 09/09/2026 | **TabPFN v2** (mô hình nền cho dữ liệu bảng, Nature 2025) | 1 | +0,0085 — **ML tốt nhất từng thử**, vượt xa LightGBM/GRU, nhưng vẫn thua nền σ̂ (+0,0110) → không đổi mô hình |
 | 24 | 09/09/2026 | **Conformal prediction**: 2 điểm số (LAC, APS) × 2 giao thức (tĩnh, ACI) | 4 | **ACI ĐẠT** — độ phủ 0,901–0,908 ở mọi tầm hạn; tĩnh hỏng (0,814–1,000) → **áp dụng vào sản xuất** |
+| 25 | 09/09/2026 | REINFORCE so với giám sát cho xác suất hướng, cùng kiến trúc (`kiem_rl_xacsuat.py`) | 2 | REINFORCE sụp đổ (BSS −0,576) so với giám sát (+0,0053) → không dùng RL cho bài toán này |
+| 26 | 09/09/2026 | Chronos-bolt-small (mô hình nền chuỗi thời gian, zero-shot) cho biến động vòng 7 | 1 | Thua HAR v7 ~17–19% (kiểm định +19,0%, kiểm tra +16,8%) — khớp Brini (2607.05291) |
+| 27 | 10/09/2026 | TTM (Tiny Time Mixers, zero-shot), 2 cách hiệu chỉnh (log-chuẩn đơn giản + hồi quy Mincer-Zarnowitz) | 2 | Cũng thua HAR ~17–19%, gần giống hệt Chronos; MZ không cải thiện đáng kể so với hiệu chỉnh đơn giản |
+| 28 | 10/09/2026 | Mở rộng họ mô hình vòng 7: XGBoost (3 hp), CatBoost (2 hp) | 5 | CatBoost 0,1192, XGBoost 0,1214 (kiểm định) — cạnh tranh nhưng không vượt LightGBM/Ridge |
+| 29 | 10–11/09/2026 | TabPFN v2 cho HỒI QUY biến động vòng 7 (khác dòng 23 — đó là phân loại P/R), ngữ cảnh 8k, khớp lại theo năm, GPU | 1 | QLIKE kiểm định 0,1164 — gần bằng HAR (0,1162), tốt nhất trong các mô hình bảng/cây đã thử |
+| 30 | 10/09/2026 | Tổ hợp dự báo vòng 7 — 3 cách kết hợp (đều tay, trọng số 1/QLIKE, hồi quy Granger-Ramanathan) × mọi tập con của {HAR, LightGBM, GRU, LSTM, Ridge} | 46 | Tốt nhất ban đầu: HAR+GRU+LSTM đều tay, thắng HAR nhưng MCS (α=0,10) vẫn giữ HAR trong tập không phân biệt được |
+| 31 | 10/09/2026 | Mở rộng tổ hợp — thêm XGBoost/CatBoost/TabPFN vào tập ứng viên + stacking phi tuyến (LightGBM meta-learner), mọi tập con × 4 cách kết hợp | 509 | Tốt nhất: hồi quy GR của HAR+GRU+CatBoost (kiểm tra −3,0% so HAR, DM p=0,041 — tổ hợp DUY NHẤT có ý nghĩa riêng lẻ); **stacking phi tuyến TỆ NHẤT** (#383/509, tệ hơn HAR đơn); MCS vẫn giữ HAR trong tập |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
@@ -209,20 +216,31 @@ hơn tập của một hằng số (−0,09 và −0,10 lớp). Giao diện ph�
 thay vì trình bày ba ô như nhau. Đây là thay đổi về **cách công bố**, không phải
 về mô hình.
 
+**(3) 566 cấu hình mô hình bổ sung cho biến động vòng 7, 09–11/09/2026 (dòng
+25–31).** Đây KHÔNG phải thay đổi cấu hình sản xuất ở mục 4 — mô hình chốt sản
+xuất (STHARQ+HARQ+SHAR, `CAUHINH_SANXUAT`) giữ nguyên. Đây là công việc nghiên
+cứu thêm sau khi HuyH gửi roadmap v2, kiểm tra xem mô hình hiện đại hơn
+(foundation model, tổ hợp dự báo) có đáng thay HAR sản xuất không. Lý do phải
+ghi vào biên bản: quy tắc 4 đòi *"mọi cấu hình đã thử trên tập phát triển phải
+được đếm"*, và riêng dòng 31 (509 tổ hợp) làm tổng số cấu hình mô hình nhảy từ
+685 lên **1.251** — thay đổi đáng kể cho phần hiệu chỉnh đa kiểm định của luận
+văn. Kết luận không đổi cấu hình sản xuất: không tổ hợp/mô hình mới nào vượt
+qua được MCS so với HAR đơn (xem `docs/ML_DL_VONG7.md`).
+
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~685** |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.251** (685 đến 08/09 + 566 bổ sung 09–11/09) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.469** (8 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
 
 Con số 8.469 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
-đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số ~685
-cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát biểu trên
-đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
+đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
+~1.251 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
+biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
 
 ---
 
