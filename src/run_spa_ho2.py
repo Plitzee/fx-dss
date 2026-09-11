@@ -212,6 +212,17 @@ def main():
     else:
         print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
 
+    print("\nĐang dựng lại vị từ H8b (embedding ngữ nghĩa thông cáo FOMC — PHA 2)…",
+          flush=True)
+    from run_h8b_embedding import embed_thong_cao, vi_tu_embedding
+    if len(tc) >= 30:
+        F8b, cot_dt = embed_thong_cao(tc)
+        M8b, ten8b = vi_tu_embedding(F8b, dts, tr, du["pha"], cot_dt)
+        ket["H8b_embedding_FOMC"] = chay_spa("H8b — embedding (FOMC)", M8b, ten8b, y,
+                                             tr, va, kh_forecast)
+    else:
+        print("  bỏ qua — chưa có thông cáo; chạy collect/tin_tuc_nhtw.py trước")
+
     print("\n" + "=" * 100)
     print("TỔNG KẾT SPA THEO HỌ (so nền \"chỉ σ̂\", kiểm soát nhiều ứng viên)")
     print(f"  {'họ':<20}{'n ứng viên':>12}{'p-value':>10}{'bác bỏ α=0,05':>15}")

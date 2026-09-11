@@ -52,5 +52,14 @@
   "bac_bo": false,
   "ung_vien_tot_nhat": "giọng điệu vừa [1 phiên sau]",
   "dbar_tot": 0.0005568608143366791
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.861,
+  "T_SPA": 0.7240443580874028,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 vừa [1 phiên sau]",
+  "dbar_tot": 9.603682764087113e-05
  }
 }

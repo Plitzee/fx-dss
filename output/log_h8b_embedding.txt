@@ -1,0 +1,35 @@
+================================================================================================================
+PHA 2 / H8b — EMBEDDING NGỮ NGHĨA thông cáo FOMC (Historical + News)
+================================================================================================================
+129 thông cáo FOMC · 2010-01-27 → 2025-12-10
+đang mã hoá bằng sentence-transformers/all-MiniLM-L6-v2 (pretrained, không huấn luyện thêm)…
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 3222.71it/s]
+  PCA 3 thành phần giải thích 51.4% phương sai embedding
+
+tự kiểm rò rỉ — đặc trưng KHÔNG được xuất hiện ở chính phiên họp…
+  0 vi phạm  ĐẠT
+
+KHÔNG GIAN GIẢ THUYẾT H8b: 18 vị từ × 3 lớp = 54 giả thuyết — liệt kê đầy đủ, biết trước
+bộ kiểm soát: 4 biến gốc + chỉ báo lịch họp (3,870 phiên trong cửa sổ sau họp)
+phát hiện 18,306 hàng · xác nhận 4,342 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 2.97 · 95% 3.19
+      18/18 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 11 (nếu toàn nhiễu kỳ vọng 3)
+
+→ KHÔNG vị từ nào sống sót Westfall–Young.
+
+================================================================================================================
+PHỄU H8b (embedding thông cáo FOMC)              còn lại
+không gian giả thuyết                                 54
+đủ số lần khớp                                        18
+thô p<0,05                                            11
+sống sót Westfall–Young                                0
+còn tin riêng sau đối chứng (đã khử lịch)              0
+chuyển giao được (LOPO)                                0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/h8b_embedding.json — 48s
+TỰ KIỂM ĐẠT

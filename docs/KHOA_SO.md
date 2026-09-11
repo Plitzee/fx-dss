@@ -191,6 +191,8 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 29 | 10–11/09/2026 | TabPFN v2 cho HỒI QUY biến động vòng 7 (khác dòng 23 — đó là phân loại P/R), ngữ cảnh 8k, khớp lại theo năm, GPU | 1 | QLIKE kiểm định 0,1164 — gần bằng HAR (0,1162), tốt nhất trong các mô hình bảng/cây đã thử |
 | 30 | 10/09/2026 | Tổ hợp dự báo vòng 7 — 3 cách kết hợp (đều tay, trọng số 1/QLIKE, hồi quy Granger-Ramanathan) × mọi tập con của {HAR, LightGBM, GRU, LSTM, Ridge} | 46 | Tốt nhất ban đầu: HAR+GRU+LSTM đều tay, thắng HAR nhưng MCS (α=0,10) vẫn giữ HAR trong tập không phân biệt được |
 | 31 | 10/09/2026 | Mở rộng tổ hợp — thêm XGBoost/CatBoost/TabPFN vào tập ứng viên + stacking phi tuyến (LightGBM meta-learner), mọi tập con × 4 cách kết hợp | 509 | Tốt nhất: hồi quy GR của HAR+GRU+CatBoost (kiểm tra −3,0% so HAR, DM p=0,041 — tổ hợp DUY NHẤT có ý nghĩa riêng lẻ); **stacking phi tuyến TỆ NHẤT** (#383/509, tệ hơn HAR đơn); MCS vẫn giữ HAR trong tập |
+| 32 | 09/09/2026 | **H8 — nội dung thông cáo FOMC** (Pha 2, `run_h8_tintuc.py`): TF-IDF cosine, đổi độ dài, giọng điệu HAWK/DOVE | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,162 — thấp nhất trong mọi họ đã thử nhưng xa ngưỡng 0,05 |
+| 33 | 11/09/2026 | **H8b — embedding ngữ nghĩa thông cáo FOMC** (Pha 2, `run_h8b_embedding.py`): sentence-transformers pretrained, PCA 3 thành phần | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,861 — TỆ HƠN đặc trưng thủ công (H8), không hỗ trợ giả thuyết "embedding tốt hơn thủ công" |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
@@ -227,17 +229,25 @@ ghi vào biên bản: quy tắc 4 đòi *"mọi cấu hình đã thử trên t�
 văn. Kết luận không đổi cấu hình sản xuất: không tổ hợp/mô hình mới nào vượt
 qua được MCS so với HAR đơn (xem `docs/ML_DL_VONG7.md`).
 
+**(4) 108 giả thuyết quy luật bổ sung — Pha 2 / tin tức (dòng 32–33).** H8
+(nội dung thông cáo FOMC, 09/09) và H8b (embedding ngữ nghĩa cùng thông cáo,
+11/09) là hai nhánh MỚI, độc lập với 8 nhánh Giai đoạn 1 đã đếm trong tổng
+8.469 — cả hai đến SAU ngày chốt 08/09/2026 nên chưa từng được cộng vào. Tổng
+giả thuyết quy luật nay là 8.469 + 54 + 54 = **8.577** (10 nhánh độc lập). Cả
+hai đều 0 quy luật qua phễu; SPA p=0,162 (H8) và 0,861 (H8b) — **embedding
+không tốt hơn đặc trưng thủ công**, trả lời một phần RQ5 của roadmap Pha 2.
+
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
 | Cấu hình **mô hình** đã thử trên tập phát triển | **~1.251** (685 đến 08/09 + 566 bổ sung 09–11/09) |
-| Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.469** (8 nhánh độc lập) |
+| Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.577** (10 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
 
-Con số 8.469 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
+Con số 8.577 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
 ~1.251 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
 biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.

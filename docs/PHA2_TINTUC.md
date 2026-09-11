@@ -151,3 +151,45 @@ hướng cho phần còn lại của Pha 2 và cho Pha 3, không phải một k�
 
 Bốn hạn chế này là việc còn lại của Pha 2, không phải lý do để nghi ngờ con số
 đã đo.
+
+## 8. H8b — embedding ngữ nghĩa (11/09/2026), trả lời phần "embedding" của RQ5
+
+*Tái lập: `python src/run_h8b_embedding.py`. Kết quả: `output/h8b_embedding.json`.*
+
+Hạn chế #2 ở mục 7 ghi "chưa thử embedding". Dùng CHÍNH 129 thông cáo FOMC đã
+có (không thu thêm dữ liệu mới), mã hoá bằng mô hình câu pretrained
+(`sentence-transformers/all-MiniLM-L6-v2`, 384 chiều, không huấn luyện thêm
+trên dữ liệu FX), giảm chiều còn 3 thành phần chính (PCA, chốt trước, giải
+thích 51,4% phương sai embedding). Cùng giao thức hệt H8: cùng cửa sổ (1, 5
+phiên sau họp), cùng tam phân vị, cùng bộ kiểm soát (đã khử lịch họp), cùng
+phễu bốn cửa. Không gian giả thuyết: 3 PC × 3 ô × 2 cửa sổ = 18 vị từ × 3 lớp
+= **54 giả thuyết** — độc lập với 54 giả thuyết của H8.
+
+**Kết quả: 0 quy luật qua phễu — giống H8.** Nhưng khác biệt quan trọng nằm ở
+Hansen SPA (`run_spa_ho2.py`):
+
+| họ | p-value SPA | ứng viên tốt nhất (thô) |
+|---|---|---|
+| H8 — đặc trưng thủ công (TF-IDF, độ dài, HAWK/DOVE) | **0,162** | giọng điệu vừa [1 phiên sau], Δlog=+0,00056 |
+| H8b — embedding pretrained (PCA 3 thành phần) | **0,861** | PC2 vừa [1 phiên sau], Δlog=+0,00010 |
+
+**Đọc kết quả:** embedding pretrained **không** tốt hơn ba đặc trưng thủ công
+tự thiết kế — thực ra tệ hơn đáng kể (p tăng từ 0,162 lên 0,861, Δlog tốt
+nhất giảm hơn 5 lần). Đây là câu trả lời cụ thể cho RQ5 của roadmap ("which
+forms of text representation are most useful: sentiment, event category, hay
+embeddings"): với đúng 129 quan sát và đúng bài toán này, **biểu diễn có mục
+đích rõ ràng (thay đổi câu chữ, độ dài, giọng điệu — mỗi cái có lý do kinh tế
+cụ thể) mang thông tin đậm đặc hơn một embedding tổng quát 384 chiều bị nén
+xuống 3 thành phần bằng phương sai** — không phải vì embedding "kém", mà vì
+với ~128 điểm dữ liệu độc lập, một biểu diễn tổng quát cần nhiều dữ liệu hơn
+để "học" được đâu là hướng thông tin liên quan, trong khi đặc trưng thủ công
+đã mã hoá sẵn giả thuyết kinh tế vào đúng 3 con số.
+
+**Cập nhật `KHOA_SO.md`:** +54 giả thuyết (H8b), +1 nhánh độc lập — tổng giả
+thuyết quy luật của toàn dự án nay là 8.577 (10 nhánh), xem dòng 33 mục 5.
+
+**Hạn chế còn lại sau H8b:** vẫn chỉ một ngân hàng trung ương (FOMC); một mô
+hình embedding duy nhất (chưa thử OpenAI/Voyage hay embedding tài chính
+chuyên biệt như FinBERT); PCA tuyến tính có thể bỏ lỡ cấu trúc phi tuyến mà
+một probe phi tuyến nhỏ (không phải deep) có thể bắt được — nhưng với n≈128,
+rủi ro overfit của một probe phức tạp hơn lớn hơn lợi ích kỳ vọng.
