@@ -87,7 +87,7 @@ EPS = 1e-12
 
 
 def du_bao_pair(pipe, lv, dam, chi_tai=None, batch=CO_BATCH,
-                 ngu_canh_toi_da=NGU_CANH_TOI_DA):
+                 ngu_canh_toi_da=NGU_CANH_TOI_DA, thu_phan_vi=None):
     """Du bao 1-buoc cho tap phien `chi_tai` (mac dinh: MOI phien tu `dam`
     tro di), NHAN QUA (ngu canh chi den het phien truoc). Tra ve mang
     h_forecast (thang PHUONG SAI, da doi tu phan vi log-RV).
@@ -116,6 +116,9 @@ def du_bao_pair(pipe, lv, dam, chi_tai=None, batch=CO_BATCH,
         h = np.exp(Q).mean(1)                            # (batch,)
         for t, v in zip(lo, h):
             ra[t] = v
+        if thu_phan_vi is not None:
+            for t, qv in zip(lo, np.exp(Q)):             # phân vị đã đổi sang thang RV
+                thu_phan_vi[t] = qv
     return ra
 
 
@@ -165,6 +168,7 @@ def main():
 
     bang, chung = V2.nap_bang()
     ket = {}
+    RAW_PAIR, RAW_DATE, RAW_H, RAW_RV, RAW_Q = [], [], [], [], []
     for p in bang:
         d = bang[p]
         g = doan(d.Date.values)
@@ -174,8 +178,17 @@ def main():
         print(f"\n[{p}] đang dự báo {len(chi_tai):,} phiên (kiểm định+kiểm tra), "
               f"context tối đa {NGU_CANH_TOI_DA}…", flush=True)
         tp = time.time()
-        h = du_bao_pair(pipe, lv, DAM, chi_tai=chi_tai)
+        thu_qv = {}
+        h = du_bao_pair(pipe, lv, DAM, chi_tai=chi_tai, thu_phan_vi=thu_qv)
         print(f"  xong {time.time()-tp:.0f}s", flush=True)
+
+        dat = d.Date.values
+        for t in chi_tai:
+            if not np.isfinite(h[t]):
+                continue
+            RAW_PAIR.append(p); RAW_DATE.append(dat[t])
+            RAW_H.append(float(h[t])); RAW_RV.append(float(rv[t]))
+            RAW_Q.append(thu_qv.get(t, np.full(9, np.nan)))
 
         for ten_doan, gid in (("kiem_dinh", 1), ("kiem_tra", 2)):
             m = (g == gid) & np.isfinite(h)
@@ -205,6 +218,11 @@ def main():
     ket["moc_har_v7"] = moc
     json.dump(ket, open(os.path.join(OUT, "chronos.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1, default=float)
+    np.savez_compressed(os.path.join(OUT, "chronos_raw.npz"),
+                        pair=np.array(RAW_PAIR), date=np.array(RAW_DATE),
+                        h=np.array(RAW_H), rv=np.array(RAW_RV),
+                        q=np.array(RAW_Q))
+    print("→ output/chronos_raw.npz (dự báo + 9 phân vị thô, cho bảng MSE/MAE/CRPS)")
     print(f"\n→ output/chronos.json · {time.time()-t0:.0f}s")
 
 

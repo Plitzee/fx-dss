@@ -165,6 +165,7 @@ def main():
 
     bang, chung = V2.nap_bang()
     ket = {}
+    RAW_PAIR, RAW_DATE, RAW_H, RAW_RV = [], [], [], []
     for p in bang:
         d = bang[p]
         g = doan(d.Date.values)
@@ -186,6 +187,11 @@ def main():
         tp = time.time()
         du = du_bao_diem(model, lv, chi_tai, ctx_len)
         print(f"  xong {time.time()-tp:.0f}s", flush=True)
+
+        dat = d.Date.values
+        for t, v in du.items():
+            RAW_PAIR.append(p); RAW_DATE.append(dat[t])
+            RAW_H.append(float(np.exp(v + hc_p))); RAW_RV.append(float(rv[t]))
 
         for ten_doan, gid in (("kiem_dinh", 1), ("kiem_tra", 2)):
             m = [t for t in np.flatnonzero(g == gid) if t in du]
@@ -220,6 +226,10 @@ def main():
     ket["moc_chronos_bolt"] = moc_chronos
     json.dump(ket, open(os.path.join(OUT, "ttm.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1, default=float)
+    np.savez_compressed(os.path.join(OUT, "ttm_raw.npz"),
+                        pair=np.array(RAW_PAIR), date=np.array(RAW_DATE),
+                        h=np.array(RAW_H), rv=np.array(RAW_RV))
+    print("→ output/ttm_raw.npz (dự báo thô từng phiên, cho bảng tổng hợp MSE/MAE/CRPS)")
     print(f"\n→ output/ttm.json · {time.time()-t0:.0f}s")
 
 
