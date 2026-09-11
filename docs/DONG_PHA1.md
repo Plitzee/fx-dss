@@ -134,6 +134,23 @@ Theo đúng ràng buộc của `01_PHASE_1_HISTORICAL_ONLY.md` mục 8:
 - M2 so với M1 phải đánh giá tách biệt theo 3 trục: direction / magnitude /
   risk (không gộp thành một chỉ số duy nhất).
 
+## 6b. Sáu task của tuần đóng Phase 1 (`01_PHASE_1_HISTORICAL_ONLY.md` mục 5)
+
+- [x] **Task 1 — Freeze M1**: `KHOA_SO.md` mục 4.
+- [x] **Task 2 — Cập nhật prediction contract**: đối chiếu `api/main.py`,
+      không có `expected_return`/nhãn `confidence` chủ quan, đã dùng
+      conformal + mức kỹ năng theo tầm hạn — đạt sẵn.
+- [x] **Task 3 — Chính thức hoá thứ bậc đánh giá**: `docs/THUBAC_DANHGIA.md`
+      (11/09/2026) — bảng chỉ số chính/phụ theo từng trục, cả bốn trục
+      (hướng, biên độ, rủi ro, kinh tế) đều có proper scoring rule.
+- [x] **Task 4 — Xác nhận tầng kinh tế**: `docs/TOANMACH_E2E.md` — sau chi
+      phí (trượt giá + phí thoát), 26 năm, không cháy tài khoản, vốn cuối
+      1,004–1,027 lần. Đã đo từ trước, xác nhận lại ở đây.
+- [x] **Task 5 — Freeze guardrail**: `run_quyluat.py`, `kiem_pheu.py`
+      (mở rộng thêm cho H8/H8b 11/09/2026), `KHOA_SO.md`.
+- [ ] **Task 6 — Ký xác nhận**: văn bản xong (mục 8 dưới), **dòng ký còn
+      trống** — cần người chịu trách nhiệm luận văn ký.
+
 ## 7. Đối chiếu tiêu chí đóng Phase 1 (`01_PHASE_1_HISTORICAL_ONLY.md` mục 6)
 
 - [x] Historical pipeline exists.
