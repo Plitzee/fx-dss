@@ -1,0 +1,44 @@
+====================================================================================================
+MDES CHO PHA 2 (H8 + H8b) — tin tức FOMC còn bỏ ngỏ gì sau SPA p=0,162?
+====================================================================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2998.49it/s]
+  PCA 3 thành phần giải thích 51.4% phương sai embedding
+36 vị từ (H8 + H8b) × 3 lớp = 108 giả thuyết · 18,306 hàng phát hiện
+
+[0/2] Giá trị tới hạn max|z| dưới null khối (khối 5)…
+      giá trị tới hạn 95% = 3.47
+
+[1/2] ĐỐI CHỨNG ÂM — xáo trộn khối kết cục, phễu phải ra ~0
+      lần  1: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  2: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  3: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  4: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  5: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  6: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  7: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  8: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  9: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần 10: vượt ngưỡng   0 · qua điều kiện hoá 0
+      → trung bình 0.0 dương tính giả / 108 giả thuyết
+
+[2/2] ĐỐI CHỨNG DƯƠNG — tiêm quy luật đã biết, 60 lần mỗi mức
+      18 vị từ đủ ≥300 lần khớp làm giá đỡ
+
+       lift đặt  lift thực  |z| trung vị    bắt được      lực
+           1.02      1.035          0.56       0/60        0%
+           1.05      1.056          1.04       0/60        0%
+           1.10      1.105          2.20       0/60        0%
+           1.15      1.148          3.03       4/60        7%
+           1.20      1.201          4.17      28/60       47%
+           1.35      1.350          7.11      59/60       98%
+           1.50      1.504          9.88      60/60      100%
+
+====================================================================================================
+HIỆU ỨNG NHỎ NHẤT PHÁT HIỆN ĐƯỢC (lực 80%): lift = 1.35
+→ SPA p=0,162 (H8) nay phát biểu được thành: phễu tin tức
+  bắt được hiệu ứng lift ≥ 1.35 với xác suất ≥ 80%, nên mọi
+  quy luật mạnh hơn thế trong nội dung FOMC đã bị loại trừ.
+Dương tính giả trên nhiễu thuần: 0.0/108
+====================================================================================================
+đã ghi output/kiem_pheu_h8.json · 81s

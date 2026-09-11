@@ -193,6 +193,7 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 31 | 10/09/2026 | Mở rộng tổ hợp — thêm XGBoost/CatBoost/TabPFN vào tập ứng viên + stacking phi tuyến (LightGBM meta-learner), mọi tập con × 4 cách kết hợp | 509 | Tốt nhất: hồi quy GR của HAR+GRU+CatBoost (kiểm tra −3,0% so HAR, DM p=0,041 — tổ hợp DUY NHẤT có ý nghĩa riêng lẻ); **stacking phi tuyến TỆ NHẤT** (#383/509, tệ hơn HAR đơn); MCS vẫn giữ HAR trong tập |
 | 32 | 09/09/2026 | **H8 — nội dung thông cáo FOMC** (Pha 2, `run_h8_tintuc.py`): TF-IDF cosine, đổi độ dài, giọng điệu HAWK/DOVE | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,162 — thấp nhất trong mọi họ đã thử nhưng xa ngưỡng 0,05 |
 | 33 | 11/09/2026 | **H8b — embedding ngữ nghĩa thông cáo FOMC** (Pha 2, `run_h8b_embedding.py`): sentence-transformers pretrained, PCA 3 thành phần | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,861 — TỆ HƠN đặc trưng thủ công (H8), không hỗ trợ giả thuyết "embedding tốt hơn thủ công" |
+| 34 | 11/09/2026 | **MDES cho H8+H8b** (`kiem_pheu_h8.py`): đối chứng âm/dương, tiêm hiệu ứng biết trước vào 126 vị từ gộp | — | lift ≥ **1,35** đạt lực 80% (yếu hơn lift 1,20 của phễu Giai đoạn 1, do mẫu chỉ 129 thông cáo); đối chứng âm 0,0/108 — phễu không rò rỉ |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 

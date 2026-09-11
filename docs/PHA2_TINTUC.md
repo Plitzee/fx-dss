@@ -193,3 +193,25 @@ hình embedding duy nhất (chưa thử OpenAI/Voyage hay embedding tài chính
 chuyên biệt như FinBERT); PCA tuyến tính có thể bỏ lỡ cấu trúc phi tuyến mà
 một probe phi tuyến nhỏ (không phải deep) có thể bắt được — nhưng với n≈128,
 rủi ro overfit của một probe phức tạp hơn lớn hơn lợi ích kỳ vọng.
+
+## 9. MDES cho H8+H8b (11/09/2026) — "không tìm thấy gì" mạnh tới đâu?
+
+*Tái lập: `python src/kiem_pheu_h8.py`. Kết quả: `output/kiem_pheu_h8.json`.*
+
+Theo đúng roadmap mục 7.2 ("mọi kết quả âm phải đi kèm MDES"), và đúng cách
+`kiem_pheu.py` đã làm cho Giai đoạn 1: tiêm quy luật tổng hợp có độ mạnh biết
+trước vào 126 vị từ gộp của H8+H8b, xem phễu (thô → Westfall–Young → đối
+chứng có điều kiện đã khử lịch họp) bắt được ở mức lift nào với lực 80%.
+
+**Kết quả: lift ≥ 1,35 mới đạt lực 80%** — so với **lift ≥ 1,20** của phễu
+Giai đoạn 1 (Direction, 8.469 giả thuyết trên hàng chục nghìn quan sát).
+Phễu tin tức **yếu hơn** vì mẫu nhỏ hơn nhiều (129 thông cáo so với hàng
+nghìn phiên). Đối chứng âm cho 0,0/108 dương tính giả — phễu không rò rỉ.
+
+**Đọc kết quả:** SPA p=0,162 (H8) và p=0,861 (H8b) nay phát biểu được đầy đủ:
+*"nội dung/embedding thông cáo FOMC không cho thấy hiệu ứng có ý nghĩa, và
+phễu đủ lực để loại trừ mọi hiệu ứng mạnh hơn lift 1,35 với xác suất 80% —
+nhưng KHÔNG loại trừ được hiệu ứng yếu hơn mức đó (giữa 1,20 và 1,35), điều
+mà phễu Giai đoạn 1 loại trừ được."* Đây là giới hạn trung thực cần nêu khi
+đóng Phase 2 Week 3 (quyết định STOP/GO theo roadmap): kết luận âm cho FOMC
+đứng vững nhưng với lực yếu hơn phần còn lại của dự án.
