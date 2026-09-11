@@ -305,6 +305,44 @@ cùng một phân vị.
 
 ---
 
+## 5e. Cửa sổ họp NHTW/FOMC — hướng thứ tư, **cũng không ăn tiền** (11/09/2026)
+
+`src/va_duoi_nhtw.py`, `output/va_duoi_nhtw.json`. Sau khi ba hướng ở mục 5c/
+5d/9.2 đều thất bại, một chẩn đoán mới (carry USDJPY nhảy từ ~2%/năm lên
+5,18% năm 2023, đúng giai đoạn `sd(z)` vỡ) gợi ý hướng thứ tư gần với đề nghị
+"dữ liệu ngoại sinh" ở trên: **điều kiện hoá phân vị theo việc có đang trong
+cửa sổ K=5 phiên sau một kỳ họp NHTW (riêng cặp) hoặc FOMC hay không** — hai
+nhóm (không phải ba như mục 5d, tránh đúng lỗi phân mảnh mẫu đã làm che_do
+thất bại), lịch họp biết trước cả năm nên không rò rỉ (có tự kiểm riêng).
+
+**Trên kiểm định**: KHÔNG thắng mốc V1 vô điều kiện — 3/6 và 5/6 (α=0,05 và
+0,01) so với 5/6 và 5/6 của mốc, thậm chí làm hỏng thêm EURUSD và AUDUSD (hai
+cặp mốc đang đạt). Và **USDJPY đạt ở MỌI phương án trên kiểm định, kể cả mốc**
+(DQ=0,9957 mốc; 0,9942/0,9956 hai biến thể sự kiện) — lặp lại đúng hiện tượng
+đã ghi ở mục 5c/5d: vấn đề JPY chỉ lộ ra ở đoạn kiểm tra. Theo đúng quy tắc
+"chọn trên kiểm định", **không mở đoạn kiểm tra** — biến thể này thua trước
+khi tới bước đó.
+
+**Phát hiện quan trọng hơn cả kết quả âm**: đoạn kiểm định về cấu trúc **không
+thể phân biệt được** bất kỳ cách vá nào cho vấn đề USDJPY, vì chính vấn đề đó
+chỉ tồn tại trên kiểm tra. Đây không phải đặc thù của biến thể này — nó là
+giới hạn CỦA CHÍNH GIao thức chọn-trên-kiểm-định khi áp cho một lỗi chỉ hiện
+diện ngoài mẫu chọn. Hệ quả thực tế: **mọi hướng vá tương lai cho USDJPY sẽ
+gặp đúng bế tắc này**, trừ khi chấp nhận một trong hai điều — (a) chọn cấu
+hình dựa trên lý do kinh tế thay vì hiệu năng đo được trên kiểm định (rủi ro:
+không còn là lựa chọn ngoài mẫu nữa), hoặc (b) mở kiểm tra để CHẨN ĐOÁN (không
+phải chọn mô hình) rồi chấp nhận không quay lại sửa nữa dù kết quả thế nào.
+Cả hai đều là đánh đổi thực sự, không phải vấn đề kỹ thuật giải quyết được
+bằng biến thể thống kê khác.
+
+**Quyết định: giữ nguyên V1 mở rộng vô điều kiện. Bốn hướng độc lập đã thử,
+không hướng nào ăn tiền.** Cảnh báo USDJPY trên giao diện tiếp tục giữ
+nguyên. Khuyến nghị cho luận văn: trình bày đây là hạn chế đã biết, có chẩn
+đoán nguyên nhân khả dĩ (carry-unwind quanh họp BoJ) nhưng chưa có cách vá
+được xác nhận trong khuôn khổ giao thức chọn-trên-kiểm-định hiện tại.
+
+---
+
 ## 7. Phản ứng đo được của 14 loại sự kiện (05/09/2026)
 
 Sau khi nối FRED (`collect/lich_su_kien.py`), lịch mở rộng từ **7 NHTW / 901

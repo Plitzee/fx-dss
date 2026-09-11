@@ -194,6 +194,7 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 32 | 09/09/2026 | **H8 — nội dung thông cáo FOMC** (Pha 2, `run_h8_tintuc.py`): TF-IDF cosine, đổi độ dài, giọng điệu HAWK/DOVE | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,162 — thấp nhất trong mọi họ đã thử nhưng xa ngưỡng 0,05 |
 | 33 | 11/09/2026 | **H8b — embedding ngữ nghĩa thông cáo FOMC** (Pha 2, `run_h8b_embedding.py`): sentence-transformers pretrained, PCA 3 thành phần | **54 giả thuyết** | 0 quy luật qua phễu; SPA p=0,861 — TỆ HƠN đặc trưng thủ công (H8), không hỗ trợ giả thuyết "embedding tốt hơn thủ công" |
 | 34 | 11/09/2026 | **MDES cho H8+H8b** (`kiem_pheu_h8.py`): đối chứng âm/dương, tiêm hiệu ứng biết trước vào 126 vị từ gộp | — | lift ≥ **1,35** đạt lực 80% (yếu hơn lift 1,20 của phễu Giai đoạn 1, do mẫu chỉ 129 thông cáo); đối chứng âm 0,0/108 — phễu không rò rỉ |
+| 35 | 11/09/2026 | **Vá đuôi VaR/ES — hướng thứ tư**: phân vị điều kiện theo cửa sổ K=5 phiên sau họp NHTW/FOMC (`va_duoi_nhtw.py`), 2 biến thể | 2 | KHÔNG thắng mốc V1 vô điều kiện trên kiểm định (3-5/6 so 5/6, làm hỏng thêm EURUSD/AUDUSD); USDJPY đạt ở MỌI phương án trên kiểm định — không mở đoạn kiểm tra theo đúng quy tắc. Phát hiện thêm: giao thức chọn-trên-kiểm-định về cấu trúc không thể phân biệt cách vá cho lỗi chỉ hiện ở kiểm tra (xem `CHISO_DANHGIA.md` mục 5e) |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
@@ -242,7 +243,7 @@ không tốt hơn đặc trưng thủ công**, trả lời một phần RQ5 củ
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.251** (685 đến 08/09 + 566 bổ sung 09–11/09) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.253** (685 đến 08/09 + 568 bổ sung 09–11/09) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.577** (10 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
@@ -250,7 +251,7 @@ không tốt hơn đặc trưng thủ công**, trả lời một phần RQ5 củ
 
 Con số 8.577 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
-~1.251 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
+~1.253 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
 biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
 
 ---
