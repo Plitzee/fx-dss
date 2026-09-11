@@ -53,11 +53,14 @@ warnings.filterwarnings("ignore")
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT)
 D = os.path.join(ROOT, "data", "so_dubao")
 SO = os.path.join(D, "shadow_tohop.csv")
 
 import volfc2 as V2                                            # noqa: E402
 import ml_data as MD                                            # noqa: E402
+from volfc import merge_thin_days                               # noqa: E402
+from api.main import noi_chuoi                                  # noqa: E402
 from run_dl import xay_chuoi, khop_mot_lan                      # noqa: E402
 from run_ml2 import _fit_catboost                               # noqa: E402
 
@@ -67,6 +70,23 @@ HE_SO_GR = dict(a=-0.14905101400260934, hc=0.09168429953336128,
 HP_CATB = (8, 0.03, 400)
 HID_GRU, LR_GRU = 48, 2e-3
 EPS = 1e-12
+
+
+def nap_bang_song():
+    """Nhu `volfc2.nap_bang()` nhung dung CHUOI DA NOI (`api.main.noi_chuoi`
+    — lich su HistData den 2025-12-31 + hien hanh Yahoo tu 2026-01-01), thay
+    vi chi doc `data/rv_adv.csv` tinh (dung o 2025-12-31). Day la DUNG nguon
+    ma san xuat that (`api.main.tinh`) dung, nen "hom nay" o day la hom nay
+    THAT chu khong phai hom nay cua ban sao du lieu cu tren may dev."""
+    raw = {}
+    for p in V2.PAIRS:
+        raw[p] = merge_thin_days(noi_chuoi(p))
+    chung = raw[V2.PAIRS[0]].Date
+    for p in V2.PAIRS[1:]:
+        chung = pd.Index(chung).intersection(pd.Index(raw[p].Date))
+    chung = pd.DatetimeIndex(sorted(chung))
+    return {p: raw[p][raw[p].Date.isin(chung)].reset_index(drop=True)
+            for p in V2.PAIRS}, chung
 
 
 def _du_bao_har(bang):
@@ -154,8 +174,8 @@ def main():
     print("SHADOW-LOG — tổ hợp HAR+GRU+CatBoost so với HAR sản xuất")
     print("=" * 100)
 
-    bang, chung = V2.nap_bang()
-    print(f"dữ liệu tới {chung.max().date()}")
+    bang, chung = nap_bang_song()
+    print(f"dữ liệu tới {chung.max().date()} (chuỗi đã nối, không phải bản tĩnh cũ)")
 
     X, y, ten, pid, dts = MD.xay(bang, chung)
 
