@@ -165,7 +165,7 @@ def main():
 
     bang, chung = V2.nap_bang()
     ket = {}
-    RAW_PAIR, RAW_DATE, RAW_H, RAW_RV = [], [], [], []
+    RAW_PAIR, RAW_DATE, RAW_H, RAW_RV, RAW_S2 = [], [], [], [], []
     for p in bang:
         d = bang[p]
         g = doan(d.Date.values)
@@ -192,6 +192,9 @@ def main():
         for t, v in du.items():
             RAW_PAIR.append(p); RAW_DATE.append(dat[t])
             RAW_H.append(float(np.exp(v + hc_p))); RAW_RV.append(float(rv[t]))
+            # hc_p = 0,5*var(phan du log-RV tren huan luyen) -> phuong sai cua
+            # phan phoi log-chuan ngam dinh la 2*hc_p; luu de tinh CRPS that
+            RAW_S2.append(2.0 * hc_p)
 
         for ten_doan, gid in (("kiem_dinh", 1), ("kiem_tra", 2)):
             m = [t for t in np.flatnonzero(g == gid) if t in du]
@@ -228,7 +231,8 @@ def main():
               ensure_ascii=False, indent=1, default=float)
     np.savez_compressed(os.path.join(OUT, "ttm_raw.npz"),
                         pair=np.array(RAW_PAIR), date=np.array(RAW_DATE),
-                        h=np.array(RAW_H), rv=np.array(RAW_RV))
+                        h=np.array(RAW_H), rv=np.array(RAW_RV),
+                        s2=np.array(RAW_S2))
     print("→ output/ttm_raw.npz (dự báo thô từng phiên, cho bảng tổng hợp MSE/MAE/CRPS)")
     print(f"\n→ output/ttm.json · {time.time()-t0:.0f}s")
 

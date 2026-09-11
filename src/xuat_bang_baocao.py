@@ -39,9 +39,11 @@ sys.path.insert(0, HERE)
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "output")
 
+from scipy import stats                                                # noqa: E402
 from split import VALID_TU, TEST_TU                                    # noqa: E402
 from kiem_tohop2 import nap_du_bao, tb_hinh_hoc, gr_hoi_quy, qlike_arr, EPS  # noqa: E402
 from kiem_tohop3 import nap_them                                        # noqa: E402
+import crps as C                                                        # noqa: E402
 
 TL = 1e4   # he so nhan cho MSE/MAE/CRPS de bang de doc (RV goc rat nho)
 
@@ -51,9 +53,52 @@ def mse_mae(rv, h):
     return float(np.mean(e ** 2)), float(np.mean(np.abs(e)))
 
 
-def crps_diem(rv, h):
-    """CRPS cho du bao DIEM = MAE (phan phoi Dirac tai h)."""
-    return float(np.mean(np.abs(rv - h))) * TL
+def s2_tu_huan_luyen(h, rv, mask_tr):
+    """Phuong sai cua phan du log-RV, uoc CHI tren doan HUAN LUYEN.
+
+    Moi mo hinh trong bang nay deu du bao log-RV roi quy doi
+    h = exp(mu + s^2/2) — tuc no NGAM dinh phan phoi log-chuan LN(mu, s^2)
+    cho RV, khong phai mot diem. Vi log(h) = mu + s^2/2 nen phan du
+    log(rv) - log(h) co dung phuong sai s^2, va mu = log(h) - s^2/2.
+
+    Uoc tren huan luyen (khong phai kiem dinh/kiem tra) de khong ro ri."""
+    m = mask_tr & np.isfinite(h) & (h > 0) & np.isfinite(rv) & (rv > 0)
+    if m.sum() < 200:
+        return np.nan
+    return float(np.var(np.log(rv[m]) - np.log(h[m])))
+
+
+def crps_lognormal_tu_h(rv, h, s2):
+    """CRPS THAT cho phan phoi log-chuan ngam dinh boi (h, s^2)."""
+    if not np.isfinite(s2) or s2 <= 0:
+        return float("nan"), float("nan")
+    s = np.sqrt(s2)
+    mu = np.log(h) - s2 / 2.0
+    cr = float(np.mean(C.crps_lognormal(mu, s, rv))) * TL
+    # do phu khoang TRUNG TAM 80% (phan vi 10-90). Chon 80% chu khong 90% vi
+    # Chronos chi cho 9 phan vi 0,1..0,9 — de moi mo hinh trong bang dung
+    # CUNG mot muc, khong phai ngoai suy duoi cua Chronos.
+    lo = np.exp(mu + s * stats.norm.ppf(0.10))
+    hi = np.exp(mu + s * stats.norm.ppf(0.90))
+    phu = float(np.mean((rv >= lo) & (rv <= hi)))
+    return cr, phu
+
+
+def _tu_kiem_tai_tao():
+    """Tu kiem: tu (h, phan du huan luyen) co tai tao dung s^2 that khong."""
+    rng = np.random.default_rng(3)
+    n = 6000
+    mu_that = rng.normal(-10.5, 0.6, n)
+    s2_that = 0.35
+    rv = np.exp(mu_that + rng.normal(0, np.sqrt(s2_that), n))
+    h = np.exp(mu_that + s2_that / 2)                    # dung cach quy doi
+    tr = np.zeros(n, bool); tr[: n // 2] = True
+    s2_uoc = s2_tu_huan_luyen(h, rv, tr)
+    lech = abs(s2_uoc - s2_that) / s2_that
+    ok = lech < 0.08
+    print(f"  tự kiểm tái tạo s²: ước {s2_uoc:.4f} so với thật {s2_that:.4f} "
+          f"(lệch {lech:.1%})  {'ĐẠT' if ok else 'THẤT BẠI'}")
+    return ok
 
 
 def crps_phanvi(rv, Q, muc=np.linspace(0.1, 0.9, 9)):
@@ -82,8 +127,10 @@ def cham_tu_mang(rv_all, h_all, dts_all, ten):
     return ra
 
 
-def cham_tu_F(F, rv, dts, ten):
+def cham_tu_F(F, rv, dts, ten, s2_ngoai=None):
     h = F[ten]
+    tr = dts < VALID_TU
+    s2 = s2_tu_huan_luyen(h, rv, tr) if s2_ngoai is None else s2_ngoai
     ra = {}
     for doan_, (lo, hi) in (("kiem_dinh", (VALID_TU, TEST_TU)),
                             ("kiem_tra", (TEST_TU, None))):
@@ -94,7 +141,9 @@ def cham_tu_F(F, rv, dts, ten):
             continue
         ql = float(qlike_arr(rv[m], h[m]).mean())
         mse, mae = mse_mae(rv[m], h[m])
-        ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae, crps=mae)
+        cr, phu = crps_lognormal_tu_h(rv[m], h[m], s2)
+        ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae,
+                         crps=cr, phu90=phu, s2=float(s2))
     return ra
 
 
@@ -102,6 +151,9 @@ def main():
     print("=" * 100)
     print("XUẤT BẢNG TỔNG HỢP KIỂU BÀI BÁO — QLIKE / MSE / MAE / CRPS")
     print("=" * 100)
+    assert C._tu_kiem(im_lang=True), "tự kiểm module CRPS thất bại — dừng"
+    assert _tu_kiem_tai_tao(), "tự kiểm tái tạo s² thất bại — dừng"
+    print()
 
     F, rv, dts = nap_du_bao()
     F = nap_them(F)
@@ -145,7 +197,11 @@ def main():
             ql = float(qlike_arr(rv_c[m], h_c[m]).mean())
             mse, mae = mse_mae(rv_c[m], h_c[m])
             cr = crps_phanvi(rv_c[m], Q_c[m])
-            ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae, crps=cr)
+            # do phu 80% tu CHINH phan vi 0,1 va 0,9 cua Chronos
+            phu = float(np.mean((rv_c[m] >= Q_c[m][:, 0])
+                                & (rv_c[m] <= Q_c[m][:, 8])))
+            ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae,
+                             crps=cr, phu90=phu, s2=float("nan"))
         BANG["Chronos-bolt-small"] = ra
     else:
         print("  (thiếu output/chronos_raw.npz — bỏ qua Chronos)")
@@ -156,6 +212,8 @@ def main():
         dtt = np.load(pt, allow_pickle=True)
         dts_t = pd.DatetimeIndex(dtt["date"])
         rv_t, h_t = dtt["rv"], dtt["h"]
+        # s^2 = 2*he_so_hieu_chinh, uoc tren HUAN LUYEN trong chinh kiem_ttm.py
+        s2_t = dtt["s2"] if "s2" in dtt else np.full(len(h_t), np.nan)
         ra = {}
         for doan_, (lo, hi) in (("kiem_dinh", (VALID_TU, TEST_TU)),
                                 ("kiem_tra", (TEST_TU, None))):
@@ -164,7 +222,15 @@ def main():
                 m &= dts_t < hi
             ql = float(qlike_arr(rv_t[m], h_t[m]).mean())
             mse, mae = mse_mae(rv_t[m], h_t[m])
-            ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae, crps=mae)
+            # s^2 khac nhau theo cap -> tinh CRPS tung hang roi lay trung binh
+            s2m = s2_t[m]
+            mu_t = np.log(h_t[m]) - s2m / 2.0
+            cr = float(np.mean(C.crps_lognormal(mu_t, np.sqrt(s2m), rv_t[m]))) * TL
+            lo_ = np.exp(mu_t + np.sqrt(s2m) * stats.norm.ppf(0.10))
+            hi_ = np.exp(mu_t + np.sqrt(s2m) * stats.norm.ppf(0.90))
+            phu = float(np.mean((rv_t[m] >= lo_) & (rv_t[m] <= hi_)))
+            ra[doan_] = dict(n=int(m.sum()), qlike=ql, mse=mse, mae=mae,
+                             crps=cr, phu90=phu, s2=float(np.mean(s2m)))
         BANG["TTM"] = ra
     else:
         print("  (thiếu output/ttm_raw.npz — bỏ qua TTM)")
@@ -181,28 +247,39 @@ def main():
             continue
         if kieu == "deu":
             h = tb_hinh_hoc(F, ten_full)
+            BANG[nhan] = cham_tu_F({nhan: h}, rv, dts, nhan)
         else:
-            du_bao, _ = gr_hoi_quy(F, ten_full, log_rv, va)
+            du_bao, coef = gr_hoi_quy(F, ten_full, log_rv, va)
             te = dts >= TEST_TU
             h = np.where(np.isnan(du_bao(te)), du_bao(va), du_bao(te))
-        BANG[nhan] = cham_tu_F({nhan: h}, rv, dts, nhan)
+            # To hop GR chi co du bao tren kiem dinh+kiem tra (he so khop tren
+            # kiem dinh), nen KHONG uoc duoc s^2 tu doan huan luyen nhu cac mo
+            # hinh khac. Dung chinh phuong sai du CUA HOI QUY do — `gr_hoi_quy`
+            # tra ve hc = 0,5*var(phan du), nen s^2 = 2*hc. Day la cung mot
+            # dai luong, uoc tren cung du lieu ma he so duoc khop.
+            BANG[nhan] = cham_tu_F({nhan: h}, rv, dts, nhan,
+                                    s2_ngoai=2.0 * float(coef["hc"]))
 
     # ── in bảng kiểu bài báo + ghi file
     xep = sorted(BANG, key=lambda k: BANG[k].get("kiem_tra", {}).get("qlike", 9))
-    print("\n" + "=" * 100)
+    print("\n" + "=" * 112)
     print(f"{'Mô hình':<38}{'QLIKE(vđ)':>10}{'QLIKE(kt)':>10}{'MSE(kt)':>10}"
-          f"{'MAE(kt)':>10}{'CRPS(kt)':>10}")
-    print("-" * 100)
+          f"{'MAE(kt)':>10}{'CRPS(kt)':>10}{'phủ 80%':>10}")
+    print("-" * 112)
     for k in xep:
         v = BANG[k]
         vd = v.get("kiem_dinh", {})
         kt = v.get("kiem_tra", {})
         print(f"{k:<38}{vd.get('qlike', float('nan')):>10.4f}"
               f"{kt.get('qlike', float('nan')):>10.4f}{kt.get('mse', float('nan')):>10.4f}"
-              f"{kt.get('mae', float('nan')):>10.4f}{kt.get('crps', float('nan')):>10.4f}")
-    print("-" * 100)
-    print(f"(MSE/MAE/CRPS tính trên RV×{TL:.0e}; CRPS = MAE cho mô hình dự báo điểm,"
-          f" xem docstring)")
+              f"{kt.get('mae', float('nan')):>10.4f}{kt.get('crps', float('nan')):>10.4f}"
+              f"{kt.get('phu90', float('nan')):>10.1%}")
+    print("-" * 112)
+    print(f"(MSE/MAE/CRPS tính trên RV×{TL:.0e}. CRPS dùng PHÂN PHỐI dự báo:")
+    print(" log-chuẩn LN(log h − s²/2, s²) với s² = var(phần dư log-RV) ước trên")
+    print(" HUẤN LUYỆN; riêng Chronos dùng 9 phân vị thật. 'phủ 80%' = tỉ lệ RV")
+    print(" thực rơi vào khoảng trung tâm 80% của phân phối đó — càng gần 80%")
+    print(" càng hiệu chuẩn tốt.)")
 
     # ── bảng chi tiết theo từng cặp (QLIKE kiểm tra) cho TOP mô hình
     top8 = xep[:8]

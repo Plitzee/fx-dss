@@ -399,6 +399,81 @@ lẫn nhau) — một minh chứng thực nghiệm rõ ràng cho "câu đố t�
 (forecast combination puzzle): mô hình tổ hợp phức tạp hơn không đồng
 nghĩa với tốt hơn, và đôi khi tệ hơn hẳn phương án đơn giản.
 
+## CRPS — chấm cả phân phối dự báo, không chỉ giá trị điểm (11/09/2026)
+
+Bảng tổng hợp bản đầu (`xuat_bang_baocao.py`) có cột CRPS **trùng khít cột
+MAE** ở mọi mô hình trừ Chronos. Đó không phải lỗi sao chép: CRPS của một dự
+báo **điểm** bằng đúng |y − f| vì phân phối dự báo suy biến về một điểm
+(Gneiting & Raftery 2007). Nhưng nó làm cột CRPS vô nghĩa — không nói thêm gì
+so với MAE.
+
+`src/crps.py` (mới) sửa việc đó. Mấu chốt: **mọi mô hình trong bảng đều đã
+ngầm định một phân phối, chỉ là chưa ai dùng**. Vì mỗi mô hình dự báo log-RV
+rồi quy đổi `h = exp(μ + s²/2)`, nên nó ngầm định RV ~ log-chuẩn
+`LN(log h − s²/2, s²)`, với `s²` là phương sai phần dư log-RV — ước **chỉ trên
+đoạn huấn luyện**. Tách μ và s² ra là tính được CRPS thật, dạng đóng (Baran &
+Lerch 2015). Chronos giữ CRPS từ 9 phân vị thật của chính nó.
+
+Module có **5 phép tự kiểm Monte Carlo**: công thức Gini nhanh so với brute
+force, CRPS mẫu so với định nghĩa tích phân gốc, dạng đóng log-chuẩn và chuẩn
+so với mẫu lớn, trường hợp suy biến (Dirac → CRPS = MAE), và **tính chính đáng**
+(phân phối đúng phải ăn điểm cả phân phối quá rộng lẫn phân phối lệch tâm).
+
+Kết quả đổi thứ hạng, và thêm một chiều thông tin mới — **độ phủ khoảng trung
+tâm 80%**, tức phân phối có hiệu chuẩn đúng không:
+
+| mô hình | CRPS kiểm tra | phủ 80% |
+|---|---|---|
+| Tổ hợp HAR+GRU (đều tay) | **0,0786** | 81,8% |
+| Tổ hợp HAR+GRU+CatBoost (hồi quy GR) | 0,0792 | **79,8%** |
+| CatBoost | 0,0790 | 82,2% |
+| HAR vòng 7 | 0,0796 | 81,8% |
+| TTM | 0,0874 | 77,6% |
+| Chronos-bolt-small | 0,0929 | **75,7%** |
+| MLP | 0,0853 | **85,4%** |
+
+Hai điều đáng chú ý: (a) **tổ hợp đều tay thắng CRPS** dù thua tổ hợp hồi quy
+GR ở QLIKE/MSE — tức trung bình đều tay cho phân phối *hiệu chuẩn* tốt hơn, dù
+điểm trung tâm kém hơn chút; (b) cột độ phủ bắt được lỗi mà QLIKE/MSE/MAE
+không thấy: **Chronos phủ 75,7%** (khoảng dự báo quá hẹp, tự tin quá mức) còn
+**MLP phủ 85,4%** (quá rộng, mơ hồ quá mức) — cả hai đều là phân phối sai, theo
+hai hướng ngược nhau.
+
+## CRPS phân phối lợi suất — chấm đúng cái sản phẩm hứa (11/09/2026)
+
+*Tái lập: `python src/crps_loi_suat.py`. Kết quả: `output/crps_loi_suat.json`.*
+
+Mọi chỉ số ở trên đều chấm **dự báo phương sai**. Nhưng sản phẩm không hứa
+"phương sai ngày mai bằng X" — nó hứa **"lợi suất ngày mai nằm trong khoảng
+này, với mức tự tin này"**. Hệ sản xuất đã có sẵn một phân phối dự báo đầy đủ,
+chỉ là chưa ai ráp lại:
+
+```
+tầng 2 (volfc2.du_bao_san_xuat)   →  σ̂(t)
+tầng 6 (va_duoi.py, cấu hình V0)  →  phân phối thực nghiệm của z, ĐÓNG BĂNG trên huấn luyện
+ghép:  r(t+1) ~ σ̂(t) × {z₁, …, z_m}
+```
+
+Chấm phân phối đó bằng CRPS, so với **khí hậu học** (phân phối lợi suất huấn
+luyện — tương đương "giả định biến động không đổi"):
+
+| đoạn | CRPS khí hậu học | CRPS hệ thống | kỹ năng | số cặp dương |
+|---|---|---|---|---|
+| kiểm định | 32,637 | 32,015 | **+1,91%** | 6/6 |
+| kiểm tra | 25,516 | 25,082 | **+1,70%** | 6/6 |
+
+(đơn vị pip trên cặp 5 chữ số; kỹ năng = 1 − CRPS/CRPS_khí_hậu, cùng quy ước
+với BSS)
+
+**Đây là bằng chứng trực tiếp nhất cho kết luận "magnitude/risk có kỹ năng đo
+được"** — không phải qua một chỉ số nội bộ như QLIKE, mà qua chính đầu ra sản
+phẩm, trên đoạn kiểm tra chưa từng dùng để chọn gì, dương trên cả 6/6 cặp.
+
+Tách thêm một bậc: nếu thay phân phối z thực nghiệm (đuôi dày) bằng giả định
+**chuẩn**, kỹ năng còn +1,42% thay vì +1,70%. Nghĩa là phần lớn lợi thế đến từ
+**σ̂ thay đổi theo phiên**, còn hình dạng đuôi chỉ đóng góp thêm ~0,28 điểm
+phần trăm — nhỏ nhưng nhất quán (tốt hơn ở 6/6 cặp).
+
 **Khuyến nghị cuối cùng, sau khi đã thử mô hình hiện đại + stacking**:
 tổ hợp **hồi quy GR của HAR+GRU+CatBoost** (hoặc đơn giản hơn, HAR+GRU đều
 tay) là lựa chọn tốt nhất đã kiểm chứng — cải thiện thật, nhất quán, và
