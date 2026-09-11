@@ -108,7 +108,59 @@ không phải từ một sự kiện FOMC.
 → **CHUYỂN** phát hiện này sang Tầng 2 dưới dạng giả thuyết mới, chốt trước và
 đếm riêng: *"phần RV rơi vào một cửa sổ hẹp quanh sự kiện lịch nên bị chiết
 khấu khi ngoại suy"*. Phép thử đúng là dùng RV trong ngày của chính repo cho
-mọi phiên, không chỉ 135 kỳ FOMC. **Chưa làm.**
+mọi phiên, không chỉ 135 kỳ FOMC.
+
+**ĐÃ LÀM — VÀ THẤT BẠI.** Xem mục 3d.
+
+### 3d. Phép thử tổng quát ở Tầng 2 — **âm** (11/09/2026)
+
+*Chốt trước ở commit `07bbe1b` trước khi chấm. Tái lập:
+`python src/xay_tap_trung.py` rồi `python src/run_tang2_taptrung.py`.*
+
+Dựng lại từ **34,9 triệu nến M1 gốc** (`dukas/histdata_raw`, 6 cặp, 2010–2025)
+ba thước đo độ tập trung của RV trong ngày: `hhi` (Herfindahl của phân bố RV
+qua 288 bin 5 phút), `top1`, `top12`. 24.902 ngày-cặp; hai phép tự kiểm
+(`1/n ≤ hhi ≤ 1`, `top1 ≤ top12 ≤ 1`) đều đạt 0 vi phạm.
+
+Mốc **B1 = HAR sản xuất** (`V2.du_bao_san_xuat`) — mô hình thật của hệ thống,
+đã có sẵn thành phần bipower/jump. 21.582 hàng (15.018 / 3.282 / 3.282).
+
+| biến thể | QLIKE kiểm định | QLIKE kiểm tra | DM p |
+|---|---|---|---|
+| B1 mốc | 0,1569 | 0,1872 | — |
+| + hhi | +0,55% | +0,76% | 0,127 |
+| + top1 | +0,45% | +0,64% | 0,178 |
+| + top12 | +0,73% | +0,60% | 0,090 |
+| + log hhi | +0,51% | +0,53% | 0,168 |
+| + tỉ trọng nhảy *(đối chứng)* | +0,15% | +0,34% | 0,164 |
+| + hhi + tỉ trọng nhảy | +0,57% | +0,75% | 0,127 |
+
+**Không biến thể nào thắng**, cả trên kiểm định lẫn kiểm tra. Không cái nào có
+ý nghĩa (p > 0,09) — nên đây là *"không có hiệu ứng"*, không phải *"có hại"*.
+
+Hai điều đáng ghi:
+
+1. **Dấu hệ số ĐÚNG như giả thuyết chốt trước** (hhi: −0,328; top1: −0,186;
+   tất cả đều âm). Chiều của hiệu ứng đúng; **độ lớn bằng không** so với mốc.
+2. **Tương quan `hhi` với tỉ trọng nhảy là +0,742.** Độ tập trung phần lớn
+   *chính là* thành phần nhảy trá hình — mà thành phần nhảy thì HAR sản xuất
+   **đã có rồi**. Đối chứng tỉ trọng nhảy cũng thua, xác nhận điều đó.
+
+**Hệ quả cho mục 3b — phải hạ mức tin cậy của S4.** Cách đọc cơ chế mà 3b đưa
+ra (*"chiết khấu phần HAR ngoại suy thừa sau một cú nổ ngắn"*) là một phát biểu
+**tổng quát**; phép thử tổng quát với **gấp 6 lần số hàng kiểm tra** (3.282 so
+với 510) và lực mạnh hơn hẳn **không tìm thấy gì**. Còn lại hai khả năng:
+
+- (a) hiệu ứng thật sự **chỉ riêng cửa sổ công bố FOMC**, chứ không phải mọi
+  cú nổ trong ngày — nhưng 3b không có bằng chứng nào cho tính đặc thù đó;
+- (b) S4 là **may mắn** trên 510 hàng kiểm tra sau khi đã thử 6 biến thể.
+
+Không phân biệt được (a) và (b) bằng dữ liệu hiện có. Vì vậy:
+
+→ **S4 KHÔNG được đưa vào hệ thống.** Ghi lại như một quan sát chưa giải thích
+được, kèm chính phép thử đã bác bỏ cách giải thích duy nhất từng đề ra. Mục 3b
+giữ nguyên phần *dương* (con số kiểm tra là thật, đã chấm một lần) nhưng phần
+*diễn giải cơ chế* phải đọc cùng mục 3d này.
 
 ### 3c. Không mở bộ niêm phong
 
@@ -133,7 +185,8 @@ Bộ niêm phong giữ nguyên cho lần chạy cuối của toàn hệ thống,
 | khoảng lift 1,20–1,35 | **không loại trừ được** (giới hạn mẫu 129 thông cáo) |
 | ý nghĩa từng cặp riêng của S4 | **không đạt** (n=85/cặp, p 0,13–0,42); chỉ có ý nghĩa khi gộp |
 | đa kiểm định cho S4 | 6 biến thể; Bonferroni p = 0,0054 — vẫn có ý nghĩa, nhưng đã khai báo |
-| cơ chế của S4 | **bác bỏ giả thuyết chốt trước**; giải thích thay thế chưa được kiểm độc lập |
+| cơ chế của S4 | **bác bỏ giả thuyết chốt trước**; giải thích thay thế đã kiểm ở mục 3d và **cũng bị bác bỏ** → S4 không vào hệ thống |
+| phân biệt "đặc thù FOMC" vs "may mắn" cho S4 | **không làm được** với dữ liệu hiện có |
 
 ---
 
@@ -148,6 +201,8 @@ python src/kiem_pheu_h8.py        # MDES của phễu tin tức
 python src/run_m2_bien_dong.py    # M1 vs M2, bốn biểu diễn văn bản
 python src/run_m2_batngo.py       # M1 vs M2, bất ngờ thị trường (S1–S4)
 python src/run_m2_vung.py         # độ vững của S4 (năm / độ mạnh / walk-forward)
+python src/xay_tap_trung.py       # dựng độ tập trung RV từ nến M1 (~200s)
+python src/run_tang2_taptrung.py  # phép thử tổng quát ở Tầng 2 (mục 3d)
 ```
 
 ---

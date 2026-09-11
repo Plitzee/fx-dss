@@ -203,6 +203,7 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 39 | 11/09/2026 | **Bất ngờ chính sách market-implied** (`run_m2_batngo.py`), dữ liệu USMPD/SF Fed (Acosta et al. 2025) — cửa sổ 100 phút quanh công bố FOMC | 7 | **KẾT QUẢ DƯƠNG ĐẦU TIÊN của nhánh tin tức**: |phản ứng EURUSD| thắng M1 −2,7% trên kiểm tra (DM p=0,0009), chọn đúng luật trên kiểm định trước; 6/6 cặp cải thiện. Nhưng |MP1| thuần lãi suất THẤT BẠI (+2,5%). Xem `PHA2_TINTUC.md` mục 8c–8d |
 | 40 | 11/09/2026 | **Độ vững của S4** (`run_m2_vung.py`) — CHẨN ĐOÁN của mô hình đã chấm ở dòng 39, biến GIỮ NGUYÊN | **0** (không cấu hình mới, không chọn lại) | Vững: 4/5 năm · 3/3 nhóm độ mạnh · walk-forward −2,1% (p=0,0031). **Nhưng hệ số ÂM (−0,122, ổn định mọi cửa sổ) trong khi giả thuyết chốt trước là DƯƠNG** → cơ chế đăng ký bị bác bỏ; biến hoạt động như chiết khấu phần ngoại suy thừa của HAR, không phải thước đo cú sốc. Xem `PHA2_TINTUC.md` mục 8e |
 | 41 | 11/09/2026 | **Đóng băng Pha 2** — `docs/PHA2_KETQUA.md` (biên bản PHASE2_NEWS_RESULT theo roadmap Week 3–4) | — | Quyết định TÁCH ĐÔI: **STOP** nhánh nội dung văn bản (kết luận âm đáng tin, 183 giả thuyết, MDES lift ≥1,35); **CHUYỂN** phát hiện S4 sang Tầng 2 vì cơ chế thật là vi cấu trúc trong ngày, không phải tín hiệu tin tức. **KHÔNG mở bộ niêm phong** |
+| 42 | 11/09/2026 | **Độ tập trung RV trong ngày** (Tầng 2, `xay_tap_trung.py` + `run_tang2_taptrung.py`), dựng lại từ 34,9tr nến M1 gốc; giả thuyết CHỐT TRƯỚC ở commit 07bbe1b | 7 | **ÂM.** 0/6 biến thể thắng mốc HAR sản xuất (+0,34% đến +0,76% trên kiểm tra, mọi p>0,09). Dấu hệ số ĐÚNG như chốt trước (đều âm) nhưng độ lớn bằng không. `hhi` tương quan +0,742 với tỉ trọng nhảy — độ tập trung phần lớn là nhảy trá hình, mà HAR sản xuất đã có. **Hệ quả: hạ mức tin cậy của S4 (dòng 39) và KHÔNG đưa vào hệ thống** — xem `PHA2_KETQUA.md` mục 3d |
 
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
@@ -260,7 +261,7 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.265** (685 đến 08/09 + 580 bổ sung 09–11/09) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.272** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 của dòng 42) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
