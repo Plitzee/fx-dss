@@ -137,6 +137,21 @@ def _tu_kiem_newton():
 
 
 # ──────────────────────────────────── Q_lvl: ban sat bai bao (thang muc)
+def thiet_ke_muc(d):
+    """HAR THANG MUC dung kieu bai bao: [1, RV_d, RV_w, RV_m] — KHONG phai log.
+
+    Phai co ham rieng nay vi `volfc2.thiet_ke` tra ve ma tran o thang LOG. Ap
+    tuyen-tinh-thang-muc len ma tran log la SAI DAC TA, va se cho ket qua tham
+    hoa khong quy duoc cho bai bao. (Toi da mac dung loi do o ban dau va sua
+    tai day — ghi lai de nguoi sau khong lap lai.)
+    """
+    rv = np.maximum(d.rv5.values, EPS)
+    s = pd.Series(rv)
+    w = s.rolling(5).mean().values
+    m = s.rolling(22).mean().values
+    return np.column_stack([np.ones(len(rv)), rv, w, m])
+
+
 def khop_qlvl(X, y, b0):
     """h = X beta tren THANG MUC. Khong loi -> Nelder-Mead tu OLS, nhu ma R."""
     def f(b):
@@ -162,16 +177,39 @@ def bang_cap(d, pair):
     y_rv = np.empty(n); y_rv[:-1] = np.maximum(d.rv5.values[1:], EPS); y_rv[-1] = np.nan
     gap = pd.Series(ngay).diff().dt.days.values.astype(float); gap[0] = 1
     lien = np.zeros(n, bool); lien[1:] = gap[1:] <= V2.MAX_GAP
-    return X, y_log, y_rv, ngay, lien
+    return X, thiet_ke_muc(d), y_log, y_rv, ngay, lien
 
 
-def du_bao_theo_nam(X, y_log, y_rv, ngay, lien, kieu):
+def du_bao_theo_nam(X, Xmuc, y_log, y_rv, ngay, lien, kieu):
     """Khop lai DAU MOI NAM, cua so mo rong. kieu: 'ols' | 'qlog' | 'qlvl'.
 
     Tra ve mang du bao PHUONG SAI cho tung ngay (NaN neu chua du dam).
     """
     n = len(y_log)
     nam = ngay.year.values
+    if kieu == "qlvl":
+        # HAR thang muc la MOT mo hinh rieng (4 he so), khong phai to hop ba
+        # mo hinh log cua repo — nen xu ly tach ra, dung dac ta cua bai bao.
+        Xm = Xmuc
+        hople = np.isfinite(Xm).all(1) & np.isfinite(y_rv)
+        fit = np.full(n, np.nan)
+        for u in sorted(set(nam)):
+            tr = (nam < u) & hople
+            ap = (nam == u) & np.isfinite(Xm).all(1)
+            if tr.sum() < max(MIN_FIT, V2.MIN_TRAIN) or not ap.any():
+                continue
+            b0 = np.linalg.lstsq(Xm[tr], y_rv[tr], rcond=None)[0]   # OLS thang muc
+            b = khop_qlvl(Xm[tr], y_rv[tr], b0)
+            fit[ap] = np.log(np.maximum(Xm[ap] @ b, EPS))
+        g = fit
+        ok = np.isfinite(g)
+        out = np.full(n, np.nan)
+        src = np.where(ok)[0]; tgt = src + 1
+        v = tgt < n
+        src, tgt = src[v], tgt[v]
+        v2 = lien[tgt]
+        out[tgt[v2]] = np.exp(np.clip(g[src[v2]], -30, 5))
+        return out
     L = []
     for m in V2.MODELS:
         Xm = X[m]
@@ -193,12 +231,6 @@ def du_bao_theo_nam(X, y_log, y_rv, ngay, lien, kieu):
                 b = khop_qlog(Xtr, ytr_rv, b_ols)
                 fit[ap] = np.clip(Xm[ap] @ b, -30, 0)      # KHONG hieu chinh:
                 #   ham mat da toi uu truc tiep cho chinh h = exp(X beta)
-            elif kieu == "qlvl":
-                h0 = np.exp(Xtr @ b_ols)
-                bl0 = np.linalg.lstsq(Xtr, h0, rcond=None)[0]
-                b = khop_qlvl(Xtr, ytr_rv, bl0)
-                h = Xm[ap] @ b
-                fit[ap] = np.log(np.maximum(h, EPS))
         L.append(fit)
     g = np.nanmean(np.stack(L), axis=0)            # trung binh hinh hoc, nhu B0
     ok = np.isfinite(g)
@@ -231,10 +263,10 @@ def main():
     print(f"\nchạy {len(V2.PAIRS)} cặp…")
     for p in V2.PAIRS:
         d = bang[p]
-        X, y_log, y_rv, ngay, lien = bang_cap(d, p)
+        X, Xmuc, y_log, y_rv, ngay, lien = bang_cap(d, p)
         hs = {"B0": V2.du_bao_san_xuat(d, p)}
         for ten, kieu in (("A0", "ols"), ("Q_log", "qlog"), ("Q_lvl", "qlvl")):
-            hs[ten] = du_bao_theo_nam(X, y_log, y_rv, ngay, lien, kieu)
+            hs[ten] = du_bao_theo_nam(X, Xmuc, y_log, y_rv, ngay, lien, kieu)
         g = doan(ngay.values)
         rv = np.maximum(d.rv5.values, EPS)
         for t in range(len(d)):
@@ -263,7 +295,7 @@ def main():
     MO_TA = {"B0": "mốc sản xuất (OLS log, khớp phiên)",
              "A0": "y hệt B0, khớp theo năm",
              "Q_log": "QLIKE trực tiếp, h = exp(Xβ)",
-             "Q_lvl": "QLIKE trực tiếp, thang mức (bài báo)"}
+             "Q_lvl": "HAR mức 4 hệ số, QLIKE (bài báo)"}
     kq = {}
     for k in CH:
         v, t_ = float(ql[k][va].mean()), float(ql[k][te].mean())
@@ -304,12 +336,9 @@ def main():
     print(f"  → Q_log cải thiện {duong}/6 cặp")
 
     # Model Confidence Set — cung bo may da dung cho 14 mo hinh vong 7
-    try:
-        L = np.column_stack([ql[k][te] for k in CH])
-        song = mcs(L, alpha=0.10)
-        ten_song = [CH[i] for i in np.where(song)[0]] if song is not None else None
-    except Exception as e:
-        ten_song = f"(không chạy được: {type(e).__name__})"
+    L = np.column_stack([ql[k][te] for k in CH])
+    song_idx, bi_loai = mcs(L, alpha=0.10)
+    ten_song = [CH[i] for i in song_idx]
     print(f"\nModel Confidence Set (α = 0,10) trên đoạn kiểm tra: {ten_song}")
 
     print(f"\nTHEO CHẾ ĐỘ BIẾN ĐỘNG (ngũ phân vị σ̂ mốc, ngưỡng từ huấn luyện):")
