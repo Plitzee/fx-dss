@@ -208,6 +208,14 @@ hỏng. Sàng đơn biến trên kiểm định **không thấy điều đó** v
 Màn lọc độ vững của E3 — đòi **cùng dấu ở ≥5/6 cặp và ≥4/5 năm** — loại đúng
 những biến đó, vì một chuỗi đang trôi không thể giữ cùng dấu qua 12 năm.
 
+**Ghi chú kỹ thuật về tính công bằng của phép so E3 vs E2.** Cả hai tập đều
+khai báo 15 cột nhưng **hạng ma trận đều là 14** — mỗi tập chứa đúng một cặp
+cột trùng khít, do `sk_ke_tiep` theo định nghĩa là `sk_ngay` dịch một phiên nên
+`sk_ke_tiep_L1 ≡ sk_ngay_L2`. `lstsq` xử lý bằng giả nghịch đảo nên không có
+vấn đề số học (đã kiểm: hệ số lớn nhất 0,173; ridge ở mọi mức cho kết quả
+giống hệt). Điều đáng nói là **số tham số hữu hiệu của hai bên bằng nhau đúng
+bằng 14**, nên −3,07% không đến từ việc một bên được nhiều tham số hơn.
+
 **Quy công cho đúng:** phần lớn giá trị của E3 đến từ **màn lọc độ vững**,
 không phải từ bản thân kiểm định Granger. Biên bản định nghĩa E3 là *"qua
 được mục 4b **và** 4e"* nên quy công này nằm trong đúng thứ đã khai báo — nhưng
