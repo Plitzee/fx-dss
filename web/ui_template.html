@@ -979,7 +979,7 @@ function paintMo(){
     return;
   }
   const s = M.chi_so_sigma, ba = M.ba_lop, ql = M.quy_luat, b14 = M.bien_dong_14;
-  const tc = M.tin_cay, nq = M.nhan_qua;
+  const tc = M.tin_cay, nq = M.nhan_qua, nn = M.nen;
   const f = (v,n) => (v==null||!isFinite(v)) ? "—" : Number(v).toFixed(n);
 
   // ── tầng σ̂ ──
@@ -1205,6 +1205,57 @@ function paintMo(){
       so ${(100*nq.truc_rui_ro.ky_nang_B0).toFixed(2)}%, độ phủ
       ${(100*nq.truc_rui_ro.phu_E3).toFixed(1)}% so ${(100*nq.truc_rui_ro.phu_B0).toFixed(1)}%
       — nhỉnh hơn nhưng không đáng kể. Chi tiết: <code>docs/PHA3B_KETQUA.md</code>.</div>
+  </div>`}
+
+  ${!nn ? "" : `<div class="card sec" style="margin-top:12px">
+    <h2>Mẫu hình nến — biểu đồ bạn đang nhìn có nói gì không?</h2>
+    <p class="lead">Doji, hammer, engulfing, sao mai, ba lính trắng… Đây là thứ
+      hầu hết nền tảng giao dịch vẽ sẵn và gợi ý bạn dùng. Hệ thống này
+      <b>đã kiểm chúng bằng đúng bộ máy thống kê dùng cho mọi thứ khác</b>:
+      ${nn.khong_gian} giả thuyết liệt kê đầy đủ trước khi chạy, hiệu chỉnh
+      đa kiểm định Westfall–Young.</p>
+
+    <div class="tw"><table><thead><tr><th>họ đặc trưng</th><th class="n">số phép kiểm</th>
+      <th class="n">sống sót</th><th class="n">p W-Y nhỏ nhất</th></tr></thead><tbody>
+      ${Object.entries(nn.theo_ho).map(([k,v])=>`<tr>
+        <td>${k}</td><td class="n">${v.n}</td>
+        <td class="n ${v.wy>0?"pos":""}"><b>${v.wy}</b></td>
+        <td class="n">${v.p_min.toFixed(4)}</td></tr>`).join("")}
+    </tbody></table></div>
+
+    <div class="note warn"><b>Mẫu hình nến có tên: 0 sống sót trên
+      ${nn.theo_ho["K3 mẫu có tên"].n} phép kiểm.</b> Không phải vì thiếu dữ liệu —
+      doji khớp ${nn.n_khop.doji.toLocaleString()} lần, engulfing
+      ${(nn.n_khop.nhan_chim_tang+nn.n_khop.nhan_chim_giam).toLocaleString()} lần,
+      con quay ${nn.n_khop.con_quay.toLocaleString()} lần. Và khi đưa chúng vào mô hình,
+      dự báo <b>xấu đi có ý nghĩa thống kê</b>. Trên trục hướng giá thì
+      <b>${nn.theo_truc.huong.wy}/${nn.theo_truc.huong.n}</b> — p tốt nhất
+      ${nn.theo_truc.huong.p_min.toFixed(3)}, tức không gần ngưỡng nào cả.</div>
+
+    <div class="note"><b>Điều này khớp với văn liệu, không đi ngược.</b>
+      Nghiên cứu trên chính EUR/USD (Hernández-Nieves và cộng sự, <i>Mathematics</i>
+      2020) không tìm được lợi suất dương ròng nào sau chi phí giao dịch; một
+      phân tích 2026 thấy lợi suất sau mẫu hình <b>không phân biệt được với vào
+      lệnh ngẫu nhiên</b>. Hệ thống này chỉ xác nhận lại điều đó trên dữ liệu
+      của mình, với 6 cặp và 14 năm.</div>
+
+    <h2 style="margin-top:20px">Nhưng có một thứ trong nến <em>thật sự</em> có tin</h2>
+    <div class="note"><b>Độ lớn khoảng nhảy qua đêm</b> — chênh lệch giữa giá mở
+      cửa hôm nay và giá đóng cửa hôm qua. Đây là <b>${nn.wy}/${nn.khong_gian}</b>
+      giả thuyết duy nhất sống sót, và nó dự báo <b>biên độ dao động</b> phiên
+      kế tiếp, không phải hướng. Lý do rất cơ học: thước đo biến động của hệ
+      thống cộng dồn dao động <em>trong</em> phiên và <b>bỏ hẳn khoảng nhảy qua
+      đêm theo thiết kế</b> — nên đó là thông tin mô hình chưa từng nhìn thấy.
+      Thêm đúng một biến này cải thiện dự báo
+      <b>${Math.abs(nn.ablation.find(a=>a.ten==="chỉ |gap| L1").so_B0).toFixed(2)}%</b>
+      trên đoạn kiểm tra, đúng ở <b>${nn.gap.cap_duong}/6</b> cặp.</div>
+    <div class="note warn"><b>Chưa đưa vào hệ thống — và lý do quan trọng hơn kết quả.</b>
+      Tiêu chí đã chốt <em>trước khi chạy</em> đòi p &lt; 0,025 (sau hiệu chỉnh
+      hai trục); kết quả là p = 0,0445. Đạt ở mức 5% thông thường nhưng
+      <b>không đạt ngưỡng đã cam kết</b>. Hệ thống không sửa luật sau khi thấy
+      số — nên biến này được ghi vào danh sách chờ cho lần kiểm định cuối cùng
+      trên bộ dữ liệu niêm phong, chứ không được lặng lẽ bật lên.
+      Chi tiết: <code>docs/PHUONGPHAP_NGOAI.md</code> mục 4.</div>
   </div>`}
 
   ${khoiTC}

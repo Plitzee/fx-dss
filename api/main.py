@@ -849,6 +849,7 @@ def models():
                       ("ba_lop", "ml3.json"),
                       ("quy_luat", "quyluat.json"),
                       ("nhan_qua", "pha3b_ui.json"),
+                      ("nen", "nen_ui.json"),
                       ("bien_dong_14", "ketqua_ml_dl.json"),
                       ("tin_cay", "tincay.json"),
                       ("ngoai_mau", "ngoai_mau.json"),
