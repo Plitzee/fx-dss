@@ -841,12 +841,14 @@ def models():
       ba_lop       : ML/DL/hoc truc tuyen tren ba lop      (src/run_ml3.py)
       quy_luat     : pheu khai pha quy luat                (src/run_quyluat.py)
       bien_dong_14 : 14 mo hinh du bao phuong sai          (vong 7)
+      nhan_qua     : pheu ngoai sinh / dan bao thoi gian   (Pha 3B)
     """
     import json
     ra = {}
     for khoa, ten in (("chi_so_sigma", "chiso_mohinh.json"),
                       ("ba_lop", "ml3.json"),
                       ("quy_luat", "quyluat.json"),
+                      ("nhan_qua", "pha3b_ui.json"),
                       ("bien_dong_14", "ketqua_ml_dl.json"),
                       ("tin_cay", "tincay.json"),
                       ("ngoai_mau", "ngoai_mau.json"),

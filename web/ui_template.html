@@ -979,7 +979,7 @@ function paintMo(){
     return;
   }
   const s = M.chi_so_sigma, ba = M.ba_lop, ql = M.quy_luat, b14 = M.bien_dong_14;
-  const tc = M.tin_cay;
+  const tc = M.tin_cay, nq = M.nhan_qua;
   const f = (v,n) => (v==null||!isFinite(v)) ? "—" : Number(v).toFixed(n);
 
   // ── tầng σ̂ ──
@@ -1118,6 +1118,94 @@ function paintMo(){
       quy luật yếu hơn 1,20 thì KHÔNG</b>. Đối chứng âm (xáo trộn khối, 10 lần) cho
       <b>0 dương tính giả</b> — phễu không rò rỉ.</div>
   </div>
+
+  ${!nq ? "" : `<div class="card sec" style="margin-top:12px">
+    <h2>Thông tin ngoài giá — phễu nhân quả (Pha 3B)</h2>
+    <p class="lead">Câu hỏi khác hẳn phễu trên: <b>lãi suất, VIX, dầu, lịch công bố vĩ mô</b>
+      — những thứ <em>không</em> phải giá — có thêm được gì không? Và quan trọng hơn:
+      <b>lọc theo nhân quả có hơn chọn đặc trưng thông thường không?</b>
+      ${nq.pheu.khong_gian} giả thuyết liệt kê đầy đủ trước khi chạy, Westfall–Young
+      maxT với ${nq.pheu.n_hoan_vi} hoán vị khối ${nq.pheu.khoi} phiên.</p>
+
+    <div class="tw"><table><tbody>
+      <tr><td>không gian giả thuyết (liệt kê đầy đủ trước)</td><td class="n"><b>${nq.pheu.khong_gian}</b></td></tr>
+      <tr><td>“có ý nghĩa” nếu KHÔNG hiệu chỉnh bội</td><td class="n">${nq.pheu.tho}</td></tr>
+      <tr><td>kỳ vọng dưới nhiễu thuần</td><td class="n">${nq.pheu.ky_vong_nhieu}</td></tr>
+      <tr><td>sau hoán vị khối</td><td class="n">${nq.pheu.hoan_vi}</td></tr>
+      <tr><td>FDR-BH <span class="mui">(tham chiếu, không dùng làm cửa)</span></td><td class="n">${nq.pheu.fdr}</td></tr>
+      <tr><td><b>sau Westfall–Young + màn lọc độ vững</b></td><td class="n"><b>${nq.pheu.wy}</b></td></tr>
+    </tbody></table></div>
+
+    <div class="note warn"><b>Hệ số thổi phồng ${nq.pheu.thoi_phong} lần.</b>
+      Không hiệu chỉnh bội thì “tìm ra” ${nq.pheu.tho} quan hệ, trong khi thuần nhiễu
+      kỳ vọng ${nq.pheu.ky_vong_nhieu} — tức khoảng
+      <b>${nq.pheu.tho - nq.pheu.ky_vong_nhieu} cái là giả</b>.</div>
+
+    <h2 style="margin-top:20px">${nq.pheu.wy} quan hệ sống sót</h2>
+    <div class="tw"><table><thead><tr><th>trục</th><th>biến</th><th class="n">trễ</th>
+      <th class="n">số cặp</th><th class="n">F</th><th class="n">p W-Y</th><th>dấu</th></tr></thead><tbody>
+      ${nq.quan_he.map(q=>`<tr><td>${q.truc}</td><td>${q.bien}</td>
+        <td class="n">${q.lag}</td><td class="n">${q.so_cap}/6</td>
+        <td class="n">${q.F_max.toFixed(1)}</td>
+        <td class="n"><b>${q.p_wy.toFixed(4)}</b></td><td>${q.dau}</td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="note"><b>Đọc bảng.</b> Toàn bộ ${nq.pheu.wy} quan hệ nằm trên trục
+      <b>biên độ</b> — trục hướng ${nq.song_sot_theo_truc["hướng"]}/${nq.theo_truc["hướng"]},
+      trục rủi ro ${nq.song_sot_theo_truc["rủi ro"]}/${nq.theo_truc["rủi ro"]}.
+      Dấu <b>âm</b> của lịch công bố nghĩa là: phiên sau ngày công bố vĩ mô có biến động
+      <em>thấp hơn</em> mức mô hình ngoại suy — mô hình đang mang cú nhảy của ngày
+      công bố sang ngày sau, mà cú nhảy đó không dai.</div>
+    <div class="note warn"><b>Từ ngữ — đọc kỹ.</b> Đây là <b>quan hệ dẫn báo theo thời
+      gian</b> (bằng chứng Granger), <b>KHÔNG</b> phải quan hệ nhân quả đã được chứng
+      minh. Granger nói “quá khứ của X giúp dự báo Y”, không nói “X gây ra Y”.</div>
+
+    <h2 style="margin-top:20px">Nhưng đưa vào hệ thống thì sao — bốn cách thử</h2>
+    <div class="tw"><table><thead><tr><th>cấu hình</th><th class="n">số đặc trưng</th>
+      <th class="n">QLIKE kiểm tra</th><th class="n">so mốc</th><th class="n">DM p</th></tr></thead><tbody>
+      ${nq.ablation.map(a=>{
+        const ten = {B0:"mốc (HAR sản xuất)", E1:"ném hết vào",
+                     E2:"chọn đặc trưng thường", E3:"lọc theo nhân quả",
+                     E4:"lọc nhân quả × chế độ"}[a.ten] || a.ten;
+        // B0 la CHINH moc, nen o "so moc" phai la gach ngang — khong phai 0,00%
+        // mau xanh, vi mau xanh doc thanh "cai thien".
+        const moc = a.ten === "B0";
+        return `<tr><td><b>${a.ten}</b> · ${ten}</td><td class="n">${a.n_dt}</td>
+          <td class="n">${a.qlike_kt.toFixed(4)}</td>
+          <td class="n ${moc?"":(a.so_B0>0?"neg":"pos")}">${moc?"—"
+            :(a.so_B0>0?"+":"")+a.so_B0.toFixed(2)+"%"}</td>
+          <td class="n">${a.dm_p==null?"—":a.dm_p.toFixed(4)}</td></tr>`;}).join("")}
+    </tbody></table></div>
+    <div class="note warn"><b>Không cấu hình nào thắng được mốc.</b> Kể cả cấu hình
+      lọc nhân quả. Nên câu trả lời cho “thông tin ngoài giá có giúp dự báo tốt hơn
+      không” là <b>không</b>, trên dữ liệu này.</div>
+
+    <div class="note"><b>Nhưng có một thứ đo được, và nó mới là phát hiện của Pha 3B.</b>
+      Lọc theo nhân quả tốt hơn chọn đặc trưng thông thường
+      <b>${Math.abs(nq.cau_hoi_trung_tam.chenh).toFixed(2)}%</b>
+      (p = ${nq.cau_hoi_trung_tam.dm_p.toFixed(4)}), và giảm <b>một nửa</b> mức sụp đổ
+      khi ra khỏi mẫu (${nq.cau_hoi_trung_tam.troi_E2.toFixed(1)} điểm →
+      ${nq.cau_hoi_trung_tam.troi_E3.toFixed(1)} điểm). Lý do đã đo được: sàng theo
+      hiệu năng chọn đúng những biến vĩ mô <b>đang trôi</b> — lợi suất 2 năm lệch
+      4,5 độ lệch chuẩn giữa đoạn huấn luyện và đoạn kiểm tra — còn màn lọc độ vững
+      loại chúng, vì một chuỗi đang trôi không giữ được cùng dấu qua 12 năm.
+      <b>Giá trị của lọc nhân quả là phòng thủ, không phải tấn công.</b></div>
+
+    <div class="note warn"><b>Kết luận âm này mạnh tới đâu — đã đo.</b>
+      Tiêm hiệu ứng biết trước qua chính khối đặc trưng thật rồi chạy nguyên phễu:
+      hiệu ứng đủ mạnh để cải thiện QLIKE khoảng <b>${nq.mdes.qlike.toFixed(1)}%</b>
+      bị bắt với xác suất <b>${(100*nq.mdes.luc).toFixed(0)}%</b>. Đối chứng âm
+      (không tiêm gì) cho <b>0 dương tính giả</b>. Nên phát biểu đúng là:
+      <b>quan hệ ngoại sinh mạnh hơn ~${nq.mdes.qlike.toFixed(1)}% QLIKE đã bị loại
+      trừ; yếu hơn thế thì KHÔNG</b>.</div>
+
+    <div class="note">Trục hướng: BSS ${nq.truc_huong.bss_E3>=0?"+":""}${nq.truc_huong.bss_E3.toFixed(5)}
+      (mốc ${nq.truc_huong.bss_B0>=0?"+":""}${nq.truc_huong.bss_B0.toFixed(5)}),
+      AUC ${nq.truc_huong.auc_E3.toFixed(3)} — <b>không cải thiện</b>.
+      Trục rủi ro: kỹ năng ${(100*nq.truc_rui_ro.ky_nang_E3).toFixed(2)}%
+      so ${(100*nq.truc_rui_ro.ky_nang_B0).toFixed(2)}%, độ phủ
+      ${(100*nq.truc_rui_ro.phu_E3).toFixed(1)}% so ${(100*nq.truc_rui_ro.phu_B0).toFixed(1)}%
+      — nhỉnh hơn nhưng không đáng kể. Chi tiết: <code>docs/PHA3B_KETQUA.md</code>.</div>
+  </div>`}
 
   ${khoiTC}
 
