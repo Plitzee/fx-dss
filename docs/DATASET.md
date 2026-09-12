@@ -61,6 +61,17 @@ Quy ước: RV = tổng bình phương lợi suất **trong ngày**, bỏ lợi 
 qua ranh giới ngày. Nghĩa là nó **không** chứa gap qua đêm — nhưng gap
 qua đêm chỉ chiếm 1,7–3,1% tổng phương sai ở FX nên bỏ qua được.
 
+> **ĐÍNH CHÍNH 12/09/2026 — "bỏ qua được" là phần CHƯA được chứng minh.**
+> Con số 1,7–3,1% là đúng (đó là *tỷ trọng phương sai*). Nhưng **độ lớn** của
+> gap qua đêm **dự báo được biến động phiên kế tiếp vượt trên HAR sản xuất**:
+> F tới **67,84**, sống sót Westfall–Young trên 600 giả thuyết (p = 0,0010),
+> 5/6 cặp, hệ số **+50,56** đúng dấu cơ chế. Thêm `|gap|` vào mô hình cải thiện
+> QLIKE kiểm tra **0,67%** (DM p = 0,0445), vững qua walk-forward 7/11 năm và
+> vẫn thắng sau khi bỏ 1% phiên gap lớn nhất.
+> Chính vì `rv5` loại gap **theo thiết kế** mà HAR không bao giờ nhìn thấy đại
+> lượng này — nên nó là thông tin thật ngoài tập thông tin của tầng 2.
+> Chi tiết: `docs/PHUONGPHAP_NGOAI.md` mục 4. Tái lập: `python src/kiem_nen.py`.
+
 ### `panel_6pairs.csv` — 29.843 dòng
 ```
 Date, pair, sig, zT, zL, zH

@@ -258,3 +258,139 @@ công bố; một cái đính chính chính tài liệu của dự án.
 **Còn chưa thử** (xếp theo mức hứa hẹn): EVT động cho đuôi USDJPY/USDCHF
 (mục 0 dòng 3) · hiệu chuẩn lại cho h = 20 (dòng 4) · phát hiện điểm ngắt để
 đặt lại cửa sổ hiệu chuẩn khi biến ngoại sinh trôi (dòng 5).
+
+---
+
+## 4. Mẫu hình nến — lỗ hổng thật, và một ứng viên bất ngờ
+
+*Tiêu chí chốt trước: `docs/NEN_TIEUCHI.md` (commit `9643f80`).
+Tái lập: `python src/kiem_nen.py && python src/kiem_nen_ablation.py`.*
+
+### 4a. Vì sao đây không phải việc lặp lại
+
+Repo đã khai phá 8.652 giả thuyết qua 12 nhánh, nhưng **mọi nhánh đều dùng
+chuỗi đóng-đóng hoặc đại lượng từ nến 5 phút**. Hình học OHLC của nến **ngày**
+chưa bao giờ vào mô hình nào: bốn cột `open/high/low/close` có trong bảng sản
+xuất nhưng `volfc2.thiet_ke` không dùng cột nào. Grep toàn repo cho
+`doji|hammer|engulf|harami|candlestick`: **một lần duy nhất**, trong đặc tả
+*vẽ* biểu đồ.
+
+Văn liệu cho hai tín hiệu ngược chiều, và chúng định hình phép thử:
+
+- **Trục hướng — đồng thuận ÂM.** Hernández-Nieves et al. (2020), *Mathematics*
+  8(5):802, đúng miền FX/EURUSD: *không có lợi suất dương ròng trong bất kỳ
+  trường hợp nào sau chi phí*. Phân tích 02/2026: không phân biệt được với vào
+  lệnh ngẫu nhiên.
+- **Nhưng** văn liệu 2026 về học sâu trên nến nhấn rằng **bóng nến mang thông
+  tin biến động trong thanh** — đúng trục mà repo *có* kỹ năng.
+
+25 đặc trưng, 4 họ, × 2 lag × 6 cặp × 2 trục = **600 phép kiểm**, liệt kê đầy
+đủ trước. Tự kiểm cắt tương lai: **0/1.011.600** giá trị đổi.
+
+### 4b. Kết quả phễu — tách đôi rất sạch
+
+| họ | phép kiểm | sống sót W-Y | p W-Y nhỏ nhất | F lớn nhất |
+|---|---|---|---|---|
+| K1 hình học nến (thân, bóng, vị trí đóng) | 120 | **0** | 0,9351 | 8,16 |
+| K2 phạm vi−RV (Parkinson/GK/RS so `rv5`) | 72 | **0** | 0,2767 | 12,54 |
+| **K3 mẫu hình có tên** (doji, hammer, engulfing…) | 360 | **0** | 0,5075 | 10,93 |
+| **K4 gap qua đêm** | 48 | **7** | **0,0010** | **67,84** |
+
+Theo trục: biên độ **7/300** · **hướng 0/300**, p W-Y tốt nhất **0,9950**.
+
+> **Mẫu hình nến cổ điển chết sạch** — 0/360, trên cả hai trục, với 15 mẫu và
+> số lần khớp đủ lớn (doji 1.220 lần, engulfing ~1.750, con quay 4.490). Đây là
+> nhánh thứ 13 của dự án cho kết quả âm trên trục hướng, và lần này nó **khớp
+> đúng đồng thuận văn liệu** thay vì đi ngược.
+
+**Cả bảy cái sống sót đều là `abs_gap`** — độ lớn gap qua đêm — trên trục biên
+độ, dấu **dương**, ở 5/6 cặp.
+
+### 4c. Vì sao `|gap|` lại có thông tin — cơ chế đã khai báo TRƯỚC
+
+`DATASET.md` ghi rõ, từ lâu:
+
+> *"RV = tổng bình phương lợi suất **trong ngày**, bỏ lợi suất bắc qua ranh giới
+> ngày… gap qua đêm chỉ chiếm **1,7–3,1%** tổng phương sai ở FX nên **bỏ qua
+> được**."*
+
+Đó là một **giả định chưa ai kiểm**. Vì `rv5` loại gap theo thiết kế, HAR
+**không bao giờ nhìn thấy** đại lượng đó — nên nó là thông tin ngoài tập thông
+tin của tầng 2, chứ không phải một biến đổi của thứ tầng 2 đã có. Khác hẳn
+`hhi` ở `PHA2_KETQUA.md` mục 3d, vốn tương quan +0,742 với tỉ trọng nhảy mà HAR
+đã có sẵn.
+
+Hệ số ước lượng: **+50,56** (cấu hình `chỉ |gap| L1`) — **dương**, đúng dấu đã
+khai báo ở mục 0b cơ chế 2.
+
+### 4d. Ablation — và cái bẫy lặp lại lần thứ ba
+
+| cấu hình | #đt | QLIKE kiểm định | so B0 | **QLIKE kiểm tra** | so B0 | DM p |
+|---|---|---|---|---|---|---|
+| **B0 mốc** | 0 | 0,1569 | — | 0,1872 | — | — |
+| K1 hình học | 10 | 0,1571 | +0,11% | 0,1871 | −0,09% | 0,7262 |
+| **K2 phạm vi−RV** | 6 | **0,1562** | **−0,48%** | 0,1877 | **+0,25%** | 0,1752 |
+| K3 mẫu có tên | 30 | 0,1578 | +0,56% | 0,1884 | **+0,60%** | **0,0451** |
+| K4 gap đêm | 4 | 0,1569 | −0,00% | 0,1860 | −0,64% | 0,2232 |
+| **chỉ \|gap\| L1** | **1** | 0,1571 | +0,11% | **0,1860** | **−0,67%** | **0,0445** |
+| K1+K2+K4 | 20 | 0,1565 | −0,31% | 0,1869 | −0,21% | 0,7169 |
+| tất cả 25 | 50 | 0,1568 | −0,08% | 0,1875 | +0,12% | 0,8307 |
+
+**MCS (α = 0,10): `[B0, K1, K4, chỉ |gap| L1, K1+K2+K4]`** — K2, K3 và "tất cả
+25" bị **loại**.
+
+Hai điều đáng đọc kỹ:
+
+1. **K3 làm mô hình xấu đi CÓ Ý NGHĨA** (+0,60%, p = 0,0451). Mẫu hình nến cổ
+   điển không chỉ vô dụng — đưa vào là có hại. Đây cũng là đối chứng cho thấy
+   bộ máy không dễ dãi: nếu nó "cải thiện" cả K3 thì phải nghi ngờ.
+2. **Quy tắc chọn trên kiểm định lại chọn sai.** Nó chọn **K2** (tốt nhất trên
+   kiểm định, −0,48%) — và K2 thua trên kiểm tra (+0,25%) **và bị MCS loại**.
+   Trong khi thứ sống sót phễu (`|gap|`) thì thắng kiểm tra và nằm trong MCS.
+
+> Đây là **lần thứ ba trong cùng một phiên** hình mẫu này lặp lại: Pha 3B (E2
+> chọn-trên-kiểm-định thua E3 lọc-nhân-quả, p = 0,0010) · qlikeHAR (kiểm định
+> chọn B0, Q_log tốt hơn trên kiểm tra) · và ở đây. **Chọn theo hiệu năng kiểm
+> định thua lọc theo bằng chứng cấu trúc** — ba lần, ba cơ chế độc lập.
+
+### 4e. `|gap|` vững tới đâu
+
+| phép kiểm | kết quả |
+|---|---|
+| Theo cặp (kiểm tra) | **5/6 cải thiện** — chỉ USDCAD xấu hơn (+0,32%) |
+| Walk-forward, khớp lại đầu mỗi năm | tốt hơn **7/11 năm**, trung vị **−0,74%** |
+| Bỏ 1% phiên có gap lớn nhất | vẫn thắng: **−0,36%, p = 0,0411** — không phải do vài ngày ngoại lai |
+| Dấu hệ số | **+50,56**, đúng cơ chế chốt trước |
+| MCS | **nằm trong tập** |
+| Số tham số | **1** — gần như không có chỗ để quá khớp |
+
+### 4f. Phán quyết: **KHÔNG đổi sản xuất** — nhưng đây là ứng viên mạnh nhất từ trước tới nay
+
+| điều kiện chốt trước | kết quả |
+|---|---|
+| ĐK1 có đặc trưng qua W-Y + độ vững | **ĐẠT** (7/600) |
+| ĐK2 cấu hình **được chọn** thắng kiểm tra, p < 0,025 | **TRƯỢT** (K2: +0,25%, p = 0,1752) |
+| ĐK3 ≥ 5/6 cặp cải thiện | **TRƯỢT** cho cấu hình được chọn (2/6) |
+| ĐK4 dấu hệ số \|gap\| dương | **ĐẠT** (+50,56) |
+
+Theo đúng luật, phán quyết là **chưa đủ điều kiện dương** → không đổi cấu hình
+sản xuất. Không được sửa luật sau khi thấy số.
+
+**Nhưng phải ghi thẳng, vì nó đúng:** nếu xét riêng cấu hình `chỉ |gap| L1` —
+thứ duy nhất sống sót phễu — thì nó đạt ĐK1, ĐK3 (5/6), ĐK4, và **chỉ trượt
+ĐK2 vì p = 0,0445 so ngưỡng Bonferroni 0,025**. Nó thắng ở p < 0,05 thô, vững
+qua bốn lát cắt, và chỉ tốn **một tham số**.
+
+> Đây là **ứng viên cải thiện tầng 2 mạnh nhất mà dự án từng tạo ra** — mạnh
+> hơn tổ hợp HAR+GRU+CatBoost (−3,0% nhưng MCS giữ HAR), mạnh hơn qlikeHAR
+> (p = 0,38), và là cái duy nhất đi kèm một cơ chế được nêu trước, kiểm trước,
+> và có dấu đúng.
+
+**Việc đúng phải làm tiếp**, không phải đổi sản xuất ngay: đưa `|gap|` vào danh
+sách chốt của **lần mở tập niêm phong cuối cùng** (`KHOA_SO.md`). Nó là đúng
+loại giả thuyết mà tập niêm phong tồn tại để trả lời — một biến, một cơ chế, đã
+khai báo trước, chưa hề chạm dữ liệu niêm phong.
+
+Và bất kể quyết định mô hình ra sao, `DATASET.md` phải sửa một câu: gap qua đêm
+chiếm 1,7–3,1% phương sai, **nhưng "bỏ qua được" thì chưa chứng minh** — độ lớn
+của nó dự báo được biến động phiên kế tiếp vượt trên HAR, F tới 67,84.
