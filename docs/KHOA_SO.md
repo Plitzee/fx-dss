@@ -206,6 +206,10 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 42 | 11/09/2026 | **Độ tập trung RV trong ngày** (Tầng 2, `xay_tap_trung.py` + `run_tang2_taptrung.py`), dựng lại từ 34,9tr nến M1 gốc; giả thuyết CHỐT TRƯỚC ở commit 07bbe1b | 7 | **ÂM.** 0/6 biến thể thắng mốc HAR sản xuất (+0,34% đến +0,76% trên kiểm tra, mọi p>0,09). Dấu hệ số ĐÚNG như chốt trước (đều âm) nhưng độ lớn bằng không. `hhi` tương quan +0,742 với tỉ trọng nhảy — độ tập trung phần lớn là nhảy trá hình, mà HAR sản xuất đã có. **Hệ quả: hạ mức tin cậy của S4 (dòng 39) và KHÔNG đưa vào hệ thống** — xem `PHA2_KETQUA.md` mục 3d |
 
 | 43 | 12/09/2026 | **Pha 3 — tầng vĩ mô (M3)** trên trục biên độ (`run_pha3_vimo.py`), lãi suất liên ngân hàng 3 tháng từ FRED, trễ 2 tháng; giả thuyết + **tiêu chí phủ định** + **khai báo lực** CHỐT TRƯỚC ở `docs/PHA3_TIEUCHI.md` (commit 5651be0) | 7 | **ÂM — cả ba điều kiện phủ định đều trượt.** Biến thể tốt nhất trên kiểm định chỉ +0,01% trên kiểm tra (p=0,821), 3/6 cặp, và hệ số H9 **âm** (−0,0212) trong khi giả thuyết đòi dương. Tự kiểm rò rỉ 0/14.665. Lặp đúng hình mẫu của S4: tương quan thô **+0,144** nhưng sau khi điều kiện trên HAR thì **đảo dấu** — HAR đã hấp thụ trọn phần thông tin đó. Xem `PHA3_TIEUCHI.md` Phụ lục A |
+
+| 44 | 12/09/2026 | **Pha 3B — CAUSALITY-AWARE đầy đủ theo `03_PHASE_3_CAUSALITY_AWARE.md`** (`collect/ngoai_sinh.py`, `src/pha3b_{dactrung,granger,ablation,mdes}.py`): 11 biến / 6 họ, 9 chuỗi FRED theo **NGÀY**, 6 biến đổi × lag {1,2,5} = 186 đặc trưng; Level 1 hữu ích dự báo → Level 2 Granger (W-Y maxT từng bước, null khối 5, 1.000 hoán vị) → Level 3 PCMCI rút gọn; ablation B0/E1/E2/E3/E4 trên **cả ba trục**. Biến, không gian giả thuyết, tiêu chí phán quyết, khai báo lực, và quyết định niêm phong CHỐT TRƯỚC ở `docs/PHA3B_TIEUCHI.md` (commit e88ae66) | **594 giả thuyết + 5 cấu hình** | **PHÁN QUYẾT TÁCH ĐÔI.** (a) Week 2 **DƯƠNG** — **14/594 sống sót Westfall–Young VÀ màn lọc độ vững** (6/6 cặp, 12/12 năm cùng dấu), lần đầu trong toàn dự án; hệ số thổi phồng đo được **7,1 lần** (214 thô so kỳ vọng 30). Toàn bộ 14 nằm trên **trục biên độ**; trục hướng 0/198 (p W-Y tốt nhất 1,000), trục rủi ro 0/198. (b) Week 3 **ÂM** — không cấu hình nào thắng B0 trên kiểm tra: E1 +19,9% (p<0,0001), E2 +4,0% (p=0,032), E3 +0,8% (p=0,746), E4 +0,2%. (c) **Câu hỏi trung tâm DƯƠNG**: E3 (lọc nhân quả) hơn E2 (chọn thường) **−3,07%, DM p=0,0010**; giảm một nửa độ trôi kiểm định→kiểm tra (10,1 → 5,0 điểm). Cơ chế đã đo: E2 chọn biến vĩ mô đang **trôi** (DGS2 lệch **4,54 sd** giữa hai đoạn), màn lọc độ vững loại chúng. (d) MDES **≈1,0% QLIKE** (lực 91,3% qua cửa W-Y thật), đối chứng âm 0,0%. Kiểm hiệu đính ALFRED: VIXCLS **có** 4/3.914 giá trị bị sửa (0,102%, dưới ngưỡng) — bác giả định "chuỗi thị trường không hiệu đính". Kiểm cắt tương lai 0/3.148.236. **KHÔNG mở niêm phong** (quy tắc chốt trước: chỉ mở nếu DƯƠNG). Xem `docs/PHA3B_KETQUA.md` |
+
+| 44b | 12/09/2026 | **Chẩn đoán** tách `su_kien_phi_nhtw` thành NFP và phần còn lại (chẩn đoán của biến ĐÃ KHAI BÁO, cùng quy ước `run_m2_vung.py`) | **0** (không cấu hình mới) | Phần vững duy nhất là **NFP dùng ngày công bố THẬT** thay cho quy tắc "thứ Sáu đầu tháng" của B0: **−0,43% QLIKE kiểm tra, DM p<0,0001**, tốt hơn trên cả kiểm định lẫn kiểm tra. Các công bố khác NFP thắng kiểm định (0,1525) nhưng **thua kiểm tra** (+2,29%). Đây là bản vá **chất lượng dữ liệu** cho B0, không phải thông tin ngoại sinh mới — đúng như `KEHOACH_2026Q4.md` dự đoán trước khi có dữ liệu |
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
 Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
@@ -262,11 +266,18 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.279** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.284** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43 + **5 dòng 44**) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
-| Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
+| Lực phát hiện của phễu quy luật (MDES, lực 80%) | lift **1,20** |
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
+| **Giả thuyết NHÂN QUẢ** đã liệt kê và kiểm định (Pha 3B, dòng 44) | **594** (11 biến × 3 lag × 6 cặp × 3 trục) |
+| **Quan hệ nhân quả sống sót** W-Y **và** màn lọc độ vững | **14** — toàn bộ trên trục biên độ |
+| Lực phát hiện của phễu nhân quả (MDES, lực 80%) | ≈ **1,0% QLIKE** |
+
+Hai con số phải đọc TÁCH NHAU: 8.652 là giả thuyết **quy luật** (phễu khai phá,
+0 sống sót); 594 là giả thuyết **nhân quả** (phễu Pha 3B, 14 sống sót). Chúng
+dùng hai phễu khác nhau, hai loại mục tiêu khác nhau, nên cộng lại là sai.
 
 Con số 8.652 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
