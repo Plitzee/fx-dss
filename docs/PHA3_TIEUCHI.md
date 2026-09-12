@@ -141,3 +141,75 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 > Dòng ký để trống có chủ đích — người chịu trách nhiệm luận văn ký, không phải
 > công cụ điền hộ.
+
+---
+
+# PHỤ LỤC A — KẾT QUẢ (12/09/2026, chạy SAU khi mục 1–9 đã chốt)
+
+*Tái lập: `python src/run_pha3_vimo.py`. Kết quả: `output/pha3_vimo.json`.*
+
+**Tự kiểm rò rỉ ĐẠT**: cắt bỏ toàn bộ dữ liệu sau 2023-01-01 làm đổi
+**0/14.665** giá trị đặc trưng của các tháng trước mốc.
+
+Bảng 21.582 phiên, 6 cặp, 2012-02 → 2025-12. Tháng độc lập: 117 / 26 / 26 —
+đúng như khai báo ở mục 7.
+
+| biến thể | QLIKE kiểm định | QLIKE kiểm tra | DM p |
+|---|---|---|---|
+| B1 mốc (HAR sản xuất) | 0,1569 | 0,1872 | — |
+| M3·1 chênh lãi suất (mức) | +0,17% | +0,33% | 0,073 |
+| **M3·2 Δ3th chênh lãi suất (dấu)** ← *tốt nhất trên kiểm định* | **−0,38%** | **+0,01%** | 0,821 |
+| M3·3 \|Δ3th chênh lãi suất\| ← H9 | +0,94% | −0,01% | 0,853 |
+| M3·4 lãi suất USD (mức) | +5,21% | +4,87% | 0,0014 |
+| M3·5 \|Δ3th lãi suất USD\| | +3,46% | +0,19% | 0,035 |
+| M3·6 gộp \|Δ\| cặp + \|Δ\| USD | +4,22% | +0,38% | 0,021 |
+
+## Phán quyết theo mục 6 — **ÂM**, cả ba điều kiện đều trượt
+
+| điều kiện | kết quả | |
+|---|---|---|
+| ĐK1 thắng kiểm tra & p thô < 0,0083 | **TRƯỢT** | +0,01%, p=0,821 |
+| ĐK2 ≥ 5/6 cặp cải thiện | **TRƯỢT** | 3/6 |
+| ĐK3 hệ số \|Δ chênh lãi suất\| DƯƠNG như H9 | **TRƯỢT** | **−0,02119** |
+
+Biên độ cải thiện của biến thể được chọn là **+0,01%** — bằng không trên thực
+tế. Từng cặp đều nằm trong ±0,07%, không cặp nào đạt ý nghĩa (p 0,29–0,59).
+
+## Điều đáng ghi nhất: lặp lại **đúng** hình mẫu của S4
+
+| | tương quan thô | hệ số sau khi điều kiện HAR |
+|---|---|---|
+| S4 \|phản ứng EURUSD\| (Pha 2) | **+0,104** | **−0,122** |
+| H9 \|Δ chênh lãi suất\| (Pha 3) | **+0,144** | **−0,021** |
+
+Cả hai biến **thật sự** tương quan dương với biến động tương lai, đúng như lý
+thuyết nói. Nhưng **sau khi điều kiện trên dự báo HAR thì hệ số đảo dấu** —
+nghĩa là HAR đã hấp thụ trọn phần thông tin đó qua chính lịch sử biến động,
+và cái còn lại chỉ là nhiễu.
+
+Đây là **hình mẫu trung tâm của cả dự án**, nay đã lặp trên ba tầng thông tin
+độc lập:
+
+| tầng | thông tin | kết quả |
+|---|---|---|
+| M2 văn bản | 4 cách biểu diễn, 183 giả thuyết | 0 sống sót |
+| M2 bất ngờ thị trường | \|phản ứng EURUSD\| | thắng, nhưng dấu sai + không tổng quát |
+| **M3 vĩ mô** | chênh lệch lãi suất | **0/6 biến thể, dấu sai** |
+
+Diễn đạt cho luận văn: *biến động thực hiện trong quá khứ là một thống kê đủ
+mạnh đến mức các tầng thông tin ngoại sinh — văn bản, bất ngờ chính sách, vĩ
+mô — không thêm được gì đo được ở tầm hạn ngày.*
+
+## Giới hạn — nhắc lại đúng khai báo ở mục 7
+
+Chỉ **26 tháng độc lập** ở đoạn kiểm tra. Kết luận âm này phát biểu được là:
+
+> *"Không phát hiện được hiệu ứng của tầng vĩ mô với dữ liệu lãi suất theo
+> tháng trên 26 tháng kiểm tra."*
+
+**Không** phát biểu được là *"tầng vĩ mô không chứa thông tin"*. Muốn phát biểu
+mạnh hơn thì cần dữ liệu vĩ mô **tần suất cao hơn** (ví dụ lợi suất trái phiếu
+ngày thay vì lãi suất liên ngân hàng tháng) — nằm ngoài phạm vi đã chốt ở mục 8.
+
+Đây là giới hạn của **dữ liệu sẵn có**, không phải của phương pháp, và đã được
+khai báo **trước** khi thấy số — không phải bào chữa viết thêm sau.

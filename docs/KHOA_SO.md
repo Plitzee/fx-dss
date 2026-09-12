@@ -205,6 +205,7 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 41 | 11/09/2026 | **Đóng băng Pha 2** — `docs/PHA2_KETQUA.md` (biên bản PHASE2_NEWS_RESULT theo roadmap Week 3–4) | — | Quyết định TÁCH ĐÔI: **STOP** nhánh nội dung văn bản (kết luận âm đáng tin, 183 giả thuyết, MDES lift ≥1,35); **CHUYỂN** phát hiện S4 sang Tầng 2 vì cơ chế thật là vi cấu trúc trong ngày, không phải tín hiệu tin tức. **KHÔNG mở bộ niêm phong** |
 | 42 | 11/09/2026 | **Độ tập trung RV trong ngày** (Tầng 2, `xay_tap_trung.py` + `run_tang2_taptrung.py`), dựng lại từ 34,9tr nến M1 gốc; giả thuyết CHỐT TRƯỚC ở commit 07bbe1b | 7 | **ÂM.** 0/6 biến thể thắng mốc HAR sản xuất (+0,34% đến +0,76% trên kiểm tra, mọi p>0,09). Dấu hệ số ĐÚNG như chốt trước (đều âm) nhưng độ lớn bằng không. `hhi` tương quan +0,742 với tỉ trọng nhảy — độ tập trung phần lớn là nhảy trá hình, mà HAR sản xuất đã có. **Hệ quả: hạ mức tin cậy của S4 (dòng 39) và KHÔNG đưa vào hệ thống** — xem `PHA2_KETQUA.md` mục 3d |
 
+| 43 | 12/09/2026 | **Pha 3 — tầng vĩ mô (M3)** trên trục biên độ (`run_pha3_vimo.py`), lãi suất liên ngân hàng 3 tháng từ FRED, trễ 2 tháng; giả thuyết + **tiêu chí phủ định** + **khai báo lực** CHỐT TRƯỚC ở `docs/PHA3_TIEUCHI.md` (commit 5651be0) | 7 | **ÂM — cả ba điều kiện phủ định đều trượt.** Biến thể tốt nhất trên kiểm định chỉ +0,01% trên kiểm tra (p=0,821), 3/6 cặp, và hệ số H9 **âm** (−0,0212) trong khi giả thuyết đòi dương. Tự kiểm rò rỉ 0/14.665. Lặp đúng hình mẫu của S4: tương quan thô **+0,144** nhưng sau khi điều kiện trên HAR thì **đảo dấu** — HAR đã hấp thụ trọn phần thông tin đó. Xem `PHA3_TIEUCHI.md` Phụ lục A |
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
 Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
@@ -261,7 +262,7 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.272** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 của dòng 42) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.279** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu (MDES, lực 80%) | lift **1,20** |
