@@ -29,7 +29,7 @@ duy nhất**, và là trong đặc tả *vẽ* biểu đồ (`PROMPT_REPLAN_EN.m
 
 **Trục hướng — đồng thuận ÂM, mạnh:**
 
-- **Hernández-Nieves et al. (2020), *Mathematics* 8(5):802** — *"Predictive
+- **Orquín-Serrano, I. (2020), *Mathematics* 8(5), art. 802** — *"Predictive
   Power of Adaptive Candlestick Patterns in Forex Market. EURUSD Case"*. Đúng
   miền (FX, EURUSD), đúng cách tiếp cận (suy luận thống kê): **không tìm được
   lợi suất trung bình dương ròng trong bất kỳ trường hợp nào sau chi phí giao

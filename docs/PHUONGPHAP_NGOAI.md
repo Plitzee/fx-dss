@@ -277,8 +277,8 @@ xuất nhưng `volfc2.thiet_ke` không dùng cột nào. Grep toàn repo cho
 
 Văn liệu cho hai tín hiệu ngược chiều, và chúng định hình phép thử:
 
-- **Trục hướng — đồng thuận ÂM.** Hernández-Nieves et al. (2020), *Mathematics*
-  8(5):802, đúng miền FX/EURUSD: *không có lợi suất dương ròng trong bất kỳ
+- **Trục hướng — đồng thuận ÂM.** Orquín-Serrano (2020), *Mathematics*
+  8(5), art. 802, đúng miền FX/EURUSD: *không có lợi suất dương ròng trong bất kỳ
   trường hợp nào sau chi phí*. Phân tích 02/2026: không phân biệt được với vào
   lệnh ngẫu nhiên.
 - **Nhưng** văn liệu 2026 về học sâu trên nến nhấn rằng **bóng nến mang thông
