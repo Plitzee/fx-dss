@@ -70,6 +70,17 @@ Cả ba phương pháp **phủ thiếu khi tài khoản đang lỗ**:
 | Student-t | 88,8% | 87,8% |
 | Conformal | 90,3% | 89,3% |
 
+> **ĐÍNH CHÍNH 12/09/2026 — khoảng chênh này KHÔNG phân biệt được với 0.**
+> Bootstrap khối 20 phiên, 2.000 lần, gộp 6 cặp: KTC 95% của khe đỉnh−lỗ rộng
+> khoảng **±2 điểm phần trăm** và **phủ 0 ở mọi cấu hình đã thử** (kể cả hai
+> cấu hình phân tầng theo chính biến sụt giảm). Dấu của khe còn đảo chiều giữa
+> đoạn kiểm định và đoạn kiểm tra. Nên các con số dưới đây là số đo mẫu thật,
+> nhưng **không đủ để phát biểu rằng hệ thống phủ thiếu khi tài khoản đang
+> lỗ** — và điều đó giải thích luôn vì sao năm cách vá trước đều "không xoá
+> được khoảng chênh": không có khoảng chênh nào để xoá.
+> Chi tiết và bảng đầy đủ: `docs/PHUONGPHAP_NGOAI.md` mục 2c.
+> Tái lập: `python src/kiem_conformal_dd.py`.
+
 Đây đúng là lúc người dùng cần con số chính xác nhất. Nguyên nhân hợp lý: sụt
 giảm tương quan với chế độ biến động đang chuyển, phần dư lịch sử chưa kịp
 phản ánh. Hướng mở rộng: thêm trạng thái sụt giảm vào biến phân tầng Mondrian.

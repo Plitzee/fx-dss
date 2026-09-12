@@ -212,6 +212,10 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 44b | 12/09/2026 | **Chẩn đoán** tách `su_kien_phi_nhtw` thành NFP và phần còn lại (chẩn đoán của biến ĐÃ KHAI BÁO, cùng quy ước `run_m2_vung.py`) | **0** (không cấu hình mới) | Phần vững duy nhất là **NFP dùng ngày công bố THẬT** thay cho quy tắc "thứ Sáu đầu tháng" của B0: **−0,43% QLIKE kiểm tra, DM p<0,0001**, tốt hơn trên cả kiểm định lẫn kiểm tra. Các công bố khác NFP thắng kiểm định (0,1525) nhưng **thua kiểm tra** (+2,29%). Đây là bản vá **chất lượng dữ liệu** cho B0, không phải thông tin ngoại sinh mới — đúng như `KEHOACH_2026Q4.md` dự đoán trước khi có dữ liệu |
 ### Thay đổi sau ngày chốt — theo quy tắc 3
 
+| 45 | 12/09/2026 | **qlikeHAR** (`kiem_qlikehar.py`) — Puke & Schweikert 2026, *J. Forecasting*: khớp HAR bằng chính QLIKE thay vì OLS. Bốn cấu hình CHỐT TRƯỚC ở commit f0e83d1, gồm một dòng đối chứng A0 (y hệt mốc nhưng khớp theo năm) để **tách bạch** tần suất khớp khỏi hàm mất | **4** | **ÂM.** Q_log −1,40% trên kiểm tra nhưng **DM p = 0,4450**; so đúng dòng đối chứng A0 thì −1,59%, **p = 0,3815**. Trên **kiểm định** mốc B0 vẫn tốt nhất (0,1162 so 0,1165) nên theo quy tắc chọn của repo **không chọn được**. Chỉ **1/6 cặp** cải thiện; toàn bộ phần thắng đến từ USDJPY (−6,71%), còn GBPUSD **xấu đi có ý nghĩa** (+2,95%, p=0,0007). Lợi thế ở chế độ êm (Q1 −4,55%) nhưng thiệt ở chế độ căng (Q5 +4,01%) — lặp đúng hình mẫu của nhánh học sâu. MCS giữ cả B0 lẫn Q_log. Bản sát bài báo (HAR thang mức 4 hệ số) +10,02%, bị loại khỏi MCS — nhưng đó là mô hình đơn giản hơn hẳn nên không dùng để bác bài báo. **Không đổi sản xuất.** Xem `docs/PHUONGPHAP_NGOAI.md` mục 1 |
+
+| 46 | 12/09/2026 | **Conformal phân tầng theo trạng thái sụt giảm** (`kiem_conformal_dd.py`) — trả món nợ `TANG6_HIEU_CHUAN.md` mục 5 (hướng vá đã ghi, chưa bao giờ làm). Hai cấu hình CHỐT TRƯỚC: ACI-dd 2 (chỉ sụt giảm) và ACI-2D 2×2 (biến động × sụt giảm). Biến phân tầng của mô hình **trễ một phiên**, tự kiểm rò rỉ 0/3.000 + đối chứng dương | **2** | **Không đổi sản xuất, NHƯNG rút lại được một "giới hạn đã biết".** ACI-dd 2 **đóng được khe** đỉnh−lỗ (−0,03% so 0,29–0,96% của sáu cách cũ) đúng như lý thuyết Mondrian có điều kiện nói — nhưng đổi lấy độ phủ theo chế độ biến động (vol thấp 88,5% / vol cao 92,4%), `|lệch|` max 2,4% tệ nhất trong tám cách, và trên kiểm định cũng tệ nhất nên **không được chọn**. **Phát hiện quan trọng hơn:** bootstrap khối 20 phiên × 2.000 lần cho thấy khe đỉnh−lỗ **phủ 0 ở MỌI cấu hình** (KTC rộng ±2 điểm, khe báo cáo chỉ 0,6–0,8 điểm), và dấu đảo chiều giữa kiểm định/kiểm tra. Tức **giới hạn ghi ở TANG6_HIEU_CHUAN mục 5 nằm trong nhiễu** — giải thích luôn vì sao năm cách vá trước đều "không xoá được khoảng chênh". Đã trỏ đính chính vào tài liệu gốc. Xem `docs/PHUONGPHAP_NGOAI.md` mục 2 |
+
 Cấu hình ở mục 4 chốt ngày 08/09/2026. Hai thay đổi sau đó, đều ghi lại kèm lý
 do trước khi mở tập khoá sổ:
 
@@ -266,7 +270,7 @@ Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá tr
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.284** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43 + **5 dòng 44**) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.290** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43 + 5 dòng 44 + **4 dòng 45** + **2 dòng 46**) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu quy luật (MDES, lực 80%) | lift **1,20** |

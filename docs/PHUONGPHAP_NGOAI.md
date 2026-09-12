@@ -145,10 +145,6 @@ Tái lập: `python src/kiem_qlikehar.py` → `output/qlikehar.json`.
 
 ---
 
-*Mục 2 (conformal có điều kiện theo trạng thái sụt giảm) — xem bên dưới khi chạy xong.*
-
----
-
 ## 2. Conformal phân tầng theo trạng thái sụt giảm — và một đính chính
 
 **Điểm yếu nhắm tới.** `TANG6_HIEU_CHUAN.md` mục 5 ghi một **giới hạn đã đo**:
