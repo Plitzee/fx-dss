@@ -344,7 +344,7 @@ def meta():
         ]}
 
 
-KHUNG = ("D1", "H1", "M15", "M1")
+KHUNG = ("D1", "H1", "M15", "M5")
 
 
 def nap_khung(pair, tf):
@@ -353,7 +353,14 @@ def nap_khung(pair, tf):
       D1  lich su day (HistData 2010 -> 2025-12) + Yahoo tu 2026
       H1  lich su day (repo prices/{P}_h1.csv tu 2010) + Yahoo 730 ngay
       M15 chi Yahoo, 60 ngay      — gioi han cua nha cung cap
-      M1  chi Yahoo, 7 NGAY       — gioi han cung cua Yahoo (range=30d bao loi)
+      M5  chi Yahoo, 60 ngay      — gioi han cua nha cung cap
+
+    KHONG con "M1": da DO truc tiep tren feed Yahoo (12/09/2026) — nen 1 phut
+    cua ho la ANH CHUP GIA (98,7% thanh co o=h=l=c), khong phai OHLC that; ve
+    nen o do la ve mot day doji vo hinh. Nen 5 phut thi KHAC HAN: chi 20,8% suy
+    bien (dung luc thanh khoan rat thap, gan dung), tuc ~79% la OHLC that. Nen
+    khung nhanh nhat giao dien hien la M5, khong phai M1 — trung thuc voi cai
+    nguon mien phi THAT SU co, thay vi ve M1 "gia".
 
     Do sau khac nhau la RANG BUOC CUA NGUON, khong phai lua chon thiet ke; ham
     tra ve `ghi_chu` de giao dien noi ro cho nguoi dung."""
@@ -384,7 +391,7 @@ def nap_khung(pair, tf):
     d = pd.read_csv(g, parse_dates=["ts"]).sort_values("ts").reset_index(drop=True)
     d["nguon"] = "yahoo"
     han = {"M15": "chỉ 60 ngày — giới hạn nhà cung cấp",
-           "M1": "chỉ 7 ngày — giới hạn cứng của Yahoo"}
+           "M5": "chỉ 60 ngày — giới hạn nhà cung cấp"}
     return d, han.get(tf, "")
 
 

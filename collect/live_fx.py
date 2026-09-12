@@ -173,12 +173,18 @@ def doi_chung_fred(p, d1):
 
 def khung_noi_ngay(p):
     """Ba khung cho bieu do. Gioi han la CUA YAHOO, khong phai lua chon:
-      1m  chi 7 ngay   (range=30d bao loi)
-      5m  60 ngay
+      5m  60 ngay      — OHLC THAT (do 12/09/2026: chi ~20,8% thanh suy bien,
+                          dung luc thanh khoan rat thap; nghia la ~79% la nen
+                          that co than+bong)
+      15m 60 ngay
       1h  730 ngay
+    KHONG con khung 1 phut: do truc tiep cho thay interval=1m cua Yahoo la
+    ANH CHUP GIA (98,7% thanh co o=h=l=c), khong phai OHLC — ve nen o do la
+    ve mot day doji vo hinh, khong trung thuc voi nguoi dung. 5 phut la khung
+    NHANH NHAT ma nguon mien phi nay THAT SU co OHLC dang tin.
     Lich su sau hon cho H1 lay tu data/prices/{PAIR}_h1.csv cua repo."""
     ra = {}
-    for ten, rng, iv in (("M1", "7d", "1m"), ("M15", "60d", "15m"), ("H1", "730d", "1h")):
+    for ten, rng, iv in (("M5", "60d", "5m"), ("M15", "60d", "15m"), ("H1", "730d", "1h")):
         try:
             ra[ten] = yahoo(f"{p}=X", rng, iv)
         except Exception:
