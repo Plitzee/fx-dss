@@ -146,3 +146,119 @@ Tái lập: `python src/kiem_qlikehar.py` → `output/qlikehar.json`.
 ---
 
 *Mục 2 (conformal có điều kiện theo trạng thái sụt giảm) — xem bên dưới khi chạy xong.*
+
+---
+
+## 2. Conformal phân tầng theo trạng thái sụt giảm — và một đính chính
+
+**Điểm yếu nhắm tới.** `TANG6_HIEU_CHUAN.md` mục 5 ghi một **giới hạn đã đo**:
+mọi cách dựng khoảng đều phủ thiếu khi tài khoản đang lỗ (Conformal 90,3% ở
+đỉnh vốn so với 89,3% khi đang lỗ), và *"đây đúng là lúc người dùng cần con số
+chính xác nhất"*. Tài liệu đó cũng ghi sẵn hướng vá: **thêm trạng thái sụt
+giảm vào biến phân tầng Mondrian** — nhưng chưa bao giờ làm.
+
+`decision_record.py` ghi đã thử **năm cách** (tĩnh, Mondrian 3, cửa sổ trượt,
+ACI chung, DtACI, ACI theo tầng) và *"không cách nào xoá được khoảng chênh
+đó"*. Nhưng **cả năm đều phân tầng theo biến động** — không cách nào phân tầng
+theo chính cái biến mà độ phủ đang lệch trên nó. Đó đúng là cách chữa chuẩn của
+Mondrian có điều kiện trong văn liệu conformal (Vovk et al.; và các bản
+2025–2026 về *risk-conditional coverage disparity*, ví dụ arXiv 2512.11779).
+
+### 2a. Hai cấu hình mới — chốt trước
+
+| | phân tầng theo |
+|---|---|
+| **ACI-dd 2** | **chỉ** trạng thái sụt giảm (2 tầng) |
+| **ACI-2D 2×2** | (biến động 2 tầng) × (sụt giảm 2 trạng thái) — đúng hướng vá đã ghi |
+
+Ràng buộc chống rò rỉ: biến phân tầng của **mô hình** phải trễ một phiên. Bảng
+đánh giá cũ dùng `rolling(20).sum()` không dịch — đúng khi chỉ để **báo cáo**
+(nó chỉ là cách nhóm), nhưng sai nếu dùng làm biến phân tầng vì chứa lợi suất
+của chính phiên t. Tự kiểm ép: cắt bỏ tương lai đổi **0/3.000** giá trị; đối
+chứng dương xác nhận bản dịch khác bản không dịch.
+
+### 2b. Khe đỉnh−lỗ, chấm một lần trên kiểm tra
+
+| phương pháp | khe kiểm định | **khe kiểm tra** |
+|---|---|---|
+| tĩnh | −0,42% | +0,58% |
+| Mondrian 2 | −0,11% | +0,29% |
+| Mondrian 3 | −0,05% | +0,37% |
+| ACI | +0,46% | +0,57% |
+| ACI-tầng 2 | −0,16% | +0,64% |
+| ACI-tầng 3 | −0,11% | +0,96% |
+| **ACI-dd 2** *(mới)* | +0,36% | **−0,03%** |
+| **ACI-2D 2×2** *(mới)* | +0,03% | +0,83% |
+
+Đọc theo điểm ước lượng thì bản vá **có tác dụng đúng như lý thuyết nói**:
+phân tầng theo chính biến sụt giảm kéo khe từ 0,29–0,96% về **−0,03%**.
+
+**Nhưng nó đổi một chênh lệch lấy một chênh lệch khác.** ACI-dd 2 bỏ phân tầng
+theo biến động, nên độ phủ theo chế độ biến động hỏng đi (vol thấp 88,5%, vol
+cao 92,4%) và `|lệch| max` trên kiểm tra thành **2,4% — tệ nhất trong tám
+cách**. Trên kiểm định nó cũng tệ nhất (4,1%), nên theo đúng quy tắc chọn của
+repo nó **không được chọn**. Bản 2D thì không đóng được khe (+0,83%).
+
+### 2c. ĐÍNH CHÍNH — khe đó chưa bao giờ phân biệt được với 0
+
+Dấu của khe **đảo chiều** giữa kiểm định và kiểm tra ở phần lớn các cách
+(ACI-tầng 3: −0,11% → +0,96%; tĩnh: −0,42% → +0,58%). Đó là dấu hiệu của nhiễu,
+không phải của một hiệu ứng. Nên phải kiểm — bootstrap **khối 20 phiên**,
+2.000 lần, gộp 6 cặp:
+
+| phương pháp | đoạn | khe | KTC 95% | phủ 0? |
+|---|---|---|---|---|
+| ACI-tầng 3 | kiểm định | −0,23% | [−2,42%; +1,86%] | **có** |
+| ACI-tầng 3 | kiểm tra | +0,95% | [−0,89%; +2,81%] | **có** |
+| Mondrian 2 | kiểm định | −0,28% | [−2,48%; +1,82%] | **có** |
+| Mondrian 2 | kiểm tra | +0,25% | [−1,69%; +2,14%] | **có** |
+| ACI-dd 2 | kiểm định | +0,31% | [−1,89%; +2,26%] | **có** |
+| ACI-dd 2 | kiểm tra | +0,02% | [−1,81%; +1,91%] | **có** |
+| ACI-2D 2×2 | kiểm định | +0,19% | [−1,74%; +2,09%] | **có** |
+| ACI-2D 2×2 | kiểm tra | +0,81% | [−1,01%; +2,71%] | **có** |
+
+**Không một cấu hình nào có khe phân biệt được với 0.** Khoảng tin cậy rộng
+khoảng ±2 điểm phần trăm, trong khi khe được báo cáo chỉ 0,6–0,8 điểm.
+
+> **Hệ quả: "giới hạn đã đo" ghi ở `TANG6_HIEU_CHUAN.md` mục 5 nằm TRONG
+> NHIỄU.** Con số 90,3% so 89,3% là thật với tư cách một số đo mẫu, nhưng nó
+> không đủ để phát biểu rằng hệ thống phủ thiếu khi tài khoản đang lỗ.
+
+Và điều này **giải thích luôn** vì sao năm cách trước đều "không xoá được
+khoảng chênh": không có khoảng chênh nào để xoá.
+
+### 2d. Phán quyết
+
+| | |
+|---|---|
+| Đổi cấu hình sản xuất? | **KHÔNG.** Cả hai cấu hình mới đều trượt quy tắc chọn trên kiểm định, và bản đóng được khe thì làm hỏng độ phủ theo chế độ biến động |
+| Giữ cảnh báo trên giao diện? | **KHÔNG nên giữ nguyên dạng cũ** — nó công bố một hiệu ứng chưa chứng minh được |
+| Thu được gì | **một món nợ tài liệu được trả, và một "giới hạn đã biết" được rút lại có bằng chứng** |
+
+Phát biểu đúng để đưa vào luận văn:
+
+> *Độ phủ conformal đo được ở trạng thái đang lỗ thấp hơn ở đỉnh vốn khoảng
+> 0,3–1,0 điểm phần trăm tuỳ cấu hình, nhưng khoảng tin cậy bootstrap khối
+> rộng ±2 điểm và phủ 0 ở mọi cấu hình. Với cỡ mẫu hiện có, **không kết luận
+> được** rằng độ phủ phụ thuộc trạng thái vốn. Phân tầng Mondrian theo chính
+> biến sụt giảm kéo được điểm ước lượng về 0 nhưng đánh đổi bằng độ phủ theo
+> chế độ biến động, nên không được chọn.*
+
+Tái lập: `python src/kiem_conformal_dd.py` → `output/conformal_dd.json`.
+
+---
+
+## 3. Tổng kết hai hướng đã thử
+
+| hướng | nguồn | kết quả | có tích hợp không |
+|---|---|---|---|
+| **qlikeHAR** — khớp bằng chính hàm mất dùng để chấm | Puke & Schweikert 2026, *J. Forecasting* | −1,59% nhưng **p = 0,38**, không chọn được trên kiểm định, 1/6 cặp, lợi thế nằm ở chế độ êm | **không** |
+| **Conformal phân tầng theo sụt giảm** | Mondrian có điều kiện; văn liệu 2025–2026 về risk-conditional coverage | đóng được khe (−0,03%) nhưng hỏng độ phủ theo biến động; **và khe vốn không phân biệt được với 0** | **không** — nhưng **rút lại được một "giới hạn đã biết"** |
+
+Cả hai đều là **kết quả âm có đối chứng**, và cả hai đều thu được thứ dùng
+được cho luận văn: một cái thu hẹp phạm vi áp dụng của một phát hiện 2026 vừa
+công bố; một cái đính chính chính tài liệu của dự án.
+
+**Còn chưa thử** (xếp theo mức hứa hẹn): EVT động cho đuôi USDJPY/USDCHF
+(mục 0 dòng 3) · hiệu chuẩn lại cho h = 20 (dòng 4) · phát hiện điểm ngắt để
+đặt lại cửa sổ hiệu chuẩn khi biến ngoại sinh trôi (dòng 5).
