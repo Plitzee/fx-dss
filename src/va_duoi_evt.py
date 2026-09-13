@@ -288,8 +288,8 @@ def main():
         dk1 = dat_e >= 5
         dk2 = not hong
         dk3 = duong >= 4
-        print("
-" + "=" * 112)
+        print()
+        print("=" * 112)
         print("PHÁN QUYẾT theo TIÊU CHÍ CHỐT TRƯỚC (docs/DUOI_EVT.md mục 6)")
         print("-" * 112)
         print(f"  mốc V0 trên kiểm tra: {dat_v0}/12 ô đạt · {E}: {dat_e}/12")
