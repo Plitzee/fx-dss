@@ -53,6 +53,7 @@ OUT = os.path.join(ROOT, "output")
 import balop as B                                           # noqa: E402
 from va_duoi import nap, cham, phan_vi_cuon, MUC, BUOC, DAM, CUON  # noqa: E402
 
+MO_KIEM_TRA = "--mo-kiem-tra" in sys.argv   # mo DUNG MOT LAN, co tuong minh
 U_MAC_DINH = 0.90      # nguong POT: phan vi 90 cua ton that
 U_CAO = 0.95           # bien the do nhay nguong
 TOI_THIEU_VUOT = 30    # so diem vuot nguong toi thieu moi cho khop GPD
@@ -226,9 +227,11 @@ def main():
 
     ra = {"u": U_MAC_DINH, "hinh_dang": hinh_dang, "kiem_dinh": {}, "kiem_tra": {}}
 
-    for nhan_doan, gid in (("kiem_dinh", 1),):
+    for nhan_doan, gid in (("kiem_dinh", 1), ("kiem_tra", 2)):
+        if nhan_doan == "kiem_tra" and not MO_KIEM_TRA:
+            continue
         for a in MUC:
-            print(f"\n── mức {1-a:.0%} (α = {a}) · ĐOẠN KIỂM ĐỊNH " + "─" * 56)
+            print(f"\n── mức {1-a:.0%} (α = {a}) · ĐOẠN {nhan_doan.upper()} " + "─" * 52)
             print(f"{'cặp':9}{'phương án':<32}{'vi phạm':>9}{'Kupiec':>9}"
                   f"{'Chris':>8}{'DQ':>8}{'tỷ lệ ES':>10}")
             for p in B.PAIRS:
@@ -267,6 +270,39 @@ def main():
           f"mốc trên kiểm định")
     if not ra["evt_thang_kiem_dinh"]:
         print("  Theo quy tắc chốt trước: KHÔNG mở đoạn kiểm tra.")
+
+    if MO_KIEM_TRA and ra["kiem_tra"]:
+        E = tot
+        dat_e = dat_v0 = 0
+        hong = []
+        for a in MUC:
+            for p in B.PAIRS:
+                rv = ra["kiem_tra"].get(f"{a}", {}).get(p, {}).get(
+                    "V0 phân vị huấn luyện (mốc sản xuất)")
+                re_ = ra["kiem_tra"].get(f"{a}", {}).get(p, {}).get(E)
+                if not rv or not re_:
+                    continue
+                dat_v0 += int(rv["dat"]); dat_e += int(re_["dat"])
+                if rv["dat"] and not re_["dat"]:
+                    hong.append(f"{p} α={a}")
+        dk1 = dat_e >= 5
+        dk2 = not hong
+        dk3 = duong >= 4
+        print("
+" + "=" * 112)
+        print("PHÁN QUYẾT theo TIÊU CHÍ CHỐT TRƯỚC (docs/DUOI_EVT.md mục 6)")
+        print("-" * 112)
+        print(f"  mốc V0 trên kiểm tra: {dat_v0}/12 ô đạt · {E}: {dat_e}/12")
+        print(f"  ĐK1 ô đạt ≥ 5/12                  {'ĐẠT' if dk1 else 'TRƯỢT'}   ({dat_e}/12)")
+        print(f"  ĐK2 không làm hỏng ô V0 đang đạt  {'ĐẠT' if dk2 else 'TRƯỢT'}   "
+              f"({'không ô nào' if dk2 else ', '.join(hong)})")
+        print(f"  ĐK3 ξ > 0 ở ≥ 4/6 cặp             {'ĐẠT' if dk3 else 'TRƯỢT'}   ({duong}/6)")
+        print("-" * 112)
+        xong = dk1 and dk2 and dk3
+        print(f"  → {'DƯƠNG' if xong else 'KHÔNG đủ điều kiện dương — KHÔNG đổi sản xuất'}")
+        ra["phan_quyet"] = dict(dk1=bool(dk1), dk2=bool(dk2), dk3=bool(dk3),
+                                dat_v0=dat_v0, dat_e=dat_e, hong=hong,
+                                duong="duong" if xong else "am")
 
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "va_duoi_evt.json"), "w", encoding="utf-8") as f:
