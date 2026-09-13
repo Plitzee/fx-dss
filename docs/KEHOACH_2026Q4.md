@@ -2,6 +2,32 @@
 
 Thay cho `docs/KEHOACH_CAITIEN.md` sau khi đổi ưu tiên.
 
+---
+
+> ## ⚠ TRẠNG THÁI CẬP NHẬT 13/09/2026 — **văn bản này phần lớn ĐÃ LÀM XONG**
+>
+> Rà soát toàn hệ thống ngày 13/09/2026 phát hiện **7/8 việc trong kế hoạch này
+> đã thực hiện** nhưng văn bản chưa cập nhật. **Đừng lập kế hoạch theo nó** —
+> sẽ làm lại việc cũ. Trạng thái thật:
+>
+> | việc | trạng thái | ở đâu |
+> |---|---|---|
+> | 1.1 hạ phễu xuống H1 | **XONG — âm** | `GIAIDOAN2_QUYLUAT.md` §"Hạ phễu xuống H1": 592.343 thanh, vẫn 0 quy luật, MDES 1,35 → **1,10** |
+> | 1.2 FDR thay FWER | **XONG — âm** | `KHOA_SO.md` dòng 15: FDR(BY) không hơn Westfall–Young |
+> | 1.3 xu hướng tương đối | **XONG — âm** | `XEPHANG_TIEUCHI.md`, `KHOA_SO.md` dòng 50: rank IC +0,012 (t=0,58), lỗ ròng 2,0 bp/phiên |
+> | 2.1 CAViaR cho USDJPY | **XONG — âm** | `KHOA_SO.md` dòng 15 (4 biến thể). Và **hướng thứ năm EVT** cũng đã thử: `DUOI_EVT.md`, dòng 48 |
+> | 2.2 rủi ro gap / thanh khoản | **một nửa** | độ lớn gap đã đo và đã thành đặc trưng dự báo (`|gap|`, dòng 47 + `BCL_TIEUCHI.md` A5). Phần **báo cáo rủi ro** lên giao diện: xem `RUI_RO_GAP.md` |
+> | 2.3 hiệu chuẩn trượt từ sổ dự báo | **đang chờ dữ liệu** | 6/30 phiên đã chấm (`data/so_dubao/chamdiem.csv`) — chỉ cần thời gian |
+> | 3.1 vĩ mô cho σ̂ | **XONG — âm** | Pha 3 (lãi suất tháng, dòng 43) và Pha 3B (9 chuỗi FRED ngày, 594 giả thuyết, dòng 44) |
+> | 3.2 ML trên đại lượng rủi ro | **XONG** | `RUIRO_ML.md`, `KHOA_SO.md` dòng 51 |
+> | 3.3 lớp hiệu chuẩn lại | **XONG — âm** | `KHOA_SO.md` dòng 11: nhiệt độ + vector scaling, h=20 xấu đi trên kiểm tra |
+>
+> Phần còn lại của văn bản giữ nguyên **làm hồ sơ lịch sử** — nó ghi lại lý lẽ
+> *trước khi* biết kết quả, và đó là thứ có giá trị. Nhưng mọi câu dạng "chưa
+> thử" trong đó nay phải đọc kèm bảng trên.
+
+---
+
 **Tạm dừng:** tầng 4 và 6b (định cỡ vị thế, đòn bẩy theo vốn). Giữ nguyên code
 và giao diện, không phát triển tiếp. Mọi công sức dồn vào ba trục dưới đây.
 
