@@ -120,3 +120,68 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 > Dòng ký để trống có chủ đích — người chịu trách nhiệm luận văn ký, không phải
 > công cụ điền hộ.
+
+---
+
+# PHỤ LỤC A — KẾT QUẢ (13/09/2026)
+
+*Tái lập: `python src/xep_hang_cheo.py`. Kết quả: `output/xep_hang_cheo.json`.*
+
+4.149 phiên · 6 đồng · huấn luyện 3.054 / kiểm định 547 / kiểm tra 548.
+**Tự kiểm rò rỉ ĐẠT**: cắt dữ liệu sau 2023-01-01 đổi **0** giá trị tín hiệu.
+
+| tín hiệu | IC kiểm định | t | IC **kiểm tra** | t | lãi ròng kiểm tra | t |
+|---|---|---|---|---|---|---|
+| `mom_1m` | −0,0293 | −1,35 | **−0,0377** | **−1,78** | −3,20 bp | −2,36 |
+| `mom_3m` | +0,0145 | 0,71 | −0,0089 | −0,44 | −1,03 bp | −0,78 |
+| **`mom_12m`** *(chọn)* | **+0,0458** | **2,21** | +0,0121 | 0,58 | −2,02 bp | −1,67 |
+| `dao_1w` | +0,0129 | 0,63 | +0,0078 | 0,37 | +0,44 bp | 0,34 |
+| `carry` | +0,0016 | 0,08 | +0,0306 | 1,32 | −0,40 bp | −0,33 |
+| `gop` | +0,0304 | 1,50 | −0,0050 | −0,25 | −1,62 bp | −1,33 |
+
+## Phán quyết — **ÂM**
+
+| điều kiện | kết quả | |
+|---|---|---|
+| ĐK1 IC > 0 có ý nghĩa trên kiểm tra | **TRƯỢT** | t = 0,58 |
+| ĐK2 lãi ròng sau chi phí > 0 có ý nghĩa | **TRƯỢT** | −2,02 bp, t = −1,67 |
+
+**Không tín hiệu nào** có lãi ròng dương đạt ý nghĩa. Cái gần nhất là `dao_1w`
+(+0,44 bp, t = 0,34) — không phân biệt được với 0.
+
+## Ba điều đáng ghi
+
+**1. `mom_12m` là một ca overfit kiểm định mẫu mực.** Nó **đạt ý nghĩa trên
+kiểm định** (IC 0,0458, t = 2,21, p = 0,024) rồi sụp xuống 0,0121 (t = 0,58)
+trên kiểm tra. Với 6 tín hiệu đã thử, một cái đạt p < 0,05 trên kiểm định là
+**đúng điều ngẫu nhiên phải tạo ra** (kỳ vọng 0,3 cái). Đây là minh hoạ sạch cho
+chính lý do `KHOA_SO.md` tồn tại — và nó xảy ra ngay trong một thí nghiệm chỉ có
+6 giả thuyết.
+
+**2. Động lượng ngắn hạn có dấu NGƯỢC giả thuyết, và nhất quán.** `mom_1m` cho
+IC **âm** ở cả hai đoạn (−0,029 và −0,038, t = −1,78 trên kiểm tra). H12 chốt
+trước dự kiến động lượng **dương**. Dấu âm ở tầm hạn 1 tháng nghĩa là **đảo
+chiều**, không phải động lượng — và nó là thứ duy nhất trong bảng tiến gần ý
+nghĩa trên kiểm tra. Nhưng nó **mất tiền nhiều nhất** (−3,20 bp/phiên) vì vòng
+quay cao, nên không dùng được. Ghi lại vì dấu bị bác bỏ phải ghi, kể cả khi nó
+chỉ về một hiệu ứng khác.
+
+**3. Cửa chi phí làm đúng việc của nó.** `mom_12m` có IC **dương** trên kiểm tra
+mà vẫn **lỗ ròng 2,02 bp/phiên**. Nếu không đặt cửa chi phí trước, bảng này sẽ
+bị đọc thành "có tín hiệu yếu" thay vì "không dùng được". Đây là lý do mục 6
+phải được viết trước khi chạy.
+
+## Kết luận cho luận văn
+
+> *Xếp hạng chéo sáu đồng tiền — hướng mà nhân tố đô-la chung bị triệt tiêu bằng
+> cấu trúc, và văn liệu báo cáo bằng chứng mạnh hơn hẳn dự báo hướng từng cặp —
+> **cũng không cho tín hiệu dùng được** trên dữ liệu này: tín hiệu được chọn theo
+> đúng luật cho rank IC +0,012 (t = 0,58) và **lỗ ròng** 2,0 bp mỗi phiên sau chi
+> phí spread. Đây là nhánh thứ **14** cho kết luận âm trên trục hướng, và là
+> nhánh duy nhất trong đó hướng được đo **tương đối** chứ không tuyệt đối.*
+
+**Giới hạn, đúng như khai báo trước ở mục 9:** chỉ **6 đồng**, nên mỗi phiên cho
+rất ít thông tin xếp hạng; ngưỡng phát hiện là IC ≈ 0,038. Kết luận này phát
+biểu được là *"không phát hiện được IC lớn hơn ~0,04 trên 547 phiên với 6 đồng"*,
+**không** phát biểu được là *"động lượng tiền tệ không tồn tại"* — Menkhoff et al.
+(2012) dùng hàng chục đồng, nơi mỗi phiên cho nhiều thông tin xếp hạng hơn hẳn.
