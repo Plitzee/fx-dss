@@ -61,6 +61,7 @@ HS = os.path.join(ROOT, "output", "bcl_heso.json")
 TZ = "America/New_York"
 BIN = "5min"
 O_NGAY = 288                 # so o 5 phut trong mot ngay
+O_TUAN = 7 * O_NGAY          # 2016 — tuan FX co ca nen Chu nhat (mo Sydney)
 C_NGUONG = 4.0               # nguong phat hien nhay, chuan trong van lieu
 TOI_THIEU_O = 100            # so o toi thieu trong ngay
 TOI_THIEU_BIN = 60           # so quan sat toi thieu moi o tuan de uoc he so
@@ -88,7 +89,7 @@ def loi_suat_5p(m):
     d = d.dropna(subset=["r"])
     thu = d.index.dayofweek.values
     o_ngay = (d.index.hour.values * 12 + d.index.minute.values // 5)
-    d["o_tuan"] = thu * O_NGAY + o_ngay          # 0..1439
+    d["o_tuan"] = thu * O_NGAY + o_ngay          # 0..2015 (7 thu x 288 o)
     return d
 
 
@@ -105,7 +106,7 @@ def he_so_chu_ky(d):
     Tra ve (s theo o_tuan do dai 1440, so o du mau).
     """
     tr = d[d.ngay < pd.Timestamp(HET_HUAN_LUYEN)]
-    s = np.full(1440, np.nan)
+    s = np.full(O_TUAN, np.nan)
     for o, grp in tr.groupby("o_tuan"):
         if len(grp) >= TOI_THIEU_BIN:
             s[o] = _mad(grp.r.values)
@@ -160,7 +161,7 @@ def tu_kiem(s, d):
     s2, _ = he_so_chu_ky(d2)
     lech = int(np.sum(~np.isclose(s, s2, equal_nan=True)))
     dat &= lech == 0
-    print(f"    cắt dữ liệu sau 2023-01-01 → {lech}/1440 hệ số đổi  "
+    print(f"    cắt dữ liệu sau 2023-01-01 → {lech}/{O_TUAN} hệ số đổi  "
           f"{'ĐẠT' if lech == 0 else 'HỎNG'}")
     # 3. chu ky co that khong — bien thien giua cac o phai lon hon nhieu lay mau
     ok = np.nanmax(s) / np.nanmin(s) > 2.0
@@ -195,14 +196,14 @@ def main():
         if s is None:
             print(f"  {cap}: không đủ mẫu, bỏ")
             continue
-        print(f"  {cap}  {du}/1440 ô đủ mẫu · s: min {np.nanmin(s):.3f} "
+        print(f"  {cap}  {du}/{O_TUAN} ô đủ mẫu · s: min {np.nanmin(s):.3f} "
               f"trung vị {np.nanmedian(s):.3f} max {np.nanmax(s):.3f}")
         dat_het &= tu_kiem(s, d)
         t = tach_cj(d, s)
         t.insert(0, "pair", cap)
         ra.append(t)
         heso[cap] = dict(s=[None if not np.isfinite(v) else round(float(v), 6)
-                            for v in s], n_o_du=du)
+                            for v in s], n_o_du=du, o_tuan=O_TUAN)
         print(f"    {len(t):,} ngày · nhảy BCL {t.n_nhay_bcl.mean():.2f}/ngày · "
               f"thô {t.n_nhay_tho.mean():.2f}/ngày · "
               f"tỉ trọng J_bcl {(t.j_bcl/t.rv_kiem).mean():.4f} · "

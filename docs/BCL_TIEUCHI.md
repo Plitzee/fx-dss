@@ -70,10 +70,26 @@ Diebold 2007). Mục tiêu giữ nguyên `log rv5(t+1)`, nên QLIKE so sánh đ�
 
 **Đếm vào `KHOA_SO.md`: 4 cấu hình mới.** Không thêm cấu hình nào ngoài bảng này.
 
-Tham số chốt tại đây, không điều chỉnh sau: ô = (thứ 0–4) × (288 ô 5 phút) =
-1.440 ô · ước lượng scale **robust MAD** (`/0,6745`) · chuẩn hoá BCL
+Tham số chốt tại đây, không điều chỉnh sau: ô = (thứ) × (288 ô 5 phút) ·
+ước lượng scale **robust MAD** (`/0,6745`) · chuẩn hoá BCL
 `mean(s²) = 1` · ngưỡng nhảy **c = 4** · tối thiểu 60 quan sát mỗi ô · tối
 thiểu 100 ô mỗi ngày.
+
+### 5a. ĐÍNH CHÍNH ĐẶC TẢ — ghi TRƯỚC khi thấy bất kỳ số liệu nào
+
+Bản đầu của mục 5 viết **1.440 ô = (thứ 0–4) × 288**, dựa trên câu *"tuần FX
+là 24×5"* của `MAU_HINH_FX.md`. **Sai trên dữ liệu thật.** Nến M1 của HistData,
+sau khi chuyển sang UTC, **có cả ô thứ Bảy và Chủ nhật** — phiên Sydney mở vào
+chiều Chủ nhật giờ New York. Chạy lần đầu báo `IndexError: index 1981 out of
+bounds for size 1440`, tức có thật ô ở thứ 6.
+
+Sửa thành **2.016 ô = 7 × 288**. Các ô cuối tuần ít mẫu sẽ không đạt ngưỡng 60
+quan sát và rơi về trung vị, đúng cơ chế dự phòng đã chốt ở mục 5.
+
+Đây là đính chính **đặc tả**, không phải tinh chỉnh: nó được phát hiện bằng một
+lỗi chạy chương trình, sửa **trước khi** bất kỳ QLIKE nào được chấm, và nó làm
+bộ lọc **bao phủ hơn** chứ không làm nó dễ thắng hơn. Ghi lại để người đọc thấy
+rõ thứ tự, và vì chính câu "24×5" trong `MAU_HINH_FX.md` cũng cần đính chính.
 
 ## 6. Chống rò rỉ
 
