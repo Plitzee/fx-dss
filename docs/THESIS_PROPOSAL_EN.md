@@ -138,9 +138,9 @@ The expected outcomes of this research include:
 
 [2] P.-H. Hsu, M. P. Taylor, and Z. Wang, "Technical trading: Is it still beating the foreign exchange market?," *Journal of International Economics*, vol. 102, pp. 188–208, 2016, doi: 10.1016/j.jinteco.2016.03.012.
 
-[3] M. C. Hutchinson, P. Kyziropoulos, J. O'Brien, F. O'Reilly, and T. Sharma, "Technical trading rule profitability in currencies: It's all about momentum," *Research in International Business and Finance*, vol. 61, art. no. 101779, 2022, doi: 10.1016/j.ribaf.2022.101779.
+[3] M. C. Hutchinson, P. Kyziropoulos, J. O'Brien, F. O'Reilly, and T. Sharma, "Technical trading rule profitability in currencies: It's all about momentum," *Research in International Business and Finance*, vol. 61, Art. no. 101779, 2022, doi: 10.1016/j.ribaf.2022.101779.
 
-[4] P. H. Westfall and S. S. Young, *Resampling-Based Multiple Testing: Examples and Methods for p-Value Adjustment*. New York, NY, USA: Wiley, 1993.
+[4] P. H. Westfall and S. S. Young, *Resampling-Based Multiple Testing: Examples and Methods for p-Value Adjustment*. New York, NY, USA: John Wiley & Sons, 1993.
 
 [5] P. R. Hansen, "A test for superior predictive ability," *Journal of Business & Economic Statistics*, vol. 23, no. 4, pp. 365–380, 2005, doi: 10.1198/073500105000000063.
 
@@ -152,9 +152,9 @@ The expected outcomes of this research include:
 
 [9] O. E. Barndorff-Nielsen and N. Shephard, "Power and bipower variation with stochastic volatility and jumps," *Journal of Financial Econometrics*, vol. 2, no. 1, pp. 1–37, 2004, doi: 10.1093/jjfinec/nbh001.
 
-[10] R. R. Branco, A. Rubesam, and M. Zevallos, "Forecasting realized volatility: Does anything beat linear models?," *Journal of Empirical Finance*, vol. 78, art. no. 101524, 2024, doi: 10.1016/j.jempfin.2024.101524.
+[10] R. R. Branco, A. Rubesam, and M. Zevallos, "Forecasting realized volatility: Does anything beat linear models?," *Journal of Empirical Finance*, vol. 78, Art. no. 101524, 2024, doi: 10.1016/j.jempfin.2024.101524.
 
-[11] A. Brini, "Forecasting realized volatility with time series foundation models: A comparison with econometric benchmarks," arXiv:2607.05291, 2026.
+[11] A. Brini, "Forecasting realized volatility with time series foundation models: A comparison with econometric benchmarks," arXiv:2607.05291, 2026. [Online]. Available: https://arxiv.org/abs/2607.05291
 
 [12] P. R. Hansen, A. Lunde, and J. M. Nason, "The model confidence set," *Econometrica*, vol. 79, no. 2, pp. 453–497, 2011, doi: 10.3982/ECTA5771.
 
@@ -168,9 +168,9 @@ The expected outcomes of this research include:
 
 [17] F. X. Diebold and R. S. Mariano, "Comparing predictive accuracy," *Journal of Business & Economic Statistics*, vol. 13, no. 3, pp. 253–263, 1995, doi: 10.1080/07350015.1995.10524599.
 
-[18] J. Runge, P. Nowack, M. Kretschmer, S. Flaxman, and D. Sejdinovic, "Detecting and quantifying causal associations in large nonlinear time series datasets," *Science Advances*, vol. 5, no. 11, art. no. eaau4996, 2019, doi: 10.1126/sciadv.aau4996.
+[18] J. Runge, P. Nowack, M. Kretschmer, S. Flaxman, and D. Sejdinovic, "Detecting and quantifying causal associations in large nonlinear time series datasets," *Science Advances*, vol. 5, no. 11, Art. no. eaau4996, 2019, doi: 10.1126/sciadv.aau4996.
 
-[19] I. Gibbs and E. Candès, "Adaptive conformal inference under distribution shift," in *Advances in Neural Information Processing Systems (NeurIPS)*, vol. 34, 2021, pp. 1660–1672.
+[19] I. Gibbs and E. Candès, "Adaptive conformal inference under distribution shift," in *Proc. 35th Conf. Neural Information Processing Systems (NeurIPS)*, 2021, pp. 1660–1672.
 
 [20] A. N. Angelopoulos and S. Bates, "Conformal prediction: A gentle introduction," *Foundations and Trends in Machine Learning*, vol. 16, no. 4, pp. 494–591, 2023, doi: 10.1561/2200000101.
 
@@ -184,7 +184,7 @@ The expected outcomes of this research include:
 
 [25] J. L. Kelly, "A new interpretation of information rate," *The Bell System Technical Journal*, vol. 35, no. 4, pp. 917–926, 1956, doi: 10.1002/j.1538-7305.1956.tb03809.x.
 
-[26] I. Orquín-Serrano, "Predictive power of adaptive candlestick patterns in Forex market. EURUSD case," *Mathematics*, vol. 8, no. 5, art. no. 802, 2020, doi: 10.3390/math8050802.
+[26] I. Orquín-Serrano, "Predictive power of adaptive candlestick patterns in Forex market. EURUSD case," *Mathematics*, vol. 8, no. 5, Art. no. 802, 2020, doi: 10.3390/math8050802.
 
 [27] D. Arnott and G. Pervan, "A critical analysis of decision support systems research," *Journal of Information Technology*, vol. 20, no. 2, pp. 67–87, 2005, doi: 10.1057/palgrave.jit.2000035.
 
@@ -211,32 +211,24 @@ Research timeline: 16 weeks.
 | Assignments | Member A | Member B |
 |---|---|---|
 | Review literature and define research scope | 50% | 50% |
-| Construct the data pipeline and realized measures | 60% | 40% |
+| Construct the data pipeline and realized measures | 50% | 50% |
 | Fix the evaluation protocol and sealed-set policy | 50% | 50% |
-| Develop and benchmark the volatility forecasting layer | 70% | 30% |
-| Develop the pattern-discovery and symbolic-representation branch | 30% | 70% |
-| Implement multiple-testing control and stability screening | 40% | 60% |
+| Develop and benchmark the volatility forecasting layer | 50% | 50% |
+| Develop the pattern-discovery and symbolic-representation branch | 50% | 50% |
+| Implement multiple-testing control and stability screening | 50% | 50% |
 | Conduct minimum detectable effect size and power analysis | 50% | 50% |
-| Develop the exogenous, textual and causal information layers | 30% | 70% |
-| Implement conformal prediction and calibration diagnostics | 65% | 35% |
-| Develop the risk layer: VaR/ES backtesting and position sizing | 70% | 30% |
+| Develop the exogenous, textual and causal information layers | 50% | 50% |
+| Implement conformal prediction and calibration diagnostics | 50% | 50% |
+| Develop the risk layer: VaR/ES backtesting and position sizing | 50% | 50% |
 | Conduct the end-to-end economic evaluation | 50% | 50% |
 | Execute the sealed-set validation | 50% | 50% |
-| Implement the application programming interface and user interface | 75% | 25% |
+| Implement the application programming interface and user interface | 50% | 50% |
 | Analyse failure cases and document limitations | 50% | 50% |
 | Write and revise the thesis report | 50% | 50% |
 | Prepare for the final defence | 50% | 50% |
 
-Member A is NGUYEN QUOC HUY and Member B is HUYNH TRAN QUOC HUY. The division reflects the two principal workstreams of the project — the forecasting, calibration and risk pipeline together with system implementation, and the pattern-discovery, exogenous-information and statistical-validation branch — while the protocol, power analysis, sealed validation and written report remain the joint responsibility of both members.
+Work is split evenly across all activities. Both members are jointly responsible for every stage rather than owning separate stages independently, consistent with the collaborative nature of the research.
 
----
-
-Advisor's approval &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ho Chi Minh City, ... /... /...
-
-(Signature and full name) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Students
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Signatures and full names)
-
-NGUYEN DINH THUAN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NGUYEN QUOC HUY
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HUYNH TRAN QUOC HUY
+<!-- KHOI-KY -->
+<!-- Bo sinh .docx (src/xuat_proposal.py) tu dung o ky hai cot tu day.
+     Khong viet bang &nbsp; nua — no khong len duoc .docx cho dep. -->
