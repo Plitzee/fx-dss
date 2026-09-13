@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "api",
+      "name": "fxdss-web",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8899"],
-      "port": 8899
+      "runtimeArgs": ["-m", "http.server", "8912", "--directory", "web"],
+      "port": 8912
     }
   ]
 }

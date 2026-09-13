@@ -28,11 +28,30 @@ ROOT = os.path.dirname(HERE)
 D = os.path.join(ROOT, "data")
 
 import balop as B                                    # noqa: E402
+import conformal as CF                               # noqa: E402
 from split import doan, VALID_TU, TEST_TU            # noqa: E402
 
 TU_NGAY = "2018-01-01"          # cat bot lich su cho trang nhe, van con 8 nam
 PIP = {"USDJPY": 0.01}          # con lai 0.0001
 NEN_THEO_H = {1: "chỉ σ̂", 5: "σ̂ + chế độ", 20: "σ̂ + chế độ"}
+CF_CUA_SO = 500                 # cua so hieu chuan cuon cho ACI — nhu api/main.py
+
+# KY NANG DO DUOC theo tam han. Ban sao cua `api/main.py::KY_NANG_THEO_H` —
+# ban tinh khong goi API duoc nen phai nhung san. Hai phep do DOC LAP cung ket
+# luan: walk-forward theo nam (CHISO_DANHGIA.md muc 14) va luong thong tin
+# conformal (muc 16). Ky nang nam o h = 1; o h = 5 va h = 20 thi tap du bao
+# KHONG nho hon tap cua mot hang so.
+KY_NANG_THEO_H = {
+    1: dict(muc="có kỹ năng đo được",
+            chi_tiet="BSS dương 14/14 năm; 6/6 cặp có ý nghĩa trên kiểm tra; "
+                     "tập conformal nhỏ hơn mốc khí hậu học 0,10–0,21 lớp"),
+    5: dict(muc="kỹ năng không tách được khỏi 0",
+            chi_tiet="BSS dương 10/14 năm; tập conformal KHÔNG nhỏ hơn mốc "
+                     "khí hậu học (−0,09 lớp) — tham khảo, không để ra quyết định"),
+    20: dict(muc="kỹ năng không tách được khỏi 0",
+             chi_tiet="BSS dương 8/14 năm; tập conformal KHÔNG nhỏ hơn mốc "
+                      "khí hậu học (−0,10 lớp) — tham khảo, không để ra quyết định"),
+}
 
 
 def pip_size(p):
@@ -73,8 +92,20 @@ def main():
             mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd
             P = mo.du_bao(len(d2), canh=T["canh_P"], sigma_h=T["sigma_h"],
                           sig=d2.sig.values)
+            # TAP DU BAO CONFORMAL (ACI) — bao dam do phu 90%, giu ke ca khi
+            # doi che do. Xem docs/CHISO_DANHGIA.md muc 16. Nhan qua: phat tap
+            # cho phien t truoc, roi moi dung ket cuc cua t de cap nhat alpha.
+            yv = np.asarray(T["yP"], int)
+            i_hc = np.flatnonzero((yv >= 0) & np.isfinite(P).all(1) & tr2)
+            if len(i_hc) >= 200:
+                tap, _ = CF.chay_aci(P[i_hc][-CF_CUA_SO:], yv[i_hc][-CF_CUA_SO:],
+                                     np.where(np.isfinite(P), P, 1 / 3),
+                                     np.where(yv >= 0, yv, 0), CF.diem_lac)
+            else:
+                tap = np.ones((len(d2), 3), bool)
             xs[str(h)] = dict(
                 p=[[round(float(v), 4) for v in row] for row in P],
+                tap=[[bool(v) for v in row] for row in tap],
                 b_pip=[round(float(v) / pip_size(p) * 1e0, 1) for v in T["b"]],
                 sig_pip=[round(float(v) / pip_size(p), 1) for v in T["sigma_h"]],
                 kP=round(float(T["kP"]), 4), c_h=round(float(T["c_h"]), 4),
@@ -98,6 +129,7 @@ def main():
             pip=pip_size(p),
             nen12={k: round(v, 4) for k, v in nen12.items()},
             tam={k: dict(p=[v["p"][i] for i in idx],
+                         tap=[v["tap"][i] for i in idx],
                          b_pip=[v["b_pip"][i] for i in idx],
                          sig_pip=[v["sig_pip"][i] for i in idx],
                          kP=v["kP"], c_h=v["c_h"], nen=v["nen"])
@@ -127,6 +159,7 @@ def main():
         cap=list(B.PAIRS), tu=TU_NGAY,
         valid_tu=str(VALID_TU.date()), test_tu=str(TEST_TU.date()),
         nen_theo_h={str(k): v for k, v in NEN_THEO_H.items()},
+        ky_nang_theo_h={str(k): v for k, v in KY_NANG_THEO_H.items()},
         ghi_chu="Mọi con số đo từ repo. Đoạn kiểm tra chưa mở.")
 
     out = os.path.join(ROOT, "web", "ui_data.json")

@@ -221,12 +221,77 @@ Dự báo **hướng giá** (tăng/giảm) không có tín hiệu — xác nhậ
 
 - Momentum: Sharpe −0,16 · Carry: Sharpe −0,05
 - AUC hướng: 0,46–0,53 (không phân biệt được với việc tung đồng xu)
-- Khai phá quy luật: 1.890 giả thuyết kỹ thuật, thử ở cả D1 (21.596 quan sát)
-  và H1 (592.343 quan sát) — **0 quy luật sống sót** sau kiểm định bội
+- Khai phá quy luật: **chín nhánh độc lập** (ngưỡng đặc trưng, SAX biến động,
+  SAX hướng giá, motif, rule-list/CART, chế độ tự tương quan, **HMM**,
+  **Matrix Profile**, và **nội dung thông cáo FOMC** — nhánh đầu tiên dùng
+  thông tin NGOÀI giá, xem `docs/PHA2_TINTUC.md`) — tổng cộng hơn 8.000 giả thuyết liệt kê đầy đủ, thử ở cả
+  D1 (21.596 quan sát) và H1 (592.343 quan sát) — **0 quy luật sống sót** sau
+  kiểm định bội, và **không nhánh nào thắng nền** qua Hansen SPA. Phễu đã được
+  đo lực: nó bắt được quy luật có lift ≥ **1,20** với xác suất 80%, nên mọi quy
+  luật mạnh hơn thế đã bị loại trừ trên dữ liệu này
 - Phản ứng quanh sự kiện: 18 loại (NFP, CPI, GDP, họp NHTW…) — **0/18** có
   thiên lệch hướng có ý nghĩa
 - Lan truyền biến động chéo cặp (Diebold-Yilmaz): thử ở cả D1 và H1, không cải
   thiện dự báo, thậm chí tệ hơn ở H1 (`docs/KETQUA_VONG7.md`)
+
+### Phương pháp đã thử để cải tiến — kết quả hoà, không đưa vào sản xuất
+
+Mỗi dòng dưới đây là một phương pháp **đã cài, đã chạy, đã đo** — không phải
+suy đoán. Không đưa vào sản xuất **không có nghĩa là nó tệ**: kết quả là *hoà*
+(không thắng rõ ràng so với cái đang dùng), và hệ thống chỉ đổi phương pháp khi
+đo được lợi ích rõ ràng, không đổi vì phương pháp mới hay hơn trên lý thuyết.
+Đây là bảng để tra lại sau này, khỏi phải hỏi "cái này thử chưa":
+
+| phương pháp | thay cho / mục tiêu | kết quả | vì sao không ăn tiền |
+|---|---|---|---|
+| FDR Benjamini–Yekutieli | Westfall–Young (kiểm soát đa kiểm định) | Hoà | cửa đa kiểm định không phải chỗ nghẽn — cửa lọc theo σ̂ mới chặn 97% |
+| CAViaR (Engle–Manganelli) | Phân vị tĩnh cho VaR/ES | Hoà | dạng tốt nhất hơn mốc đúng 1 cặp, và cặp đó đổi kết luận theo hạt giống ngẫu nhiên |
+| Phân vị đuôi theo chế độ (kiểu `SigmaCheDo`) | Phân vị tĩnh cho VaR/ES (đuôi USDJPY) | Hoà, kém hơn mốc | chia mẫu theo 3 chế độ làm phân vị kém ổn định hơn, không sửa đúng chỗ hỏng |
+| Chọn mô hình theo chế độ (vừa→khí hậu học) | Một mô hình chung cho cả 3 chế độ biến động | Hoà/xấu hơn | bằng chứng gốc đo trên mô hình tĩnh; mô hình cuộn đang chạy sản xuất đã tự thích nghi, ép về khí hậu học làm xấu đi có ý nghĩa ở h=5 |
+| Fixed-Share (Herbster–Warmuth) | Hedge trơn cho tổ hợp chuyên gia | Hoà | ΔBSS âm đơn điệu theo α — các chuyên gia gần hoà nên đuổi theo đổi chế độ chỉ tốn thêm |
+| 14 mô hình biến động ML/DL | HAR (biến động) | Thua nền | đo hai lần, độc lập |
+| Kiến trúc CAIFormer | — | Thua bản rút gọn | ablation của chính nó: bỏ hết bộ máy nhân quả tốt hơn bản đầy đủ 3/3 cặp |
+| Mô hình nền lớn (Chronos, MOIRAI) | — | Bằng chứng ngược, chi phí cao | — |
+| RL sâu (PPO…) | — | Đã loại | văn liệu 2025–2026 xác nhận cùng lý do |
+
+Chi tiết từng phép đo: `docs/CHISO_DANHGIA.md` mục 9, 5d, 10 (năm dòng đầu, đo
+08/09/2026) và `docs/KEHOACH_CAITIEN.md` mục "Không làm" (các dòng còn lại).
+
+Không phải mọi việc thử hôm đó đều hoà: **Hansen SPA** (Hansen 2005) được cài
+mới vào `metrics.py` và xác nhận **có ý nghĩa** — họ mô hình biến động Giai
+đoạn 1 thắng nền "chỉ σ̂" ở tầm hạn 5 và 20 phiên (p = 0,024 và p < 0,001),
+đúng như lý do hệ thống chọn "σ̂ + chế độ (cuộn)" ở hai tầm hạn đó. Xem
+`docs/CHISO_DANHGIA.md` mục 11.
+
+Viết tiếp ba họ khai phá quy luật còn thiếu (motif, rule-list, chế độ tự tương
+quan) thoạt tiên **tưởng** tìm ra một quy luật qua hết mọi cửa kiểm định. Soi
+kỹ lại thì nó không có thật — và việc soi đó lần ra một **lỗi dữ liệu** đã âm
+thầm làm hỏng cả chương khai phá quy luật: 3.306 phiên khởi động bị *bịa* lợi
+suất bằng 0 rồi gán hết vào lớp "đi ngang". Sửa xong:
+
+- kết luận **0 quy luật vẫn nguyên**, nhưng đứng trên số đúng
+- lực phát hiện của phễu tăng từ lift **1,35 → 1,20** — lớn hơn mọi thủ thuật
+  thống kê đã thử ở bảng trên
+- Giai đoạn 1, tầng rủi ro và giao diện sản xuất **không đổi một hàng nào**
+  (đã kiểm chứng trực tiếp)
+
+Toàn bộ câu chuyện — dấu vết dẫn tới lỗi, cơ chế, bản đồ ảnh hưởng, số trước và
+sau — ở `docs/CHISO_DANHGIA.md` mục 13.
+
+### Ổn định qua thời gian — không phải trung bình che đi vài năm tệ
+
+Chia chuỗi dự báo theo từng năm (`docs/CHISO_DANHGIA.md` mục 14):
+
+| tầm hạn | số năm BSS dương | BSS trung vị |
+|---|---|---|
+| **1 phiên** | **14/14 năm** | +0,0135 |
+| 5 phiên | 10/14 | +0,0028 |
+| 20 phiên | 8/14 | +0,0063 |
+
+Ở tầm hạn 1 phiên hệ thống dương **liên tục suốt 14 năm**, kể cả 2020, 2022 và
+đoạn kiểm tra 2024–2025. Ở tầm hạn 20 phiên thì chỉ 8/14 — gần như tung đồng
+xu theo năm. **Độ tin cậy giảm mạnh theo tầm hạn**, và giao diện nói đúng như
+vậy thay vì báo cáo một con số gộp.
 
 ### Trong quá trình thử, đã bắt được và sửa các lỗi thống kê thật
 

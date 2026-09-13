@@ -1,0 +1,11 @@
+129 ngày họp FOMC (2010–2025, đã cắt 2026 vì nằm trong tập khoá sổ)
+  20/129  (mới 20 · sẵn có 0 · hỏng 0)
+  40/129  (mới 40 · sẵn có 0 · hỏng 0)
+  60/129  (mới 60 · sẵn có 0 · hỏng 0)
+  80/129  (mới 80 · sẵn có 0 · hỏng 0)
+  100/129  (mới 100 · sẵn có 0 · hỏng 0)
+  120/129  (mới 120 · sẵn có 0 · hỏng 0)
+
+lấy được 129/129 thông cáo · mới 129 · sẵn có 0
+độ dài (số từ): trung vị 408 · khoảng [86; 798]
+→ data/tin_tuc/fomc/ · data/tin_tuc/fomc_index.csv

@@ -1,0 +1,71 @@
+{
+ "n_kiem": 600,
+ "khai_bao": 600,
+ "n_hoan_vi": 1000,
+ "khoi": 5,
+ "song_sot": {
+  "tho": 57,
+  "hoan_vi": 57,
+  "fdr": 0,
+  "wy": 7
+ },
+ "theo_truc": {
+  "bien_do": {
+   "n": 300,
+   "wy": 7,
+   "p_min": 0.000999000999000999
+  },
+  "huong": {
+   "n": 300,
+   "wy": 0,
+   "p_min": 0.995004995004995
+  }
+ },
+ "theo_ho": {
+  "K1 hình học": {
+   "n": 120,
+   "wy": 0,
+   "p_min": 0.935064935064935,
+   "F_max": 8.157677574704996
+  },
+  "K2 phạm vi−RV": {
+   "n": 72,
+   "wy": 0,
+   "p_min": 0.27672327672327673,
+   "F_max": 12.540591486449888
+  },
+  "K3 mẫu có tên": {
+   "n": 360,
+   "wy": 0,
+   "p_min": 0.5074925074925075,
+   "F_max": 10.933683349472865
+  },
+  "K4 gap đêm": {
+   "n": 48,
+   "wy": 7,
+   "p_min": 0.000999000999000999,
+   "F_max": 67.83689174329946
+  }
+ },
+ "n_khop": {
+  "doji": 1220,
+  "bua": 814,
+  "sao_bang": 928,
+  "marubozu": 659,
+  "con_quay": 4490,
+  "nhan_chim_tang": 1732,
+  "nhan_chim_giam": 1794,
+  "harami_tang": 1768,
+  "harami_giam": 1844,
+  "xuyen_tham": 493,
+  "may_den": 462,
+  "sao_mai": 1565,
+  "sao_hom": 1530,
+  "ba_linh_trang": 2925,
+  "ba_qua_den": 2654
+ },
+ "tu_kiem_ro_ri": {
+  "sai": 0,
+  "n": 1011600
+ }
+}

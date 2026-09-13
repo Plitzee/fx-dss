@@ -158,8 +158,13 @@ def hoan_vi_khoi(y, rng, khoi=KHOI):
     return y[idx[:n]]
 
 
-def westfall_young(M, y, mask, nperm=NPERM, seed=SEED):
-    """maxT tung buoc xuong. Tra ve p_wy cho tung (vi tu, lop) da lam phang."""
+def westfall_young(M, y, mask, nperm=NPERM, seed=SEED, tra_null=False):
+    """maxT tung buoc xuong. Tra ve p_wy cho tung (vi tu, lop) da lam phang.
+
+    `tra_null=True` tra them (p_tho, Zb): p BIEN duyen tung gia thuyet — khong
+    hieu chinh max — va ca ma tran null. Hai thu do la nguyen lieu cho cong
+    FDR (`fdr_bh`), vi FDR can p THO cua ca ho chu khong can max|z|.
+    """
     Z, L, nk = z_lift(M, y, mask)
     z = np.abs(np.nan_to_num(Z.ravel(), nan=0.0))
     rng = np.random.default_rng(seed)
@@ -178,7 +183,82 @@ def westfall_young(M, y, mask, nperm=NPERM, seed=SEED):
         mx = con[:, i:].max(1) if i < len(thu) else np.zeros(nperm)
         p[thu[i]] = (mx >= z[thu[i]]).mean()
     p = np.maximum.accumulate(p)                 # ep don dieu
-    return Z, L, nk, p.reshape(Z.shape), np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
+    ng = np.quantile(Zb.max(1), [0.9, 0.95, 0.99])
+    if tra_null:
+        return (Z, L, nk, p.reshape(Z.shape), ng,
+                p_tho_tu_null(z, Zb).reshape(Z.shape), Zb.astype(np.float32))
+    return Z, L, nk, p.reshape(Z.shape), ng
+
+
+def p_tho_tu_null(z, Zb):
+    """p bien duyen hai phia tung gia thuyet, DEM truc tiep tren cot null.
+
+    Cong (b + 1)/(B + 1) — uoc luong khong chech duoi hoan vi, va quan trong
+    hon la khong bao gio tra ve p = 0 (mot p = 0 se lam thu tuc BH nhan bua
+    bai o hang dau).
+
+    GIOI HAN CUNG: p nho nhat co the tra ve la 1/(B + 1). Voi B = 1.000 thi
+    do la 1e-3 — trong khi nguong BY o hang 1 la alpha/(m c) = 9,6e-7. Tuc
+    dem truc tiep KHONG BAO GIO bac bo duoc gi qua cong FDR. Dung ham nay de
+    KIEM CHUNG, con de chay cong thi dung `p_duoi_chuan`.
+    """
+    return (1.0 + (Zb >= z[None, :]).sum(0)) / (Zb.shape[0] + 1.0)
+
+
+def he_so_phong(Zb):
+    """lambda_j = do lech chuan cua |z| duoi null, tung gia thuyet.
+
+    Duoi null doc lap, z ~ N(0,1) nen sd(z) = 1. Phu thuoc khoi trong chuoi
+    lam sd phong len; lambda do CHINH cai phong do. Day la "genomic control"
+    (Devlin & Roeder 1999), lay tung cot vi so lan khop moi vi tu moi khac.
+
+    Uoc tu MOMENT BAC HAI cua |z| chu khong tu var(|z|): duoi null z doi xung
+    quanh 0 nen E[z] = 0 va E[z^2] = lambda^2, con var(|z|) thi khong.
+    """
+    return np.sqrt(np.maximum(np.mean(np.asarray(Zb, float) ** 2, 0), EPS))
+
+
+def p_duoi_chuan(z, lam):
+    """p hai phia tu duoi chuan da hieu chuan: p = 2(1 - Phi(|z| / lambda)).
+
+    NGOAI SUY, va phai duoc noi ro nhu vay. Hoan vi chi do duoc toi 1e-3; moi
+    thu duoi do la suy ra tu gia dinh duoi chuan. `kiem_fdr.py` KIEM CHUNG gia
+    dinh nay o vung 1e-3..1 noi ca hai cach deu do duoc, roi moi dam dung no
+    o vung sau hon.
+    """
+    from scipy.stats import norm
+    return np.clip(2.0 * norm.sf(np.abs(z) / np.maximum(lam, EPS)), 1e-300, 1.0)
+
+
+def fdr_bh(p, alpha=0.05, bang_bo=True):
+    """Benjamini-Hochberg, hoac Benjamini-Yekutieli khi `bang_bo=True`.
+
+    TRA VE (bac_bo, p_hieu_chinh, nguong_p).
+
+    BH kiem soat FDR khi cac gia thuyet doc lap hoac PRDS. Ho gia thuyet o day
+    KHONG the gia dinh la PRDS: cac vi tu long nhau ("σ̂ cao" va "σ̂ cao & thu
+    Hai"), va ba lop cua cung mot vi tu buoc phai co tuong quan AM. Nen mac
+    dinh la BY (Benjamini-Yekutieli 2001), dung duoi PHU THUOC TUY Y, doi lai
+    bang cach chia cho c(m) = sum(1/i) ~ ln m + 0,577.
+
+    Voi m = 5.670 gia thuyet, c(m) = 9,22. Do la mot cai gia RAT dat — va no
+    la ly do phai DO chu khong duoc doan xem FDR co manh hon FWER khong.
+    """
+    p = np.asarray(p, float).ravel()
+    m = len(p)
+    thu = np.argsort(p)
+    ps = p[thu]
+    c = np.log(m) + 0.5772156649 + 1.0 / (2 * m) if bang_bo else 1.0
+    # p hieu chinh BH/BY: min tu phai sang trai cua m*c*p_(i)/i
+    ph = np.minimum.accumulate((m * c * ps / np.arange(1, m + 1))[::-1])[::-1]
+    ph = np.minimum(ph, 1.0)
+    bb = np.zeros(m, bool)
+    bb[thu] = ph <= alpha
+    ra = np.empty(m)
+    ra[thu] = ph
+    k = np.where(ph <= alpha)[0]
+    ngp = float(ps[k[-1]]) if len(k) else 0.0
+    return bb.reshape(np.shape(p)), ra, ngp
 
 
 R2_TRUNG = 0.99          # nguong coi vi tu la TRUNG voi bo kiem soat
@@ -323,12 +403,15 @@ def nhan_to_usd(Ms, dts):
     return [nt.reindex(pd.DatetimeIndex(d)).values for d in dts]
 
 
-def main():
-    t0 = time.time()
-    print("=" * 112)
-    print("GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT")
-    print("=" * 112)
+def nap_du_lieu():
+    """Nap toan bo du lieu + bo kiem soat dung chung cho Giai doan 2.
+
+    Tach ra tu main() de cac ho H2/H3/H5 (run_h2_*.py, run_h3_*.py, run_h5_*.py)
+    dung LAI dung mot lan nap, khong copy-paste — tranh sai lech giao thuc giua
+    cac ho. Tra ve dict voi moi thu can de tu dung dac_trung/roi_rac/vet_can/
+    westfall_young/doi_chung cho MOT khong gian gia thuyet MOI."""
     from api.main import noi_chuoi
+    import optimal_stop as OS
 
     Ms, sigs, zs, ys, caps, dts = [], [], [], [], [], []
     for p in B.PAIRS:
@@ -347,22 +430,9 @@ def main():
         Ms.append(m); sigs.append(sig); zs.append(T["z"]); ys.append(yv)
         caps.append(np.full(len(m), p)); dts.append(d.Date.values)
 
-    # dac trung + roi rac hoa, nguong chot tren HUAN LUYEN cua tung cap
-    lit_all, ten_lit = [], None
-    for i, p in enumerate(B.PAIRS):
-        F = dac_trung(Ms[i], sigs[i], zs[i])
-        tr = doan(dts[i]) == 0
-        L, tn = roi_rac(F, tr)
-        lit_all.append(L)
-        ten_lit = tn
-    lit = np.concatenate(lit_all, axis=1)          # (n_lit, N)
     y = np.concatenate(ys)
     cap = np.concatenate(caps)
     dt = pd.DatetimeIndex(np.concatenate(dts))
-    # BON null, khong phai hai. Them nhan to do-la chung (sau cap deu dinh USD)
-    # va carry (chenh lech lai suat — dong luc chung kinh dien cua FX, repo da
-    # co san `optimal_stop.carry_ngay` nhung chua bao gio dua vao bo kiem soat).
-    import optimal_stop as OS
     nt_usd = nhan_to_usd(Ms, dts)
     carry = []
     for i, p in enumerate(B.PAIRS):
@@ -372,16 +442,45 @@ def main():
             carry.append(np.full(len(dts[i]), np.nan))
     sig_all = np.concatenate(sigs)
     tr_all = np.concatenate([doan(d) == 0 for d in dts])
-    # CUM cho sai so vung: cap x khoi 20 phien
     cum = np.concatenate([[f"{p}_{i//20}" for i in range(len(dts[j]))]
                           for j, p in enumerate(B.PAIRS)])
     kiem_soat = np.column_stack([
-        kiem_soat_sigma(sig_all, cap, tr_all),                    # null biến động MỀM DẺO
+        kiem_soat_sigma(sig_all, cap, tr_all),
         np.concatenate([pd.Series(np.r_[np.nan, np.diff(np.log(np.maximum(
-            m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),  # TSMOM
-        np.concatenate(nt_usd),                                   # nhân tố đô-la
-        np.concatenate(carry),                                    # carry
+            m.close.values, EPS)))]).rolling(20).sum().values for m in Ms]),
+        np.concatenate(nt_usd),
+        np.concatenate(carry),
     ])
+    tr = (dt < VALID_TU) & (y >= 0)
+    va = (dt >= VALID_TU) & (dt < TEST_TU) & (y >= 0)
+    te = (dt >= TEST_TU) & (y >= 0)
+    pha = tr | va
+    return dict(Ms=Ms, sigs=sigs, zs=zs, ys=ys, caps=caps, dts=dts,
+                y=y, cap=cap, dt=dt, kiem_soat=kiem_soat, cum=cum,
+                sig_all=sig_all, tr=tr, va=va, te=te, pha=pha)
+
+
+def main():
+    t0 = time.time()
+    print("=" * 112)
+    print("GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT")
+    print("=" * 112)
+
+    du = nap_du_lieu()
+    Ms, sigs, zs, dts = du["Ms"], du["sigs"], du["zs"], du["dts"]
+    y, cap, dt = du["y"], du["cap"], du["dt"]
+    kiem_soat, cum = du["kiem_soat"], du["cum"]
+    tr, va, te, pha = du["tr"], du["va"], du["te"], du["pha"]
+
+    # dac trung + roi rac hoa, nguong chot tren HUAN LUYEN cua tung cap
+    lit_all, ten_lit = [], None
+    for i, p in enumerate(B.PAIRS):
+        F = dac_trung(Ms[i], sigs[i], zs[i])
+        tri = doan(dts[i]) == 0
+        L, tn = roi_rac(F, tri)
+        lit_all.append(L)
+        ten_lit = tn
+    lit = np.concatenate(lit_all, axis=1)          # (n_lit, N)
     du_ks = np.isfinite(kiem_soat).all(1)
     print(f"bộ kiểm soát: {', '.join(TEN_KIEM_SOAT)} — "
           f"{du_ks.sum():,}/{len(du_ks):,} hàng đủ cả bốn")
@@ -391,10 +490,6 @@ def main():
     print(f"KHÔNG GIAN GIẢ THUYẾT: {len(ten):,} vị từ × 3 lớp = "
           f"{len(ten)*3:,} giả thuyết — liệt kê đầy đủ, biết trước")
 
-    tr = (dt < VALID_TU) & (y >= 0)
-    va = (dt >= VALID_TU) & (dt < TEST_TU) & (y >= 0)
-    te = (dt >= TEST_TU) & (y >= 0)
-    pha = tr | va                                  # phát hiện trên huấn luyện+kiểm định
     print(f"phát hiện {int(pha.sum()):,} hàng · xác nhận {int(te.sum()):,} hàng\n")
 
     print(f"[1/4] Westfall–Young, {NPERM} hoán vị, null khối {KHOI} ngày…",

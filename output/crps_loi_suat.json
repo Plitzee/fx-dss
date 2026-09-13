@@ -1,0 +1,128 @@
+{
+ "kiểm định": {
+  "EURUSD": {
+   "n": 547,
+   "sig_hang_so": 0.004816775768340834,
+   "crps_khihau": 0.0030262060789276535,
+   "crps_sanxuat": 0.0029746443858251286,
+   "crps_sigma_chuan": 0.0029739745284105006,
+   "crpss_sanxuat": 0.017038394530221823,
+   "crpss_sigma_chuan": 0.017259746743903626
+  },
+  "GBPUSD": {
+   "n": 547,
+   "sig_hang_so": 0.005477543803170925,
+   "crps_khihau": 0.003422387618220493,
+   "crps_sanxuat": 0.00331818500119397,
+   "crps_sigma_chuan": 0.0033203535780151703,
+   "crpss_sanxuat": 0.030447345143418958,
+   "crpss_sigma_chuan": 0.02981370072229761
+  },
+  "USDJPY": {
+   "n": 547,
+   "sig_hang_so": 0.00544009494841214,
+   "crps_khihau": 0.003543092648376059,
+   "crps_sanxuat": 0.003451240045874109,
+   "crps_sigma_chuan": 0.0034582182075902595,
+   "crpss_sanxuat": 0.025924414520757555,
+   "crpss_sigma_chuan": 0.023954903020868112
+  },
+  "AUDUSD": {
+   "n": 547,
+   "sig_hang_so": 0.0060743958266165,
+   "crps_khihau": 0.00418516437506732,
+   "crps_sanxuat": 0.004100080986714628,
+   "crps_sigma_chuan": 0.004100104153976284,
+   "crpss_sanxuat": 0.020329760250174855,
+   "crpss_sigma_chuan": 0.020324224682254588
+  },
+  "USDCAD": {
+   "n": 547,
+   "sig_hang_so": 0.004515860157985906,
+   "crps_khihau": 0.0024844615744634532,
+   "crps_sanxuat": 0.0024681861219565597,
+   "crps_sigma_chuan": 0.002476098864830655,
+   "crpss_sanxuat": 0.006550897254431698,
+   "crpss_sigma_chuan": 0.003366004819214896
+  },
+  "USDCHF": {
+   "n": 547,
+   "sig_hang_so": 0.005997266449520045,
+   "crps_khihau": 0.0029207994360298593,
+   "crps_sanxuat": 0.0028965102365489425,
+   "crps_sigma_chuan": 0.0029091472872985707,
+   "crpss_sanxuat": 0.008315942266111986,
+   "crpss_sigma_chuan": 0.0039893696867892015
+  },
+  "_gop": {
+   "crps_khihau": 0.0032636852885141398,
+   "crps_sanxuat": 0.00320147446301889,
+   "crps_sigma_chuan": 0.0032063161033535734,
+   "crpss_sanxuat": 0.019061527076212892,
+   "crpss_sigma_chuan": 0.017578038348999292
+  }
+ },
+ "kiểm tra": {
+  "EURUSD": {
+   "n": 725,
+   "sig_hang_so": 0.004816775768340834,
+   "crps_khihau": 0.002265619918856676,
+   "crps_sanxuat": 0.0022321854218595154,
+   "crps_sigma_chuan": 0.0022369251882865576,
+   "crpss_sanxuat": 0.014757328322763441,
+   "crpss_sigma_chuan": 0.012665288794158736
+  },
+  "GBPUSD": {
+   "n": 724,
+   "sig_hang_so": 0.005477543803170925,
+   "crps_khihau": 0.002363157644198294,
+   "crps_sanxuat": 0.0023328095321986852,
+   "crps_sigma_chuan": 0.0023361985189514086,
+   "crpss_sanxuat": 0.012842186840186232,
+   "crpss_sigma_chuan": 0.01140809429835199
+  },
+  "USDJPY": {
+   "n": 726,
+   "sig_hang_so": 0.00544009494841214,
+   "crps_khihau": 0.003271967562969673,
+   "crps_sanxuat": 0.0032003195349301376,
+   "crps_sigma_chuan": 0.0032065620510088955,
+   "crpss_sanxuat": 0.02189753616460266,
+   "crpss_sigma_chuan": 0.01998965781354345
+  },
+  "AUDUSD": {
+   "n": 725,
+   "sig_hang_so": 0.0060743958266165,
+   "crps_khihau": 0.0030049926012067317,
+   "crps_sanxuat": 0.0029650255125887146,
+   "crps_sigma_chuan": 0.0029719235027588064,
+   "crpss_sanxuat": 0.01330022862684166,
+   "crpss_sigma_chuan": 0.011004718758590437
+  },
+  "USDCAD": {
+   "n": 724,
+   "sig_hang_so": 0.004515860157985906,
+   "crps_khihau": 0.0017624713070467566,
+   "crps_sanxuat": 0.0016940397166895595,
+   "crps_sigma_chuan": 0.0017070880546222892,
+   "crpss_sanxuat": 0.03882706633781341,
+   "crpss_sigma_chuan": 0.03142363350996569
+  },
+  "USDCHF": {
+   "n": 724,
+   "sig_hang_so": 0.005997266449520045,
+   "crps_khihau": 0.0026388990485517044,
+   "crps_sanxuat": 0.0026228144771846965,
+   "crps_sigma_chuan": 0.002631835574818237,
+   "crpss_sanxuat": 0.006095182525392762,
+   "crpss_sigma_chuan": 0.002676674478072183
+  },
+  "_gop": {
+   "crps_khihau": 0.002551554921714536,
+   "crps_sanxuat": 0.0025082259538893874,
+   "crps_sigma_chuan": 0.0025154479727405956,
+   "crpss_sanxuat": 0.016981397286966238,
+   "crpss_sigma_chuan": 0.014150958957088844
+  }
+ }
+}

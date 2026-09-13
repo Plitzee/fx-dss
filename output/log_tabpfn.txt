@@ -1,0 +1,23 @@
+========================================================================================================
+TabPFN v2 — mô hình NỀN cho dữ liệu bảng (Nature 2025)
+========================================================================================================
+huấn luyện 15,024 hàng × 52 đặc trưng · kiểm định 3,282
+NGOÀI vùng thiết kế của TabPFN (≤ 10.000 hàng) — bật ignore_pretraining_limits, n_estimators=1
+ngưỡng phải vượt: BSS > +0.0105 (nền "chỉ σ̂")
+
+đang khớp TabPFN… (không có GPU, dự kiến lâu)
+xong sau 1252s
+
+  mô hình                   log      BSS       KTC 95% của BSS     ECE     AUC    sd(P)
+  TabPFN v2              1.0900  +0.0085    [+0.0015, +0.0154]  0.0186  0.5375   0.0613
+  khí hậu học            1.0985  +0.0000                        0.0155  0.5000      nan
+  chỉ σ̂                 1.0867  +0.0110                        0.0160  0.5000      nan
+  σ̂ + chế độ            1.0874  +0.0104                        0.0135  0.4830      nan
+  logistic đa thức       1.0905  +0.0077                        0.0207  0.5183      nan
+  LightGBM 3 lớp         1.1133  -0.0149                        0.0543  0.5207      nan
+  GRU 3 lớp              1.2190  -0.1083                        0.1246  0.4953      nan
+
+  → KHÔNG vượt ngưỡng (BSS +0.0085 so với +0.0105)
+    Không mở đoạn kiểm tra cho một mô hình đã thua trên kiểm định.
+
+→ output/tabpfn.json · 1252s

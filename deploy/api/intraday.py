@@ -33,7 +33,11 @@ import chibao as CB  # noqa: E402
 PAIRS = ("EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF")
 UA = {"User-Agent": "Mozilla/5.0 (compatible; fx-dss-thesis/1.0)"}
 # Gioi han la CUA YAHOO, khong phai lua chon thiet ke.
-KHUNG = {"M1": ("7d", "1m", "chỉ 7 ngày — giới hạn cứng của Yahoo"),
+# KHONG con "M1": do truc tiep (12/09/2026) nen 1 phut cua Yahoo la anh chup
+# gia (98,7% thanh co o=h=l=c) chu khong phai OHLC that. Nen 5 phut thi that
+# ~79% (chi 20,8% suy bien, dung luc thanh khoan thap). Doi sang M5 de nen
+# thay tren bieu do la nen THAT, khong phai duong ke ngay ca duoi lop ao "nen".
+KHUNG = {"M5": ("60d", "5m", "chỉ 60 ngày — giới hạn nhà cung cấp"),
          "M15": ("60d", "15m", "chỉ 60 ngày — giới hạn nhà cung cấp"),
          "H1": ("730d", "1h", "730 ngày từ nhà cung cấp"),
          "D1": ("730d", "1h", "gộp từ thanh giờ — nến ngày của Yahoo không hợp lệ")}

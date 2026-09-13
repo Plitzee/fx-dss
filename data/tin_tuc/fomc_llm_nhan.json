@@ -1,0 +1,909 @@
+{
+ "nguoi_gan": "Claude (Opus 5) doc toan van, phien 11/09/2026",
+ "schema_chot_o": "src/run_h8e_llm.py (commit cc4df90, truoc khi doc)",
+ "nhan": [
+  {
+   "ngay": "2010-01-27",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-03-16",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-04-28",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-06-23",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-08-10",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-09-21",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2010-11-03",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2010-12-14",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2011-01-26",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2011-03-15",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2011-04-27",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2011-06-22",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "vua"
+  },
+  {
+   "ngay": "2011-08-09",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2011-09-21",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2011-11-02",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2011-12-13",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2012-01-25",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2012-03-13",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2012-04-25",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2012-06-20",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "yeu"
+  },
+  {
+   "ngay": "2012-08-01",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2012-09-13",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2012-10-24",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2012-12-12",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-01-30",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-03-20",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-05-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-06-19",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-07-31",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-09-18",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-10-30",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2013-12-18",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-01-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-03-19",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-04-30",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-06-18",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-07-30",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-09-17",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-10-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2014-12-17",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-01-28",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-03-18",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-04-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-06-17",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-07-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-09-17",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-10-28",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2015-12-16",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-01-27",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-03-16",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-04-27",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-06-15",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-07-27",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-09-21",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-11-02",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2016-12-14",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-02-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-03-15",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-05-03",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-06-14",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-07-26",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-09-20",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-11-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2017-12-13",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-01-31",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-03-21",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-05-02",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-06-13",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-08-01",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-09-26",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-11-08",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2018-12-19",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-01-30",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-03-20",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-05-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-06-19",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-07-31",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-09-18",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-10-30",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2019-12-11",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-01-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "thap",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-03-03",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-03-15",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-04-29",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-06-10",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-07-29",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-09-16",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-11-05",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2020-12-16",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-01-27",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-03-17",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-04-28",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-06-16",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-07-28",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-09-22",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-11-03",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2021-12-15",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-01-26",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-03-16",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-05-04",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-06-15",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-07-27",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-09-21",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-11-02",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2022-12-14",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-02-01",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-03-22",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-05-03",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-06-14",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-07-26",
+   "dieu_huong": "dieu_hau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-09-20",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-11-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2023-12-13",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-01-31",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-03-20",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-05-01",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-06-12",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-07-31",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-09-18",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-11-07",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2024-12-18",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-01-29",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "trung_binh",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-03-19",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-05-07",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-06-18",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-07-30",
+   "dieu_huong": "hon_hop",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "khong",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-09-17",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-10-29",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  },
+  {
+   "ngay": "2025-12-10",
+   "dieu_huong": "bo_cau",
+   "bat_dinh": "cao",
+   "thay_doi_lap_truong": "co",
+   "phu_thuoc_du_lieu": "manh"
+  }
+ ]
+}

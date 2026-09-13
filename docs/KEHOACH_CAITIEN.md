@@ -31,7 +31,15 @@ phải thủ tục hình thức.
 Ba việc này đều có bằng chứng đo được, và đều nằm ở phần *sản phẩm* chứ không
 phải phần *nghiên cứu*.
 
-### A1. Đuôi dưới của USDJPY — ưu tiên cao nhất
+### A1. Đuôi dưới của USDJPY — **đã thử hết ba hướng, đóng lại (08/09/2026)**
+
+Cập nhật: cả ba hướng đề xuất bên dưới đã chạy — vô điều kiện cuộn/mở rộng
+(`va_duoi.py`, giữ V1), CAViaR động (`caviar.py`, mục 9.2 CHISO_DANHGIA.md),
+phân vị theo chế độ (`va_duoi_chedo.py`, mục 5d CHISO_DANHGIA.md). Không hướng
+nào vượt được V1 mở rộng đang chạy trên kiểm định. Cảnh báo USDJPY trên giao
+diện **giữ nguyên**; muốn cải thiện tiếp phải có dữ liệu mới (xem mục "Còn để
+ngỏ" cuối văn bản này), không phải biến thể thống kê khác của cùng một phân
+vị. Nội dung dưới đây giữ nguyên làm hồ sơ chẩn đoán gốc.
 
 **Bằng chứng.** Ba phép đo độc lập cùng chỉ một chỗ:
 
@@ -79,40 +87,69 @@ xuất. Đây là kỹ thuật chuẩn, không phải nghiên cứu.
 **Nó mua gì.** Không thêm tính năng — nó **gỡ bớt một lời cảnh báo**. Với một
 hệ thống bán niềm tin thì việc đó đáng hơn.
 
-### A3. Bộ chọn mô hình theo chế độ
+### A3. Bộ chọn mô hình theo chế độ — **đã thử, không ăn tiền (08/09/2026)**
 
-**Bằng chứng.** Chế độ "vừa" là chỗ duy nhất mô hình **thua** khí hậu học, và
-nó lặp lại ở cả hai tầm hạn:
+**Bằng chứng ban đầu.** Chế độ "vừa" là chỗ duy nhất mô hình **thua** khí hậu
+học, và nó lặp lại ở cả hai tầm hạn, đo trên mô hình **tĩnh**:
 
 | | chế độ êm | **chế độ vừa** | chế độ căng |
 |---|---|---|---|
 | h=1, chỉ σ̂ | +0,0249 | **−0,0081** | +0,0182 |
 | h=20, σ̂+chế độ | +0,0326 | **−0,0154** | +0,0270 |
 
-Hiện dùng **một** mô hình cho cả ba chế độ, nên phần lãi ở hai chế độ ngoài
-đang bị chế độ giữa ăn bớt.
+**Đã đo lại đúng trên mô hình SẢN XUẤT** (`src/run_balop_chedo.py`, kết quả
+đầy đủ ở `docs/CHISO_DANHGIA.md` mục 10) — khác mô hình tĩnh ở trên, sản xuất
+dùng bản **cuộn**/tổ hợp trực tuyến. Kết quả: ở h=5, mô hình sản xuất đã ổn ở
+chế độ "vừa" (BSS +0,0139, không âm như bảng tĩnh), và ép về khí hậu học ở đó
+làm **xấu đi có ý nghĩa** (KTC ghép cặp [−0,0093; −0,0008]). Ở h=1, h=20, gộp
+lại là hoà, không có KTC nào tách khỏi 0 theo hướng tốt.
 
-**Làm gì.** Chọn mô hình theo chế độ (chế độ vừa rơi về khí hậu học), chọn trên
-kiểm định. Rẻ, dư địa nhìn thấy được.
+**Quyết định: giữ nguyên mô hình sản xuất.** Bài học: bằng chứng đo trên biến
+thể tĩnh không tự động áp dụng được cho biến thể cuộn/động đang thực sự chạy
+— phải đo lại đúng cấu hình sản xuất trước khi đổi.
 
 ---
 
 ## Đợt B — đóng tiêu chí dừng của giai đoạn 2
 
-### B1. Hansen SPA — chưa chạy, mà nó là điều kiện
+### B1. Hansen SPA — **đã cài xong, đóng được điều kiện SPA cho cả năm họ (08/09/2026)**
 
 `REPLAN_2026.md` §10.4 định nghĩa tiền đề khai phá bị coi là không đứng được
 nếu **cả ba** điều sau đúng, điều đầu tiên là:
 
 > cả năm họ đều không bác bỏ được **Hansen SPA** so nền chỉ-σ̂ ở α = 0,05
 
-`src/metrics.py` có **MCS** (Hansen–Lunde–Nason 2011) nhưng **không có SPA**
-(Hansen 2005). Nên tiêu chí dừng hiện **chưa đóng được** — luận văn không phát
-biểu được "cả họ mô hình không thắng nền" một cách chính thức.
+`src/metrics.py::spa_test()` viết xong (Hansen 2005, tự kiểm đạt). Áp dụng cho
+**Giai đoạn 1** (`run_spa.py`) và ba họ còn thiếu của Giai đoạn 2 — **H2 motif**
+(`run_h2_motif.py`), **H3 rule-list** (`run_h3_rulelist.py`), **H5 chế độ tự
+tương quan** (`run_h5_chedo.py`), so SPA qua `run_spa_ho2.py` — kết quả đầy đủ
+ở `docs/GIAIDOAN2_QUYLUAT.md` mục 6.3: **không họ nào bác bỏ H0** so nền
+"chỉ σ̂" (H2 p=0,929 · H3 p=0,902 · H5 p=0,562), khớp Giai đoạn 1 (bác bỏ ở
+h=5/h=20 nhưng đó chính là nền đang chạy, không phải quy luật thay thế).
 
-Việc: cài SPA vào `metrics.py`, chạy trên năm họ, ghi vào `GIAIDOAN2_QUYLUAT.md`.
+**Điều kiện SPA đã đóng cho cấu hình h=1/mục tiêu P**, và điều kiện thứ hai
+("không quy luật nào qua ngưỡng sau LOPO") **cũng đúng** — cả sáu nhánh đều 0
+quy luật.
 
-### B2. Nâng lực phát hiện của phễu
+*(Bản đầu của mục này ghi H3 tìm được một quy luật ngoại lệ. Soi kỹ lại thì đó
+là artefact của một lỗi dữ liệu — 3.306 hàng bị bịa lợi suất bằng 0; đã sửa,
+đã rút lại quy luật, đã chạy lại toàn bộ. Xem `docs/CHISO_DANHGIA.md` mục 13.
+Phần thưởng đi kèm: lực phát hiện của phễu tăng từ lift 1,35 lên **1,20**.)*
+
+Việc còn ngỏ nếu muốn khép 10.4 tuyệt đối: đo thêm mục tiêu R và các tầm hạn
+5/20 (hiện mới có h=1/mục tiêu P).
+
+### B2. Nâng lực phát hiện của phễu — **ĐÃ ĐẠT, nhưng bằng đường không ai ngờ (08/09/2026)**
+
+> **Kết quả cuối:** MDES đi từ **1,35 xuống 1,20** — đúng mức mà mục này đặt ra
+> làm mục tiêu ở dòng cuối. Nhưng nó **không** đến từ FDR (đã thử, không ăn
+> tiền — `CHISO_DANHGIA.md` mục 9.1), mà từ việc **sửa một lỗi dữ liệu**:
+> 3.306 hàng khởi động bị bịa lợi suất bằng 0 và gán hết vào lớp "đi ngang",
+> làm hỏng mẫu nền của cả Giai đoạn 2 (`CHISO_DANHGIA.md` mục 13). Bài học đáng
+> ghi vào luận văn: khi lực phát hiện yếu, hãy **kiểm tra dữ liệu trước khi đổi
+> phương pháp thống kê** — ở đây dữ liệu cho nhiều gấp bội mọi thủ thuật.
+>
+> Số bên dưới là bằng chứng gốc lúc lập kế hoạch, giữ nguyên làm hồ sơ.
 
 **Bằng chứng.** `kiem_pheu.py` đo được: hiệu ứng nhỏ nhất phát hiện được ở lực
 80% là **lift 1,35**. Ở 1,20 lực chỉ 40%, ở 1,15 còn 8%. Nên kết luận hiện tại
@@ -199,16 +236,25 @@ lịch sử) và kéo tới 2026-08 (chồng tập khoá sổ, phải cắt).
 ## Thứ tự đề nghị
 
 ```
-A1 đuôi USDJPY  →  A2 hiệu chuẩn lại  →  A3 chọn theo chế độ
-                        ↓
-              B1 Hansen SPA  →  B2 FDR + đo lại lực
-                        ↓
-              C chốt cấu hình, ký biên bản
-                        ↓
-              D mở niêm phong — MỘT LẦN
+A1 đuôi USDJPY (ĐÓNG)  →  A2 hiệu chuẩn lại (ĐÓNG)  →  A3 chọn theo chế độ (ĐÓNG)
+                                  ↓
+     B1 Hansen SPA (ĐÓNG cho cả 5 họ ở h=1/P — 1 ngoại lệ hẹp ở LOPO, xem trên)
+                                  ↓
+                       B2 FDR (ĐÓNG) + CAViaR (ĐÓNG)
+                                  ↓
+                    C chốt cấu hình, ký biên bản
+                                  ↓
+                    D mở niêm phong — MỘT LẦN
 
      (E chạy song song suốt: sổ dự báo, token, merge)
 ```
 
-A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện. B1 trước B2 vì SPA
-là điều kiện đã ghi trong kế hoạch, còn B2 là cải tiến tuỳ chọn.
+A1 trước vì nó là lỗi sản phẩm đang tồn tại trên giao diện — nay đã đóng (ba
+hướng đều thử, không hướng nào ăn tiền, xem mục A1 và `CHISO_DANHGIA.md` mục
+5c/5d/9.2). A3 cũng đã thử và không ăn tiền trên mô hình sản xuất thật (mục
+A3, `CHISO_DANHGIA.md` mục 10). B1 giờ đã đóng cho cấu hình h=1/mục tiêu P
+(cả năm họ, kể cả H2/H3/H5 mới viết) — xem `docs/GIAIDOAN2_QUYLUAT.md` mục
+5–6. Đợt A và Đợt B coi như xong ở cấu hình đã chạy; việc còn ngỏ trước Đợt C
+là quyết định có cần đo thêm mục tiêu R và các tầm hạn 5/20 để khép B1 tuyệt
+đối, hay chấp nhận bằng chứng hiện tại (nghiêng rất mạnh, một ngoại lệ hẹp
+không đủ sức thắng SPA) và chuyển sang C.

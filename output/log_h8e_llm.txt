@@ -1,0 +1,55 @@
+================================================================================================================
+PHA 2 / H8e — TRÍCH XUẤT CÓ CẤU TRÚC BẰNG LLM (Historical + News)
+================================================================================================================
+129 thông cáo đã gán nhãn / 129 thông cáo có văn bản
+
+  điều hướng:
+    dieu_huong
+    hon_hop     50
+    bo_cau      48
+    dieu_hau    31
+
+  bất định:
+    bat_dinh
+    trung_binh    84
+    cao           38
+    thap           7
+
+  đổi lập trường:
+    thay_doi_lap_truong
+    co       69
+    khong    60
+
+  phụ thuộc dữ liệu:
+    phu_thuoc_du_lieu
+    manh    110
+    vua      11
+    yeu       8
+
+
+tự kiểm rò rỉ — nhãn KHÔNG được xuất hiện ở chính phiên họp…
+  0 vi phạm  ĐẠT
+
+KHÔNG GIAN GIẢ THUYẾT H8e: 17 vị từ × 3 lớp = 51 giả thuyết — liệt kê đầy đủ, biết trước
+bộ kiểm soát: 4 biến gốc + chỉ báo lịch họp (3,870 phiên trong cửa sổ sau họp)
+phát hiện 18,306 hàng · xác nhận 4,354 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 2.96 · 95% 3.16
+      17/17 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 4 (nếu toàn nhiễu kỳ vọng 3)
+
+→ KHÔNG vị từ nào sống sót Westfall–Young.
+
+================================================================================================================
+PHỄU H8e (trích xuất LLM từ thông cáo FOMC)      còn lại
+không gian giả thuyết                                 51
+đủ số lần khớp                                        17
+thô p<0,05                                             4
+sống sót Westfall–Young                                0
+còn tin riêng sau đối chứng (đã khử lịch)              0
+chuyển giao được (LOPO)                                0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/h8e_llm.json — 13s
+TỰ KIỂM ĐẠT

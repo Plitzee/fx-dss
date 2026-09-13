@@ -1,0 +1,42 @@
+====================================================================================================
+KIỂM CHỨNG PHỄU GIAI ĐOẠN 2 (D1) — đối chứng âm và đối chứng dương
+====================================================================================================
+630 vị từ × 3 lớp = 1,890 giả thuyết · 18,306 hàng phát hiện
+
+[0/2] Giá trị tới hạn max|z| dưới null khối (khối 5)…
+      giá trị tới hạn 95% = 3.90
+
+[1/2] ĐỐI CHỨNG ÂM — xáo trộn khối kết cục, phễu phải ra ~0
+      lần  1: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  2: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  3: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  4: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  5: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  6: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  7: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  8: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần  9: vượt ngưỡng   0 · qua điều kiện hoá 0
+      lần 10: vượt ngưỡng   0 · qua điều kiện hoá 0
+      → trung bình 0.0 dương tính giả / 1,890 giả thuyết
+
+[2/2] ĐỐI CHỨNG DƯƠNG — tiêm quy luật đã biết, 60 lần mỗi mức
+      575 vị từ đủ ≥300 lần khớp làm giá đỡ
+
+       lift đặt  lift thực  |z| trung vị    bắt được      lực
+           1.02      1.044          0.65       4/60        7%
+           1.05      1.062          1.57       2/60        3%
+           1.10      1.108          3.05       5/60        8%
+           1.15      1.151          4.30      37/60       62%
+           1.20      1.198          5.74      53/60       88%
+           1.35      1.344          9.50      59/60       98%
+           1.50      1.507         14.35      60/60      100%
+
+====================================================================================================
+HIỆU ỨNG NHỎ NHẤT PHÁT HIỆN ĐƯỢC (lực 80%): lift = 1.20
+→ Kết luận 0/1,890 nay phát biểu được thành: phễu này bắt được
+  quy luật có lift ≥ 1.20 với xác suất ≥ 80%, nên mọi quy luật
+  mạnh hơn thế đã bị loại trừ trên dữ liệu này.
+Dương tính giả trên nhiễu thuần: 0.0/1,890
+====================================================================================================
+đã ghi output/kiem_pheu.json · 466s
+TỰ KIỂM ĐẠT

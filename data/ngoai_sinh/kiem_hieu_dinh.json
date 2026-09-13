@@ -1,0 +1,24 @@
+{
+ "moc": "2024-06-28",
+ "ket_qua": {
+  "DGS10": {
+   "n": 3875,
+   "khac": 0,
+   "ty_le": 0.0,
+   "dat": true
+  },
+  "VIXCLS": {
+   "n": 3914,
+   "khac": 4,
+   "ty_le": 0.1022,
+   "dat": true
+  },
+  "DCOILBRENTEU": {
+   "n": 3914,
+   "khac": 0,
+   "ty_le": 0.0,
+   "dat": true
+  }
+ },
+ "dat": true
+}

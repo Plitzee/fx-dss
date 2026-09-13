@@ -1,0 +1,633 @@
+{
+ "buoc": 63,
+ "dam": 750,
+ "muc": [
+  0.05,
+  0.01
+ ],
+ "cap": [
+  "EURUSD",
+  "GBPUSD",
+  "USDJPY",
+  "AUDUSD",
+  "USDCAD",
+  "USDCHF"
+ ],
+ "kiem_dinh": {
+  "0.05": {
+   "EURUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0622,
+     "ky_vong": 0.05,
+     "kupiec": 0.208,
+     "chris": 0.3669,
+     "dq": 0.4758,
+     "ty_le_es": 1.0025,
+     "dat": true,
+     "pinball": 0.10456
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0658,
+     "ky_vong": 0.05,
+     "kupiec": 0.1048,
+     "chris": 0.2871,
+     "dq": 0.2546,
+     "ty_le_es": 1.0042,
+     "dat": true,
+     "pinball": 0.10413,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0713,
+     "ky_vong": 0.05,
+     "kupiec": 0.0312,
+     "chris": 0.5959,
+     "dq": 0.0926,
+     "ty_le_es": 1.0178,
+     "dat": false,
+     "pinball": 0.1039,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0622,
+     "ky_vong": 0.05,
+     "kupiec": 0.208,
+     "chris": 0.3669,
+     "dq": 0.4812,
+     "ty_le_es": 1.0034,
+     "dat": true,
+     "pinball": 0.10447,
+     "phan_ky": false
+    }
+   },
+   "GBPUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.6048,
+     "ty_le_es": 1.017,
+     "dat": true,
+     "pinball": 0.1094
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.6118,
+     "ty_le_es": 1.0143,
+     "dat": true,
+     "pinball": 0.10971,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.8409,
+     "ty_le_es": 1.0082,
+     "dat": true,
+     "pinball": 0.10948,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.5702,
+     "dq": 0.6151,
+     "ty_le_es": 1.012,
+     "dat": true,
+     "pinball": 0.10973,
+     "phan_ky": false
+    }
+   },
+   "USDJPY": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.5961,
+     "dq": 0.6576,
+     "ty_le_es": 0.9475,
+     "dat": true,
+     "pinball": 0.12695
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0567,
+     "ky_vong": 0.05,
+     "kupiec": 0.4828,
+     "chris": 0.8142,
+     "dq": 0.8771,
+     "ty_le_es": 0.9695,
+     "dat": true,
+     "pinball": 0.12662,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.5961,
+     "dq": 0.3081,
+     "ty_le_es": 0.9354,
+     "dat": true,
+     "pinball": 0.12632,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0567,
+     "ky_vong": 0.05,
+     "kupiec": 0.4828,
+     "chris": 0.5394,
+     "dq": 0.7938,
+     "ty_le_es": 0.9672,
+     "dat": true,
+     "pinball": 0.12675,
+     "phan_ky": false
+    }
+   },
+   "AUDUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.064,
+     "ky_vong": 0.05,
+     "kupiec": 0.1495,
+     "chris": 0.3253,
+     "dq": 0.0869,
+     "ty_le_es": 1.0282,
+     "dat": true,
+     "pinball": 0.10283
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0676,
+     "ky_vong": 0.05,
+     "kupiec": 0.0717,
+     "chris": 0.7451,
+     "dq": 0.0274,
+     "ty_le_es": 1.0321,
+     "dat": false,
+     "pinball": 0.10362,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0713,
+     "ky_vong": 0.05,
+     "kupiec": 0.0312,
+     "chris": 0.8912,
+     "dq": 0.018,
+     "ty_le_es": 1.0416,
+     "dat": false,
+     "pinball": 0.10391,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.064,
+     "ky_vong": 0.05,
+     "kupiec": 0.1495,
+     "chris": 0.3253,
+     "dq": 0.088,
+     "ty_le_es": 1.0308,
+     "dat": true,
+     "pinball": 0.10277,
+     "phan_ky": false
+    }
+   },
+   "USDCAD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.7504,
+     "dq": 0.7006,
+     "ty_le_es": 0.9729,
+     "dat": true,
+     "pinball": 0.10051
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0475,
+     "ky_vong": 0.05,
+     "kupiec": 0.7895,
+     "chris": 0.8167,
+     "dq": 0.737,
+     "ty_le_es": 0.9753,
+     "dat": true,
+     "pinball": 0.1003,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.053,
+     "ky_vong": 0.05,
+     "kupiec": 0.7484,
+     "chris": 0.6254,
+     "dq": 0.42,
+     "ty_le_es": 0.9869,
+     "dat": true,
+     "pinball": 0.10091,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0494,
+     "ky_vong": 0.05,
+     "kupiec": 0.9451,
+     "chris": 0.7504,
+     "dq": 0.7259,
+     "ty_le_es": 0.9859,
+     "dat": true,
+     "pinball": 0.1007,
+     "phan_ky": false
+    }
+   },
+   "USDCHF": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.0189,
+     "dq": 0.0638,
+     "ty_le_es": 1.0174,
+     "dat": false,
+     "pinball": 0.11168
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0603,
+     "ky_vong": 0.05,
+     "kupiec": 0.2823,
+     "chris": 0.0101,
+     "dq": 0.0162,
+     "ty_le_es": 1.0279,
+     "dat": false,
+     "pinball": 0.11231,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0567,
+     "ky_vong": 0.05,
+     "kupiec": 0.4828,
+     "chris": 0.3362,
+     "dq": 0.4241,
+     "ty_le_es": 1.034,
+     "dat": true,
+     "pinball": 0.11031,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0548,
+     "ky_vong": 0.05,
+     "kupiec": 0.6085,
+     "chris": 0.0189,
+     "dq": 0.064,
+     "ty_le_es": 1.0187,
+     "dat": false,
+     "pinball": 0.11169,
+     "phan_ky": false
+    }
+   }
+  },
+  "0.01": {
+   "EURUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.2794,
+     "ty_le_es": 0.9777,
+     "dat": true,
+     "pinball": 0.02919
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.4236,
+     "ty_le_es": 0.9425,
+     "dat": true,
+     "pinball": 0.02857,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0091,
+     "ky_vong": 0.01,
+     "kupiec": 0.8376,
+     "chris": 0.7611,
+     "dq": 0.8503,
+     "ty_le_es": 0.8862,
+     "dat": true,
+     "pinball": 0.02861,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.2766,
+     "ty_le_es": 0.9952,
+     "dat": true,
+     "pinball": 0.02899,
+     "phan_ky": false
+    }
+   },
+   "GBPUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0091,
+     "ky_vong": 0.01,
+     "kupiec": 0.8376,
+     "chris": 0.7611,
+     "dq": 0.9988,
+     "ty_le_es": 1.0012,
+     "dat": true,
+     "pinball": 0.03155
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0073,
+     "ky_vong": 0.01,
+     "kupiec": 0.5071,
+     "chris": 0.808,
+     "dq": 0.9944,
+     "ty_le_es": 0.8822,
+     "dat": true,
+     "pinball": 0.03342,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0073,
+     "ky_vong": 0.01,
+     "kupiec": 0.5071,
+     "chris": 0.808,
+     "dq": 0.9982,
+     "ty_le_es": 0.9855,
+     "dat": true,
+     "pinball": 0.03151,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9918,
+     "ty_le_es": 0.9536,
+     "dat": true,
+     "pinball": 0.03337,
+     "phan_ky": false
+    }
+   },
+   "USDJPY": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9957,
+     "ty_le_es": 0.8126,
+     "dat": true,
+     "pinball": 0.04343
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9991,
+     "ty_le_es": 0.8035,
+     "dat": true,
+     "pinball": 0.04463,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.8511,
+     "ty_le_es": 0.7913,
+     "dat": true,
+     "pinball": 0.04531,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9981,
+     "ty_le_es": 0.8228,
+     "dat": true,
+     "pinball": 0.04388,
+     "phan_ky": false
+    }
+   },
+   "AUDUSD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9981,
+     "ty_le_es": 1.0237,
+     "dat": true,
+     "pinball": 0.02651
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0091,
+     "ky_vong": 0.01,
+     "kupiec": 0.8376,
+     "chris": 0.7611,
+     "dq": 0.9977,
+     "ty_le_es": 1.0377,
+     "dat": true,
+     "pinball": 0.02639,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9946,
+     "ty_le_es": 1.0011,
+     "dat": true,
+     "pinball": 0.02672,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.011,
+     "ky_vong": 0.01,
+     "kupiec": 0.8226,
+     "chris": 0.715,
+     "dq": 0.9979,
+     "ty_le_es": 1.0387,
+     "dat": true,
+     "pinball": 0.02644,
+     "phan_ky": false
+    }
+   },
+   "USDCAD": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.0621,
+     "ty_le_es": 1.0589,
+     "dat": true,
+     "pinball": 0.02558
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0165,
+     "ky_vong": 0.01,
+     "kupiec": 0.1652,
+     "chris": 0.5828,
+     "dq": 0.0486,
+     "ty_le_es": 1.0766,
+     "dat": false,
+     "pinball": 0.02549,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0128,
+     "ky_vong": 0.01,
+     "kupiec": 0.5286,
+     "chris": 0.6698,
+     "dq": 0.0386,
+     "ty_le_es": 1.0288,
+     "dat": false,
+     "pinball": 0.0259,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.6257,
+     "dq": 0.8715,
+     "ty_le_es": 1.0679,
+     "dat": true,
+     "pinball": 0.02537,
+     "phan_ky": false
+    }
+   },
+   "USDCHF": {
+    "V1 mở rộng": {
+     "n": 547,
+     "vi_pham": 0.0219,
+     "ky_vong": 0.01,
+     "kupiec": 0.0154,
+     "chris": 0.2563,
+     "dq": 0.0031,
+     "ty_le_es": 1.3245,
+     "dat": false,
+     "pinball": 0.03381
+    },
+    "CAViaR SAV": {
+     "n": 547,
+     "vi_pham": 0.0201,
+     "ky_vong": 0.01,
+     "kupiec": 0.0367,
+     "chris": 0.2097,
+     "dq": 0.0033,
+     "ty_le_es": 1.2887,
+     "dat": false,
+     "pinball": 0.03514,
+     "phan_ky": false
+    },
+    "CAViaR AS": {
+     "n": 547,
+     "vi_pham": 0.0146,
+     "ky_vong": 0.01,
+     "kupiec": 0.3091,
+     "chris": 0.0034,
+     "dq": 0.0,
+     "ty_le_es": 1.197,
+     "dat": false,
+     "pinball": 0.03318,
+     "phan_ky": false
+    },
+    "CAViaR IG": {
+     "n": 547,
+     "vi_pham": 0.0183,
+     "ky_vong": 0.01,
+     "kupiec": 0.081,
+     "chris": 0.1678,
+     "dq": 0.062,
+     "ty_le_es": 1.2993,
+     "dat": true,
+     "pinball": 0.0339,
+     "phan_ky": false
+    }
+   }
+  }
+ },
+ "tong_ket": {
+  "V1 mở rộng": {
+   "dat_05": 5,
+   "dat_01": 5,
+   "pinball_tb": 0.07050000000000001
+  },
+  "CAViaR SAV": {
+   "dat_05": 4,
+   "dat_01": 4,
+   "pinball_tb": 0.07086083333333333
+  },
+  "CAViaR AS": {
+   "dat_05": 4,
+   "dat_01": 4,
+   "pinball_tb": 0.070505
+  },
+  "CAViaR IG": {
+   "dat_05": 5,
+   "dat_01": 6,
+   "pinball_tb": 0.07067166666666667
+  }
+ },
+ "giay": 309.8
+}

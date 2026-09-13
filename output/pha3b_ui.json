@@ -1,0 +1,131 @@
+{
+ "pheu": {
+  "khong_gian": 594,
+  "khai_bao": 594,
+  "tho": 214,
+  "ky_vong_nhieu": 30,
+  "hoan_vi": 130,
+  "fdr": 51,
+  "wy": 14,
+  "do_vung": 30,
+  "vao_E3": 14,
+  "thoi_phong": 7.2,
+  "n_hoan_vi": 1000,
+  "khoi": 5
+ },
+ "quan_he": [
+  {
+   "truc": "biên độ",
+   "bien": "lịch công bố vĩ mô (ngoài NHTW)",
+   "lag": 1,
+   "so_cap": 6,
+   "F_max": 67.51753582315649,
+   "p_wy": 0.0029970029970029,
+   "dau": "âm"
+  },
+  {
+   "truc": "biên độ",
+   "bien": "lịch công bố vĩ mô (ngoài NHTW)",
+   "lag": 2,
+   "so_cap": 5,
+   "F_max": 39.6230330143908,
+   "p_wy": 0.0069930069930069,
+   "dau": "âm"
+  },
+  {
+   "truc": "biên độ",
+   "bien": "lịch công bố vĩ mô (ngoài NHTW)",
+   "lag": 5,
+   "so_cap": 2,
+   "F_max": 22.316343324829194,
+   "p_wy": 0.0139860139860139,
+   "dau": "dương"
+  },
+  {
+   "truc": "biên độ",
+   "bien": "ẩn ý biến động cổ phiếu Mỹ (VIX)",
+   "lag": 1,
+   "so_cap": 1,
+   "F_max": 15.711901672141057,
+   "p_wy": 0.0419580419580419,
+   "dau": "dương"
+  }
+ ],
+ "theo_truc": {
+  "biên độ": 198,
+  "hướng": 198,
+  "rủi ro": 198
+ },
+ "song_sot_theo_truc": {
+  "biên độ": 14,
+  "hướng": 0,
+  "rủi ro": 0
+ },
+ "ablation": [
+  {
+   "ten": "B0",
+   "n_dt": 0,
+   "qlike_kt": 0.18724818047143718,
+   "so_B0": 0.0,
+   "dm_p": null
+  },
+  {
+   "ten": "E1",
+   "n_dt": 171,
+   "qlike_kt": 0.22445014434640578,
+   "so_B0": 19.867730506809057,
+   "dm_p": 2.5373548573348614e-07
+  },
+  {
+   "ten": "E2",
+   "n_dt": 15,
+   "qlike_kt": 0.19471151795124855,
+   "so_B0": 3.9857997343530016,
+   "dm_p": 0.03241907834128499
+  },
+  {
+   "ten": "E3",
+   "n_dt": 15,
+   "qlike_kt": 0.1887409595400073,
+   "so_B0": 0.797219532286908,
+   "dm_p": 0.7461838152600979
+  },
+  {
+   "ten": "E4",
+   "n_dt": 45,
+   "qlike_kt": 0.1876261901847053,
+   "so_B0": 0.201876307858595,
+   "dm_p": 0.9376585440178025
+  }
+ ],
+ "cau_hoi_trung_tam": {
+  "chenh": -3.0663611860578976,
+  "dm_p": 0.0010117860464951,
+  "troi_E2": 10.14,
+  "troi_E3": 4.99
+ },
+ "truc_huong": {
+  "bss_B0": 0.00040952750880107747,
+  "bss_E3": 0.00024080849088370382,
+  "auc_E3": 0.5217355954716154
+ },
+ "truc_rui_ro": {
+  "ky_nang_B0": 0.021545776480982104,
+  "ky_nang_E3": 0.02194406357012646,
+  "phu_B0": 0.7989031078610603,
+  "phu_E3": 0.8004265691651432
+ },
+ "mdes": {
+  "qlike": 0.9708425472965909,
+  "luc": 0.9133333333333333,
+  "doi_chung_am": true,
+  "nguong_F": 15.081786290049049
+ },
+ "ket_luan": {
+  "duong": "14/594 quan hệ **dẫn báo theo thời gian** sống sót kiểm soát đa kiểm định và màn lọc độ vững — lần đầu trong dự án. Toàn bộ nằm trên trục **biên độ**.",
+  "am": "Nhưng **không cấu hình nào thắng được mốc** trên đoạn kiểm tra: ném hết vào +19.9%, chọn đặc trưng thường +4.0%, lọc nhân quả +0.8%.",
+  "trung_tam": "Điều lọc nhân quả làm được là **phòng thủ**: so với chọn đặc trưng thông thường nó tốt hơn 3.07% (p=0.0010) và giảm một nửa mức sụp đổ ngoài mẫu.",
+  "ngon_tu": "Đây là **quan hệ dẫn báo theo thời gian** (bằng chứng Granger), KHÔNG phải quan hệ nhân quả đã được chứng minh."
+ },
+ "nguon": "docs/PHA3B_KETQUA.md"
+}

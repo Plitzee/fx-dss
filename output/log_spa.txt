@@ -1,0 +1,42 @@
+====================================================================================================
+B1 (một phần) — Hansen SPA: họ mô hình Giai đoạn 1 so nền "chỉ σ̂"
+====================================================================================================
+PHẠM VI: chỉ họ mô hình biến động của run_balop.py — KHÔNG bao phủ
+H2 (motif), H3 (rule-list), H5 đầy đủ (chưa có code). Xem docstring.
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 1 phiên
+  mục tiêu P: n=3,282  T_SPA=0.8053  p=0.4670  KHÔNG bác bỏ H0
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): tổ hợp trực tuyến  Δlog=+0.00008
+  mục tiêu R: n=3,282  T_SPA=2.3009  p=0.0710  KHÔNG bác bỏ H0
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): khí hậu học  Δlog=+0.00105
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 5 phiên
+  mục tiêu P: n=3,282  T_SPA=2.2130  p=0.0240  BÁC BỎ H0 (có ứng viên thắng nền)
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): σ̂ + chế độ (cuộn)  Δlog=+0.00418
+  mục tiêu R: n=3,282  T_SPA=1.9673  p=0.1110  KHÔNG bác bỏ H0
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): σ̂ + chế độ (cuộn)  Δlog=+0.00335
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+TẦM HẠN h = 20 phiên
+  mục tiêu P: n=3,282  T_SPA=3.2526  p=0.0000  BÁC BỎ H0 (có ứng viên thắng nền)
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): σ̂ + chế độ (cuộn)  Δlog=+0.00810
+  mục tiêu R: n=3,282  T_SPA=3.5995  p=0.0010  BÁC BỎ H0 (có ứng viên thắng nền)
+    ứng viên tốt nhất (thô, chưa hiệu chỉnh bội): σ̂ + chế độ (cuộn)  Δlog=+0.00847
+
+====================================================================================================
+TỔNG KẾT — bác bỏ H0 (⇔ có ứng viên thắng nền, kiểm soát thử nhiều lần)
+  h/mục tiêu       p-value   bác bỏ ở α=0,05
+  h1_P              0.4670             không
+  h1_R              0.0710             không
+  h5_P              0.0240                CÓ
+  h5_R              0.1110             không
+  h20_P             0.0000                CÓ
+  h20_R             0.0010                CÓ
+
+→ output/spa.json
+
+NHẮC LẠI PHẠM VI: kết quả này chỉ nói về họ mô hình run_balop.py.
+Tiêu chí dừng đầy đủ ở REPLAN_2026.md mục 10.4 ("cả năm họ") CHƯA
+đóng — H2/H3/H5 chưa có code để sinh chuỗi tổn thất tương ứng.

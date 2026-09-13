@@ -132,7 +132,66 @@ def mcs(losses, alpha=0.10, B=1000, block=20, seed=0):
         alive.pop(worst)
     return alive, elim
 
-# ── 7. Kiem chung noi bo
+# ── 7. Superior Predictive Ability (Hansen 2005), p-value NHAT QUAN
+def spa_test(losses_nen, losses_cac, B=1000, block=20, seed=0, nhom=None):
+    """Hansen (2005) "A Test for Superior Predictive Ability", phien ban
+    p-value NHAT QUAN (consistent), khong phai lower/upper bound.
+
+    H0: KHONG ung vien nao trong tap thang duoc nen mot cach CO Y NGHIA — dung
+    de phat bieu "ca ho ung vien khong thang nen" thay vi tung ung vien mot
+    (khac MCS: MCS loai dan trong mot tap doi xung, SPA so MOI ung vien voi
+    MOT nen CO DINH, mot phia).
+
+    losses_nen: (T,) ton that (vd log-loss/QLIKE) cua NEN, tung phien.
+    losses_cac: (T, M) ton that cua M ung vien, CUNG chi so thoi gian.
+    d[:, m] = losses_nen - losses_cac[:, m]  — DUONG nghia ung vien m tot hon
+    nen; H0 la max_m E[d_m] <= 0.
+
+    Buoc TAI TAM CENTERING theo Hansen (2005) muc 3.2: ung vien co dbar_m ram
+    (< -A_m, A_m = sqrt(var_m) * sqrt(2 ln ln T)) duoc keo ve 0 truoc khi dung
+    lam tam cho phan phoi null bootstrap — tranh mot ung vien te ro rang lam
+    hep gia gia tri toi han, giu p-value NHAT QUAN duoi ca H0 va gan H0.
+
+    `nhom` (tuy chon): nhan nhom (vd cap tien te) khi da GOP nhieu chuoi thoi
+    gian doc lap thanh mot mang phang — khoi bootstrap duoc lay RIENG trong
+    tung nhom roi ghep lai, tranh mot khoi tran qua ranh gioi hai chuoi khong
+    lien quan (dung pattern nhu diem3.bss_ktc).
+
+    Tra ve (p, T_SPA). p nho (< alpha) => bac bo H0, TON TAI ung vien thang
+    nen co y nghia. p lon => khong ung vien nao thang nen co y nghia — dung
+    day de dong tieu chi dung cua Giai doan 2 (REPLAN_2026.md muc 10.4)."""
+    losses_nen = np.asarray(losses_nen, float)
+    losses_cac = np.asarray(losses_cac, float)
+    if losses_cac.ndim == 1:
+        losses_cac = losses_cac[:, None]
+    T, M = losses_cac.shape
+    d = losses_nen[:, None] - losses_cac                       # (T, M)
+    dbar = d.mean(0)
+    rng = np.random.default_rng(seed)
+    g_idx = np.zeros(T, int) if nhom is None else np.asarray(nhom)
+    chi = [np.flatnonzero(g_idx == v) for v in np.unique(g_idx)]
+    boot_idx = np.empty((B, T), int)
+    for b in range(B):
+        lay = []
+        for c in chi:
+            m = len(c)
+            nk = int(np.ceil(m / block))
+            starts = rng.integers(0, max(m - block, 1), nk)
+            lay.append(c[np.concatenate([np.arange(s, min(s + block, m))
+                                         for s in starts])[:m]])
+        boot_idx[b] = np.concatenate(lay)
+    d_boot = d[boot_idx].mean(axis=1)                          # (B, M)
+    var = d_boot.var(axis=0, ddof=1) + 1e-30
+    se = np.sqrt(var)
+    A = se * np.sqrt(2 * np.log(np.log(max(T, 3))))            # nguong tai tam
+    g = np.where(dbar >= -A, dbar, 0.0)                        # keo ung vien ram ve 0
+    T_SPA = float(max(0.0, np.nanmax(dbar / se)))
+    z_boot = (d_boot - g[None, :]) / se[None, :]
+    T_SPA_boot = np.maximum(0.0, np.nanmax(z_boot, axis=1))
+    p = float((T_SPA_boot >= T_SPA).mean())
+    return p, T_SPA
+
+# ── 8. Kiem chung noi bo
 if __name__ == "__main__":
     print("KIEM CHUNG CAI DAT")
     print("-"*70)
@@ -170,3 +229,22 @@ if __name__ == "__main__":
     L2 = np.column_stack([rng.normal(0,1,500), rng.normal(0,1,500), rng.normal(3,1,500)])
     keep2,el = mcs(L2, alpha=0.10, B=400, seed=1)
     print(f"MCS khi mo hinh 3 te ro rang  : giu lai {sorted(keep2)} (ky vong [0, 1])")
+    # SPA: duoi H0 (khong ung vien nao thang nen), ty le bac bo phai gan danh nghia
+    rej = []
+    for i in range(300):
+        ln = rng.normal(1.0, 1.0, 400)
+        lc = rng.normal(1.0, 1.0, (400, 4))         # 4 ung vien TUONG DUONG nen
+        p, _ = spa_test(ln, lc, B=300, block=10, seed=i)
+        rej.append(p < 0.05)
+    print(f"SPA sai lam loai I duoi H0 (danh nghia 5%): {np.mean(rej):.3f}")
+    assert np.mean(rej) < 0.12, "ty le bac bo duoi H0 phai gan 5%, khong duoc phong dai"
+    # SPA: mot ung vien thang nen RO RANG -> phai bac bo hau het cac lan
+    rej2 = []
+    for i in range(100):
+        ln = rng.normal(1.0, 1.0, 400)
+        lc = np.column_stack([rng.normal(1.0, 1.0, 400), rng.normal(1.0, 1.0, 400),
+                              rng.normal(0.7, 1.0, 400)])   # ung vien thu 3 tot han han
+        p, _ = spa_test(ln, lc, B=300, block=10, seed=i)
+        rej2.append(p < 0.05)
+    print(f"SPA luc thuc su co ung vien thang nen: bac bo {np.mean(rej2):.3f} (kỳ vọng cao)")
+    assert np.mean(rej2) > 0.7, "phai bac bo H0 phan lon khi co ung vien thang nen ro rang"

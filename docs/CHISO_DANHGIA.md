@@ -264,6 +264,93 @@ hỏng, vì đó đúng là data snooping mà cả giao thức này sinh ra đ�
 
 ---
 
+## 5d. Phân vị theo chế độ — hướng cuối của A1, **cũng không ăn tiền** (08/09/2026)
+
+`src/va_duoi_chedo.py`, `output/va_duoi_chedo.json`. CAViaR (mục 9.2) đã thử
+hướng "đuôi động"; đây là hướng còn lại — "đuôi có điều kiện theo chế độ" —
+đóng nốt danh sách hướng đề nghị ở mục 5c.
+
+**Chế độ**: tam phân vị của σ̂ trên huấn luyện, đúng công thức `SigmaCheDo`
+(`balop.py`), 3 nhóm êm/vừa/căng, ngưỡng chốt trên huấn luyện áp cho cả chuỗi.
+
+**Hai biến thể**, so trực tiếp với mốc V0/V1 vô điều kiện, chọn trên kiểm định:
+
+| phương án | α=0,05 | α=0,01 |
+|---|---|---|
+| V0 mốc (vô điều kiện, huấn luyện) | 4/6 | 4/6 |
+| **V1 mốc (vô điều kiện, mở rộng — đang chạy)** | **5/6** | **5/6** |
+| V0 chế độ (cố định theo chế độ) | 4/6 | 3/6 |
+| V1 chế độ (mở rộng theo chế độ) | 4/6 | 4/6 |
+
+Cả hai biến thể theo chế độ đều **kém hơn** mốc đang chạy (V1), không phải chỉ
+hoà. Phân tổ theo chế độ làm hỏng thêm những cặp mà V1 vô điều kiện đang đạt
+(EURUSD, GBPUSD, AUDUSD ở α=0,01) — mẫu bị chia nhỏ theo ba nhóm làm phân vị
+kém ổn định hơn, mà đổi lại không sửa được gì ở đúng chỗ cần sửa.
+
+Về USDJPY: **cả bốn phương án đều đạt** trên kiểm định (DQ 0,978–0,996) — nhất
+quán với ghi chú ở mục 5c rằng vấn đề JPY chỉ **lộ ra ở đoạn kiểm tra**, không
+phải kiểm định. Vì đoạn kiểm tra chưa được mở (đúng luật), không có cách nào
+xác nhận trên dữ liệu này liệu phân vị theo chế độ có sửa được lỗi thật hay
+không — nhưng vì bản thân nó đã thua ngay trên kiểm định, không có cơ sở để
+đẩy nó đi xa hơn.
+
+**Quyết định: giữ nguyên V1 mở rộng vô điều kiện — hướng A1 coi như đã đóng.**
+Ba hướng độc lập cho đuôi (phân vị vô điều kiện cuộn/mở rộng, CAViaR động,
+phân vị theo chế độ) đều không vượt được mốc trên kiểm định. Cảnh báo USDJPY
+trên giao diện tiếp tục giữ nguyên; A1 trong `docs/KEHOACH_CAITIEN.md` chuyển
+từ "còn một hướng chưa thử" sang "đã thử hết ba hướng, không hướng nào ăn
+tiền" — nếu muốn tiếp tục thì cần dữ liệu mới (biến ngoại sinh, xem mục "Còn
+để ngỏ" của `KEHOACH_CAITIEN.md`) chứ không phải biến thể thống kê khác của
+cùng một phân vị.
+
+---
+
+## 5e. Cửa sổ họp NHTW/FOMC — hướng thứ tư, **cũng không ăn tiền** (11/09/2026)
+
+`src/va_duoi_nhtw.py`, `output/va_duoi_nhtw.json`. Sau khi ba hướng ở mục 5c/
+5d/9.2 đều thất bại, một chẩn đoán mới (carry USDJPY nhảy từ ~2%/năm lên
+5,18% năm 2023, đúng giai đoạn `sd(z)` vỡ) gợi ý hướng thứ tư gần với đề nghị
+"dữ liệu ngoại sinh" ở trên: **điều kiện hoá phân vị theo việc có đang trong
+cửa sổ K=5 phiên sau một kỳ họp NHTW (riêng cặp) hoặc FOMC hay không** — hai
+nhóm (không phải ba như mục 5d, tránh đúng lỗi phân mảnh mẫu đã làm che_do
+thất bại), lịch họp biết trước cả năm nên không rò rỉ (có tự kiểm riêng).
+
+**Trên kiểm định**: KHÔNG thắng mốc V1 vô điều kiện — 3/6 và 5/6 (α=0,05 và
+0,01) so với 5/6 và 5/6 của mốc, thậm chí làm hỏng thêm EURUSD và AUDUSD (hai
+cặp mốc đang đạt). Và **USDJPY đạt ở MỌI phương án trên kiểm định, kể cả mốc**
+(DQ=0,9957 mốc; 0,9942/0,9956 hai biến thể sự kiện) — lặp lại đúng hiện tượng
+đã ghi ở mục 5c/5d: vấn đề JPY chỉ lộ ra ở đoạn kiểm tra. Theo đúng quy tắc
+"chọn trên kiểm định", **không mở đoạn kiểm tra** — biến thể này thua trước
+khi tới bước đó.
+
+**Phát hiện quan trọng hơn cả kết quả âm**: đoạn kiểm định về cấu trúc **không
+thể phân biệt được** bất kỳ cách vá nào cho vấn đề USDJPY, vì chính vấn đề đó
+chỉ tồn tại trên kiểm tra. Đây không phải đặc thù của biến thể này — nó là
+giới hạn CỦA CHÍNH GIao thức chọn-trên-kiểm-định khi áp cho một lỗi chỉ hiện
+diện ngoài mẫu chọn. Hệ quả thực tế: **mọi hướng vá tương lai cho USDJPY sẽ
+gặp đúng bế tắc này**, trừ khi chấp nhận một trong hai điều — (a) chọn cấu
+hình dựa trên lý do kinh tế thay vì hiệu năng đo được trên kiểm định (rủi ro:
+không còn là lựa chọn ngoài mẫu nữa), hoặc (b) mở kiểm tra để CHẨN ĐOÁN (không
+phải chọn mô hình) rồi chấp nhận không quay lại sửa nữa dù kết quả thế nào.
+Cả hai đều là đánh đổi thực sự, không phải vấn đề kỹ thuật giải quyết được
+bằng biến thể thống kê khác.
+
+**Quyết định: giữ nguyên mốc đang chạy. Bốn hướng độc lập đã thử,
+không hướng nào ăn tiền.**
+
+> **ĐÍNH CHÍNH 13/09/2026.** Bản trước của đoạn này viết *"giữ nguyên V1 mở
+> rộng"* — **sai so với mã đang chạy**. `api/main.py::var_es` dòng 725 dùng
+> `np.quantile(z_tr, a)`, tức **V0 — phân vị z ước trên HUẤN LUYỆN, đóng
+> băng**, đúng như `KHOA_SO.md` mục 4.3 ghi. V1 là phương án đã thử ở mục 5c
+> và **bị loại** vì thua V0 trên kiểm tra. Câu sai này không làm đổi kết luận
+> nào (cả bốn hướng đều thất bại) nhưng nó ghi sai cấu hình sản xuất, nên
+> phải sửa. Cảnh báo USDJPY trên giao diện tiếp tục giữ
+nguyên. Khuyến nghị cho luận văn: trình bày đây là hạn chế đã biết, có chẩn
+đoán nguyên nhân khả dĩ (carry-unwind quanh họp BoJ) nhưng chưa có cách vá
+được xác nhận trong khuôn khổ giao thức chọn-trên-kiểm-định hiện tại.
+
+---
+
 ## 7. Phản ứng đo được của 14 loại sự kiện (05/09/2026)
 
 Sau khi nối FRED (`collect/lich_su_kien.py`), lịch mở rộng từ **7 NHTW / 901
@@ -366,3 +453,594 @@ liệu ra **hàng tuần**, thị trường ít bất ngờ hơn số liệu hà
 Vẫn không loại nào có thiên lệch hướng có ý nghĩa. Số lần kiểm độc lập tăng từ
 14 lên 18 loại, kết luận "sự kiện khuếch đại biên độ, không chỉ ra chiều" tiếp
 tục đứng vững.
+
+---
+
+## 9. Ba phương pháp hiện đại — đã thử, **cả ba không ăn tiền** (08/09/2026)
+
+Rà lại xem các phương pháp đang dùng có lỗi thời không, ba ứng viên được chọn vì
+đều đo được bằng công cụ sẵn có, không cần hạ tầng mới. Mục này ghi cả ba, kể cả
+hai cái thất bại — vì cái học được từ chúng đáng giá hơn bản thân phép thử.
+
+| # | Phương pháp | Thay cho | Kết quả |
+|---|---|---|---|
+| 1 | FDR Benjamini–Yekutieli | Westfall–Young FWER | **Không ăn tiền** — sai chỗ nghẽn |
+| 2 | CAViaR (Engle–Manganelli 2004) | Phân vị tĩnh `va_duoi.py` | **Không ăn tiền** — lãi chỉ đến từ nhiễu seed |
+| 3 | Fixed-Share (Herbster–Warmuth 1998) | Hedge trơn | **Không ăn tiền** — đo được, xấu đơn điệu |
+
+### 9.1 FDR thay FWER — cải thiện 1,2%, và cải thiện đó là giả
+
+> **Số đã chạy lại 08/09/2026** sau khi sửa lỗi bịa lợi suất (mục 13). Kết luận
+> **giữ nguyên: không đổi sang FDR.** Các con số then chốt sau khi sửa:
+>
+> | | trước | sau |
+> |---|---|---|
+> | ngưỡng \|z\| W-Y 95% (hạng 1) | 4,72 | **3,90** |
+> | ngưỡng \|z\| BY (hạng 1) | 4,71 | **4,36** — nay **chặt hơn** W-Y |
+> | BY bác bỏ trên dữ liệu thật | ~1.059 | **~295** |
+> | MDES W-Y / BY (k=1) | 1,306 / 1,290 | **1,188 / 1,175** |
+>
+> Lập luận chính càng vững hơn: BY nay **chặt hơn** W-Y ở hạng 1, và lợi thế
+> MDES vẫn chỉ ~1%. Phần bên dưới giữ nguyên bản gốc làm hồ sơ; các con số cụ
+> thể trong đó là của lần chạy trước khi sửa lỗi.
+
+`src/kiem_fdr.py`, `output/kiem_fdr.json`. 1.890 giả thuyết, 21.606 hàng.
+
+Trước hết phải vượt một rào kỹ thuật: ngưỡng BY ở hạng 1 là α/(m·c) = 3,3e-6,
+trong khi 1.000 hoán vị chỉ phân giải được tới 1e-3. Nên p thô đếm trực tiếp
+**không bao giờ** bác bỏ được gì qua cổng FDR. Cách vá là hiệu chuẩn đuôi chuẩn
+bằng hệ số phồng λ đo từ null (genomic control), rồi **kiểm chứng xấp xỉ đó** ở
+vùng cả hai cách đều đo được — lệch lớn nhất **1,3%**, chấp nhận được.
+
+Ngưỡng |z| tương đương ở hạng 1: W-Y 4,72 · BH 4,25 · **BY 4,71**. BY gần như
+trùng W-Y, đúng như lý thuyết dự báo (với một tín hiệu, BH = Bonferroni, BY còn
+chia thêm cho c(m) = 8,12).
+
+MDES đo bằng đối chứng dương, 60 lần lặp mỗi mức:
+
+| số tín hiệu tiêm | MDES W-Y | MDES BY |
+|---|---|---|
+| 1 | 1,306 | 1,290 |
+| 5 | 1,312 | 1,299 |
+
+BY nhạy hơn 1,2%. **Nhưng con số đó không dùng được**, vì ba lý do đo được:
+
+1. **k = 5 không khá hơn k = 1.** Nếu FDR đang ăn tiền nhờ nhiều tín hiệu cùng
+   lúc thì k = 5 phải hơn hẳn. Nó không hơn.
+2. **BY bác bỏ trung bình 1.056 giả thuyết** trên dữ liệu thật. Ngưỡng BH/BY
+   nới ra tỷ lệ thuận với số bị bác bỏ, nên cả lợi thế của BY đến từ 1.056 cái
+   đó — mà chúng là gì? 892 giả thuyết có |z| > 4,71, max |z| = 28, và chúng là
+   **các biến thể của σ̂**: "tính dai vol cao", "ATR phân vị cao", "|z| hôm nay
+   thấp" — tất cả đều là thước đo biến động, tất cả đều chỉ vào lớp *đi ngang*.
+   Lớp đi ngang định nghĩa bằng dải pip cố định, nên biến động thấp → đi ngang.
+   Đó đúng là phép lặp thừa mà `la_vi_tu_nen` sinh ra để chặn — nhưng nó chỉ bắt
+   đúng chữ "σ̂", bỏ lọt 11 đặc trưng biến động khác. **BY đang cưỡi lên phép
+   lặp thừa để nới ngưỡng của chính nó.**
+3. **Cổng đa kiểm định không phải chỗ nghẽn.** Đo trực tiếp trên dữ liệu thật:
+
+   | cổng | còn lại |
+   |---|---|
+   | 1.890 giả thuyết | 1.890 |
+   | cửa 1 — đa kiểm định, \|z\| > 4,72 | **891** (47%) |
+   | cửa 2 — điều kiện hoá theo σ̂ | **31** (3,5% số qua cửa 1) |
+   | *nếu bỏ hẳn cửa 1*, cửa 2 một mình | 55 |
+
+   Cửa 1 đang loại thêm đúng **24** giả thuyết mà cửa 2 sẽ cho qua. Tức toàn bộ
+   dư địa của việc nới cửa 1 — dù nới bằng FDR, e-value hay bỏ hẳn — là 24 giả
+   thuyết. Tinh chỉnh một cái cửa cho qua 47% là tinh chỉnh sai chỗ.
+
+**Quyết định: giữ Westfall–Young.** Ghi vào đây để `KEHOACH_2026Q4.md` §1.2
+được đóng lại, không phải vì quên mà vì đã đo.
+
+**Việc nên làm thay vào đó** (chưa làm): `la_vi_tu_nen` hiện chỉ loại 3/630 vị
+từ. Đúng ra phải loại mọi vị từ chỉ nói về biến động — thêm 11 đặc trưng nữa.
+Đó không phải mẹo thống kê mà là sửa **định nghĩa không gian quy luật**, và nó
+ảnh hưởng tới con số "0/1.890" đang báo cáo.
+
+### 9.2 CAViaR — 6/6 so với 5/6, và cái hơn đó không đứng vững
+
+`src/caviar.py`, `output/caviar.json`. Ba dạng động lực (SAV, AS, IG — Engle &
+Manganelli 2004) khớp trên **z** (sau khi đã chia σ̂), giao thức cuộn giống hệt
+V1 mở rộng của `va_duoi.py`, chọn trên kiểm định.
+
+Chạy đầu (`output/log_caviar.txt`) lộ ra một lỗi trước khi so được gì: đệ quy
+`b1` không bị chặn dưới 1, nên vài cửa sổ nổ theo hàm mũ — SAV ở USDJPY ra
+pinball 52.205 (đáng lẽ ~0,04), AS ở USDCHF ra tỷ lệ ES −4061. Vá bằng cách
+chặn phân kỳ ngay trong hàm mục tiêu (`abs(b[1]) >= 0.999 → inf`), chạy lại
+(`log_caviar2.txt`) mới có bảng sạch để so.
+
+Tổng kết trên kiểm định, sáu cặp:
+
+| biến thể | α=0,05 | α=0,01 | pinball TB |
+|---|---|---|---|
+| V1 mở rộng (mốc, phân vị tĩnh) | 5/6 | 5/6 | 0,07050 |
+| CAViaR SAV | 4/6 | 4/6 | 0,07086 |
+| CAViaR AS | 4/6 | 4/6 | 0,07050 |
+| **CAViaR IG** | 5/6 | **6/6** | 0,07067 |
+
+IG là dạng duy nhất **hơn** mốc — 6/6 so với 5/6 ở α=0,01, nhờ đúng một cặp
+đổi từ trượt sang đạt: USDCHF (DQ 0,0031 → 0,0620). Nhìn thoáng qua đây là
+bằng chứng CAViaR bắt được động lực đuôi mà phân vị tĩnh bỏ lỡ.
+
+**Nhưng kiểm tra ổn định theo hạt giống ngẫu nhiên lật lại kết luận đó.**
+`output/log_ondinh.txt` chạy lại đúng cấu hình IG với 5 seed (11, 101, 202,
+303, 404) trên ba cặp — hai cặp "có vấn đề" (USDCHF, USDCAD) và một cặp làm
+đối chứng (USDJPY):
+
+| cặp | seed đạt DQ | khoảng DQ quan sát |
+|---|---|---|
+| USDJPY (đối chứng) | **5/5** | [0,9966; 0,9981] — ổn định |
+| USDCHF | 4/5 | [0,0034; 0,0640] — sát ngưỡng 0,05 |
+| USDCAD | **2/5** | [0,0163; 0,8822] — đổi kết luận theo seed |
+
+USDCAD đã đạt ở mốc V1 (DQ 0,8715) — CAViaR IG không thêm gì ở đây, chỉ là
+phép đo bấp bênh. Còn đúng cặp làm nên lợi thế "6/6" — USDCHF — có DQ dao
+động ba bậc độ lớn (0,0034 → 0,0640) chỉ vì đổi hạt giống khởi tạo Nelder-Mead,
+tức "đạt" hay "trượt" phụ thuộc may rủi tối ưu hoá chứ không phải tín hiệu.
+
+Đã thử loại giả thuyết "thiếu điểm khởi động": `output/log_ondinh2.txt` chạy
+lại với `n_dau=60` (gấp 5 lần số điểm khởi đầu ngẫu nhiên mặc định 12) — kết
+quả **không đổi**, vẫn 4/5 và 2/5. Vậy không phải do tối ưu hoá chưa hội tụ đủ
+sâu; bất định nằm ở chính bài toán (bề mặt pinball loss nhiều cực tiểu địa
+phương gần nhau, giống hệt tình huống Fixed-Share ở 9.3 — "hạng nhất đổi tay
+nhưng các phương án gần hoà nhau").
+
+**Quyết định: giữ phân vị tĩnh (V1 mở rộng) của `va_duoi.py`.** CAViaR không
+sai về lý thuyết — chạy trên z, có tự kiểm đệ quy, có chặn phân kỳ — nhưng cái
+"hơn" duy nhất nó tạo ra so với mốc không sống sót qua đổi hạt giống. Không có
+script CAViaR nào được gọi trong pipeline sản xuất; `src/caviar.py` giữ lại
+như tài liệu đối chứng, không bật.
+
+### 9.3 Fixed-Share — đo được, và xấu đơn điệu
+
+> **Đã chạy lại 08/09/2026** sau khi sửa lỗi ở mục 13. Kết luận **không đổi**:
+> α = 0 vẫn tối ưu, ΔBSS ở α tốt nhất là −0,00000 KTC [−0,00025; +0,00027]
+> (mục tiêu P) và −0,00019 KTC [−0,00037; +0,00001] (mục tiêu R) — vẫn hoà,
+> vẫn xấu đơn điệu khi α tăng. Giữ Hedge trơn.
+
+`src/kiem_fixshare.py`, `output/kiem_fixshare.json`. Chọn trên **kiểm định**
+(3.282 hàng); đoạn kiểm tra không mở.
+
+Chẩn đoán trước đã: chuyên gia giỏi nhất **có** đổi — 3 chuyên gia khác nhau
+chiếm ngôi đầu qua 13 cửa sổ 250 phiên. Nên tiền đề của Fixed-Share đúng. Nhưng
+*cách biệt* giữa hạng nhất và hạng nhì chỉ 0,0002–0,0086 log-loss: ngôi đầu đổi
+tay, mà các chuyên gia gần như hoà nhau. Đuổi theo kẻ dẫn đầu thì không có gì
+để ăn, còn chi phí kéo trọng số về đều thì trả thật.
+
+ΔBSS so với α = 0, KTC bootstrap khối **ghép cặp**:
+
+| α | mục tiêu P | mục tiêu R |
+|---|---|---|
+| 0,001 | −0,00008 [−0,00029; +0,00012] | −0,00019 [−0,00037; +0,00001] |
+| 0,010 | −0,00110 [−0,00248; +0,00016] | −0,00162 [−0,00270; −0,00037] |
+| 0,050 | −0,00335 [−0,00612; −0,00081] | −0,00404 [−0,00661; −0,00146] |
+| 0,200 | −0,00487 [−0,00864; −0,00150] | −0,00550 [−0,00875; −0,00236] |
+
+Đơn điệu, cả hai mục tiêu, không có cực đại trong: **α = 0 là tối ưu**. Ở α lớn
+KTC nằm hẳn dưới 0 — không phải "không đo được", mà là *đo được rằng nó hại*.
+
+**Quyết định: giữ Hedge trơn.** `ToHopTrucTuyen.alpha` được thêm vào `balop.py`
+với mặc định 0,0 (đúng hành vi cũ, tự kiểm đạt) và giữ lại để lần sau có thêm
+chuyên gia thực sự khác nhau thì đo lại — không phải để bật.
+
+### Cái học được
+
+Cả ba thất bại có chung một hình dạng: **phương pháp mới đúng, nhưng vá vào chỗ
+không đau — hoặc cái "hơn" nó tạo ra không sống sót qua kiểm tra thứ hai.** FDR
+nới cửa 1 trong khi cửa 2 mới chặn. CAViaR hơn mốc đúng 1 cặp, và cặp đó đổi
+kết luận theo hạt giống ngẫu nhiên — lợi thế là nhiễu đo, không phải tín hiệu.
+Fixed-Share đuổi theo đổi chế độ trong khi các chuyên gia hoà nhau nên đổi chế
+độ chẳng tốn gì. Trước khi thay một phương pháp, phải đo xem **ràng buộc đang
+nằm ở đâu**, và phải **kiểm tra lại bằng seed/lát cắt khác** trước khi tin một
+con số hơn — nếu không thì hiện đại hoá chỉ là thay đồ.
+
+---
+
+## 10. A3 — chọn mô hình theo chế độ, **cũng không ăn tiền trên mô hình đang chạy** (08/09/2026)
+
+`src/run_balop_chedo.py`, `output/balop_chedo.json`. Bằng chứng gốc trong
+`docs/KEHOACH_CAITIEN.md` mục A3: bảng BSS theo chế độ của **`run_balop.py`**
+cho thấy chế độ "vừa" là nơi duy nhất mô hình thua khí hậu học, ở cả h=1 (chỉ
+σ̂: −0,0081) và h=20 (σ̂+chế độ: −0,0154). Ý tưởng: ở chế độ "vừa", trả về dự
+báo khí hậu học thay vì dự báo mô hình, giữ nguyên mô hình ở hai chế độ còn
+lại — rẻ, không cần huấn luyện gì mới.
+
+**Điểm mấu chốt bị bỏ sót lúc viết kế hoạch**: bảng bằng chứng đo trên mô hình
+**tĩnh** (chỉ σ̂ đóng băng huấn luyện / σ̂+chế độ đóng băng huấn luyện), nhưng
+mô hình **thật sự đang chạy sản xuất** (`api/main.py NEN_THEO_H`) là bản
+**cuộn** (khớp lại mỗi 21 phiên) hoặc **tổ hợp trực tuyến** — khác hẳn. Đo lại
+đúng trên mô hình sản xuất, mục tiêu P (mục tiêu hiện trên giao diện), KTC
+bootstrap khối **ghép cặp** (`diem3.delta_bss_ktc`, viết thêm cho việc này):
+
+| h | mô hình sản xuất | BSS "vừa" (sản xuất) | Δ BSS gộp cả 3 chế độ (chọn theo chế độ − sản xuất) |
+|---|---|---|---|
+| 1 | tổ hợp trực tuyến | −0,0072 | [−0,0000; +0,0053] — hoà |
+| 5 | σ̂ + chế độ (cuộn) | **+0,0139** | **[−0,0093; −0,0008] — xấu hơn có ý nghĩa** |
+| 20 | σ̂ + chế độ (cuộn) | −0,0113 | [−0,0016; +0,0092] — hoà |
+
+Ở h=5, mô hình sản xuất **đã ổn** ở chế độ "vừa" (BSS dương +0,0139) — khác
+hẳn số liệu tĩnh (−0,0154) mà kế hoạch trích dẫn. Khớp lại định kỳ (cuộn) tự
+nó đã thích nghi với chế độ đổi, nên ép về khí hậu học ở đây là **bỏ đi lợi
+thế đang có**, và KTC ghép cặp xác nhận điều đó có ý nghĩa (không phủ 0). Ở
+h=1 và h=20, gộp lại là hoà — "vừa" cải thiện (về 0) nhưng bù lại mẫu bị chia
+nhỏ theo chế độ ở nơi khác làm KTC rộng ra, không đủ để kết luận hơn.
+
+**Quyết định: giữ nguyên mô hình sản xuất, không chọn theo chế độ.** Bài học
+lặp lại đúng hình dạng của mục 9: bằng chứng ban đầu đúng, nhưng đo trên biến
+thể **tĩnh** trong khi hệ thống thật đã dùng biến thể **cuộn/động** — chẩn
+đoán không tự động chuyển sang toa thuốc nếu không đo lại trên đúng cấu hình
+đang chạy. `docs/KEHOACH_CAITIEN.md` mục A3 cập nhật theo kết quả này.
+
+---
+
+## 11. B1 (một phần) — Hansen SPA cài xong, áp cho họ mô hình Giai đoạn 1 (08/09/2026)
+
+`src/metrics.py::spa_test()` (mới), `src/run_spa.py`, `output/spa.json`.
+`docs/REPLAN_2026.md` mục 10.4 đòi Hansen SPA (2005) để đóng tiêu chí dừng của
+Giai đoạn 2; trước đây `metrics.py` chỉ có MCS (Hansen-Lunde-Nason 2011), thiếu
+SPA. Đã viết `spa_test()` theo đúng phiên bản **p-value nhất quán** của Hansen
+(2005) — tái tâm (recentering) ứng viên rám trước khi dựng phân phối null
+bootstrap khối, cùng phong cách code với `mcs()`. Tự kiểm: tỷ lệ bác bỏ dưới
+H0 ≈ danh nghĩa (0,057 so với 0,05 kỳ vọng), bác bỏ 97% khi có ứng viên thắng
+nền rõ ràng.
+
+**Phạm vi trung thực — chưa đóng được toàn bộ B1.** Kiến trúc "năm họ" H1–H5
+mà `REPLAN_2026.md` mục 3.1 mô tả (SAX, motif, rule-list, trần GBM, chế độ)
+phần lớn **chưa tồn tại thành code**: thư mục `rules/mining/` không có trong
+repo, H2 (motif) và H3 (rule-list) chưa viết, H5 (chế độ) mới làm một nửa.
+Viết đủ năm họ là khối lượng công việc khác hẳn "cài thêm một phép kiểm" —
+không làm giả trong phiên này.
+
+Thay vào đó, `run_spa.py` áp `spa_test()` ngay cho dữ liệu đã có sẵn và THẬT:
+họ mô hình biến động của chính `run_balop.py` (Giai đoạn 1) so nền "chỉ σ̂" —
+đúng nền mà REPLAN định nghĩa là mức phải vượt. Kết quả, mục tiêu P (giao
+protocol KHOI theo tầm hạn, bootstrap khối theo cặp):
+
+| h | T_SPA | p-value | bác bỏ H0 ở α=0,05 |
+|---|---|---|---|
+| 1 | 0,805 | 0,467 | không — đúng dự kiến, "tổ hợp trực tuyến" gần như không khác nền ở h=1 |
+| 5 | 2,213 | **0,024** | **có** — "σ̂ + chế độ (cuộn)" thắng nền có ý nghĩa |
+| 20 | 3,253 | **0,000** | **có** — cùng ứng viên, thắng rõ hơn |
+
+Đọc: nền tảng mô hình biến động (Giai đoạn 1) **đã** vượt qua SPA ở h=5, h=20
+— khớp với lý do `api/main.py` chọn "σ̂ + chế độ (cuộn)" cho hai tầm hạn đó.
+Ở h=1, không có ứng viên nào thắng nền có ý nghĩa — cũng khớp với thực tế
+"tổ hợp trực tuyến" ở h=1 gần như hoà với nền (Δlog thô +0,00008).
+
+**Cập nhật cùng ngày — H2/H3/H5 đã viết xong và chạy** (mục 12 dưới đây), nên
+điều kiện "cả năm họ SPA" ở mục 10.4 giờ đã đóng được cho cấu hình h=1/mục
+tiêu P: không họ nào (Giai đoạn 1, H2, H3, H5) bác bỏ được H0 so nền "chỉ σ̂".
+Xem `docs/GIAIDOAN2_QUYLUAT.md` mục 5–6 cho bảng đầy đủ và một ngoại lệ đáng
+chú ý (H3 có một quy luật đơn lẻ qua LOPO, dù cả họ vẫn không thắng SPA).
+
+---
+
+## 12. H2, H3, H5 — viết xong ba họ còn thiếu, và một phát hiện thật (08/09/2026)
+
+Tiếp nối mục 11: viết `src/run_h2_motif.py`, `src/run_h3_rulelist.py`,
+`src/run_h5_chedo.py` (dùng lại bộ máy WY/đối chứng/LOPO của `run_quyluat.py`
+qua hàm `nap_du_lieu()` mới tách ra), đóng nốt phần "cả năm họ" của tiêu chí
+10.4. Chi tiết đầy đủ, kể cả một lỗi rò rỉ dữ liệu đã bắt và sửa (H2) và một
+quy luật mới qua hết bốn cửa (H3), nằm ở `docs/GIAIDOAN2_QUYLUAT.md` mục 6 —
+không lặp lại ở đây, chỉ tóm tắt:
+
+- **H2 (motif)**: 0/72 sống sót. Bắt được lỗi rò rỉ (phiên thiếu dữ liệu ≈99%
+  rơi vào lớp "đi ngang"), đã sửa trước khi kết luận.
+- **H3 (rule-list, CART nông)**: **1 quy luật** qua hết WY → đối chứng →
+  LOPO → kiểm tra — `σ̂ rất thấp VÀ ATR rất thấp` → đi ngang, lift 1,67. Ghi ở
+  `rules/rules_h3.csv`. Không tự động đưa vào sản xuất (xem lý do ở
+  GIAIDOAN2_QUYLUAT.md 6.2).
+- **H5 (chế độ tự tương quan)**: 0/5.670 sống sót.
+- **SPA cho cả ba họ** (`run_spa_ho2.py`, nền "chỉ σ̂" đúng chỉ số hàng): H2
+  p=0,929 · H3 p=0,902 · H5 p=0,562 — không họ nào bác bỏ H0.
+
+> ⚠️ **MỌI CON SỐ TRONG MỤC 12 ĐÃ BỊ THAY THẾ.** Vài giờ sau khi viết mục này,
+> việc soi lại quy luật H3 lộ ra một lỗi dữ liệu làm hỏng toàn bộ Giai đoạn 2 —
+> kể cả quy luật H3, vốn hoá ra chỉ là artefact của chính lỗi đó. Số đúng và
+> toàn bộ câu chuyện ở **mục 13**. Giữ nguyên mục 12 làm hồ sơ, không sửa số,
+> vì trình tự "tưởng tìm được → soi kỹ → hoá ra lỗi" chính là phần đáng đọc.
+
+---
+
+## 13. Lỗi BỊA LỢI SUẤT BẰNG 0 — bắt được khi soi lại H3, và nó sửa lại cả chương (08/09/2026)
+
+Mục này thay thế mục 12 và sửa mọi con số của Giai đoạn 2. Nó cũng là **cải
+tiến lớn nhất đo được trong ngày**: lực phát hiện của phễu tăng từ lift 1,35
+xuống 1,20 — nhiều hơn tất cả các thủ thuật thống kê đã thử ở mục 9 cộng lại.
+
+### 13.1 Đường đi từ nghi ngờ đến lỗi
+
+Quy luật H3 (mục 12) đáng ngờ ở đúng một điểm: **cả hai vế của nó đều là thước
+đo biến động** (σ̂ và ATR). Nguyên tắc `la_vi_tu_nen()` của chính repo nói một
+vị từ chỉ nói về nền thì không phải quy luật. Nên trước khi mừng, phải kiểm tra
+chéo — `src/kiem_h3.py`.
+
+Phép kiểm đầu tiên đã lộ ra chuyện lạ: **lift của cùng một vị từ, trên cùng
+một mẫu, ra 1,67 hay 0,995 tuỳ theo lấy mẫu nền nào**. Truy tiếp:
+
+| mẫu | n | tỷ lệ lớp "đi ngang" |
+|---|---|---|
+| toàn bộ mẫu phát hiện | 21.606 | 30,8% |
+| ... phần **đủ 12 đặc trưng** | 18.294 | **18,4%** |
+| ... phần **thiếu đặc trưng** | 3.312 | **99,7%** ← bất thường |
+| lá CART #0 (quy luật H3) | 949 | 30,7% |
+
+3.312 hàng gần như 100% "đi ngang" là chuyện không thể có trên dữ liệu thật.
+Xem thẳng vào chúng:
+
+```
+ t   sig      r        b       yP
+  0      nan  0.00000  0.00108    1      <- sigma^ NaN, nhưng r = 0 (KHÔNG PHẢI NaN)
+550      nan  0.00000  0.00108    1
+551  0.00667 -0.00197  0.00108    0      <- hết warm-up, mọi thứ bình thường
+```
+
+### 13.2 Cơ chế
+
+`balop.loi_suat_h()` tính lợi suất h phiên bằng hiệu của tổng tích luỹ:
+
+```python
+cs = np.concatenate([[0.0], np.nancumsum(r)])    # nancumsum coi NaN là 0
+ra[: n - h + 1] = cs[h:] - cs[: n - h + 1]
+```
+
+`nancumsum` coi NaN là 0 — đúng ý ban đầu là *chịu được khe hở lẻ tẻ*. Nhưng khi
+**mọi** ngày trong cửa sổ đều thiếu, hiệu hai tổng tích luỹ ra đúng **0,0**, chứ
+không phải NaN. Rồi `gan_lop()` thấy |0| ≤ dải → xếp vào lớp **"đi ngang"**.
+
+Đó là 551 phiên đầu mỗi cặp — giai đoạn khởi động khi HAR chưa đủ dữ liệu để
+cho σ̂, nên `r = zT × sig = NaN`. Sáu cặp × 551 = **3.306 hàng lợi suất bịa ra,
+tất cả bị gán "đi ngang"**.
+
+### 13.3 Vì sao chỉ Giai đoạn 2 dính
+
+Bốn đường nạp dữ liệu, chỉ một loại không có chốt chặn:
+
+| đường | lọc σ̂ NaN? | dính lỗi? |
+|---|---|---|
+| `balop.nap()` → `data/panel2_6pairs.csv` (Giai đoạn 1) | dữ liệu bắt đầu 2012-02, **0 hàng NaN** | không |
+| `api/main.py` (sản xuất) | có, dòng 156–157 | không |
+| `tincay.py`, `hieuchuan_lai.py` | có | không |
+| `run_quyluat.py`, `kiem_pheu.py`, `run_ml3.py` | **không** | **có** |
+
+Kiểm chứng trực tiếp: chạy song song hàm cũ và hàm mới trên đúng dữ liệu Giai
+đoạn 1, 6 cặp × 3 tầm hạn → **0 hàng khác nhau**. Nên **mọi kết quả của Giai
+đoạn 1, của tầng VaR/ES, của SPA Giai đoạn 1 (mục 11) và của giao diện sản xuất
+đều KHÔNG đổi.** Chỉ chương khai phá quy luật phải viết lại số.
+
+### 13.4 Bản vá
+
+`loi_suat_h()` đếm số ngày **có thật** trong mỗi cửa sổ; cửa sổ không có ngày
+nào thì trả NaN. Giữ nguyên ý ban đầu là chịu được khe hở lẻ tẻ.
+
+### 13.5 Số trước và sau
+
+**Phễu Giai đoạn 2** (`run_quyluat.py`):
+
+| bước | trước | sau |
+|---|---|---|
+| mẫu phát hiện | 21.606 hàng | 18.306 hàng |
+| tỷ lệ ba lớp (phát hiện) | 33,9 / 30,8 / 35,3 | **33,0 / 32,9 / 34,1** — đúng thiết kế "ba ô cân nhau" |
+| ngưỡng max\|z\| null 95% | 4,83 | **3,89** |
+| thô p<0,05 | 1.186 (thổi phồng 13,5×) | **522 (6,0×)** |
+| sống sót Westfall–Young | 9 | **3** |
+| lift "σ̂ thấp → đi ngang" | 0,715 | **1,179** |
+| **quy luật cuối cùng** | **0** | **0** |
+
+Dấu hiệu lẽ ra phải thấy sớm hơn: trước khi sửa, **cả ba** ô σ̂ (thấp 0,715 ·
+vừa 0,608 · cao 0,482) đều có lift < 1 với lớp "đi ngang". Ba ô phủ kín mẫu thì
+trung bình có trọng số của chúng **bắt buộc** bằng 1 — cả ba cùng < 1 chỉ có thể
+xảy ra nếu mẫu nền chứa những hàng không thuộc ô nào. Đó chính là 3.306 hàng bịa.
+
+**Lực phát hiện của phễu** (`kiem_pheu.py`) — cải thiện lớn nhất:
+
+| lift | lực TRƯỚC | lực SAU |
+|---|---|---|
+| 1,15 | 8% | **62%** |
+| 1,20 | 40% | **88%** |
+| 1,35 | 80% | **98%** |
+| **MDES (lực 80%)** | **1,35** | **1,20** |
+
+Đối chứng âm vẫn 0,0 dương tính giả — phễu vẫn hiệu chuẩn đúng.
+
+Đáng nói: mục 9.1 đã thử FDR để nâng lực, hứa hẹn MDES 1,35 → 1,29, và bị loại
+vì "không ăn tiền". **Sửa lỗi dữ liệu này cho 1,35 → 1,20** — hơn hẳn mọi thủ
+thuật thống kê. Phát biểu của luận văn mạnh lên tương ứng: từ "loại trừ được
+quy luật có lift ≥ 1,35" thành **"loại trừ được quy luật có lift ≥ 1,20"**.
+
+**Ba họ mới** (H2/H3/H5):
+
+| họ | thô p<0,05 trước → sau | sống sót W-Y trước → sau |
+|---|---|---|
+| H2 motif | 9 → **2** (kỳ vọng nhiễu ~4) | 0 → 0 |
+| H3 rule-list | 16 → **17** | **3 → 0** |
+| H5 chế độ | 3.287 → **938** | 0 → 0 |
+
+### 13.6 RÚT LẠI quy luật H3
+
+**Quy luật H3 không tồn tại.** Sau khi sửa, không lá CART nào sống sót
+Westfall–Young (trước: 3 sống sót, 1 qua hết bốn cửa). `rules/rules_h3.csv` đã
+xoá.
+
+Nó được sinh ra thế nào: lá đó gom những phiên rất yên tĩnh — cũng chính là
+những phiên *giống* các hàng bịa. Vì mẫu nền bị 3.306 hàng bịa (99,7% "đi
+ngang") kéo tỷ lệ nền lên, còn mẫu "đủ 12 đặc trưng" thì không có chúng nên tỷ
+lệ tụt xuống 18,4%, một vị từ có tỷ lệ *bình thường* 30,7% bỗng trông như lift
+1,67 so với 18,4%. Toàn bộ "phát hiện" là chênh lệch giữa hai mẫu nền, không
+phải tín hiệu.
+
+Bốn phép kiểm chéo ở `kiem_h3.py` cũng đã độc lập kết luận như vậy **trước cả
+khi** tìm ra nguyên nhân gốc: quy luật chết trên mục tiêu R (dải theo σ̂ — khử
+quan hệ cơ học), chết ở h=5 và h=20, và đóng góp BSS có KTC chứa 0. Ba dấu hiệu
+đó đều đã chỉ đúng hướng.
+
+### 13.7 Cái học được
+
+Kết luận khoa học **không đổi**: 0 quy luật, trên cả năm họ. Nhưng giờ nó đứng
+trên số đúng, mẫu nền cân bằng, và một phễu mạnh hơn hẳn.
+
+Bài học thì đắt hơn con số: **kết quả DƯƠNG đầu tiên sau hàng loạt kết quả âm
+là lúc phải nghi ngờ nhất, không phải lúc mừng nhất.** Quy luật H3 qua được cả
+bốn cửa kiểm định thống kê — Westfall–Young, đối chứng có điều kiện, bỏ-một-cặp,
+tái lập trên kiểm tra — mà vẫn sai, vì cả bốn cửa đều đo trên cùng một mẫu nền
+đã hỏng. Không phép kiểm nào cứu được dữ liệu sai; chỉ có nhìn thẳng vào từng
+hàng mới cứu được.
+
+Và dấu vết luôn để lại: ba ô của một phân hoạch không thể cùng có lift < 1.
+
+---
+
+## 14. Walk-forward — hiệu năng có trôi theo thời gian không? (08/09/2026)
+
+`src/run_walkforward.py`, `output/walkforward.json`. Kế hoạch Pha 1 của HuyH
+(Week 3, mục 1) đòi "đi xa hơn một lần chia 80/20": chia trục thời gian thành
+nhiều khối liên tiếp và đo **performance drift**. Repo có ba đoạn cố định
+nhưng chưa có bảng trải theo từng năm.
+
+**Không phải huấn luyện lại.** Mô hình sản xuất vốn đã là mô hình **cuộn** —
+`du_bao_cuon` khớp lại mỗi 21 phiên trên cửa sổ mở rộng — nên dự báo tại ngày t
+đã chỉ dùng thông tin đến t. Walk-forward ở đây là việc **chia** chuỗi dự báo
+nhân quả có sẵn theo từng năm rồi chấm điểm từng khối. Mốc BSS là khí hậu học
+**đóng băng trên huấn luyện**; nếu lấy khí hậu học của từng năm thì mỗi năm sẽ
+tự chuẩn hoá về 0 và bảng mất sạch ý nghĩa. Đây là **chẩn đoán**, không lựa
+chọn nào phụ thuộc nó.
+
+| tầm hạn | số năm BSS dương | BSS trung vị | khoảng |
+|---|---|---|---|
+| **h = 1** | **14/14** | +0,0135 | [+0,0010; +0,0491] |
+| h = 5 | 10/14 | +0,0028 | [−0,0238; +0,0276] |
+| h = 20 | 8/14 | +0,0063 | [−0,0377; +0,0330] |
+
+**Đây là con số nên đưa vào luận văn thay cho một BSS gộp.** Ở h=1 hệ thống
+dương **liên tục 14/14 năm** — kể cả 2020 (COVID), 2022 (chu kỳ tăng lãi suất),
+và cả đoạn kiểm tra 2024–2025. Đó là độ ổn định thật, không phải trung bình che
+đi vài năm tệ.
+
+Nhưng ở **h = 20 chỉ 8/14 năm** — gần như tung đồng xu theo năm, và năm tệ nhất
+(−0,0377) sâu hơn năm tốt nhất (+0,0330) ở h=1. **Độ tin cậy giảm mạnh theo tầm
+hạn**, và phải nói rõ điều đó thay vì báo cáo một con số gộp. Năm tệ nhất của cả
+h=5 lẫn h=20 đều là **2017** — năm biến động FX thấp bất thường: khi biến động
+vừa thấp vừa phẳng, lợi thế của mô hình dựa trên σ̂ không còn gì để khai thác.
+
+Khớp với `docs/BAOCAO_UI.md`: giao diện nên tự tin ở ô 1 phiên và dè dặt ở ô 20
+phiên — giờ đã có con số cụ thể để nói vì sao.
+
+---
+
+## 15. Độ chính xác và macro F1 — kế hoạch đòi, và chúng cho thấy vì sao mục 1 đúng
+
+`src/diem3.py::chinh_xac()`, `f1_vi_mo()`. Kế hoạch Pha 1 (muc 6) đòi hai chỉ số
+này nên chúng đã có trong `results/experiment_summary.csv`. Bảng A trên đoạn
+kiểm định, mục tiêu P, h = 1:
+
+| mô hình | log | BSS | **chính xác** | macro F1 | ECE |
+|---|---|---|---|---|---|
+| khí hậu học | 1,0980 | +0,0000 | **0,3620** | 0,2777 | 0,0160 |
+| quán tính | 1,0991 | −0,0010 | 0,3278 | 0,3186 | 0,0158 |
+| chỉ σ̂ | 1,0867 | +0,0105 | 0,3690 | 0,2974 | 0,0156 |
+| σ̂ + chế độ (cuộn) | 1,0871 | +0,0103 | 0,3742 | 0,3534 | 0,0120 |
+| **tổ hợp trực tuyến** | **1,0866** | **+0,0107** | **0,3751** | 0,3518 | 0,0132 |
+
+Đọc bảng này chính là bằng chứng cho lập luận ở **mục 1**: từ khí hậu học (một
+hằng số, không có kỹ năng nào) lên tổ hợp trực tuyến, **độ chính xác chỉ nhúc
+nhích 0,362 → 0,375** — 1,3 điểm phần trăm, nghe như không có gì. Trong khi log
+score và BSS tách bạch rõ ràng và có KTC không phủ 0.
+
+Lý do: độ chính xác chỉ đọc cột **lớn nhất** rồi vứt bỏ toàn bộ phân phối. Dự
+báo (0,34 / 0,33 / 0,33) và (0,90 / 0,05 / 0,05) cho **cùng** một dự đoán nhưng
+khác hẳn nhau về giá trị sử dụng — mà sản phẩm giao cho người dùng lại là **ba
+con số**, không phải một nhãn. Báo cáo hai chỉ số này để hội đồng có cái quen
+thuộc mà đối chiếu, nhưng **mọi quyết định trong repo vẫn dựa trên quy tắc chấm
+điểm chính đáng**.
+
+---
+
+## 16. Conformal prediction — từ "đo được hiệu chuẩn" sang "BẢO ĐẢM độ phủ" (09/09/2026)
+
+`src/run_conformal.py`, `output/conformal.json`. Đây là **kết quả dương** đầu
+tiên của đợt thử phương pháp hiện đại, và nó cho hai thứ mà repo chưa có.
+
+### 16.1 Nó giải quyết vấn đề gì
+
+Repo đã đo hiệu chuẩn rất kỹ (ECE, MCE, PIT-KS, biểu đồ tin cậy). Nhưng **"đo"
+khác "bảo đảm"**: ECE = 0,013 nói rằng *trên trung bình* xác suất khớp tần
+suất — nó không hứa gì cho một phiên cụ thể, và không hứa gì khi thị trường
+đổi chế độ.
+
+Conformal prediction (Vovk et al.; Angelopoulos & Bates 2023) đổi lại một thứ
+khác: thay vì một con số xác suất, nó trả về một **tập nhãn** kèm **bảo đảm độ
+phủ hữu hạn mẫu, không cần giả định phân phối**:
+
+```
+thay vì   P(giảm)=0,34  P(đi ngang)=0,31  P(tăng)=0,35
+trả về    {giảm, tăng}  — bảo đảm phủ 90%
+```
+
+Điểm quan trọng: **bảo đảm này không cần có tín hiệu mới có giá trị.** Bất định
+lớn thì tập rộng ra, và đó chính là thông tin trung thực cho người ra quyết
+định. Rất hợp với một dự án mà kết luận trung tâm là "hướng đi không dự báo
+được".
+
+Hai điểm số không phù hợp (chốt trước): **LAC** (Sadinle et al. 2019, tập nhỏ
+nhất) và **APS** (Romano et al. 2020, độ phủ có điều kiện tốt hơn). Hai giao
+thức: **tĩnh** (split conformal) và **ACI** (Gibbs & Candès 2021, cập nhật α
+trực tuyến theo độ phủ đã thực hiện).
+
+### 16.2 ACI là BẮT BUỘC ở đây, không phải trang trí
+
+Tự kiểm dựng sẵn một tình huống trôi phân phối có chủ ý:
+
+| | độ phủ (mục tiêu 0,90) |
+|---|---|
+| i.i.d., split conformal tĩnh | 0,892 ✓ |
+| **trôi phân phối, tĩnh** | **0,777** ✗ hụt 12 điểm |
+| **trôi phân phối, ACI** | **0,900** ✓ kéo lại được |
+
+Và trên dữ liệu thật thì đúng như vậy — conformal **tĩnh hỏng ở cả hai hướng**:
+
+| | h=1 kiểm định | h=20 kiểm tra |
+|---|---|---|
+| LAC tĩnh | 0,835 (hụt) | **0,814** (hụt) |
+| APS tĩnh | 0,991 (phồng, tập = cả 3 lớp) | 0,999 (phồng) |
+| **LAC + ACI** | **0,902** | **0,903** |
+| **APS + ACI** | **0,904** | **0,906** |
+
+ACI giữ độ phủ trong dải **0,901–0,908** ở *mọi* tầm hạn, *mọi* điểm số, *cả
+hai* đoạn. Và giữ được qua từng năm: 2023: 0,916 · 2024: 0,910 · 2025: 0,898.
+
+Đây là bằng chứng thực nghiệm cho chính điều mà walk-forward (mục 14) đã gợi
+ý: dữ liệu này **có trôi phân phối thật**, đủ để làm hỏng một bảo đảm tĩnh.
+
+### 16.3 Con số đáng giá nhất: hệ thống thật sự biết bao nhiêu
+
+Kích thước tập trung bình cho biết hệ thống loại trừ được bao nhiêu. Nhưng
+2,60 trên 3 lớp tự nó không đọc được — phải biết **một dự báo không có thông
+tin gì thì ra bao nhiêu**. Nên chạy đúng thủ tục đó trên **khí hậu học** (hằng
+số) làm mốc:
+
+| tầm hạn | đoạn | kích thước mô hình | mốc khí hậu học | **thông tin thật** |
+|---|---|---|---|---|
+| **h = 1** | kiểm định | 2,60 | 2,71 | **+0,11 lớp** |
+| **h = 1** | **kiểm tra** | 2,61 | 2,70 | **+0,10 lớp** |
+| h = 5 | kiểm định | 2,57 | 2,56 | −0,01 |
+| h = 5 | kiểm tra | 2,66 | 2,57 | **−0,09** |
+| h = 20 | kiểm định | 2,50 | 2,43 | −0,07 |
+| h = 20 | kiểm tra | 2,56 | 2,46 | **−0,10** |
+
+*(cột kích thước dùng LAC; APS cho cùng hình dạng kết luận)*
+
+Đọc thẳng:
+
+- **h = 1 có thông tin thật, đo được: +0,10 lớp trên đoạn kiểm tra.** Nhỏ,
+  nhưng dương và nhất quán qua cả hai đoạn lẫn cả hai điểm số.
+- **h = 5 và h = 20 thì bằng không hoặc ÂM.** Tập dự báo của mô hình *không
+  nhỏ hơn* tập của một hằng số — đôi khi còn rộng hơn.
+
+**Hai phương pháp hoàn toàn khác nhau đang chỉ về cùng một chỗ.** Walk-forward
+(mục 14) đo độ ổn định theo năm: h=1 dương 14/14, h=20 chỉ 8/14. Conformal đo
+lượng thông tin: h=1 dương +0,10 lớp, h=20 âm. Hai cách đo độc lập, cùng một
+kết luận — **kỹ năng của hệ thống nằm ở tầm hạn 1 phiên, và gần như tan biến ở
+5 và 20 phiên.**
+
+Đó là con số nên đưa vào luận văn, và là lý do giao diện phải nói khác nhau ở
+ba ô — không phải vì "thận trọng cho chắc" mà vì **đã đo**.

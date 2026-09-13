@@ -1,0 +1,136 @@
+============================================================================================================
+TỔ HỢP DỰ BÁO (forecast combination) — HAR/ML/DL đã có, mở rộng ngoài equal-weight
+============================================================================================================
+  tự kiểm GR: b_perfect=1.000 (kỳ vọng ~1), b_nhiễu=0.000 (kỳ vọng ~0), a=0.000  ĐẠT
+
+ứng viên có sẵn: ['HAR', 'LGBM', 'GRU', 'LSTM', 'Ridge']
+
+mô hình gốc HAR                                    kiểm định    kiểm tra
+HAR vòng 7 (khớp mỗi phiên)                           0.1162      0.1585
+
+--- (1) trung bình hình học ĐỀU TAY, các tập con ---
+TB đều · HAR+LGBM                                     0.1129      0.1556
+TB đều · HAR+GRU                                      0.1152      0.1550
+TB đều · HAR+LSTM                                     0.1132      0.1556
+TB đều · HAR+Ridge                                    0.1147      0.1573
+TB đều · HAR+LGBM+GRU                                 0.1126      0.1542
+TB đều · HAR+LGBM+LSTM                                0.1117      0.1546
+TB đều · HAR+LGBM+Ridge                               0.1130      0.1556
+TB đều · HAR+GRU+LSTM                                 0.1139      0.1550
+TB đều · HAR+GRU+Ridge                                0.1144      0.1555
+TB đều · HAR+LSTM+Ridge                               0.1133      0.1559
+TB đều · HAR+LGBM+GRU+LSTM                            0.1122      0.1542
+TB đều · HAR+LGBM+GRU+Ridge                           0.1128      0.1546
+TB đều · HAR+LGBM+LSTM+Ridge                          0.1122      0.1550
+TB đều · HAR+GRU+LSTM+Ridge                           0.1136      0.1552
+TB đều · HAR+LGBM+GRU+LSTM+Ridge                      0.1124      0.1546
+
+--- (2) trung bình trọng số nghịch đảo QLIKE(kiểm định) ---
+TB 1/QLIKE · HAR+LGBM                                 0.1129      0.1556  trọng số={'HAR': np.float64(0.5), 'LGBM': np.float64(0.5)}
+TB 1/QLIKE · HAR+GRU                                  0.1152      0.1550  trọng số={'HAR': np.float64(0.508), 'GRU': np.float64(0.492)}
+TB 1/QLIKE · HAR+LSTM                                 0.1132      0.1556  trọng số={'HAR': np.float64(0.495), 'LSTM': np.float64(0.505)}
+TB 1/QLIKE · HAR+Ridge                                0.1147      0.1573  trọng số={'HAR': np.float64(0.501), 'Ridge': np.float64(0.499)}
+TB 1/QLIKE · HAR+LGBM+GRU                             0.1126      0.1542  trọng số={'HAR': np.float64(0.337), 'LGBM': np.float64(0.337), 'GRU': np.float64(0.326)}
+TB 1/QLIKE · HAR+LGBM+LSTM                            0.1117      0.1546  trọng số={'HAR': np.float64(0.331), 'LGBM': np.float64(0.331), 'LSTM': np.float64(0.338)}
+TB 1/QLIKE · HAR+LGBM+Ridge                           0.1130      0.1556  trọng số={'HAR': np.float64(0.334), 'LGBM': np.float64(0.333), 'Ridge': np.float64(0.333)}
+TB 1/QLIKE · HAR+GRU+LSTM                             0.1139      0.1550  trọng số={'HAR': np.float64(0.335), 'GRU': np.float64(0.324), 'LSTM': np.float64(0.341)}
+TB 1/QLIKE · HAR+GRU+Ridge                            0.1144      0.1555  trọng số={'HAR': np.float64(0.337), 'GRU': np.float64(0.326), 'Ridge': np.float64(0.336)}
+TB 1/QLIKE · HAR+LSTM+Ridge                           0.1133      0.1559  trọng số={'HAR': np.float64(0.331), 'LSTM': np.float64(0.338), 'Ridge': np.float64(0.331)}
+TB 1/QLIKE · HAR+LGBM+GRU+LSTM                        0.1121      0.1542  trọng số={'HAR': np.float64(0.251), 'LGBM': np.float64(0.251), 'GRU': np.float64(0.243), 'LSTM': np.float64(0.256)}
+TB 1/QLIKE · HAR+LGBM+GRU+Ridge                       0.1128      0.1547  trọng số={'HAR': np.float64(0.252), 'LGBM': np.float64(0.252), 'GRU': np.float64(0.244), 'Ridge': np.float64(0.252)}
+TB 1/QLIKE · HAR+LGBM+LSTM+Ridge                      0.1122      0.1550  trọng số={'HAR': np.float64(0.249), 'LGBM': np.float64(0.249), 'LSTM': np.float64(0.254), 'Ridge': np.float64(0.249)}
+TB 1/QLIKE · HAR+GRU+LSTM+Ridge                       0.1136      0.1552  trọng số={'HAR': np.float64(0.251), 'GRU': np.float64(0.243), 'LSTM': np.float64(0.256), 'Ridge': np.float64(0.25)}
+TB 1/QLIKE · HAR+LGBM+GRU+LSTM+Ridge                  0.1124      0.1546  trọng số={'HAR': np.float64(0.201), 'LGBM': np.float64(0.2), 'GRU': np.float64(0.194), 'LSTM': np.float64(0.204), 'Ridge': np.float64(0.2)}
+
+--- (3) hồi quy Granger-Ramanathan (khớp trên KIỂM ĐỊNH) ---
+GR hồi quy · HAR+LGBM                                 0.1131      0.1558  a=-0.10 [HAR:+0.60, LGBM:+0.40]
+GR hồi quy · HAR+GRU                                  0.1138      0.1541  a=-0.20 [HAR:+0.51, GRU:+0.48]
+GR hồi quy · HAR+LSTM                                 0.1126      0.1549  a=-0.21 [HAR:+0.34, LSTM:+0.65]
+GR hồi quy · HAR+Ridge                                0.1147      0.1572  a=-0.10 [HAR:+0.32, Ridge:+0.68]
+GR hồi quy · HAR+LGBM+GRU                             0.1128      0.1539  a=-0.15 [HAR:+0.38, LGBM:+0.24, GRU:+0.38]
+GR hồi quy · HAR+LGBM+LSTM                            0.1118      0.1547  a=-0.17 [HAR:+0.24, LGBM:+0.20, LSTM:+0.55]
+GR hồi quy · HAR+LGBM+Ridge                           0.1140      0.1566  a=-0.08 [HAR:+0.29, LGBM:+0.15, Ridge:+0.57]
+GR hồi quy · HAR+GRU+LSTM                             0.1127      0.1544  a=-0.21 [HAR:+0.32, GRU:+0.15, LSTM:+0.51]
+GR hồi quy · HAR+GRU+Ridge                            0.1139      0.1551  a=-0.14 [HAR:+0.21, GRU:+0.30, Ridge:+0.48]
+GR hồi quy · HAR+LSTM+Ridge                           0.1130      0.1556  a=-0.16 [HAR:+0.14, LSTM:+0.46, Ridge:+0.39]
+GR hồi quy · HAR+LGBM+GRU+LSTM                        0.1119      0.1544  a=-0.17 [HAR:+0.24, LGBM:+0.18, GRU:+0.11, LSTM:+0.46]
+GR hồi quy · HAR+LGBM+GRU+Ridge                       0.1135      0.1549  a=-0.13 [HAR:+0.19, LGBM:+0.09, GRU:+0.29, Ridge:+0.43]
+GR hồi quy · HAR+LGBM+LSTM+Ridge                      0.1126      0.1553  a=-0.14 [HAR:+0.13, LGBM:+0.09, LSTM:+0.44, Ridge:+0.33]
+GR hồi quy · HAR+GRU+LSTM+Ridge                       0.1130      0.1552  a=-0.16 [HAR:+0.14, GRU:+0.11, LSTM:+0.37, Ridge:+0.38]
+GR hồi quy · HAR+LGBM+GRU+LSTM+Ridge                  0.1127      0.1550  a=-0.15 [HAR:+0.13, LGBM:+0.08, GRU:+0.10, LSTM:+0.36, Ridge:+0.32]
+
+============================================================================================================
+XẾP HẠNG TOÀN BỘ (theo QLIKE kiểm tra) — DM so với HAR v7 đơn
+------------------------------------------------------------------------------------------------------------
+  # tổ hợp                                            kiểm định   kiểm tra   so HAR     DM t     DM p
+------------------------------------------------------------------------------------------------------------
+  1 GR hồi quy · HAR+LGBM+GRU                            0.1128     0.1539    -2.9%    -1.81   0.0710
+  2 GR hồi quy · HAR+GRU                                 0.1138     0.1541    -2.8%    -2.19   0.0289
+  3 TB đều · HAR+LGBM+GRU                                0.1126     0.1542    -2.7%    -1.56   0.1193
+  4 TB 1/QLIKE · HAR+LGBM+GRU                            0.1126     0.1542    -2.7%    -1.56   0.1193
+  5 TB đều · HAR+LGBM+GRU+LSTM                           0.1122     0.1542    -2.7%    -1.61   0.1079
+  6 TB 1/QLIKE · HAR+LGBM+GRU+LSTM                       0.1121     0.1542    -2.7%    -1.61   0.1074
+  7 GR hồi quy · HAR+LGBM+GRU+LSTM                       0.1119     0.1544    -2.6%    -1.70   0.0890
+  8 GR hồi quy · HAR+GRU+LSTM                            0.1127     0.1544    -2.6%    -2.04   0.0415
+  9 TB đều · HAR+LGBM+GRU+LSTM+Ridge                     0.1124     0.1546    -2.5%    -1.57   0.1156
+ 10 TB 1/QLIKE · HAR+LGBM+GRU+LSTM+Ridge                 0.1124     0.1546    -2.5%    -1.58   0.1152
+ 11 TB 1/QLIKE · HAR+LGBM+LSTM                           0.1117     0.1546    -2.5%    -1.62   0.1053
+ 12 TB đều · HAR+LGBM+LSTM                               0.1117     0.1546    -2.5%    -1.62   0.1058
+ 13 TB đều · HAR+LGBM+GRU+Ridge                          0.1128     0.1546    -2.4%    -1.52   0.1276
+ 14 TB 1/QLIKE · HAR+LGBM+GRU+Ridge                      0.1128     0.1547    -2.4%    -1.52   0.1277
+ 15 GR hồi quy · HAR+LGBM+LSTM                           0.1118     0.1547    -2.4%    -1.63   0.1024
+ 16 GR hồi quy · HAR+LGBM+GRU+Ridge                      0.1135     0.1549    -2.3%    -1.59   0.1113
+ 17 GR hồi quy · HAR+LSTM                                0.1126     0.1549    -2.3%    -1.99   0.0462
+ 18 TB đều · HAR+GRU+LSTM                                0.1139     0.1550    -2.2%    -1.74   0.0812
+ 19 TB 1/QLIKE · HAR+GRU+LSTM                            0.1139     0.1550    -2.2%    -1.75   0.0800
+ 20 TB 1/QLIKE · HAR+LGBM+LSTM+Ridge                     0.1122     0.1550    -2.2%    -1.56   0.1198
+ 21 TB đều · HAR+LGBM+LSTM+Ridge                         0.1122     0.1550    -2.2%    -1.55   0.1203
+ 22 GR hồi quy · HAR+LGBM+GRU+LSTM+Ridge                 0.1127     0.1550    -2.2%    -1.54   0.1240
+ 23 TB đều · HAR+GRU                                     0.1152     0.1550    -2.2%    -1.95   0.0514
+ 24 TB 1/QLIKE · HAR+GRU                                 0.1152     0.1550    -2.2%    -1.97   0.0489
+ 25 GR hồi quy · HAR+GRU+Ridge                           0.1139     0.1551    -2.2%    -1.64   0.1009
+ 26 GR hồi quy · HAR+GRU+LSTM+Ridge                      0.1130     0.1552    -2.1%    -1.59   0.1108
+ 27 TB đều · HAR+GRU+LSTM+Ridge                          0.1136     0.1552    -2.1%    -1.65   0.0998
+ 28 TB 1/QLIKE · HAR+GRU+LSTM+Ridge                      0.1136     0.1552    -2.1%    -1.65   0.0991
+ 29 GR hồi quy · HAR+LGBM+LSTM+Ridge                     0.1126     0.1553    -2.0%    -1.45   0.1464
+ 30 TB đều · HAR+GRU+Ridge                               0.1144     0.1555    -1.9%    -1.68   0.0931
+ 31 TB 1/QLIKE · HAR+GRU+Ridge                           0.1144     0.1555    -1.9%    -1.68   0.0921
+ 32 TB 1/QLIKE · HAR+LGBM                                0.1129     0.1556    -1.9%    -1.18   0.2376
+ 33 TB đều · HAR+LGBM                                    0.1129     0.1556    -1.9%    -1.18   0.2379
+ 34 GR hồi quy · HAR+LSTM+Ridge                          0.1130     0.1556    -1.8%    -1.49   0.1355
+ 35 TB 1/QLIKE · HAR+LGBM+Ridge                          0.1130     0.1556    -1.8%    -1.28   0.1991
+ 36 TB đều · HAR+LGBM+Ridge                              0.1130     0.1556    -1.8%    -1.28   0.1993
+ 37 TB 1/QLIKE · HAR+LSTM                                0.1132     0.1556    -1.8%    -2.20   0.0277
+ 38 TB đều · HAR+LSTM                                    0.1132     0.1556    -1.8%    -2.22   0.0265
+ 39 GR hồi quy · HAR+LGBM                                0.1131     0.1558    -1.7%    -1.42   0.1559
+ 40 TB 1/QLIKE · HAR+LSTM+Ridge                          0.1133     0.1559    -1.6%    -1.74   0.0820
+ 41 TB đều · HAR+LSTM+Ridge                              0.1133     0.1559    -1.6%    -1.74   0.0819
+ 42 GR hồi quy · HAR+LGBM+Ridge                          0.1140     0.1566    -1.2%    -1.08   0.2795
+ 43 GR hồi quy · HAR+Ridge                               0.1147     0.1572    -0.8%    -0.90   0.3699
+ 44 TB 1/QLIKE · HAR+Ridge                               0.1147     0.1573    -0.7%    -1.15   0.2516
+ 45 TB đều · HAR+Ridge                                   0.1147     0.1573    -0.7%    -1.15   0.2522
+ 46 HAR vòng 7 (khớp mỗi phiên)                          0.1162     0.1585     0.0%     0.00   1.0000
+------------------------------------------------------------------------------------------------------------
+  (DM âm = tổ hợp TỐT HƠN HAR v7 có ý nghĩa; p<0,05 là chênh lệch có ý nghĩa)
+  (45 phép so sánh cùng lúc — DM đơn lẻ dễ dương tính giả; xem MCS bên dưới)
+
+MODEL CONFIDENCE SET (α=0,10) trên 16 tổ hợp đầu + HAR gốc, 548 phiên:
+    ★ GR hồi quy · HAR+LGBM+GRU
+    ★ GR hồi quy · HAR+GRU
+    ★ TB đều · HAR+LGBM+GRU
+    ★ TB 1/QLIKE · HAR+LGBM+GRU
+    ★ TB đều · HAR+LGBM+GRU+LSTM
+    ★ TB 1/QLIKE · HAR+LGBM+GRU+LSTM
+    ★ GR hồi quy · HAR+LGBM+GRU+LSTM
+    ★ GR hồi quy · HAR+GRU+LSTM
+    ★ TB đều · HAR+LGBM+GRU+LSTM+Ridge
+    ★ TB 1/QLIKE · HAR+LGBM+GRU+LSTM+Ridge
+    ★ TB 1/QLIKE · HAR+LGBM+LSTM
+    ★ TB đều · HAR+LGBM+LSTM
+    ★ TB đều · HAR+LGBM+GRU+Ridge
+    ★ TB 1/QLIKE · HAR+LGBM+GRU+Ridge
+    ★ GR hồi quy · HAR+LGBM+LSTM
+    ★ HAR vòng 7 (khớp mỗi phiên)
+  16/16 sống sót; bị loại sớm nhất: 
+
+→ output/ketqua_tohop2.json

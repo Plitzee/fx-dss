@@ -1,0 +1,37 @@
+================================================================================================================
+PHA 2 / H8c — CHỦ ĐỀ CHÍNH thông cáo FOMC (Historical + News)
+================================================================================================================
+129 thông cáo FOMC · 2010-01-27 → 2025-12-10
+
+phân bố chủ đề chính:
+chu_de
+lạm phát             109
+việc làm              19
+ổn định tài chính      1
+
+tự kiểm rò rỉ — chủ đề KHÔNG được xuất hiện ở chính phiên họp…
+  0 vi phạm  ĐẠT
+
+KHÔNG GIAN GIẢ THUYẾT H8c: 3 vị từ × 3 lớp = 9 giả thuyết — liệt kê đầy đủ, biết trước
+bộ kiểm soát: 4 biến gốc + chỉ báo lịch họp (3,870 phiên trong cửa sổ sau họp)
+phát hiện 18,306 hàng · xác nhận 4,354 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 2.43 · 95% 2.70
+      3/3 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 1 (nếu toàn nhiễu kỳ vọng 0)
+
+→ KHÔNG vị từ nào sống sót Westfall–Young.
+
+================================================================================================================
+PHỄU H8c (chủ đề thông cáo FOMC)                 còn lại
+không gian giả thuyết                                  9
+đủ số lần khớp                                         3
+thô p<0,05                                             1
+sống sót Westfall–Young                                0
+còn tin riêng sau đối chứng (đã khử lịch)              0
+chuyển giao được (LOPO)                                0
+tái lập trên KIỂM TRA                                  0
+
+đã ghi output/h8c_chude.json — 21s
+TỰ KIỂM ĐẠT

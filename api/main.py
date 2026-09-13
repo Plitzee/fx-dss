@@ -40,6 +40,7 @@ WEB = os.path.join(ROOT, "web")
 
 import balop as B                                      # noqa: E402
 import chibao as CB                                    # noqa: E402
+import conformal as CF                                 # noqa: E402
 import volfc2 as V2                                    # noqa: E402
 from volfc import merge_thin_days                      # noqa: E402
 from split import doan, VALID_TU, TEST_TU              # noqa: E402
@@ -62,6 +63,35 @@ HS = (1, 5, 20)
 #     bao cao tren giao dien va la viec cua lop hieu chuan lai o vong sau.
 NEN_THEO_H = {1: "tổ hợp trực tuyến", 5: "σ̂ + chế độ (cuộn)",
               20: "σ̂ + chế độ (cuộn)"}
+
+# Cua so hieu chuan cuon cho ACI (docs/CHISO_DANHGIA.md muc 16).
+CF_CUA_SO = 500
+
+# KY NANG DO DUOC theo tung tam han — HAI phep do DOC LAP, cung mot ket luan:
+#
+#   walk-forward theo nam (muc 14)   h=1: 14/14 nam BSS duong
+#                                    h=5: 10/14 · h=20: 8/14
+#   thong tin conformal (muc 16)     h=1: +0,10 lop tren kiem tra
+#                                    h=5: -0,09 · h=20: -0,10
+#   theo cap, kiem tra (kiem_ngan_han.py)
+#                                    h=1: 6/6 cap BSS duong CO Y NGHIA
+#
+# Ky nang cua he thong nam o TAM HAN 1 PHIEN. O 5 va 20 phien, tap du bao cua
+# mo hinh KHONG nho hon tap cua mot hang so — tuc khong loai tru them duoc gi.
+# Giao dien phai noi dung nhu the, khong duoc trinh bay ba o nhu nhau.
+KY_NANG_THEO_H = {
+    1: dict(muc="có kỹ năng đo được",
+            chi_tiet="BSS dương 14/14 năm; 6/6 cặp có ý nghĩa trên kiểm tra; "
+                     "tập conformal nhỏ hơn mốc khí hậu học 0,10–0,21 lớp"),
+    5: dict(muc="kỹ năng không tách được khỏi 0",
+            chi_tiet="BSS dương 10/14 năm; tập conformal KHÔNG nhỏ hơn mốc "
+                     "khí hậu học (−0,09 lớp) — dùng để tham khảo, không để "
+                     "ra quyết định"),
+    20: dict(muc="kỹ năng không tách được khỏi 0",
+             chi_tiet="BSS dương 8/14 năm; tập conformal KHÔNG nhỏ hơn mốc "
+                      "khí hậu học (−0,10 lớp) — dùng để tham khảo, không để "
+                      "ra quyết định"),
+}
 
 app = FastAPI(title="FX-DSS API", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -197,12 +227,63 @@ def tinh(p):
             mo = ns if NEN_THEO_H[h] == "chỉ σ̂" else cd
             P = mo.du_bao(n, **kw)
         xs[h] = dict(P=P, b=T["b"], sigma_h=T["sigma_h"], kP=T["kP"], c_h=T["c_h"],
-                     mo=mo, trong_so=getattr(mo, "trong_so", None))
+                     mo=mo, trong_so=getattr(mo, "trong_so", None), yP=T["yP"])
+
+    # ── TAP DU BAO CONFORMAL (ACI) ──────────────────────────────────────
+    # Ba xac suat noi "kha nang bao nhieu"; tap conformal noi "loai tru duoc
+    # gi, voi BAO DAM". Do la hai thu khac nhau, va cai thu hai la thu co the
+    # HUA duoc: do phu 90% giu duoc ke ca khi thi truong doi che do.
+    #
+    # Vi sao ACI chu khong phai split conformal tinh: da do o
+    # docs/CHISO_DANHGIA.md muc 16 — conformal tinh hong o CA HAI huong tren
+    # chinh du lieu nay (LAC hut con 0,814; APS phong len 0,999), con ACI giu
+    # 0,901-0,908 o moi tam han. Du lieu nay co troi phan phoi that.
+    #
+    # NHAN QUA: `chay_aci` phat tap cho phien t TRUOC, roi moi dung ket cuc
+    # cua t de cap nhat alpha. Phien moi nhat chua co ket cuc — dung nhu khi
+    # chay that.
+    #
+    # HIEU CHUAN RIENG TUNG CAP: do duoc +0,21 lop thong tin so voi +0,10 khi
+    # gop chung (src/kiem_ngan_han.py). Ham nay von da chay rieng tung cap.
+    for h in HS:
+        yv = np.asarray(xs[h]["yP"], int)
+        Ph = xs[h]["P"]
+        hop = (yv >= 0) & np.isfinite(Ph).all(1)
+        i_hc = np.flatnonzero(hop & tr)
+        if len(i_hc) >= 200:
+            tap, al = CF.chay_aci(Ph[i_hc][-CF_CUA_SO:], yv[i_hc][-CF_CUA_SO:],
+                                  np.where(np.isfinite(Ph), Ph, 1 / 3),
+                                  np.where(yv >= 0, yv, 0), CF.diem_lac)
+            xs[h]["tap"], xs[h]["alpha_aci"] = tap, al
+        else:
+            xs[h]["tap"] = xs[h]["alpha_aci"] = None
 
     nguong = np.quantile(pan.sig.values[tr], [1 / 3, 2 / 3])
     return dict(m=m, pan=pan, sig=pan.sig.values, xs=xs,
                 che_do=np.digitize(pan.sig.values, nguong), nguong=nguong,
                 tinh_luc=dt.datetime.utcnow())
+
+
+TEN_LOP = ("giảm", "đi ngang", "tăng")
+
+
+def _tap_conformal(X, i):
+    """Tap du bao conformal cho hang i — kem BAO DAM do phu 90%.
+
+    Ba xac suat noi "kha nang bao nhieu"; tap nay noi "loai tru duoc gi". Kich
+    thuoc tap la thu doc duoc ngay: 3 nghia la khong loai duoc gi, 2 nghia la
+    loai duoc mot kha nang. Do phu 90% giu duoc ke ca khi thi truong doi che
+    do — da do o docs/CHISO_DANHGIA.md muc 16."""
+    tap = X.get("tap")
+    if tap is None or i >= len(tap):
+        return {"tap_du_bao": None, "tap_kich_thuoc": None,
+                "conformal_alpha": None,
+                "tap_ghi_chu": "chưa đủ dữ liệu hiệu chuẩn"}
+    lop = [TEN_LOP[j] for j in range(3) if tap[i, j]]
+    al = X.get("alpha_aci")
+    return {"tap_du_bao": lop, "tap_kich_thuoc": len(lop),
+            "conformal_alpha": round(float(al[i]), 4) if al is not None else None,
+            "tap_ghi_chu": f"bảo đảm phủ 90% (ACI) — {len(lop)}/3 lớp còn lại"}
 
 
 def lay(p, moi=False):
@@ -249,6 +330,7 @@ def meta():
     return {
         "cap": list(PAIRS), "tam_han": list(HS),
         "nen_theo_h": {str(k): v for k, v in NEN_THEO_H.items()},
+        "ky_nang_theo_h": {str(k): v for k, v in KY_NANG_THEO_H.items()},
         "moc_noi_nguon": str(MOC_NOI.date()),
         "valid_tu": str(VALID_TU.date()), "test_tu": str(TEST_TU.date()),
         "moi_noi": json.load(open(mn, encoding="utf-8")) if os.path.exists(mn) else None,
@@ -262,7 +344,7 @@ def meta():
         ]}
 
 
-KHUNG = ("D1", "H1", "M15", "M1")
+KHUNG = ("D1", "H1", "M15", "M5")
 
 
 def nap_khung(pair, tf):
@@ -271,7 +353,14 @@ def nap_khung(pair, tf):
       D1  lich su day (HistData 2010 -> 2025-12) + Yahoo tu 2026
       H1  lich su day (repo prices/{P}_h1.csv tu 2010) + Yahoo 730 ngay
       M15 chi Yahoo, 60 ngay      — gioi han cua nha cung cap
-      M1  chi Yahoo, 7 NGAY       — gioi han cung cua Yahoo (range=30d bao loi)
+      M5  chi Yahoo, 60 ngay      — gioi han cua nha cung cap
+
+    KHONG con "M1": da DO truc tiep tren feed Yahoo (12/09/2026) — nen 1 phut
+    cua ho la ANH CHUP GIA (98,7% thanh co o=h=l=c), khong phai OHLC that; ve
+    nen o do la ve mot day doji vo hinh. Nen 5 phut thi KHAC HAN: chi 20,8% suy
+    bien (dung luc thanh khoan rat thap, gan dung), tuc ~79% la OHLC that. Nen
+    khung nhanh nhat giao dien hien la M5, khong phai M1 — trung thuc voi cai
+    nguon mien phi THAT SU co, thay vi ve M1 "gia".
 
     Do sau khac nhau la RANG BUOC CUA NGUON, khong phai lua chon thiet ke; ham
     tra ve `ghi_chu` de giao dien noi ro cho nguoi dung."""
@@ -302,7 +391,7 @@ def nap_khung(pair, tf):
     d = pd.read_csv(g, parse_dates=["ts"]).sort_values("ts").reset_index(drop=True)
     d["nguon"] = "yahoo"
     han = {"M15": "chỉ 60 ngày — giới hạn nhà cung cấp",
-           "M1": "chỉ 7 ngày — giới hạn cứng của Yahoo"}
+           "M5": "chỉ 60 ngày — giới hạn nhà cung cấp"}
     return d, han.get(tf, "")
 
 
@@ -398,6 +487,8 @@ def forecast(pair: str = Query(...), h: int = Query(1), ngay: str = Query(None))
         "kP": round(float(X["kP"]), 4), "c_h": round(float(X["c_h"]), 4),
         "mo_hinh": NEN_THEO_H[h],
         "ky_nang_huong": "không phân biệt được (AUC phủ 0,50 ở 24/24 ô — xem /calibration)",
+        **_tap_conformal(X, i),
+        "ky_nang_do_duoc": KY_NANG_THEO_H[h],
         "tinh_luc": K["tinh_luc"].isoformat() + "Z"}
 
 
@@ -423,7 +514,10 @@ def forecast_series(pair: str = Query(...), n: int = Query(1500)):
             "b_pip": [round(float(v), 2) for v in sang_pip(X["b"][sl], _gia, pair)],
             "sig_pip": [round(float(v), 2) for v in sang_pip(X["sigma_h"][sl], _gia, pair)],
             "kP": round(float(X["kP"]), 4), "c_h": round(float(X["c_h"]), 4),
-            "nen": NEN_THEO_H[h]}
+            "nen": NEN_THEO_H[h],
+            # tap conformal — giao dien doc de noi "loai tru duoc gi"
+            "tap": ([[bool(v) for v in row] for row in X["tap"][sl]]
+                    if X.get("tap") is not None else None)}
         s = pd.Series(X["P"][:, 1]).rolling(252, min_periods=60).mean().iloc[-1]
         ra["nen12"][str(h)] = round(float(s), 4) if np.isfinite(s) else 0.33
     return ra
@@ -754,12 +848,15 @@ def models():
       ba_lop       : ML/DL/hoc truc tuyen tren ba lop      (src/run_ml3.py)
       quy_luat     : pheu khai pha quy luat                (src/run_quyluat.py)
       bien_dong_14 : 14 mo hinh du bao phuong sai          (vong 7)
+      nhan_qua     : pheu ngoai sinh / dan bao thoi gian   (Pha 3B)
     """
     import json
     ra = {}
     for khoa, ten in (("chi_so_sigma", "chiso_mohinh.json"),
                       ("ba_lop", "ml3.json"),
                       ("quy_luat", "quyluat.json"),
+                      ("nhan_qua", "pha3b_ui.json"),
+                      ("nen", "nen_ui.json"),
                       ("bien_dong_14", "ketqua_ml_dl.json"),
                       ("tin_cay", "tincay.json"),
                       ("ngoai_mau", "ngoai_mau.json"),

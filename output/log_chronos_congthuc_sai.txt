@@ -1,0 +1,55 @@
+============================================================================================================
+CHRONOS-BOLT (amazon/chronos-bolt-small) — mô hình nền chuỗi thời gian, đo THẬT
+cùng giao thức QLIKE với bảng 14 mô hình ở docs/ML_DL_VONG7.md
+============================================================================================================
+Đang tải trọng số…
+2026-09-09 23:54:31.022830: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-09-09 23:54:33.342506: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+C:\Users\ASUS\AppData\Roaming\Python\Python311\site-packages\keras\src\export\tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+  tải xong sau 2s — ZERO-SHOT, không khớp lại tham số riêng cho từng cặp
+
+tự kiểm cách đổi phân vị log-RV sang phương sai…
+Passing a tuple of `past_key_values` is deprecated and will be removed in Transformers v4.48.0. You should pass an instance of `EncoderDecoderCache` instead, e.g. `past_key_values=EncoderDecoderCache.from_legacy_cache(past_key_values)`.
+  TB(exp(phân vị))      = 1.0160  ← cách dùng trong file này
+  exp(trung vị)          = 0.9618  ← cách SAI, lệch xuống
+  E[X] lý thuyết (log-normal) = 1.1331
+  lệch: TB(exp) 10.3%  vs  exp(trung vị) 15.1%  ĐẠT
+
+[EURUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 50s
+  kiem_dinh    n= 547  QLIKE -9.4620
+  kiem_tra     n= 548  QLIKE -9.9228
+
+[GBPUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 39s
+  kiem_dinh    n= 547  QLIKE -9.2356
+  kiem_tra     n= 548  QLIKE -9.8564
+
+[USDJPY] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 40s
+  kiem_dinh    n= 547  QLIKE -9.2354
+  kiem_tra     n= 548  QLIKE -9.1771
+
+[AUDUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 51s
+  kiem_dinh    n= 547  QLIKE -8.8036
+  kiem_tra     n= 548  QLIKE -9.2848
+
+[USDCAD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 39s
+  kiem_dinh    n= 547  QLIKE -9.7681
+  kiem_tra     n= 548  QLIKE -10.3777
+
+[USDCHF] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 39s
+  kiem_dinh    n= 547  QLIKE -9.3890
+  kiem_tra     n= 548  QLIKE -9.6073
+
+============================================================================================================
+TỔNG KẾT — gộp 6 cặp, đối chiếu bảng 14 mô hình đã có
+  đoạn            QLIKE Chronos-bolt   QLIKE HAR v7 (đã ghi)     chênh
+  kiem_dinh                  -9.3156                  0.1162  -8116.9%
+  kiem_tra                   -9.7044                  0.1585  -6222.6%
+
+→ output/chronos.json · 273s

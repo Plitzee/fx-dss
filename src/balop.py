@@ -61,12 +61,33 @@ def nap(duong=None):
 
 # ── muc tieu ────────────────────────────────────────────────────────────
 def loi_suat_h(d, h):
-    """r_h[t] = tong loi suat log tu t den t+h-1. NaN o duoi khi thieu ngay."""
+    """r_h[t] = tong loi suat log tu t den t+h-1. NaN o duoi khi thieu ngay.
+
+    LOI DA SUA (08/09/2026) — BIA LOI SUAT BANG 0. `nancumsum` coi NaN la 0,
+    nen mot cua so ma MOI ngay deu thieu cho tong = 0,0 chu khong phai NaN.
+    Voi 551 phien dau moi cap (sigma^ chua co du lieu khoi dong, r = zT*sig =
+    NaN) dieu do sinh ra 3.306 hang co "loi suat" dung bang 0 — roi gan_lop()
+    xep het chung vao lop "di ngang" vi |0| <= dai.
+
+    Hau qua da do duoc: ty le lop "di ngang" tren mau khai pha cua Giai doan 2
+    bi thoi tu 18,4% (that) len 30,8% (co 3.312 hang bia). Moi con so lift cua
+    Giai doan 2 deu bi meo theo — dau hieu lo ra la ca ba o cua sigma^ (thap,
+    vua, cao) cung cho lift < 1 voi lop "di ngang" (0,715 · 0,608 · 0,482),
+    dieu KHONG THE xay ra neu ba o phu kin mau, tru khi mau nen chua nhung
+    hang khong thuoc o nao. 3.306/3.312 hang do nam o doan HUAN LUYEN nen
+    Giai doan 1 (cham tren kiem dinh) khong bi anh huong.
+
+    Sua: dem so ngay CO THAT trong moi cua so; cua so khong co ngay nao thi
+    tra NaN. Giu nguyen dung y ban dau la CHIU DUOC khe ho le te (cua so con
+    it nhat mot ngay that van cong duoc phan quan sat duoc)."""
     r = d.zT.values * d.sig.values
     n = len(r)
     cs = np.concatenate([[0.0], np.nancumsum(r)])
+    co = np.concatenate([[0.0], np.cumsum(np.isfinite(r).astype(float))])
     ra = np.full(n, np.nan)
-    ra[: n - h + 1] = cs[h:] - cs[: n - h + 1]
+    tong = cs[h:] - cs[: n - h + 1]
+    du = (co[h:] - co[: n - h + 1]) > 0
+    ra[: n - h + 1] = np.where(du, tong, np.nan)
     return ra
 
 
@@ -384,12 +405,27 @@ class ToHopTrucTuyen:
 
     ten = "tổ hợp trực tuyến"
 
-    def __init__(self, chuyen_gia, eta=0.5, tre=1):
+    def __init__(self, chuyen_gia, eta=0.5, tre=1, alpha=0.0):
         """chuyen_gia: [(ten, doi_tuong_co_du_bao)]. eta chot 0,5 — la gia tri
-        da do o src/run_ml3.py, KHONG duoc chinh lai tren doan kiem tra."""
+        da do o src/run_ml3.py, KHONG duoc chinh lai tren doan kiem tra.
+
+        alpha — CHIA SE CO DINH (Herbster & Warmuth 1998). Hedge tran khong co
+        quen: mot chuyen gia da bi dim xuong 1e-6 phai thang rat nhieu phien
+        moi ngoi len lai. Neu che do thi truong DOI — va thi truong tien te thi
+        doi — thi cai cham do la ton that thuc. Fixed-Share tron lai alpha
+        phan trong so ve deu moi phien, dat mot san cho moi chuyen gia:
+
+            w <- (1 - alpha) w + alpha / N
+
+        Doi lai, chan hoi tiec khong con so voi CHUYEN GIA tot nhat ma so voi
+        DAY chuyen gia tot nhat co k lan chuyen — dung thu ta muon khi co che
+        do. alpha = 0 la Hedge tran, va do la MAC DINH: alpha chi duoc bat sau
+        khi da do tren doan hop le (src/kiem_fixshare.py).
+        """
         self.cg = list(chuyen_gia)
         self.eta = float(eta)
         self.tre = max(1, int(tre))
+        self.alpha = float(alpha)
 
     def khop(self, *a, **k):
         return self
@@ -414,6 +450,8 @@ class ToHopTrucTuyen:
             ton = -np.log(np.maximum(A[:, j, y[j]], 1e-9))
             w = w * np.exp(-self.eta * (ton - ton.min()))
             w = w / max(w.sum(), EPS)
+            if self.alpha > 0:                      # chia se co dinh
+                w = (1.0 - self.alpha) * w + self.alpha / N
         self.trong_so = {t: float(v) for (t, _), v in zip(self.cg, w)}
         self.lich_su = lich_su
         return _chuan(ra)

@@ -1,0 +1,69 @@
+============================================================================================================
+TTM (ibm-granite/granite-timeseries-ttm-r2) — mô hình nền chuỗi thời gian, DUY NHẤT thắng Log-HAR trong Brini 2026
+cùng giao thức QLIKE với Chronos-bolt và bảng 14 mô hình ở docs/ML_DL_VONG7.md
+============================================================================================================
+Đang tải trọng số…
+INFO:p-11496:t-9884:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:p-11496:t-9884:_http.py:_warn_on_warning_headers:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+INFO:p-11496:t-9884:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/ibm-granite/granite-timeseries-ttm-r2/d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f/config.json?%2Fibm-granite%2Fgranite-timeseries-ttm-r2%2Fresolve%2Fmain%2Fconfig.json=&etag=%2209e937ef5082573c0785a180f23753110b78696c%22 "HTTP/1.1 200 OK"
+INFO:p-11496:t-9884:_client.py:_send_single_request:HTTP Request: HEAD https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5188.24it/s]
+  tải xong sau 1s — context_length=512, prediction_length=96
+  ZERO-SHOT, không khớp lại tham số riêng cho từng cặp
+
+tự kiểm hệ số hiệu chỉnh log-chuẩn…
+  KHÔNG hiệu chỉnh   = 4.565e-05
+  CÓ hiệu chỉnh      = 5.231e-05  (hệ số +0.1362)
+  E[X] lý thuyết     = 5.144e-05
+  lệch: không hc 11.3%  vs  có hc 1.7%  ĐẠT
+
+[EURUSD] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.1000  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.1248
+  kiem_tra     n= 548  QLIKE 0.1741
+
+[GBPUSD] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.0848  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.1301
+  kiem_tra     n= 548  QLIKE 0.1342
+
+[USDJPY] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.1331  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.2653
+  kiem_tra     n= 548  QLIKE 0.3160
+
+[AUDUSD] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.1007  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.1067
+  kiem_tra     n= 548  QLIKE 0.1542
+
+[USDCAD] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.1143  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.0925
+  kiem_tra     n= 548  QLIKE 0.1508
+
+[USDCHF] ước hệ số hiệu chỉnh trên 509 điểm mẫu huấn luyện…
+  hệ số hiệu chỉnh = +0.0958  (từ 509 điểm)
+  đang dự báo 1,095 phiên (kiểm định+kiểm tra)…
+  xong 0s
+  kiem_dinh    n= 547  QLIKE 0.1069
+  kiem_tra     n= 548  QLIKE 0.1836
+
+============================================================================================================
+TỔNG KẾT — gộp 6 cặp, đối chiếu Chronos-bolt và HAR v7 đã đo
+  đoạn               QLIKE TTM   QLIKE Chronos   QLIKE HAR v7   TTM so HAR
+  kiem_dinh             0.1377          0.1383         0.1162       +18.5%
+  kiem_tra              0.1855          0.1851         0.1585       +17.0%
+
+→ output/ttm.json · 27s

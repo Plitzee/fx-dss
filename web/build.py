@@ -47,7 +47,8 @@ def main():
             M = json.load(io.open(os.path.join(d, "meta.json"), encoding="utf-8"))
             goi = {"meta": {k: M[k] for k in ("cap", "valid_tu", "test_tu",
                                               "canh_bao", "cap_nhat_luc",
-                                              "mo_hinh", "rui_ro") if k in M},
+                                              "mo_hinh", "rui_ro",
+                                              "ky_nang_theo_h") if k in M},
                    "cap": {}, "su_kien": M.get("su_kien", []),
                    "hieu_chuan": M.get("hieu_chuan", {}),
                    "so_dubao": M.get("so_dubao", {})}
@@ -62,7 +63,9 @@ def main():
                      for q in ("ngay", "o", "h", "l", "c", "sig_pip", "che_do",
                                "nguon", "rv_uoc", "pip", "nen12")}
                 y["tam"] = {h: {**t, "p": t["p"][k], "b_pip": t["b_pip"][k],
-                                "sig_pip": t["sig_pip"][k]}
+                                "sig_pip": t["sig_pip"][k],
+                                # tap conformal cung phai cat cung lat
+                                "tap": (t["tap"][k] if t.get("tap") else None)}
                             for h, t in x["tam"].items()}
                 y["ind"] = None if not x.get("ind") else {
                     **x["ind"],

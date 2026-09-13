@@ -116,6 +116,21 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 #ohlc b{color:var(--ink3);font-weight:400}
 #ohlc .v{color:var(--ink);font-variant-numeric:tabular-nums}
 #ohlc .up{color:var(--nen-tang)} #ohlc .dn{color:var(--nen-giam)}
+/* Nhãn DỰ BÁO nổi góc trên-phải — trả lời đúng câu "hệ thống đang dự đoán
+   khoảng thời gian nào, dao động bao nhiêu". Luôn theo dự báo MỚI NHẤT, không
+   đổi theo vị trí con trỏ (khác bảng ba ô bên dưới biểu đồ, vốn đổi theo hover
+   để xem lại lịch sử) — tránh đúng chỗ người dùng từng nhầm ngày. */
+#dubao{position:absolute;top:8px;right:12px;z-index:3;pointer-events:none;
+  font-family:var(--f-m);font-size:11px;line-height:1.55;text-align:right;
+  background:var(--panel2);border:1px solid var(--line);border-radius:7px;
+  padding:7px 11px;max-width:250px}
+#dubao .tt{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:2px}
+#dubao .kg{display:block;font-family:var(--f-d);font-weight:700;font-size:13px;
+  color:var(--ink);margin-bottom:1px}
+#dubao .kv{display:block;color:var(--ink2)}
+#dubao .kv b{color:var(--flat)}
+@media (max-width:860px){ #dubao{display:none} }
 /* nhãn tên chỉ báo khung dưới — phải nằm TRÊN khung dưới, không đè bảng OHLC */
 #rsimark{position:absolute;bottom:80px;left:12px;z-index:3;pointer-events:none;
   font-family:var(--f-m);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
@@ -198,6 +213,30 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .tsbox{display:flex;flex-direction:column;gap:7px;margin-top:10px}
 .tsrow{display:flex;align-items:center;gap:10px}
 .tsk{flex:0 0 150px;font-size:12px;color:var(--ink2)}
+/* Bảng tổng hợp 6 cặp — trang Tổng quan. */
+.dashgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}
+.dcard{display:flex;flex-direction:column;gap:6px;text-align:left;padding:13px 14px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:8px;cursor:pointer;
+  font:inherit;color:inherit;transition:border-color .12s,transform .12s}
+.dcard:hover{border-color:var(--acc)}
+.dcard.on{border-color:var(--acc);border-width:2px;padding:12px 13px}
+.dcard.chi-tai{opacity:.55;cursor:default}
+.drow1{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dsym{font-family:var(--f-d);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.dpill{font-family:var(--f-m);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;white-space:nowrap}
+.dpill.ok{background:var(--upbg);color:var(--up)}
+.dpill.mid{background:var(--flatbg);color:var(--flat)}
+.dpill.bad{background:var(--downbg);color:var(--down)}
+.dgia{font-family:var(--f-m);font-size:19px;font-variant-numeric:tabular-nums}
+.ddelta{font-family:var(--f-m);font-size:11.5px;margin-top:-4px}
+.dbars{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--line);gap:1px}
+.dbar{height:100%}
+.dbar.d{background:var(--down)} .dbar.f{background:var(--flat)} .dbar.u{background:var(--up)}
+.dpct{display:flex;justify-content:space-between;font-family:var(--f-m);font-size:10.5px}
+.dpct .dn{color:var(--down)} .dpct .fl{color:var(--flat)} .dpct .up{color:var(--up)}
+.dband{font-size:10.5px;color:var(--ink3);margin-top:1px}
+.dload{color:var(--ink3);font-size:12px}
 .tsbar{flex:1;height:16px;background:var(--panel2);border-radius:3px;overflow:hidden}
 .tsbar i{display:block;height:100%;background:var(--acc)}
 .tsv{flex:0 0 44px;text-align:right;font-family:var(--f-m);font-size:12px}
@@ -261,7 +300,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
     <div id="ptabs" style="display:flex;gap:2px;flex-wrap:wrap"></div>
     <div class="spacer"></div>
     <div class="tsel" id="tfsel">
-      <button data-tf="M1">M1</button>
+      <button data-tf="M5">M5</button>
       <button data-tf="M15">M15</button>
       <button data-tf="H1">H1</button>
       <button data-tf="D1" class="on">D1</button>
@@ -304,6 +343,7 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
           </div>
           <div id="chartwrap">
             <div id="ohlc"></div>
+            <div id="dubao"></div>
             <div id="chart"></div>
             <div id="rsimark"></div>
             <div id="rsi"></div>
@@ -589,13 +629,45 @@ function veOHLC(K, j){
 /* Cửa sổ mặc định: ~130 nến gần nhất, KHÔNG phải fitContent().
    fitContent() nhồi cả 1.500 nến vào ~640px — mỗi nến chưa tới nửa pixel, nến
    biến thành một dải nhiễu. Mọi sàn đều mở ở khoảng 100–200 nến. */
-const CUA_SO = {D1:130, H1:140, M15:150, M1:160};
+const CUA_SO = {D1:130, H1:140, M15:150, M5:160};
 function veCuaSo(){
   chinhCo();
   const K = KHO[state.pair+"|"+state.tf]; if(!K) return;
   const n = K.t.length, m = Math.min(CUA_SO[state.tf]||130, n);
   chart.timeScale().setVisibleLogicalRange({from:n-m, to:n+8});
   veOHLC(K, n-1);
+}
+
+/* Ngày phiên KẾ TIẾP, bỏ qua thứ Bảy/Chủ nhật — dùng để chiếu dự báo vào
+   tương lai trên biểu đồ. Không biết lịch nghỉ lễ nên chỉ là XẤP XỈ; đủ tốt
+   cho một nhãn "khoảng ngày nào", không dùng để tính toán tài chính. */
+function ngayKeTiep(ngayStr, soPhien){
+  if(!ngayStr) return null;
+  let d = new Date(ngayStr+"T00:00:00Z"), con = Math.max(1, soPhien||1);
+  while(con>0){
+    d.setUTCDate(d.getUTCDate()+1);
+    const wd = d.getUTCDay();
+    if(wd!==0 && wd!==6) con--;
+  }
+  return d.toISOString().slice(0,10);
+}
+
+/* Nhãn nổi góc trên-phải biểu đồ — trả lời "dự đoán cho lúc nào, dao động
+   bao nhiêu". Luôn dùng dự báo MỚI NHẤT (iMoiNhat = phiên cuối có dữ liệu),
+   không đổi theo crosshair — khác bảng ba ô bên dưới vốn đổi theo hover để
+   xem lại lịch sử. Hai thứ có vai trò khác nhau, cố tình không đồng bộ. */
+function veNhanDuBao(P, T, iMoiNhat, ngayMuc){
+  const el = $("#dubao"); if(!el) return;
+  const p = T.p[iMoiNhat], b = T.b_pip[iMoiNhat], g = P.c[iMoiNhat];
+  const nd = P.pip===0.01 ? 3 : 5;
+  const hten = {"1":"phiên tới","5":"5 phiên tới","20":"20 phiên tới"}[state.h];
+  const trongNhat = p.indexOf(Math.max(...p));
+  const tenLop = ["giảm","đi ngang","tăng"][trongNhat];
+  const mauLop = ["var(--down)","var(--flat)","var(--up)"][trongNhat];
+  el.innerHTML = `<span class="tt">Dự báo — ${hten} (đến ${ngayMuc})</span>
+    <span class="kg">${(g-b*P.pip).toFixed(nd)} – ${(g+b*P.pip).toFixed(nd)}</span>
+    <span class="kv">±${fmt(b)} pip quanh giá đóng ${P.ngay[iMoiNhat]}</span>
+    <span class="kv">khả năng cao nhất: <b style="color:${mauLop}">${tenLop} ${(100*p[trongNhat]).toFixed(0)}%</b></span>`;
 }
 
 async function paintChart(){
@@ -637,8 +709,20 @@ async function paintChart(){
       const b = k>=0 ? T.b_pip[k]*P.pip : null;
       bu.push(b==null?null:K.c[i]+b); bl.push(b==null?null:K.c[i]-b);
     }
-    sBandU.setData(V(bu)); sBandL.setData(V(bl));
-  } else { sBandU.setData([]); sBandL.setData([]); }
+    const duBu = V(bu), duBl = V(bl);
+    // CHIẾU DẢI VÀO TƯƠNG LAI — một điểm thêm, VƯỢT QUA nến cuối cùng, tại
+    // đúng ngày mục tiêu của dự báo MỚI NHẤT (không phải điểm đang hover).
+    // Đây là câu người dùng hỏi trực tiếp: hệ thống đang dự đoán cho KHOẢNG
+    // THỜI GIAN nào, và dao động dự kiến bao nhiêu — vẽ thẳng lên biểu đồ
+    // thay vì chỉ nói bằng chữ ở dưới.
+    const iMoiNhat = P.ngay.length-1;
+    const ngayMuc = ngayKeTiep(P.ngay[iMoiNhat], Number(state.h));
+    const bMoi = T.b_pip[iMoiNhat]*P.pip, gMoi = P.c[iMoiNhat];
+    if(duBu.length && ngayMuc){ duBu.push({time:ngayMuc, value:gMoi+bMoi});
+                                duBl.push({time:ngayMuc, value:gMoi-bMoi}); }
+    sBandU.setData(duBu); sBandL.setData(duBl);
+    veNhanDuBao(P, T, iMoiNhat, ngayMuc);
+  } else { sBandU.setData([]); sBandL.setData([]); $("#dubao").innerHTML=""; }
 
   // đánh dấu: sự kiện NHTW, đỉnh/đáy dao động, quét thanh khoản
   let mk = [];
@@ -688,7 +772,7 @@ async function paintChart(){
   $("#rsimark").textContent = ({rsi:"RSI 14", macd:"MACD 12/26/9",
     stoch:"Stochastic 14/3/3", adx:"ADX/DMI 14", atr:"ATR — phân vị 252"})[state.duoi] || "";
 
-  const ten = {D1:"D1",H1:"H1",M15:"M15",M1:"M1"}[state.tf];
+  const ten = {D1:"D1",H1:"H1",M15:"M15",M5:"M5"}[state.tf];
   $("#chttl").textContent = state.pair.slice(0,3)+"/"+state.pair.slice(3)+" · "+ten
     + (K.ghi_chu ? " · " + K.ghi_chu : "")
     + (suyBien ? " · CHỈ CÓ GIÁ ĐÓNG CỬA — nguồn không cung cấp OHLC ở khung này" : "");
@@ -716,6 +800,77 @@ function suKienSapToi(sau_ngay, trong_n_ngay){
     .map(e => ({...e, ...mucDoSuKien(e.nhan),
                 cach: Math.round((new Date(e.ngay) - new Date(hnay))/86400000)}))
     .sort((a,b)=> b.bd - a.bd || a.cach - b.cach);
+}
+
+/* Mã sự kiện -> đồng tiền bị ảnh hưởng. Khớp đúng cột `tien_te` của
+   `data/su_kien.csv` (18 mã, 7 đồng) — chép lại ở đây vì bản xuất
+   `web/data/meta.json` chỉ giữ nhãn, không giữ đồng tiền. Ổn định, không cần
+   sửa nếu không thêm loại sự kiện mới. */
+const MA_TIEN_TE = {FOMC:"USD", NFP:"USD", CPI:"USD", PCE:"USD", PPI:"USD",
+  JOBLESS:"USD", BANLE:"USD", NHA:"USD", GDP:"USD", UMCSI:"USD", JOLTS:"USD",
+  DTC:"USD", ECB:"EUR", BOE:"GBP", BOJ:"JPY", RBA:"AUD", BOC:"CAD", SNB:"CHF"};
+
+function capBiAnhHuong(nhan){
+  const te = new Set((nhan||[]).map(m=>MA_TIEN_TE[m]).filter(Boolean));
+  return (DATA.meta.cap||[]).filter(p=>[...te].some(t=>p.includes(t)));
+}
+
+function chipCap(caps, phanTich){
+  return caps.map(c=>`<span class="pill r1"${phanTich?` title="${c.slice(0,3)}/${c.slice(3)}"`:""}>${c.slice(0,3)}/${c.slice(3)}</span>`).join(" ");
+}
+
+/* Xem trước ngắn trên Tổng quan — trả lời "sắp có tin gì, ảnh hưởng cặp nào".
+   Chỉ hiện sự kiện ĐÃ ĐO thật (KTC không phủ 1,0) để không nhiễu bằng những
+   loại chưa đo được tác động. */
+function veSuKienSapToiTQ(){
+  const ds = suKienSapToi(null, 21).filter(e=>e.that).slice(0,6);
+  if(!ds.length) return "";
+  const rows = ds.map(e=>{
+    const caps = capBiAnhHuong(e.nhan);
+    const khi = e.cach===0 ? "hôm nay" : e.cach===1 ? "ngày mai" : `còn ${e.cach} ngày`;
+    return `<tr><td class="n">${e.ngay}</td><td>${khi}</td><td><b>${e.nhan.join(", ")}</b></td>
+      <td class="n ${e.cao?"neg":""}">${e.bd?e.bd.toFixed(2)+"×":"—"}</td>
+      <td>${chipCap(caps)||"—"}</td></tr>`;
+  }).join("");
+  return `<div class="card sec">
+    <h2>Sự kiện sắp tới có tác động đo được</h2>
+    <p class="lead">21 ngày tới, xếp theo mức độ đo được (tỷ lệ |biến động| so ngày thường,
+      đo trên toàn bộ lịch sử). Chiều đi <b>vẫn không đoán được</b> ở mọi loại — xem
+      đầy đủ ở tab <b>Sự kiện</b>.</p>
+    <div class="tw"><table><thead><tr><th class="n">ngày</th><th>còn</th><th>sự kiện</th>
+      <th class="n">mức độ đo được</th><th>cặp bị ảnh hưởng</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+
+/* Bảng đầy đủ trên tab Sự kiện — mọi sự kiện đã đo trong 30 ngày tới, cả sáu
+   cặp, kèm mức độ + chiều (luôn "không có ý nghĩa" vì đã kiểm ở mọi loại). */
+function veSuKienSapToiDayDu(){
+  const ds = suKienSapToi(null, 30);
+  if(!ds.length) return "";
+  const rows = ds.map(e=>{
+    const caps = capBiAnhHuong(e.nhan);
+    const khi = e.cach===0 ? "hôm nay" : e.cach===1 ? "ngày mai" : `${e.cach} ngày`;
+    const co = e.e || {};
+    return `<tr><td class="n">${e.ngay}</td><td class="n">${khi}</td>
+      <td><b>${e.nhan.join(", ")}</b></td>
+      <td>${chipCap(caps, true)||"—"}</td>
+      <td class="n ${e.that?(e.cao?"neg":"pos"):""}">${e.bd?e.bd.toFixed(3)+"×":"chưa đo được"}</td>
+      <td class="n">${co.n?co.n.toLocaleString("vi"):"—"}</td>
+      <td>${e.that?"đã đo — không có ý nghĩa về chiều":"KTC phủ 1,0 (không phân biệt được ngày thường)"}</td></tr>`;
+  }).join("");
+  return `<div class="card sec chi-phan-tich">
+    <h2>Sự kiện sắp tới — 30 ngày, cả sáu cặp</h2>
+    <p class="lead">Nguồn: <code>data/su_kien.csv</code>, lịch chính thức của 7 ngân hàng trung
+      ương + các công bố vĩ mô Mỹ định kỳ. Mức độ = tỷ lệ |biến động| ngày sự kiện so nền 20
+      phiên liền trước, đo trên <b>toàn bộ lịch sử</b> — không phải suy đoán cho ngày sắp tới.</p>
+    <div class="tw"><table><thead><tr><th class="n">ngày</th><th class="n">còn</th>
+      <th>sự kiện</th><th>cặp ảnh hưởng</th><th class="n">mức độ (trung vị)</th>
+      <th class="n">n quan sát</th><th>chiều</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="note"><b>Vì sao không có cột "dự đoán tăng hay giảm".</b> Đã kiểm cả 18 loại
+      sự kiện: không loại nào có thiên lệch hướng vượt qua khoảng tin cậy 95%. Sự kiện khuếch
+      đại <em>biên độ</em>, không chỉ ra <em>chiều</em> — đúng kết luận trung tâm của hệ thống.</div>
+  </div>`;
 }
 
 function veCanhBaoSuKien(){
@@ -979,7 +1134,7 @@ function paintMo(){
     return;
   }
   const s = M.chi_so_sigma, ba = M.ba_lop, ql = M.quy_luat, b14 = M.bien_dong_14;
-  const tc = M.tin_cay;
+  const tc = M.tin_cay, nq = M.nhan_qua, nn = M.nen;
   const f = (v,n) => (v==null||!isFinite(v)) ? "—" : Number(v).toFixed(n);
 
   // ── tầng σ̂ ──
@@ -1119,6 +1274,145 @@ function paintMo(){
       <b>0 dương tính giả</b> — phễu không rò rỉ.</div>
   </div>
 
+  ${!nq ? "" : `<div class="card sec" style="margin-top:12px">
+    <h2>Thông tin ngoài giá — phễu nhân quả (Pha 3B)</h2>
+    <p class="lead">Câu hỏi khác hẳn phễu trên: <b>lãi suất, VIX, dầu, lịch công bố vĩ mô</b>
+      — những thứ <em>không</em> phải giá — có thêm được gì không? Và quan trọng hơn:
+      <b>lọc theo nhân quả có hơn chọn đặc trưng thông thường không?</b>
+      ${nq.pheu.khong_gian} giả thuyết liệt kê đầy đủ trước khi chạy, Westfall–Young
+      maxT với ${nq.pheu.n_hoan_vi} hoán vị khối ${nq.pheu.khoi} phiên.</p>
+
+    <div class="tw"><table><tbody>
+      <tr><td>không gian giả thuyết (liệt kê đầy đủ trước)</td><td class="n"><b>${nq.pheu.khong_gian}</b></td></tr>
+      <tr><td>“có ý nghĩa” nếu KHÔNG hiệu chỉnh bội</td><td class="n">${nq.pheu.tho}</td></tr>
+      <tr><td>kỳ vọng dưới nhiễu thuần</td><td class="n">${nq.pheu.ky_vong_nhieu}</td></tr>
+      <tr><td>sau hoán vị khối</td><td class="n">${nq.pheu.hoan_vi}</td></tr>
+      <tr><td>FDR-BH <span class="mui">(tham chiếu, không dùng làm cửa)</span></td><td class="n">${nq.pheu.fdr}</td></tr>
+      <tr><td><b>sau Westfall–Young + màn lọc độ vững</b></td><td class="n"><b>${nq.pheu.wy}</b></td></tr>
+    </tbody></table></div>
+
+    <div class="note warn"><b>Hệ số thổi phồng ${nq.pheu.thoi_phong} lần.</b>
+      Không hiệu chỉnh bội thì “tìm ra” ${nq.pheu.tho} quan hệ, trong khi thuần nhiễu
+      kỳ vọng ${nq.pheu.ky_vong_nhieu} — tức khoảng
+      <b>${nq.pheu.tho - nq.pheu.ky_vong_nhieu} cái là giả</b>.</div>
+
+    <h2 style="margin-top:20px">${nq.pheu.wy} quan hệ sống sót</h2>
+    <div class="tw"><table><thead><tr><th>trục</th><th>biến</th><th class="n">trễ</th>
+      <th class="n">số cặp</th><th class="n">F</th><th class="n">p W-Y</th><th>dấu</th></tr></thead><tbody>
+      ${nq.quan_he.map(q=>`<tr><td>${q.truc}</td><td>${q.bien}</td>
+        <td class="n">${q.lag}</td><td class="n">${q.so_cap}/6</td>
+        <td class="n">${q.F_max.toFixed(1)}</td>
+        <td class="n"><b>${q.p_wy.toFixed(4)}</b></td><td>${q.dau}</td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="note"><b>Đọc bảng.</b> Toàn bộ ${nq.pheu.wy} quan hệ nằm trên trục
+      <b>biên độ</b> — trục hướng ${nq.song_sot_theo_truc["hướng"]}/${nq.theo_truc["hướng"]},
+      trục rủi ro ${nq.song_sot_theo_truc["rủi ro"]}/${nq.theo_truc["rủi ro"]}.
+      Dấu <b>âm</b> của lịch công bố nghĩa là: phiên sau ngày công bố vĩ mô có biến động
+      <em>thấp hơn</em> mức mô hình ngoại suy — mô hình đang mang cú nhảy của ngày
+      công bố sang ngày sau, mà cú nhảy đó không dai.</div>
+    <div class="note warn"><b>Từ ngữ — đọc kỹ.</b> Đây là <b>quan hệ dẫn báo theo thời
+      gian</b> (bằng chứng Granger), <b>KHÔNG</b> phải quan hệ nhân quả đã được chứng
+      minh. Granger nói “quá khứ của X giúp dự báo Y”, không nói “X gây ra Y”.</div>
+
+    <h2 style="margin-top:20px">Nhưng đưa vào hệ thống thì sao — bốn cách thử</h2>
+    <div class="tw"><table><thead><tr><th>cấu hình</th><th class="n">số đặc trưng</th>
+      <th class="n">QLIKE kiểm tra</th><th class="n">so mốc</th><th class="n">DM p</th></tr></thead><tbody>
+      ${nq.ablation.map(a=>{
+        const ten = {B0:"mốc (HAR sản xuất)", E1:"ném hết vào",
+                     E2:"chọn đặc trưng thường", E3:"lọc theo nhân quả",
+                     E4:"lọc nhân quả × chế độ"}[a.ten] || a.ten;
+        // B0 la CHINH moc, nen o "so moc" phai la gach ngang — khong phai 0,00%
+        // mau xanh, vi mau xanh doc thanh "cai thien".
+        const moc = a.ten === "B0";
+        return `<tr><td><b>${a.ten}</b> · ${ten}</td><td class="n">${a.n_dt}</td>
+          <td class="n">${a.qlike_kt.toFixed(4)}</td>
+          <td class="n ${moc?"":(a.so_B0>0?"neg":"pos")}">${moc?"—"
+            :(a.so_B0>0?"+":"")+a.so_B0.toFixed(2)+"%"}</td>
+          <td class="n">${a.dm_p==null?"—":a.dm_p.toFixed(4)}</td></tr>`;}).join("")}
+    </tbody></table></div>
+    <div class="note warn"><b>Không cấu hình nào thắng được mốc.</b> Kể cả cấu hình
+      lọc nhân quả. Nên câu trả lời cho “thông tin ngoài giá có giúp dự báo tốt hơn
+      không” là <b>không</b>, trên dữ liệu này.</div>
+
+    <div class="note"><b>Nhưng có một thứ đo được, và nó mới là phát hiện của Pha 3B.</b>
+      Lọc theo nhân quả tốt hơn chọn đặc trưng thông thường
+      <b>${Math.abs(nq.cau_hoi_trung_tam.chenh).toFixed(2)}%</b>
+      (p = ${nq.cau_hoi_trung_tam.dm_p.toFixed(4)}), và giảm <b>một nửa</b> mức sụp đổ
+      khi ra khỏi mẫu (${nq.cau_hoi_trung_tam.troi_E2.toFixed(1)} điểm →
+      ${nq.cau_hoi_trung_tam.troi_E3.toFixed(1)} điểm). Lý do đã đo được: sàng theo
+      hiệu năng chọn đúng những biến vĩ mô <b>đang trôi</b> — lợi suất 2 năm lệch
+      4,5 độ lệch chuẩn giữa đoạn huấn luyện và đoạn kiểm tra — còn màn lọc độ vững
+      loại chúng, vì một chuỗi đang trôi không giữ được cùng dấu qua 12 năm.
+      <b>Giá trị của lọc nhân quả là phòng thủ, không phải tấn công.</b></div>
+
+    <div class="note warn"><b>Kết luận âm này mạnh tới đâu — đã đo.</b>
+      Tiêm hiệu ứng biết trước qua chính khối đặc trưng thật rồi chạy nguyên phễu:
+      hiệu ứng đủ mạnh để cải thiện QLIKE khoảng <b>${nq.mdes.qlike.toFixed(1)}%</b>
+      bị bắt với xác suất <b>${(100*nq.mdes.luc).toFixed(0)}%</b>. Đối chứng âm
+      (không tiêm gì) cho <b>0 dương tính giả</b>. Nên phát biểu đúng là:
+      <b>quan hệ ngoại sinh mạnh hơn ~${nq.mdes.qlike.toFixed(1)}% QLIKE đã bị loại
+      trừ; yếu hơn thế thì KHÔNG</b>.</div>
+
+    <div class="note">Trục hướng: BSS ${nq.truc_huong.bss_E3>=0?"+":""}${nq.truc_huong.bss_E3.toFixed(5)}
+      (mốc ${nq.truc_huong.bss_B0>=0?"+":""}${nq.truc_huong.bss_B0.toFixed(5)}),
+      AUC ${nq.truc_huong.auc_E3.toFixed(3)} — <b>không cải thiện</b>.
+      Trục rủi ro: kỹ năng ${(100*nq.truc_rui_ro.ky_nang_E3).toFixed(2)}%
+      so ${(100*nq.truc_rui_ro.ky_nang_B0).toFixed(2)}%, độ phủ
+      ${(100*nq.truc_rui_ro.phu_E3).toFixed(1)}% so ${(100*nq.truc_rui_ro.phu_B0).toFixed(1)}%
+      — nhỉnh hơn nhưng không đáng kể. Chi tiết: <code>docs/PHA3B_KETQUA.md</code>.</div>
+  </div>`}
+
+  ${!nn ? "" : `<div class="card sec" style="margin-top:12px">
+    <h2>Mẫu hình nến — biểu đồ bạn đang nhìn có nói gì không?</h2>
+    <p class="lead">Doji, hammer, engulfing, sao mai, ba lính trắng… Đây là thứ
+      hầu hết nền tảng giao dịch vẽ sẵn và gợi ý bạn dùng. Hệ thống này
+      <b>đã kiểm chúng bằng đúng bộ máy thống kê dùng cho mọi thứ khác</b>:
+      ${nn.khong_gian} giả thuyết liệt kê đầy đủ trước khi chạy, hiệu chỉnh
+      đa kiểm định Westfall–Young.</p>
+
+    <div class="tw"><table><thead><tr><th>họ đặc trưng</th><th class="n">số phép kiểm</th>
+      <th class="n">sống sót</th><th class="n">p W-Y nhỏ nhất</th></tr></thead><tbody>
+      ${Object.entries(nn.theo_ho).map(([k,v])=>`<tr>
+        <td>${k}</td><td class="n">${v.n}</td>
+        <td class="n ${v.wy>0?"pos":""}"><b>${v.wy}</b></td>
+        <td class="n">${v.p_min.toFixed(4)}</td></tr>`).join("")}
+    </tbody></table></div>
+
+    <div class="note warn"><b>Mẫu hình nến có tên: 0 sống sót trên
+      ${nn.theo_ho["K3 mẫu có tên"].n} phép kiểm.</b> Không phải vì thiếu dữ liệu —
+      doji khớp ${nn.n_khop.doji.toLocaleString()} lần, engulfing
+      ${(nn.n_khop.nhan_chim_tang+nn.n_khop.nhan_chim_giam).toLocaleString()} lần,
+      con quay ${nn.n_khop.con_quay.toLocaleString()} lần. Và khi đưa chúng vào mô hình,
+      dự báo <b>xấu đi có ý nghĩa thống kê</b>. Trên trục hướng giá thì
+      <b>${nn.theo_truc.huong.wy}/${nn.theo_truc.huong.n}</b> — p tốt nhất
+      ${nn.theo_truc.huong.p_min.toFixed(3)}, tức không gần ngưỡng nào cả.</div>
+
+    <div class="note"><b>Điều này khớp với văn liệu, không đi ngược.</b>
+      Nghiên cứu trên chính EUR/USD (Orquín-Serrano, <i>Mathematics</i>
+      2020) không tìm được lợi suất dương ròng nào sau chi phí giao dịch; một
+      phân tích 2026 thấy lợi suất sau mẫu hình <b>không phân biệt được với vào
+      lệnh ngẫu nhiên</b>. Hệ thống này chỉ xác nhận lại điều đó trên dữ liệu
+      của mình, với 6 cặp và 14 năm.</div>
+
+    <h2 style="margin-top:20px">Nhưng có một thứ trong nến <em>thật sự</em> có tin</h2>
+    <div class="note"><b>Độ lớn khoảng nhảy qua đêm</b> — chênh lệch giữa giá mở
+      cửa hôm nay và giá đóng cửa hôm qua. Đây là <b>${nn.wy}/${nn.khong_gian}</b>
+      giả thuyết duy nhất sống sót, và nó dự báo <b>biên độ dao động</b> phiên
+      kế tiếp, không phải hướng. Lý do rất cơ học: thước đo biến động của hệ
+      thống cộng dồn dao động <em>trong</em> phiên và <b>bỏ hẳn khoảng nhảy qua
+      đêm theo thiết kế</b> — nên đó là thông tin mô hình chưa từng nhìn thấy.
+      Thêm đúng một biến này cải thiện dự báo
+      <b>${Math.abs(nn.ablation.find(a=>a.ten==="chỉ |gap| L1").so_B0).toFixed(2)}%</b>
+      trên đoạn kiểm tra, đúng ở <b>${nn.gap.cap_duong}/6</b> cặp.</div>
+    <div class="note warn"><b>Chưa đưa vào hệ thống — và lý do quan trọng hơn kết quả.</b>
+      Tiêu chí đã chốt <em>trước khi chạy</em> đòi p &lt; 0,025 (sau hiệu chỉnh
+      hai trục); kết quả là p = 0,0445. Đạt ở mức 5% thông thường nhưng
+      <b>không đạt ngưỡng đã cam kết</b>. Hệ thống không sửa luật sau khi thấy
+      số — nên biến này được ghi vào danh sách chờ cho lần kiểm định cuối cùng
+      trên bộ dữ liệu niêm phong, chứ không được lặng lẽ bật lên.
+      Chi tiết: <code>docs/PHUONGPHAP_NGOAI.md</code> mục 4.</div>
+  </div>`}
+
   ${khoiTC}
 
   ${r3 ? `<div class="card sec" style="margin-top:12px">
@@ -1193,6 +1487,47 @@ function veTrongSo(){
   </div>`;
 }
 
+/* BẢNG TỔNG HỢP 6 CẶP — trả lời "tại sao Tổng quan chỉ nói EUR/USD". Mỗi thẻ:
+   giá + biến động phiên, chế độ biến động, và MỘT thanh ba màu tỷ lệ đúng ba
+   xác suất (đi ngang luôn là ô có thông tin thật — xem cảnh báo bên dưới).
+   Bấm vào thẻ để đổi cặp đang xem chi tiết ngay bên dưới, dùng lại `setPair`. */
+function veDashboard(){
+  const ds = DATA.meta.cap || [];
+  const the = ds.map(p=>{
+    const P = DATA.cap[p];
+    if(!P) return `<div class="dcard chi-tai"><span class="dsym">${p.slice(0,3)}/${p.slice(3)}</span><span class="dload">đang tải…</span></div>`;
+    const i = P.ngay.length-1, T = P.tam["1"], p3 = T.p[i];
+    const nd = P.pip===0.01 ? 3 : 5;
+    const dg = P.c[i]-P.c[i-1], dpip = dg/P.pip;
+    const cheDo = ["êm","bình thường","căng"][P.che_do[i]];
+    const cdCl = ["ok","mid","bad"][P.che_do[i]];
+    const chon = p===state.pair;
+    const w = v => Math.max(2, Math.round(100*v));
+    return `<button class="dcard${chon?" on":""}" data-p="${p}">
+      <div class="drow1"><span class="dsym">${p.slice(0,3)}/${p.slice(3)}</span>
+        <span class="dpill ${cdCl}">${cheDo}</span></div>
+      <div class="dgia">${P.c[i].toFixed(nd)}</div>
+      <div class="ddelta ${dg>=0?"pos":"neg"}">${dg>=0?"▲":"▼"} ${Math.abs(dpip).toFixed(1)} pip phiên gần nhất</div>
+      <div class="dbars">
+        <div class="dbar d" style="width:${w(p3[0])}%"></div>
+        <div class="dbar f" style="width:${w(p3[1])}%"></div>
+        <div class="dbar u" style="width:${w(p3[2])}%"></div>
+      </div>
+      <div class="dpct"><span class="dn">${(100*p3[0]).toFixed(0)}% xuống</span>
+        <span class="fl">${(100*p3[1]).toFixed(0)}% ngang</span>
+        <span class="up">${(100*p3[2]).toFixed(0)}% lên</span></div>
+      <div class="dband">dải phiên tới ±${fmt(T.b_pip[i])} pip · σ̂ ${fmt(T.sig_pip[i])} pip</div>
+    </button>`;
+  }).join("");
+  return `<div class="card sec">
+    <div class="tqhead" style="margin-bottom:6px"><span style="font-family:var(--f-d);font-weight:700;font-size:19px">Toàn cảnh 6 cặp</span>
+      <span class="tqdelta" style="color:var(--ink3);margin-left:auto">${DATA.meta.cap_nhat_luc ? DATA.meta.cap_nhat_luc.slice(0,10) : ""}</span></div>
+    <p class="lead">Bấm vào một cặp để xem chi tiết ngay bên dưới. <b>Ô giữa (đi ngang)</b> là ô
+      duy nhất có thông tin đo được — hai ô xuống/lên chỉ mang tính tham khảo (xem cảnh báo dưới).</p>
+    <div class="dashgrid">${the}</div>
+  </div>`;
+}
+
 function paintTQ(){
   const P = DATA.cap[state.pair];
   if(!P){ $("#p-tq").innerHTML = '<div class="card sec"><p class="lead">Đang tải…</p></div>'; return; }
@@ -1236,10 +1571,10 @@ function paintTQ(){
     </div>`;
   }
 
-  $("#p-tq").innerHTML = `
+  $("#p-tq").innerHTML = veDashboard() + veSuKienSapToiTQ() + `
   <div class="card sec">
     <div class="tqhead">
-      <span class="tqsym">${ten}</span>
+      <span class="tqsym">Chi tiết — ${ten}</span>
       <span class="tqgia">${P.c[i].toFixed(nd)}</span>
       <span class="tqdelta ${dg>=0?"pos":"neg"}">${dg>=0?"▲":"▼"} ${Math.abs(dpip).toFixed(1)} pip phiên gần nhất</span>
       <span class="tqdelta" style="color:var(--ink3);margin-left:auto">${P.ngay[i]}</span>
@@ -1252,6 +1587,37 @@ function paintTQ(){
       <div class="tqb f"><span class="t">Đi ngang</span><span class="v">${(100*p[1]).toFixed(0)}%</span><span class="g">dao động trong ±${b.toFixed(0)} pip</span></div>
       <div class="tqb u"><span class="t">Giá lên</span><span class="v">${(100*p[2]).toFixed(0)}%</span><span class="g">tăng quá ${b.toFixed(0)} pip</span></div>
     </div>
+
+    ${(()=>{
+      // TAP DU BAO CONFORMAL — cai duy nhat tren trang nay co BAO DAM.
+      // Ba o tren noi "kha nang bao nhieu"; o nay noi "loai tru duoc gi".
+      // Kich thuoc doc duoc ngay: 3 = khong loai duoc gi, 2 = loai duoc mot.
+      // Chi tiet: docs/CHISO_DANHGIA.md muc 16.
+      const tp = (T.tap||[])[i]; if(!tp) return "";
+      const ten = ["giảm","đi ngang","tăng"], con = ten.filter((_,k)=>tp[k]);
+      const bo = ten.filter((_,k)=>!tp[k]);
+      const KN = ((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{};
+      const yeu = (KN.muc||"").indexOf("không tách") >= 0;
+      return `<div class="tqcanh${bo.length?"":" do"}" style="margin-top:14px">
+        <b>Loại trừ được gì — có bảo đảm:</b>
+        ${bo.length
+          ? `còn lại <b>${con.join(", ")}</b> (${con.length}/3). Đã loại <b>${bo.join(", ")}</b>.`
+          : `<b>không loại được khả năng nào</b> — cả ba đều còn (3/3).`}
+        <br>Đây là <b>tập dự báo conformal</b>, bảo đảm phủ đúng <b>90%</b> số phiên —
+        và bảo đảm này giữ được ngay cả khi thị trường đổi chế độ, khác với ba con
+        số phần trăm ở trên vốn chỉ <i>đo được</i> là hiệu chuẩn tốt trên trung bình.
+        ${yeu ? `<br><b>Nhưng ở tầm hạn ${state.h} phiên thì đừng dùng ô này để ra
+        quyết định:</b> ${KN.chi_tiet||""}.` : ``}
+      </div>`;
+    })()}
+
+    <div class="tqrow" style="margin-top:12px">
+      <span class="k">Kỹ năng đo được ở tầm hạn ${state.h} phiên</span>
+      <span class="v">${(()=>{const KN=((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{};
+        const yeu=(KN.muc||"").indexOf("không tách")>=0;
+        return `<b style="color:${yeu?"var(--warn,#b45309)":"var(--ok,#15803d)"}">${KN.muc||"—"}</b>`;})()}</span>
+    </div>
+    <p class="lead" style="margin-top:4px">${(((DATA.meta||{}).ky_nang_theo_h||{})[String(state.h)]||{}).chi_tiet||""}</p>
 
     <div class="tqcanh"><b>Hệ thống không đoán được giá lên hay xuống.</b>
       Hai ô ngoài chênh nhau vài phần trăm — <b>đừng đọc chênh lệch đó như tín hiệu</b>.
@@ -1274,6 +1640,10 @@ function paintTQ(){
 
   <div class="tqgrid">${khoiRR}</div>
   ${veTrongSo()}`;
+
+  $("#p-tq").querySelectorAll(".dashgrid .dcard[data-p]").forEach(b=>{
+    b.onclick = () => setPair(b.dataset.p);
+  });
 }
 
 /* TẦNG RỦI RO DƯỚI — VaR và ES.
@@ -1411,6 +1781,44 @@ function paintRR(){
   const cb = (R.canh_bao||[]).map(x=>`<li>${x}</li>`).join("");
 
   const t10 = (R.tam_han.find(x=>x.h===10)||{}).p_cham, Pg = DATA.cap[state.pair];
+
+  // TÓM TẮT NHANH — luôn hiện, cả hai chế độ. Người dùng phản ánh trang này
+  // "hơi rối": quá nhiều bảng/cảnh báo cùng cỡ chữ, không biết đọc cái nào
+  // trước. Bốn ô lớn, màu theo mức độ, trả lời ĐÚNG bốn câu đầu tiên ai cũng
+  // hỏi — chi tiết phía dưới vẫn giữ nguyên cho ai muốn đào sâu.
+  const mucVaR = ((R.var_es||{}).muc)||[];
+  const m5v = mucVaR.find(x=>x.alpha===0.05), m1v = mucVaR.find(x=>x.alpha===0.01);
+  const hongVaR = mucVaR.filter(x=>!x.dat);
+  const usdF = v => v==null?"—":Number(v).toLocaleString("vi",{maximumFractionDigits:0})+" USD";
+  const mucP1 = R.tam_han[0].p_cham>0.4 ? "down" : R.tam_han[0].p_cham>0.25 ? "flat" : "up";
+  const tomTat = `<div class="card sec">
+    <h2>Tóm tắt — ${state.pair.slice(0,3)}/${state.pair.slice(3)} · ${R.ngay}</h2>
+    <div class="boxes" style="grid-template-columns:repeat(4,1fr)">
+      <div class="bx" style="background:var(--panel2)">
+        <span class="lb" style="color:var(--ink3)">Đòn bẩy khuyến nghị</span>
+        <span class="pc" style="color:var(--acc)">${f(t.f,2)}×</span>
+        <span class="cd">${(VON_MAU*t.f).toLocaleString("vi",{maximumFractionDigits:0})} USD hợp đồng</span></div>
+      <div class="bx" style="background:var(--panel2)">
+        <span class="lb" style="color:var(--ink3)">Đặt dừng lỗ cách</span>
+        <span class="pc" style="color:var(--ink)">${f(R.stop_pip,0)}</span>
+        <span class="cd">pip · ${R.stop_sigma}σ̂</span></div>
+      <div class="bx" style="background:var(--${mucP1}bg)">
+        <span class="lb" style="color:var(--${mucP1})">Chạm dừng lỗ, giữ 1 phiên</span>
+        <span class="pc" style="color:var(--${mucP1})">${(100*R.tam_han[0].p_cham).toFixed(0)}%</span>
+        <span class="cd">giữ 10 phiên: ${(100*t10).toFixed(0)}%</span></div>
+      <div class="bx" style="background:var(--downbg)">
+        <span class="lb" style="color:var(--down)">VaR 95% · 1 ngày</span>
+        <span class="pc" style="color:var(--down)">${usdF(m5v?m5v.var_usd:null)}</span>
+        <span class="cd">ES 99%: ${usdF(m1v?m1v.es_usd:null)}</span></div>
+    </div>
+    ${hongVaR.length
+      ? `<div class="tqcanh do" style="margin-top:12px"><b>⚠ Cần lưu ý:</b> backtest VaR/ES của cặp
+         này <b>chưa đạt</b> ở mức ${hongVaR.map(x=>(100*(1-x.alpha)).toFixed(0)+"%").join(", ")} —
+         số liệu ở trên có thể lạc quan hơn thực tế, nên nới thêm dừng lỗ. Xem bảng backtest bên dưới.</div>`
+      : `<div class="tqcanh" style="margin-top:12px;border-left-color:var(--up);background:var(--upbg)">
+         <b>✓ Đã kiểm chứng:</b> backtest VaR/ES đạt ở mọi mức tin cậy cho cặp này trên đoạn kiểm tra.</div>`}
+  </div>`;
+
   const ndtRR = `
   <div class="card sec chi-ndt">
     <h2>Vào lệnh bao nhiêu là an toàn — ${state.pair.slice(0,3)}/${state.pair.slice(3)}</h2>
@@ -1434,7 +1842,7 @@ function paintRR(){
   </div>`;
 
   const XX = veXuatXu(R.xuat_xu), VR = veVaR(R.var_es, state.pair);
-  $("#p-rr").innerHTML = ndtRR + VR + XX + `
+  $("#p-rr").innerHTML = tomTat + ndtRR + VR + XX + `
   <div class="card sec chi-phan-tich">
     <h2>Phiếu rủi ro — ${state.pair.slice(0,3)}/${state.pair.slice(3)} · ${R.ngay}</h2>
     <p class="lead">Đòn bẩy khuyến nghị đến từ đâu, và <b>ràng buộc nào đang buộc</b>. Mọi thành phần đều là số đo đã kiểm định ở tầng 4 và 6b, không phải tham số đặt tay.</p>
@@ -1495,7 +1903,7 @@ function paintEv(){
       trên giao diện sẽ <b>thấp hơn mức động thật</b> của thị trường. Hãy tự trừ hao.</div>
   </div>`;
 
-  $("#p-ev").innerHTML = ndtEv + `<div class="card sec chi-phan-tich">
+  $("#p-ev").innerHTML = ndtEv + veSuKienSapToiDayDu() + `<div class="card sec chi-phan-tich">
     <h2>Sự kiện — lịch ngân hàng trung ương</h2>
     <p class="lead">${(DATA.su_kien||[]).length} ngày họp của 7 ngân hàng trung ương từ ${DATA.meta.tu}. Đây là <b>trục duy nhất</b> trong 1.024 cấu hình đã backtest có tác dụng thật: lịch riêng từng cặp ăn 8% QLIKE, lịch dùng chung chỉ 3%.</p>
     ${(()=>{const S=((DATA.meta.mo_hinh||{}).su_kien||{});
@@ -1561,7 +1969,7 @@ function paintAbout(){
     <h2 style="margin-top:20px">Còn thiếu thật</h2>
     <div class="tw"><table><tbody>
       <tr><td><b>Xác thực thật</b></td><td>màn hình đăng nhập là <b>minh hoạ</b> — không có ô mật khẩu, không gửi và không lưu gì. Argon2id + phiên Postgres ở giai đoạn 5</td></tr>
-      <tr><td><b>Nhà cung cấp có hợp đồng</b></td><td>Yahoo có thể đổi hoặc chặn bất cứ lúc nào; khung M1 của họ <b>không có OHLC thật</b> (100% thanh có o=h=l=c) nên khung đó vẽ bằng đường</td></tr>
+      <tr><td><b>Nhà cung cấp có hợp đồng</b></td><td>Yahoo có thể đổi hoặc chặn bất cứ lúc nào. Đã đo trực tiếp (12/09/2026): khung 1 phút của họ <b>không có OHLC thật</b> — 98,7% thanh có o=h=l=c, tức là ảnh chụp giá chứ không phải nến — nên hệ thống <b>không cung cấp khung M1</b> nữa. Khung nhanh nhất là <b>M5</b>, đo được ~79% thanh có OHLC thật (chỉ 20,8% suy biến, đúng lúc thanh khoản rất thấp)</td></tr>
       <tr><td><b>Hiệu chuẩn trượt</b></td><td>sổ dự báo mới ghi được ít phiên; tới khi đủ mẫu thì con số hiệu chuẩn vẫn là của đoạn kiểm định</td></tr>
       <tr><td><b>Tầm hạn 5 và 20 ở giai đoạn 2</b></td><td>mới khai phá ở h=1, mục tiêu P. Cần thêm để đóng tiêu chí dừng</td></tr>
       <tr><td><b>Hansen SPA</b></td><td>chưa chạy — cần để phát biểu "cả họ mô hình không thắng nền"</td></tr>
@@ -1647,6 +2055,7 @@ async function napMeta(){
   DATA = {meta:{cap:M.cap, valid_tu:M.valid_tu, test_tu:M.test_tu,
                 canh_bao:M.canh_bao, cap_nhat_luc:M.cap_nhat_luc,
                 tom_tat:M.tom_tat, moc_noi:M.moc_noi, mo_hinh:M.mo_hinh,
+                ky_nang_theo_h:M.ky_nang_theo_h,
                 rui_ro:M.rui_ro},
           cap:{}, su_kien:M.su_kien||[], hieu_chuan:M.hieu_chuan||{},
           so_dubao:M.so_dubao||{}, _chiphi:M.chi_phi_gio||{}};
@@ -1660,6 +2069,18 @@ async function napCap(p){
   d.chi_phi_gio = c ? {med:c.med, p95:c.p95} : null;
   DATA.cap[p] = d;
   return d;
+}
+
+/* Nạp NGẦM 5 cặp còn lại sau khi trang đã dùng được, cho bảng "Toàn cảnh 6
+   cặp" ở Tổng quan. Không chặn màn hình đầu tiên — mỗi cặp ~300 KB, đủ nhẹ để
+   chạy nền mà không cần vòng loading riêng. Vẽ lại Tổng quan khi xong nếu
+   người dùng đang đứng ở đó. */
+async function napTatCaCap(){
+  const con = (DATA.meta.cap||[]).filter(p=>!DATA.cap[p]);
+  if(!con.length) return;
+  await Promise.all(con.map(p=>napCap(p).catch(()=>null)));
+  const tq = document.querySelector('.nav button[data-p="tq"]');
+  if(tq && tq.classList.contains("on")) paintTQ();
 }
 
 /* Khung nội ngày lấy trực tiếp lúc có request nên nó vốn đã "sống"; cứ 60
@@ -1694,6 +2115,7 @@ $("#gobtn").onclick = async ()=>{
     paintCal(); return;
   }
   boot();
+  if(API !== null) napTatCaCap();
 };
 document.addEventListener("keydown", e=>{ if(e.key==="Enter" && $("#login").style.display!=="none") $("#gobtn").click(); });
 </script>

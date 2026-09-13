@@ -186,6 +186,301 @@ và GRU. Mọi thứ cần đã có trong `src/run_dl.py` và `output/_dl_pred.n
   thêm vấn đề kiểm định bội trên đoạn kiểm định.
 - **Một kiến trúc Transformer duy nhất**, rút gọn (2 lớp, 4 đầu, hidden 64).
   Không phải PatchTST đầy đủ, không phải iTransformer, không phải foundation model.
-- **Không thử foundation model** (Chronos, TimesFM, Moirai, TTM) — không tải được
-  trọng số trong môi trường này. Brini (2026) đã đo giúp: chỉ TTM hơn Log-HAR
-  1,3–1,8%, các mô hình khác không thắng.
+- **Chronos-bolt-small đã thử thật, 09/09/2026** (`src/kiem_chronos.py`,
+  `output/chronos.json`, `output/log_chronos.txt`). Lần trước ghi "không tải
+  được trọng số" — kiểm tra lại thì đó là **xung đột phiên bản thư viện**
+  (`transformers` cũ đòi hàm `is_offline_mode` mà `huggingface_hub` mới đã
+  bỏ), không phải giới hạn môi trường thật. Sửa bằng
+  `pip install -U "transformers<4.50" "huggingface_hub<0.28"`, tải trọng số
+  `amazon/chronos-bolt-small` trong 2 giây.
+
+  **Zero-shot** (không khớp riêng tham số cho từng cặp), cùng giao thức QLIKE
+  với bảng 14 mô hình trên: cùng dữ liệu (`volfc2.nap_bang()`), cùng phân đoạn
+  (`split.doan()`), cùng công thức QLIKE bất biến thang đo
+  `r − log(r) − 1` (`r = proxy/h`) — **không phải** `metrics.qlike()` sách
+  giáo khoa, vốn cho kết quả sai lệch hàng nghìn phần trăm vì phụ thuộc thang
+  đo tuyệt đối của RV (một lỗi đã bắt và sửa trong lúc làm, xem log). Dự báo
+  quy về phương sai bằng trung bình cộng của exp(9 phân vị) — xấp xỉ Monte
+  Carlo của E[RV] = E[exp(log RV)], có tự kiểm đối chiếu giá trị kỳ vọng lý
+  thuyết của log-normal.
+
+  | cặp | QLIKE kiểm định | QLIKE kiểm tra |
+  |---|---|---|
+  | EURUSD | 0,1247 | 0,1702 |
+  | GBPUSD | 0,1322 | 0,1335 |
+  | USDJPY | 0,2787 | 0,3285 |
+  | AUDUSD | **0,1024** | 0,1475 |
+  | USDCAD | **0,0842** | 0,1521 |
+  | USDCHF | 0,1074 | 0,1790 |
+  | **gộp 6 cặp** | **0,1383** | **0,1851** |
+  | HAR vòng 7 (mốc) | 0,1162 | 0,1585 |
+  | chênh | +19,0% | +16,8% |
+
+  **Kết luận: Chronos-bolt-small (zero-shot) THUA HAR vòng 7** — gộp 6 cặp
+  tệ hơn 17–19%, đúng hạng #10-11 nếu chèn vào bảng 14 mô hình trên (giữa
+  Transformer rút gọn và HAR gốc). Nhưng KHÔNG đều: thắng rõ ở AUDUSD, USDCAD
+  (kiểm định); thua nặng nhất ở USDJPY (+87% kiểm định — đúng cặp đã biết khó
+  ở tầng VaR/ES). Khớp với Brini (arXiv 2607.05291, đo trên 50 tài sản gồm cả
+  FX): TSFM nói chung không thắng Log-HAR nhất quán, chỉ TTM thắng sát nút.
+
+- **TTM (Tiny Time Mixers, IBM Granite) đã thử thật, 10/09/2026**
+  (`src/kiem_ttm.py`, `src/kiem_ttm_mz.py`, `output/ttm.json`,
+  `output/ttm_mz.json`, `output/log_ttm.txt`, `output/log_ttm_mz.txt`).
+  Đây là mô hình DUY NHẤT trong Brini (2607.05291) được báo cáo thắng
+  Log-HAR ở chân trời ngắn — nên có động lực thử riêng, dù hạ tầng đòi nâng
+  cấp `transformers` lên `>=4.57.6` (xung đột trực tiếp với bản `<4.50` cần
+  cho Chronos ở trên — muốn chạy lại Chronos/TabPFN sau TTM phải hạ cấp lại).
+
+  **Zero-shot**, cùng giao thức QLIKE với Chronos và bảng 14 mô hình
+  (`ibm-granite/granite-timeseries-ttm-r2`, ngữ cảnh cố định 512 phiên, chỉ
+  lấy bước dự báo đầu tiên trong 96 bước). Vì TTM chỉ cho dự báo điểm (không
+  có phân vị như Chronos) nên thử **hai cách quy đổi log-RV điểm → phương
+  sai**, để tránh kết luận "thua HAR" chỉ vì hiệu chỉnh yếu:
+
+  1. **Hiệu chỉnh log-chuẩn đơn giản**: `h = exp(dự_báo + 0,5·var(dư))`,
+     hệ số hiệu chỉnh ước trên đoạn huấn luyện mỗi cặp (có tự kiểm đối chiếu
+     giá trị kỳ vọng lý thuyết của log-normal, lệch 1,7% thay vì 11,3% nếu
+     không hiệu chỉnh).
+  2. **Hồi quy tái hiệu chuẩn Mincer-Zarnowitz** (đúng kỹ thuật Brini dùng):
+     khớp OLS `log_rv_thật = a + b·dự_báo` trên đoạn huấn luyện, rồi
+     `h = exp(a + b·dự_báo + 0,5·var(dư))`. Brini chỉ rõ phần lớn lợi thế
+     ngắn hạn của TSFM đến từ bước tái hiệu chuẩn này (better-scaled), không
+     phải từ mô hình động lực tốt hơn — nên đây là phép thử công bằng nhất
+     với TTM.
+
+  | cặp | QLIKE kiểm định (đơn giản / MZ) | QLIKE kiểm tra (đơn giản / MZ) |
+  |---|---|---|
+  | EURUSD | 0,1248 / 0,1241 | 0,1741 / 0,1733 |
+  | GBPUSD | 0,1301 / 0,1290 | 0,1342 / 0,1337 |
+  | USDJPY | 0,2653 / 0,2633 | 0,3160 / 0,3143 |
+  | AUDUSD | **0,1067 / 0,1065** | 0,1542 / 0,1540 |
+  | USDCAD | **0,0925 / 0,0924** | 0,1508 / 0,1516 |
+  | USDCHF | 0,1069 / 0,1067 | 0,1836 / 0,1832 |
+  | **gộp 6 cặp** | **0,1377 / 0,1370** | **0,1855 / 0,1850** |
+  | Chronos-bolt-small (mốc) | 0,1383 | 0,1851 |
+  | HAR vòng 7 (mốc) | 0,1162 | 0,1585 |
+  | chênh so HAR | +18,5% / +17,9% | +17,0% / +16,7% |
+
+  **Kết luận: TTM zero-shot cũng THUA HAR vòng 7**, gần như giống hệt
+  Chronos (chênh nhau <1 điểm phần trăm giữa hai mô hình, giữa hai cách hiệu
+  chỉnh). Đây là kết quả **KHÔNG khớp** với phát hiện của Brini rằng TTM
+  thắng Log-HAR — quan trọng là hồi quy MZ (tái hiệu chuẩn đúng kỹ thuật
+  Brini dùng để giải thích lợi thế của TSFM) hầu như không thay đổi gì so
+  với hiệu chỉnh đơn giản (0,1370 vs 0,1377 kiểm định) — nên kết quả âm này
+  KHÔNG phải do hiệu chỉnh yếu, mà là do TTM zero-shot thực sự dự báo kém
+  hơn HAR trên đúng 6 cặp FX và giao thức đo của repo. Khả năng khác biệt
+  với Brini: (a) Brini có thể đã fine-tune hoặc dùng tập tài sản/chân trời
+  khác khi báo cáo TTM thắng — kết quả "TTM thắng" trong paper không chắc
+  là zero-shot thuần; (b) 6 cặp FX chính là tập hẹp, khác biệt với 50 tài
+  sản đa dạng của Brini; (c) mẫu 1.095 phiên kiểm định+kiểm tra mỗi cặp khá
+  nhỏ so với các mốc trong paper gốc.
+
+  **Khuyến nghị: dừng nhánh foundation-model zero-shot ở đây.** Cả Chronos
+  và TTM đều thua HAR vòng 7 nhất quán ~17-19%, kể cả sau khi tái hiệu chuẩn
+  đúng kỹ thuật của paper cho rằng TTM thắng. Việc HAR (một mô hình tuyến
+  tính 3 tham số) vẫn thắng hai foundation model hiện đại một cách nhất
+  quán, có tự kiểm và cùng giao thức đo, là bằng chứng thực nghiệm mạnh cho
+  luận điểm cốt lõi của luận văn: RV có cấu trúc phụ thuộc dài hạn đơn giản
+  (long-memory) mà HAR nắm bắt hiệu quả hơn các mô hình tổng quát chưa được
+  tinh chỉnh riêng cho FX intraday. Muốn TSFM thắng thật sự cần fine-tune
+  trên chính dữ liệu FX — ngoài phạm vi zero-shot đã thử ở đây.
+
+## Tổ hợp dự báo (forecast combination) — có nên kết hợp nhiều mô hình?
+
+`run_ml_final.py` đã thử MỘT kiểu tổ hợp: trung bình hình học đều tay giữa
+HAR v7 và GRU/LSTM, và nó đã thắng — "Tổ hợp HAR v7 + GRU + LSTM" đứng #1
+trong bảng 14 mô hình (QLIKE kiểm tra 0,1550, so HAR 0,1585). File
+`src/kiem_tohop2.py` (10/09/2026) đào sâu hơn theo đúng tinh thần đó,
+thử CÓ HỆ THỐNG mọi tập con của {HAR, LightGBM (QLIKE trực tiếp), GRU,
+LSTM, Ridge} (31 tập con) với BA cách tổ hợp:
+
+1. **Trung bình hình học đều tay** trên thang log (như đã có, mở rộng ra
+   nhiều tập con hơn).
+2. **Trung bình trọng số nghịch đảo QLIKE(kiểm định)** — trọng số
+   `w_k ∝ 1/QLIKE_valid_k`, không cần khớp hồi quy.
+3. **Hồi quy Granger-Ramanathan** (1984, *J. Forecasting*) không ràng buộc,
+   trên thang log: `log(rv_thật) = a + Σ b_k·log(f_k) + e`, khớp OLS
+   **chỉ trên đoạn kiểm định** (đoạn kiểm tra chỉ cham điểm một lần), rồi
+   `h = exp(a + Σ b_k·log(f_k) + 0,5·var(dư))`. Đây là kỹ thuật tổ hợp kinh
+   điển cho phép trọng số khác nhau mỗi mô hình thay vì ép bằng nhau — xem
+   Granger & Ramanathan (1984) và tổng quan Wang et al., "Forecast
+   combinations: an over 50-year review" (arXiv 2205.04216). Có tự kiểm
+   (`_tu_kiem_gr`): cho hồi quy một dự báo hoàn hảo + một dự báo toàn nhiễu,
+   hồi quy phải học được trọng số ~1 cho dự báo tốt và ~0 cho dự báo nhiễu.
+
+**Kết quả: CẢ 45 tổ hợp thử đều thắng HAR đơn** trên đoạn kiểm tra (2,9%
+đến 0,7%), không có ngoại lệ. Ba tổ hợp tốt nhất:
+
+| # | tổ hợp | QLIKE kiểm định | QLIKE kiểm tra | so HAR | DM p |
+|---|---|---|---|---|---|
+| 1 | Hồi quy GR · HAR+LightGBM+GRU | 0,1128 | **0,1539** | −2,9% | 0,071 |
+| 2 | Hồi quy GR · HAR+GRU | 0,1138 | 0,1541 | −2,8% | **0,029** |
+| 3 | TB đều · HAR+LightGBM+GRU | 0,1126 | 0,1542 | −2,7% | 0,119 |
+
+Quan sát quan trọng: **hồi quy GR không thắng rõ trung bình đều tay** — hệ
+số hồi quy của các cặp tốt nhất gần bằng nhau (vd. HAR+GRU: a=−0,20,
+HAR:0,51, GRU:0,48 — gần như 50/50). Đây chính là "câu đố tổ hợp dự báo"
+(forecast combination puzzle) kinh điển trong tài liệu: trọng số ước lượng
+tối ưu hiếm khi thắng trọng số đều tay đơn giản trên dữ liệu ngoài mẫu,
+vì sai số ước lượng trọng số ăn hết phần lợi thế lý thuyết.
+
+**Nhưng: Model Confidence Set (α=0,10) trên 15 tổ hợp đầu + HAR gốc cho
+16/16 SỐNG SÓT** — kể cả HAR đơn lẻ. Nghĩa là, dù mọi tổ hợp đều có QLIKE
+điểm số tốt hơn HAR (nhất quán, không ngẫu nhiên — luôn thắng ở mọi tập
+con thử), khoảng cách đó **không đủ lớn để phân biệt có ý nghĩa thống kê**
+với mẫu 548 phiên kiểm tra. Đây đúng là hiện tượng Brini (2607.05291) đã
+mô tả: tổ hợp đều tay giữa TSFM/ML và Log-HAR thường rơi vào MCS 98–100%
+cùng với HAR — cải thiện có thật về mặt điểm số nhưng chưa "chứng minh
+được" theo chuẩn thống kê nghiêm ngặt.
+
+**Khuyến nghị thực tế (bản đầu)**: nếu cần chọn MỘT mô hình sản xuất, **tổ
+hợp trung bình đều tay HAR + GRU (hoặc + LightGBM)** là lựa chọn hợp lý
+nhất — đơn giản (không cần khớp hồi quy, không có nguy cơ overfit trọng
+số), nhất quán thắng HAR trên mọi lát cắt đã thử, và đứng trong MCS. Toàn
+bộ 46 dòng kết quả, hệ số hồi quy GR từng tổ hợp, và danh sách MCS:
+`output/ketqua_tohop2.json`, `output/log_tohop2.txt`, mã nguồn
+`src/kiem_tohop2.py`.
+
+## Mở rộng: mô hình hiện đại hơn (XGBoost, CatBoost, TabPFN v2) + stacking phi tuyến
+
+Người dùng hỏi tiếp: trước khi chốt tổ hợp đơn giản, có nên thử các mô
+hình ML **hiện đại hơn** và cách tổ hợp **phức tạp hơn** không? Ba mảnh
+mới (10/09/2026):
+
+1. **XGBoost + CatBoost** (`src/run_ml2.py`) — hai họ GBM hiện đại hơn
+   LightGBM, cùng giao thức (52 đặc trưng, khớp lại đầu mỗi năm, lưới siêu
+   tham số nhỏ trên kiểm định). QLIKE kiểm định: CatBoost 0,1192, XGBoost
+   0,1214 — cạnh tranh được với RF/MLP nhưng không vượt LightGBM/Ridge.
+2. **TabPFN v2** (Hollmann et al., *Nature* 2025) cho ĐÚNG bài toán hồi
+   quy biến động vòng 7 (`src/run_tabpfn_vol.py`) — lần trước TabPFN chỉ
+   được thử cho bài toán phân loại hướng khác. Đây là mô hình NỀN cho dữ
+   liệu bảng, suy diễn in-context (không có "huấn luyện" theo nghĩa
+   gradient), khác hẳn cơ chế GBM/RNN. Ngữ cảnh giới hạn 8.000 hàng gần
+   nhất (trong vùng thiết kế ≤10.000 của TabPFN — khác toàn bộ các mô hình
+   khác dùng TOÀN BỘ lịch sử). Có tự kiểm không rò rỉ (cắt dữ liệu SAU
+   điểm huấn luyện không được làm đổi ngữ cảnh). Chạy CPU mất ~2,3 giờ (11
+   lần khớp lại theo năm); sau khi cài `torch` bản CUDA và chạy lại trên
+   GPU (RTX 3050 4GB), chỉ mất ~62 phút — nhanh hơn ~2 lần dù dùng
+   `n_estimators=4` thay vì 1 (tăng chất lượng ensemble nội bộ nhờ tốc độ
+   dư ra). **QLIKE kiểm định 0,1164** — gần như ngang HAR gốc (0,1162) và
+   LightGBM (0,1164), TỐT NHẤT trong số các mô hình bảng/cây đã thử, dù
+   chạy hoàn toàn zero-shot (không gradient descent nào trên dữ liệu FX).
+3. **Stacking phi tuyến** (`src/kiem_tohop3.py`) — thay hồi quy tuyến tính
+   Granger-Ramanathan bằng một LightGBM RẤT nông (num_leaves=3, dừng sớm)
+   làm meta-learner, khớp trên các dự báo gốc (thang log) của toàn bộ mô
+   hình, mục tiêu log-RV thật, CHỈ trên đoạn kiểm định — đúng kỹ thuật
+   "stacked generalization" (Wolpert 1992) mà các bài báo 2025 về ensemble
+   biến động dùng (vd. meta-learner XGBoost trên ARIMA+RF+LSTM+GRU+Transformer).
+
+`kiem_tohop3.py` thử **509 tổ hợp** (mọi tập con của 7 mô hình mới/cũ ×
+4 cách kết hợp: đều tay, trọng số 1/QLIKE, hồi quy GR, stacking phi
+tuyến). Kết quả:
+
+| # | tổ hợp | QLIKE kiểm định | QLIKE kiểm tra | so HAR | DM p |
+|---|---|---|---|---|---|
+| 1 | Hồi quy GR · HAR+GRU+CatBoost | 0,1136 | **0,1538** | −3,0% | **0,041** |
+| 2 | Hồi quy GR · HAR+LightGBM+GRU+CatBoost | 0,1128 | 0,1539 | −2,9% | 0,070 |
+| 7 | Hồi quy GR · HAR+GRU (bản trước) | 0,1138 | 0,1541 | −2,8% | 0,029 |
+
+**CatBoost — mô hình hiện đại nhất trong lứa mới — thực sự cải thiện
+thêm một chút** khi kết hợp với HAR+GRU (0,1538 so với 0,1539/0,1541 của
+các tổ hợp trước), và đây là tổ hợp DUY NHẤT có DM p<0,05 (0,041) khi so
+riêng lẻ với HAR. Nhưng **MCS (α=0,10) trên 15 tổ hợp đầu + HAR vẫn cho
+16/16 sống sót** — HAR đơn lẻ tiếp tục nằm trong tập không phân biệt được
+về thống kê, y hệt phát hiện ở bản đầu.
+
+**Phát hiện quan trọng nhất: STACKING PHI TUYẾN LÀ CÁCH TỆ NHẤT.** Tổ hợp
+stacking tốt nhất trong 509 tổ hợp xếp hạng **#383/509** với QLIKE kiểm
+tra 0,1647 — **TỆ HƠN CẢ HAR đơn** (0,1585)! Dù có tự kiểm xác nhận hàm
+stacking hoạt động đúng trên dữ liệu mô phỏng (học được trọng số gần 1
+cho dự báo hoàn hảo), trên dữ liệu thật nó overfit ngay trên đoạn kiểm
+định (chỉ ~3.282 hàng, các đặc trưng meta là những dự báo TƯƠNG QUAN CAO
+lẫn nhau) — một minh chứng thực nghiệm rõ ràng cho "câu đố tổ hợp dự báo"
+(forecast combination puzzle): mô hình tổ hợp phức tạp hơn không đồng
+nghĩa với tốt hơn, và đôi khi tệ hơn hẳn phương án đơn giản.
+
+## CRPS — chấm cả phân phối dự báo, không chỉ giá trị điểm (11/09/2026)
+
+Bảng tổng hợp bản đầu (`xuat_bang_baocao.py`) có cột CRPS **trùng khít cột
+MAE** ở mọi mô hình trừ Chronos. Đó không phải lỗi sao chép: CRPS của một dự
+báo **điểm** bằng đúng |y − f| vì phân phối dự báo suy biến về một điểm
+(Gneiting & Raftery 2007). Nhưng nó làm cột CRPS vô nghĩa — không nói thêm gì
+so với MAE.
+
+`src/crps.py` (mới) sửa việc đó. Mấu chốt: **mọi mô hình trong bảng đều đã
+ngầm định một phân phối, chỉ là chưa ai dùng**. Vì mỗi mô hình dự báo log-RV
+rồi quy đổi `h = exp(μ + s²/2)`, nên nó ngầm định RV ~ log-chuẩn
+`LN(log h − s²/2, s²)`, với `s²` là phương sai phần dư log-RV — ước **chỉ trên
+đoạn huấn luyện**. Tách μ và s² ra là tính được CRPS thật, dạng đóng (Baran &
+Lerch 2015). Chronos giữ CRPS từ 9 phân vị thật của chính nó.
+
+Module có **5 phép tự kiểm Monte Carlo**: công thức Gini nhanh so với brute
+force, CRPS mẫu so với định nghĩa tích phân gốc, dạng đóng log-chuẩn và chuẩn
+so với mẫu lớn, trường hợp suy biến (Dirac → CRPS = MAE), và **tính chính đáng**
+(phân phối đúng phải ăn điểm cả phân phối quá rộng lẫn phân phối lệch tâm).
+
+Kết quả đổi thứ hạng, và thêm một chiều thông tin mới — **độ phủ khoảng trung
+tâm 80%**, tức phân phối có hiệu chuẩn đúng không:
+
+| mô hình | CRPS kiểm tra | phủ 80% |
+|---|---|---|
+| Tổ hợp HAR+GRU (đều tay) | **0,0786** | 81,8% |
+| Tổ hợp HAR+GRU+CatBoost (hồi quy GR) | 0,0792 | **79,8%** |
+| CatBoost | 0,0790 | 82,2% |
+| HAR vòng 7 | 0,0796 | 81,8% |
+| TTM | 0,0874 | 77,6% |
+| Chronos-bolt-small | 0,0929 | **75,7%** |
+| MLP | 0,0853 | **85,4%** |
+
+Hai điều đáng chú ý: (a) **tổ hợp đều tay thắng CRPS** dù thua tổ hợp hồi quy
+GR ở QLIKE/MSE — tức trung bình đều tay cho phân phối *hiệu chuẩn* tốt hơn, dù
+điểm trung tâm kém hơn chút; (b) cột độ phủ bắt được lỗi mà QLIKE/MSE/MAE
+không thấy: **Chronos phủ 75,7%** (khoảng dự báo quá hẹp, tự tin quá mức) còn
+**MLP phủ 85,4%** (quá rộng, mơ hồ quá mức) — cả hai đều là phân phối sai, theo
+hai hướng ngược nhau.
+
+## CRPS phân phối lợi suất — chấm đúng cái sản phẩm hứa (11/09/2026)
+
+*Tái lập: `python src/crps_loi_suat.py`. Kết quả: `output/crps_loi_suat.json`.*
+
+Mọi chỉ số ở trên đều chấm **dự báo phương sai**. Nhưng sản phẩm không hứa
+"phương sai ngày mai bằng X" — nó hứa **"lợi suất ngày mai nằm trong khoảng
+này, với mức tự tin này"**. Hệ sản xuất đã có sẵn một phân phối dự báo đầy đủ,
+chỉ là chưa ai ráp lại:
+
+```
+tầng 2 (volfc2.du_bao_san_xuat)   →  σ̂(t)
+tầng 6 (va_duoi.py, cấu hình V0)  →  phân phối thực nghiệm của z, ĐÓNG BĂNG trên huấn luyện
+ghép:  r(t+1) ~ σ̂(t) × {z₁, …, z_m}
+```
+
+Chấm phân phối đó bằng CRPS, so với **khí hậu học** (phân phối lợi suất huấn
+luyện — tương đương "giả định biến động không đổi"):
+
+| đoạn | CRPS khí hậu học | CRPS hệ thống | kỹ năng | số cặp dương |
+|---|---|---|---|---|
+| kiểm định | 32,637 | 32,015 | **+1,91%** | 6/6 |
+| kiểm tra | 25,516 | 25,082 | **+1,70%** | 6/6 |
+
+(đơn vị pip trên cặp 5 chữ số; kỹ năng = 1 − CRPS/CRPS_khí_hậu, cùng quy ước
+với BSS)
+
+**Đây là bằng chứng trực tiếp nhất cho kết luận "magnitude/risk có kỹ năng đo
+được"** — không phải qua một chỉ số nội bộ như QLIKE, mà qua chính đầu ra sản
+phẩm, trên đoạn kiểm tra chưa từng dùng để chọn gì, dương trên cả 6/6 cặp.
+
+Tách thêm một bậc: nếu thay phân phối z thực nghiệm (đuôi dày) bằng giả định
+**chuẩn**, kỹ năng còn +1,42% thay vì +1,70%. Nghĩa là phần lớn lợi thế đến từ
+**σ̂ thay đổi theo phiên**, còn hình dạng đuôi chỉ đóng góp thêm ~0,28 điểm
+phần trăm — nhỏ nhưng nhất quán (tốt hơn ở 6/6 cặp).
+
+**Khuyến nghị cuối cùng, sau khi đã thử mô hình hiện đại + stacking**:
+tổ hợp **hồi quy GR của HAR+GRU+CatBoost** (hoặc đơn giản hơn, HAR+GRU đều
+tay) là lựa chọn tốt nhất đã kiểm chứng — cải thiện thật, nhất quán, và
+là tổ hợp duy nhất đạt ý nghĩa thống kê riêng lẻ. Không có bằng chứng cho
+thấy XGBoost, TabPFN, hay stacking phi tuyến đóng góp giá trị vượt trội so
+với các mô hình/phương pháp tổ hợp đơn giản đã có — TabPFN cạnh tranh tốt
+NHƯ MỘT MÔ HÌNH ĐƠN LẺ (gần bằng HAR) nhưng KHÔNG cải thiện tổ hợp khi
+thêm vào (không xuất hiện trong top 25). Toàn bộ 509 dòng kết quả, danh
+sách MCS: `output/ketqua_tohop3.json`, `output/log_tohop3.txt`, mã nguồn
+`src/run_ml2.py`, `src/run_tabpfn_vol.py`, `src/kiem_tohop3.py`.

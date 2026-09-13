@@ -10,6 +10,10 @@ ngưỡng phải vượt (docs/GIAIDOAN1_NEN.md): mục tiêu P h=1 BSS > +0,010
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 MỤC TIÊU R  (σ̂ đã chia ra — mọi kỹ năng ở đây là kỹ năng VƯỢT TRÊN tầng 2)
+  đang khớp… logistic đa thức ✓ C:\Users\ASUS\AppData\Roaming\Python\Python311\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\ASUS\AppData\Roaming\Python\Python311\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
 LightGBM 3 lớp ✓ GRU 3 lớp ✓ 
 
   KIỂM ĐỊNH (dùng để chọn)
@@ -34,29 +38,33 @@ LightGBM 3 lớp ✓ GRU 3 lớp ✓
   trọng số cuối của học trực tuyến: chỉ σ̂=0.20 · σ̂ + chế độ=0.42 · logistic đa thức=0.38 · LightGBM 3 lớp=0.00 · GRU 3 lớp=0.00
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 MỤC TIÊU P  (dải cố định — thứ hiển thị trên giao diện)
+  đang khớp… logistic đa thức ✓ C:\Users\ASUS\AppData\Roaming\Python\Python311\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\ASUS\AppData\Roaming\Python\Python311\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
 LightGBM 3 lớp ✓ GRU 3 lớp ✓ 
 
   KIỂM ĐỊNH (dùng để chọn)
   mô hình                      log      BSS       KTC 95% của BSS     ECE     AUC          KTC 95%    sd(P)
-  khí hậu học               1.0320  +0.0000    [+0.0000; +0.0000]  0.0122   0.500   [0.500; 0.500]   0.0000  ⚠ HẰNG SỐ
-  chỉ σ̂                    1.0249  +0.0046    [+0.0014; +0.0082]  0.0138   0.500   [0.500; 0.500]   0.0486 *
-  σ̂ + chế độ               1.0246  +0.0052    [+0.0016; +0.0090]  0.0090   0.506   [0.484; 0.525]   0.0531 *
-  logistic đa thức          1.0305  -0.0006    [-0.0071; +0.0045]  0.0188   0.513   [0.491; 0.534]   0.0592
-  LightGBM 3 lớp            1.0506  -0.0215    [-0.0315; -0.0119]  0.0528   0.513   [0.492; 0.533]   0.0939
-  GRU 3 lớp                 1.1295  -0.0884    [-0.1102; -0.0718]  0.1068   0.503   [0.482; 0.526]   0.1650
+  khí hậu học               1.0985  +0.0000    [+0.0000; +0.0000]  0.0155   0.500   [0.500; 0.500]   0.0000  ⚠ HẰNG SỐ
+  chỉ σ̂                    1.0867  +0.0110    [+0.0051; +0.0174]  0.0160   0.500   [0.500; 0.500]   0.0829 *
+  σ̂ + chế độ               1.0874  +0.0104    [+0.0041; +0.0171]  0.0135   0.483   [0.461; 0.502]   0.0875 *
+  logistic đa thức          1.0905  +0.0077    [-0.0004; +0.0150]  0.0207   0.518   [0.495; 0.543]   0.0878
+  LightGBM 3 lớp            1.1133  -0.0149    [-0.0268; -0.0042]  0.0543   0.521   [0.499; 0.546]   0.1155
+  GRU 3 lớp                 1.2190  -0.1083    [-0.1341; -0.0873]  0.1246   0.495   [0.474; 0.522]   0.1798
 
   KIỂM TRA (chấm một lần)
   mô hình                      log      BSS       KTC 95% của BSS     ECE     AUC          KTC 95%    sd(P)
-  khí hậu học               1.0535  +0.0000    [+0.0000; +0.0000]  0.0098   0.500   [0.500; 0.500]   0.0000  ⚠ HẰNG SỐ
-  chỉ σ̂                    1.0450  +0.0063    [+0.0038; +0.0088]  0.0140   0.500   [0.500; 0.500]   0.0441 *
-  σ̂ + chế độ               1.0438  +0.0074    [+0.0046; +0.0106]  0.0094   0.501   [0.486; 0.520]   0.0514 *
-  logistic đa thức          1.0445  +0.0072    [+0.0038; +0.0121]  0.0129   0.527   [0.508; 0.552]   0.0547 *
-  LightGBM 3 lớp            1.0670  -0.0148    [-0.0225; -0.0077]  0.0444   0.502   [0.483; 0.523]   0.0837
-  GRU 3 lớp                 1.1185  -0.0594    [-0.0724; -0.0482]  0.0912   0.515   [0.496; 0.532]   0.1431
-  học trực tuyến (Hedge)    1.0435  +0.0076    [+0.0047; +0.0112]  0.0118   0.517   [0.497; 0.539]   0.0501 *
+  khí hậu học               1.0983  +0.0000    [+0.0000; +0.0000]  0.0096   0.500   [0.500; 0.500]   0.0000  ⚠ HẰNG SỐ
+  chỉ σ̂                    1.0833  +0.0150    [+0.0102; +0.0209]  0.0117   0.500   [0.500; 0.500]   0.0760 *
+  σ̂ + chế độ               1.0823  +0.0160    [+0.0113; +0.0223]  0.0120   0.496   [0.478; 0.520]   0.0814 *
+  logistic đa thức          1.0832  +0.0149    [+0.0093; +0.0227]  0.0125   0.530   [0.510; 0.556]   0.0869 *
+  LightGBM 3 lớp            1.1033  -0.0041    [-0.0111; +0.0059]  0.0424   0.509   [0.488; 0.532]   0.1157
+  GRU 3 lớp                 1.1767  -0.0682    [-0.0824; -0.0542]  0.1083   0.515   [0.496; 0.538]   0.1674
+  học trực tuyến (Hedge)    1.0817  +0.0164    [+0.0118; +0.0226]  0.0110   0.523   [0.506; 0.551]   0.0820 *
 
-  trọng số cuối của học trực tuyến: chỉ σ̂=0.45 · σ̂ + chế độ=0.18 · logistic đa thức=0.37 · LightGBM 3 lớp=0.00 · GRU 3 lớp=0.00
+  trọng số cuối của học trực tuyến: chỉ σ̂=0.24 · σ̂ + chế độ=0.52 · logistic đa thức=0.24 · LightGBM 3 lớp=0.00 · GRU 3 lớp=0.00
 
 ======================================================================================================================
-đã ghi output/ml3.json — 191s
+đã ghi output/ml3.json — 360s
 TỰ KIỂM ĐẠT

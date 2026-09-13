@@ -1,0 +1,34 @@
+========================================================================================================
+PHA 2 / WEEK 3 — M1 vs M2 TRÊN TRỤC BIẾN ĐỘNG
+========================================================================================================
+129 thông cáo · 129 có nhãn LLM
+
+đang dựng bốn cách biểu diễn…
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2626.57it/s]
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2979.38it/s]
+  PCA 3 thành phần giải thích 51.4% phương sai embedding
+  R1 nhãn LLM: 8 biến giả
+  R2 trục ngữ nghĩa: ['truc_chinh_sach', 'truc_bat_dinh', 'truc_chuyen_huong']
+  R3 PCA embedding: 3 thành phần
+  R4 thủ công: ['thay_doi_cau_chu', 'doi_do_dai', 'giong_dieu']
+
+bảng dài 3,330 hàng (chỉ phiên trong cửa sổ 5 phiên sau họp FOMC)
+  huấn luyện    2,310 hàng
+  kiểm định       510 hàng
+  kiểm tra        510 hàng
+
+========================================================================================================
+biến thể                     k   QLIKE kiểm định    so M1   QLIKE kiểm tra    so M1  DM p (kt)
+--------------------------------------------------------------------------------------------------------
+M1 (HAR + lịch họp)          2            0.2027     0.0%           0.1866     0.0%        nan
+M2·R1 nhãn LLM              10            0.1979    -2.4%           0.1931     3.5%     0.1539
+M2·R2 trục ngữ nghĩa         5            0.2241    10.6%           0.1907     2.2%     0.0015
+M2·R3 PCA embedding          5            0.1979    -2.4%           0.1886     1.1%     0.2920
+M2·R4 thủ công               5            0.2238    10.4%           0.1856    -0.5%     0.5117
+--------------------------------------------------------------------------------------------------------
+
+TỐT NHẤT TRÊN KIỂM ĐỊNH (quy tắc chọn): M2·R1 nhãn LLM
+  → trên kiểm tra: +3.5% so với M1 (TỆ HƠN)
+
+→ output/m2_bien_dong.json · 30s
