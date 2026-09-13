@@ -43,6 +43,7 @@ EPS = 1e-12
 K_STOP = 1.5          # stop o 1,5 sigma^ — chot truoc
 H_STOP = 5            # trong 5 phien — chot truoc
 A_VAR = 0.01          # muc VaR 1% — chot truoc
+HET_PHAT_TRIEN = "2025-12-31"   # KHOA_SO muc 2 danh rieng 2026-01..08 cho bo niem phong
 
 import balop as B                                   # noqa: E402
 import volfc2 as V2                                 # noqa: E402
@@ -118,6 +119,13 @@ def nap():
                              sig1=float(s1), r1=float(r[t + 1]),
                              y_stop=y_stop))
     df = pd.DataFrame(hang)
+    # KHONG cham tren giai doan danh rieng cho bo niem phong (KHOA_SO muc 2).
+    # `noi_chuoi` noi them du lieu live toi 2026-09; nguon khac histdata_seal
+    # nhung CUNG GIAI DOAN ma niem phong danh rieng, nen cat o day.
+    n0 = len(df)
+    df = df[df.ngay <= pd.Timestamp(HET_PHAT_TRIEN)].reset_index(drop=True)
+    print(f"cắt {n0 - len(df):,} hàng sau {HET_PHAT_TRIEN} "
+          f"(giai đoạn dành riêng cho bộ niêm phong, KHOA_SO mục 2)")
     # che do = tam phan vi cua sigma^, NGUONG CHOT TREN HUAN LUYEN
     tr = df.doan == 0
     q = np.nanquantile(df.log_sig[tr], [1 / 3, 2 / 3])
