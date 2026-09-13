@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8912", "--directory", "web"],
       "port": 8912
+    },
+    {
+      "name": "fxdss-api",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "api.main:app", "--port", "8899"],
+      "port": 8899
     }
   ]
 }

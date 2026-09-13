@@ -365,7 +365,8 @@ def nap_khung(pair, tf):
     Do sau khac nhau la RANG BUOC CUA NGUON, khong phai lua chon thiet ke; ham
     tra ve `ghi_chu` de giao dien noi ro cho nguoi dung."""
     if tf == "D1":
-        d = lay(pair)["m"][["Date", "open", "high", "low", "close", "nguon", "rv_uoc"]]
+        d = lay(pair)["m"][["Date", "open", "high", "low", "close", "nguon",
+                            "rv_uoc", "n5"]]
         return d.rename(columns={"Date": "ts"}), "lịch sử đầy đủ từ 2010"
     if tf == "H1":
         ph = []
@@ -428,6 +429,11 @@ def series(pair: str = Query(...), tf: str = Query("D1"),
           "nguon": list(d.nguon.values) if "nguon" in d else None}
     if "rv_uoc" in d:
         ra["rv_uoc"] = [int(v) for v in d.rv_uoc.fillna(0).values]
+    if "n5" in d:
+        # so lan lai suat 5 phut da quan sat trong ngay (toi da ~287) — dai
+        # dien cho "ngay giao dich co day du du lieu khong", dung de bao cho
+        # nguoi dung khi ngay le/ngay mong lam rv5 kem tin cay hon.
+        ra["n5"] = [None if pd.isna(v) else int(v) for v in d.n5.values]
     return ra
 
 

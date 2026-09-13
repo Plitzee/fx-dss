@@ -111,7 +111,7 @@ def chup_ban_tinh(day_du=True):
                       "tap": (sel(t["tap"]) if t.get("tap") else None)}
         D_ = {"ngay": s_["ngay"], "o": s_["o"], "h": s_["h"], "l": s_["l"],
               "c": s_["c"], "pip": s_["pip"], "nguon": s_.get("nguon"),
-              "rv_uoc": s_.get("rv_uoc"),
+              "rv_uoc": s_.get("rv_uoc"), "n5": s_.get("n5"),
               "sig_pip": [v or 0 for v in sel(f_["sig_pip"])],
               "che_do": [0 if v is None else v for v in sel(f_["che_do"])],
               "nen12": f_["nen12"], "tam": tam,
