@@ -335,8 +335,16 @@ phải chọn mô hình) rồi chấp nhận không quay lại sửa nữa dù k
 Cả hai đều là đánh đổi thực sự, không phải vấn đề kỹ thuật giải quyết được
 bằng biến thể thống kê khác.
 
-**Quyết định: giữ nguyên V1 mở rộng vô điều kiện. Bốn hướng độc lập đã thử,
-không hướng nào ăn tiền.** Cảnh báo USDJPY trên giao diện tiếp tục giữ
+**Quyết định: giữ nguyên mốc đang chạy. Bốn hướng độc lập đã thử,
+không hướng nào ăn tiền.**
+
+> **ĐÍNH CHÍNH 13/09/2026.** Bản trước của đoạn này viết *"giữ nguyên V1 mở
+> rộng"* — **sai so với mã đang chạy**. `api/main.py::var_es` dòng 725 dùng
+> `np.quantile(z_tr, a)`, tức **V0 — phân vị z ước trên HUẤN LUYỆN, đóng
+> băng**, đúng như `KHOA_SO.md` mục 4.3 ghi. V1 là phương án đã thử ở mục 5c
+> và **bị loại** vì thua V0 trên kiểm tra. Câu sai này không làm đổi kết luận
+> nào (cả bốn hướng đều thất bại) nhưng nó ghi sai cấu hình sản xuất, nên
+> phải sửa. Cảnh báo USDJPY trên giao diện tiếp tục giữ
 nguyên. Khuyến nghị cho luận văn: trình bày đây là hạn chế đã biết, có chẩn
 đoán nguyên nhân khả dĩ (carry-unwind quanh họp BoJ) nhưng chưa có cách vá
 được xác nhận trong khuôn khổ giao thức chọn-trên-kiểm-định hiện tại.
