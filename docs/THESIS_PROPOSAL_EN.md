@@ -29,6 +29,18 @@ Preliminary work carried out by the group has established the feasibility and th
 
 This thesis therefore addresses a research problem that is methodological as much as it is predictive: **how to construct a decision support system for FX whose every displayed quantity is traceable to a measurement under a pre-registered evaluation protocol, which states the axis on which it has skill, which quantifies the strength of its negative findings, and which converts calibrated uncertainty into actionable risk limits.** The closed phases established what does and does not carry information; the remaining work consists of completing a small number of explicitly identified residual validation items within the existing protocol (rather than reopening its settled conclusions), performing the single sealed-set evaluation, and finalising the system and its documentation.
 
+This is deliberately a systems thesis as much as a statistics thesis: the pre-registered protocol above is only a decision-support *system* if every one of its numbers is produced, versioned, and served by software that operates continuously rather than by a script run once for a report. The data pipeline, computation layer, API, and web application described in the Proposed Method section below are therefore treated as a primary deliverable, developed and extended across the full sixteen-week timeline rather than assembled at its end.
+
+## Market Survey
+
+Before specifying the proposed system, the group surveyed the retail FX decision-support tools that already compete for the same user attention this thesis targets, so that the contribution claimed below is stated relative to what exists rather than in the abstract.
+
+- **Signal marketplaces on trading platforms** (e.g., MQL5/MetaTrader signal and expert-advisor marketplaces, TradingView public scripts) publish a directional call and a track record computed on the vendor's own in-sample selection, with no pre-registered protocol, no multiple-testing correction across the many scripts a user can browse, and no reported minimum detectable effect size for a "no edge" verdict.
+- **Portfolio-analytics services** (e.g., Myfxbook, FX Blue) report realized statistics of a user's own trade history but do not issue forward-looking calibrated probabilities or a stop-out probability by holding horizon; risk figures, where present, are descriptive rather than backtested against formal coverage tests.
+- **Broker-supplied "confidence" or "sentiment" widgets** attach a qualitative label (e.g., a percentage of retail positions long/short) to a pair without stating a proper scoring rule, a baseline, or a calibration diagnostic, so the number cannot be interpreted as a probability.
+
+None of the surveyed categories discloses (a) the hypothesis space searched, (b) the multiple-testing correction applied, (c) a calibration or coverage guarantee for its stated confidence, or (d) a quantified probability of ruin behind its position-size suggestion — properties long identified as missing from applied decision support systems generally [27] and which this thesis is designed to provide for the FX case specifically. This gap, rather than a claim of superior raw directional accuracy, is the specific contribution the proposed system targets.
+
 ## Research Objectives
 
 The primary objective of this research is to design, implement, and empirically validate a decision support system for foreign exchange trading in which forecast skill is established per target axis under strict multiple-testing control, uncertainty is communicated through calibrated conformal prediction sets, and position sizing is constrained by an estimated probability of ruin under explicitly stated assumptions.
@@ -49,7 +61,9 @@ Specific objectives include:
 
 - **Reporting negative findings with quantified power.** For every negative result, report the minimum detectable effect size of the corresponding testing procedure, so that each negative claim is bounded rather than open-ended.
 
-- **Implementing the complete system.** Deliver a reproducible web-based decision support system in which every displayed number is traceable to a specific measurement and its supporting evidence.
+- **Engineering a production decision support architecture.** Design and operate, throughout the sixteen-week timeline rather than only at its conclusion, a five-layer software architecture — data pipeline, computation layer, versioned forecast artefacts, a documented API, and a web application — so that each research layer above is integrated as soon as it is completed instead of being connected for the first time late in the project (see Proposed Method and System Architecture).
+
+- **Implementing the complete system.** Deliver a reproducible web-based decision support system in which every displayed number is traceable to a specific measurement and its supporting evidence, extending the API and web application that are already operating on a daily schedule (Introduction).
 
 ## Research Scope
 
@@ -68,6 +82,65 @@ The study is explicitly **not** an attempt to construct a profitable automated t
 The primary research subject is **the statistical validation of decision support outputs for foreign exchange trading under a low signal-to-noise ratio**.
 
 The study examines how forecast skill can be attributed to a specific target axis and to a specific information layer; how multiple-testing control, power analysis, leakage protection, and sealed-set validation interact to produce claims that survive replication; how calibrated probabilistic forecasts and conformal prediction sets can be converted into risk limits with a measured probability of ruin; and how such evidence should be presented in a decision support interface so that the user can distinguish what the system measures from what it merely assumes.
+
+## Proposed Method and System Architecture
+
+This section states explicitly what is proposed, distinguishing components already implemented and frozen during the pre-registered phases described in the Introduction from components that remain to be completed under this thesis. Every item below is labelled **(implemented)** or **(proposed)** accordingly; nothing in this section is presented as a finished result until it appears with its measured numbers in the Expected Results section or, later, the defended thesis.
+
+### Proposed Predictive and Risk Layers
+
+- **Magnitude model — extended HAR.** *(implemented, frozen as production baseline)* A heterogeneous-autoregressive specification on realized variance [7], extended with measurement-error correction [8] and jump/semivariance decomposition [9], selected over fourteen ML/DL challengers and 509 forecast combinations under the Model Confidence Set [12].
+- **Direction/probability model — online expert combination.** *(implemented, frozen as production baseline)* A Hedge-style online combination [13] of four sub-models (climatology, persistence, σ̂-only, σ̂+regime), re-weighted after every session; challenged by regularised linear, tree, recurrent, attention, and foundation-model alternatives under an identical information set.
+- **Causal discovery module.** *(implemented — validation role; forecast-integration role tested and deferred)* Five independently implemented methods triangulate which exogenous variable is trusted; using the estimated causal effect to directly adjust the production forecast was tested and found not yet effective. Full status in Causal Discovery Method below and Deferred / Future Work.
+- **Calibration module — Mondrian-stratified adaptive conformal inference.** *(implemented for the production three-class output)* ACI [19] stratified by volatility regime [20], measured at a 1.2-percentage-point maximum calibration deviation against 2.4–3.2 points for four alternative methods. *(proposed extension)* A PID-controller-based online conformal update [30] is evaluated on the development-test segment as a candidate refinement for the below-target coverage observed while an account is drawing down (Research Methodology, Calibration, Risk, and Decision Layer).
+- **Risk/decision module.** *(implemented)* Empirical-quantile VaR/ES with Kupiec [21], Christoffersen [22], and dynamic-quantile [23] backtests and a strictly consistent joint scoring function [24]; position size as a Kelly-derived growth-optimal fraction [25] capped by an estimated probability of ruin. *(proposed remaining work)* Portfolio-correlation adjustment and the slippage coefficient measured from observed stop-loss executions.
+
+### Causal Discovery Method — Triangulated Validation, Deferred Forecast Integration
+
+*(Status note: this subsection reports work that has already been carried out, not a plan — an earlier draft of this document proposed it as future work; five methods have since been run and the findings below are what they showed.)*
+
+The exogenous-variable layer requires a method that (a) searches many candidate lagged predictors simultaneously rather than one pair at a time, (b) distinguishes a direct temporal link from a link that only appears because two series share a common driver or an indirect path through a third variable, and (c) plugs into the same false-discovery-control machinery already used for the price-pattern families. The **official decision gate** for the frozen exogenous feature-selection ablation (Introduction; Expected Results) is Granger-type nested-regression F-testing under step-down Westfall–Young control [4] — the same family-wise-error machinery as every other discovery family in this thesis.
+
+**Answering "which algorithm, and how do you know it is real causality rather than random correlation" — five independently implemented methods, not one.** Beyond the official Granger gate, four additional methods from their original authors' own libraries (not self-written) were run on the same frozen data to triangulate the result:
+
+1. **PCMCI** [18], run with the `tigramite` package (Jakob Runge's own implementation), conditioning each candidate simultaneously on the others rather than one at a time. This is the concrete mechanism that separates a genuine driver from a confound: tested alone, gold-price implied volatility (GVZCLS) is a significant predictor of FX volatility; conditioned jointly on the VIX, that significance disappears — both are proxies for the same global risk-aversion factor, and only PCMCI's simultaneous conditioning exposes this, which pairwise Granger testing structurally cannot. VIX itself survives simultaneous conditioning across every pair tested.
+2. **Double Machine Learning** [33] (`doubleml`, gradient-boosted nuisance functions, five-fold cross-fitting), used to estimate the *size* of VIX's effect on next-session log realized variance rather than merely its existence. The effect is positive and Holm-significant in **6 of 6** development pairs (θ from 0.070 to 0.186, every 95% confidence interval excluding zero) — the strongest and most consistent result in the triangulation, clearing the ≥5/6-pair stability bar applied everywhere else in this thesis.
+3. **Causal Forest** [34] (`econml`), used to test whether VIX's effect is regime-dependent. The effect is heterogeneous (confidence intervals differ materially by volatility regime), but the pattern is not consistent across pairs — 4 of 6 pairs show the effect increasing with stress, 2 do not — so no single "turn on the overlay under stress" rule generalises across all six pairs.
+4. **CausalImpact** [28] (`pycausalimpact`, the original Bayesian structural time-series implementation), applied at the level of individual ECB meetings rather than pooled across the series — a different question ("did *this* meeting push volatility past its counterfactual") from the other three methods' pooled feature-level question. Piloted on the twenty most recent ECB meetings inside the training/validation segment: 6 of 20 (30%) show a significant post-meeting volatility increase after FDR correction, against a ~5% false-positive rate expected under pure noise, and all six are positive — evidence, not noise, though the covariate series used does not fully remove shared global-risk-aversion confounding, a limitation the method's own diagnostics flag.
+
+Four independent methods, built by different authors on different statistical assumptions (linear/nonlinear, pairwise/simultaneous, existence/magnitude/heterogeneity/single-event), converging on the same variable is stronger evidence than any one method's p-value — this triangulation, not a single algorithm, is how this thesis answers the causality-versus-correlation question. Consistent with the Research Scope, none of the five methods is presented as establishing structural causality; every statement remains a temporal-precedence (Granger-type) or potential-outcomes claim conditioned on the assumptions each method states.
+
+**The result splits into two roles, and only one is ready to ship.**
+
+- **Validation role — implemented, already load-bearing.** The triangulation above is the actual mechanism that decided which exogenous variable survives into the frozen feature set: VIX is kept and ten other candidates are not, specifically because VIX — and only VIX — survives simultaneous conditioning in PCMCI and clears the 6/6-pair bar in Double ML. This is not a supplementary illustration; it is the filter, and it is done.
+- **Forecast-performance role — tested, found not yet effective, deferred rather than shipped.** Using the estimated causal effect to directly adjust the production volatility forecast — a VIX-conditioned multiplicative overlay on the HAR baseline, tested both as a constant adjustment and as a Causal-Forest regime-conditional adjustment — produced **no statistically significant QLIKE improvement in any of the six pairs after Holm correction**, despite the underlying effect being real and robust. The most defensible reading is that the HAR baseline already absorbs most of this information indirectly (realized volatility over the past day/week/month is already elevated when the VIX is elevated), leaving little additional forecast value for VIX to add on top. Consistent with this thesis's commitment to reporting negative findings rather than forcing a claimed improvement that is not there, **this application is not deployed and is moved to Deferred / Future Work below rather than scheduled for the remaining timeline.**
+
+### Proposed System Architecture
+
+*(Data pipeline and API: implemented and operating on a daily schedule; extensions listed in the Research Plan are proposed.)*
+
+The system is organised as five layers sharing one computation layer across two deployment targets, so the numbers a user sees on the live site and the numbers computed for the thesis are produced by the same code path:
+
+1. **Data sources → data pipeline (`collect/`).** A one-time historical bootstrap (`histdata_dl`, `prep_fx`, `rv5`, `rv_advanced`) plus a scheduled daily job (`live_fx.py`, `lich_su_kien.py`, run four times a day under continuous-integration scheduling) construct daily bars and five-minute realized measures for the six development pairs, plus the macro/central-bank calendar.
+2. **Data store (`data/`).** Static historical CSVs for the frozen development sample are kept separate from a daily-overwritten "live" store, so the sealed-evaluation and development segments cannot be silently mixed by a pipeline bug.
+3. **Computation layer (`src/` and `api/cache.py`).** Chains the series-join, the extended-HAR forecast, the three-class combination, conformal calibration, and the risk/position-sizing functions in one Python process, with no serialisation boundary between the statistical code and the layer that serves it — removing an entire class of train/serve skew.
+4. **API layer (`api/`, FastAPI).** One router per concern (`meta`, `market`, `forecast`, `risk`, `admin`) with Pydantic response models, already exposing the endpoints extended throughout the Research Plan below (`/health`, `/meta`, `/series`, `/indicators`, `/forecast`, `/forecast_series`, `/forecast_next`, `/journal`, `/calibration`, `/models`, `/risk`, `/events`, `/refresh`).
+5. **Web application.** A single HTML/JS template (`web/ui_template.html`) is the one source of truth for the interface and is compiled to three deployed variants rather than maintained as three separate hand-written pages.
+
+**The two deployment targets are a stated engineering trade-off, not an inconsistency — this is the answer to how the modules are linked at the deployment level.** The local/continuous-integration deployment runs the full FastAPI process (with `scipy`/`pandas`) and is the only place risk numbers are *computed*. The Vercel serverless deployment cannot host that dependency stack under its packaged-function size limit, so the daily job pre-computes the numbers that change once a day (forecast, three-class probabilities, VaR/ES) and ships them as static JSON, while a separate lightweight serverless function computes only the intraday candlestick data needed to draw the chart. Concentrating computation in one synchronous service that a lighter deployment target consumes as a versioned, materialised artefact follows established practice for scaling ML-serving systems under heterogeneous deployment constraints [31], [32].
+
+**Module contract — the mechanism, not just the diagram, behind "how are the modules linked."** Each row below is a fixed data contract enforced in code, not an informal call:
+
+| From | To | Via | Format |
+|---|---|---|---|
+| `collect/*.py` | `data/` | direct CSV/JSON write | fixed columns, no silent schema change |
+| `data/` | `api/cache.py` | fixed-path CSV read | `Date, open, high, low, close, rv5, …` |
+| `src/*.py` (forecast, calibration, risk) | `api/cache.py` | in-process function call | numpy/DataFrame, no serialisation |
+| `api/cache.py` | `api/routers/*.py` | in-memory dictionary | Python dict (`pan`, `xs`, `sig`, `che_do`, …) |
+| `api/routers/*.py` | web client | HTTP JSON | Pydantic `response_model` where declared |
+| daily job | static site data | HTTP call to the API | identical JSON to the live API — never recomputed by a second formula |
+
+The daily job never recomputes a number through a second code path: it calls the API and snapshots the response. This single-source-of-truth discipline — recommended practice for operationalising ML systems reliably [31] — is the concrete mechanism that keeps the static and live deployments from ever diverging, and is applied uniformly to every module added under the Research Plan below, not only to the modules that exist today.
 
 ## Research Methodology
 
@@ -97,7 +170,7 @@ The research is conducted through the following main activities.
 
 - Enumerate the hypothesis space in advance for every discovery family — symbolic sequence patterns, motif and matrix-profile analysis, interpretable rule learning, regime models, textual central-bank features, exogenous macro and cross-asset variables, and daily candlestick geometry — and apply step-down max-*T* resampling with block-preserving null models [4]. Remaining work in this family is limited to completing pre-registered evaluations at horizons and axes not yet scored (Section on the Research Plan); no new discovery family will be introduced after the evaluation protocol has been frozen.
 - Condition every candidate on the strongest available null: the production volatility forecast for the magnitude axis, and time-series momentum for the direction axis [3].
-- For the exogenous layer, contrast three feature-selection regimes under an identical model class and parameter budget: all declared variables, validation-selected variables, and variables filtered by temporal-causal testing [18] with a cross-pair and cross-year stability screen, in order to isolate the contribution of causal filtering itself.
+- For the exogenous layer, contrast three feature-selection regimes under an identical model class and parameter budget: all declared variables, validation-selected variables, and variables filtered by Granger-type causal testing under step-down Westfall–Young control [4], triangulated against four independently implemented methods — PCMCI [18], Double Machine Learning [33], Causal Forest [34], and CausalImpact [28] — with a cross-pair and cross-year stability screen (full triangulation and its two-role finding detailed in Proposed Method and System Architecture: Causal Discovery Method), in order to isolate the contribution of causal filtering itself. This layer, including the triangulation, is complete; remaining work is limited to writing up the findings (Research Plan, Week 9–10) — no new causal discovery work is scheduled, and using the causal effect to adjust the forecast directly is deferred (Deferred / Future Work) rather than pursued in the remaining timeline.
 - Screen surviving candidates for sign consistency across pairs and across years, and require leave-one-pair-out transfer before any candidate is admitted.
 
 ### Calibration, Risk, and Decision Layer
@@ -113,7 +186,7 @@ The research is conducted through the following main activities.
 
 ### System Implementation and Analysis
 
-- Maintain, throughout the study rather than only at its conclusion, an operating end-to-end product path — data ingestion, production forecast artefact, application programming interface, and a minimal user interface — so that each research layer is integrated as a versioned artefact update instead of being connected for the first time late in the project; dedicate the final weeks to hardening this system with a computation layer, a versioned forecast-artefact interface, and a user interface that presents per-axis skill, conformal prediction sets, the event calendar with measured historical responses, and the risk decision record with full provenance.
+- Maintain, throughout the study rather than only at its conclusion, the operating end-to-end product path specified in Proposed Method and System Architecture — data ingestion, production forecast artefact, application programming interface, and web application — so that each research layer is integrated as a versioned artefact update the same week it is completed (see the per-week engineering deliverables in the Research Plan) instead of being connected for the first time late in the project; dedicate the final weeks to hardening this system with a computation layer, a versioned forecast-artefact interface, and a user interface that presents per-axis skill, conformal prediction sets, the event calendar with measured historical responses, and the risk decision record with full provenance.
 - Analyse failure cases and limitations, including pairs that fail tail backtests and horizons at which calibration degrades, and report them within the interface rather than omitting them.
 
 ## Expected Results and Contributions
@@ -126,13 +199,17 @@ The expected outcomes of this research include:
 
 - **A systematic benchmark of model complexity for FX volatility forecasting**, covering linear, tree-based, recurrent, attention-based, tabular-foundation and time-series-foundation models, together with exhaustive forecast combinations, evaluated with proper scoring rules and model confidence sets.
 
-- **An empirical comparison of causal filtering against ordinary feature selection.** A completed, frozen ablation (not yet confirmed on sealed data) shows that variables filtered by temporal-causal testing with a stability screen degrade substantially less out of sample than variables selected by validation performance, with the mechanism identified and measured as distribution drift in the selected macroeconomic variables. This comparison appears to be underexplored in the FX forecasting literature.
+- **An empirical comparison of causal filtering against ordinary feature selection.** A completed, frozen ablation — its sealed-set evaluation deliberately not opened, per the pre-registered rule that a non-positive development-test verdict does not warrant it (Introduction) — shows that variables filtered by temporal-causal testing with a stability screen degrade substantially less out of sample than variables selected by validation performance, with the mechanism identified and measured as distribution drift in the selected macroeconomic variables. This comparison appears to be underexplored in the FX forecasting literature.
+
+- **A five-method causal triangulation, and an honest split between its two roles.** Granger+Westfall–Young, PCMCI, Double Machine Learning, Causal Forest, and CausalImpact independently converge on the same variable (VIX) and concretely demonstrate the mechanism — simultaneous conditioning in PCMCI — that separates it from a confound (gold-implied volatility) that looks causal only until conditioned on VIX. The validation role of this triangulation (deciding which exogenous variable is trusted) is complete and already load-bearing in the frozen feature set; its forecast-performance role (directly adjusting the production forecast) was tested and found not yet statistically effective in any of the six development pairs, and is reported as a negative finding rather than folded into a claimed improvement (Proposed Method and System Architecture; Deferred / Future Work).
 
 - **Power-bounded negative evidence.** Each negative finding will be reported together with the minimum effect size detectable by the corresponding procedure, converting statements of the form "no relationship was found" into bounded claims of the form "no relationship stronger than *X* exists in these data".
 
 - **Three applied contributions to risk-aware decision support**: a portfolio correlation factor for ruin-constrained sizing, quantifying the gap between the nominal and the realised probability of ruin when multiple correlated positions are opened simultaneously; a holding-horizon table on the decision record, addressing the systematic misreading of single-session stop-out probabilities; and a slippage coefficient estimated from observed stop-loss executions rather than assumed.
 
 - **A reproducible research record** containing the full data dictionary, the sealed-set protocol, the registry of every model configuration and hypothesis evaluated, and reproduction commands for every reported number, including all negative results.
+
+- **A documented, versioned software architecture** — the five-layer data pipeline, computation layer, API, and web application specified in Proposed Method and System Architecture — with an explicit module contract between every layer, so that the engineering contribution (how the numbers are produced, versioned, and served without the static and live deployments diverging) is itself reported and defensible, not only the numbers it serves.
 
 ## References
 
@@ -190,46 +267,77 @@ The expected outcomes of this research include:
 
 [27] D. Arnott and G. Pervan, "A critical analysis of decision support systems research," *Journal of Information Technology*, vol. 20, no. 2, pp. 67–87, 2005, doi: 10.1057/palgrave.jit.2000035.
 
+[28] K. H. Brodersen, F. Gallusser, J. Koehler, N. Remy, and S. L. Scott, "Inferring causal impact using Bayesian structural time-series models," *Annals of Applied Statistics*, vol. 9, no. 1, pp. 247–274, 2015, doi: 10.1214/14-AOAS788.
+
+[29] J. Runge, A. Gerhardus, G. Varando, V. Eyring, and G. Camps-Valls, "Causal inference for time series," *Nature Reviews Earth & Environment*, vol. 4, pp. 487–505, 2023, doi: 10.1038/s43017-023-00431-y.
+
+[30] A. N. Angelopoulos, E. J. Candès, and R. J. Tibshirani, "Conformal PID control for time series prediction," in *Advances in Neural Information Processing Systems (NeurIPS)*, vol. 36, 2023. arXiv:2307.16895.
+
+[31] S. Shankar, R. Garcia, J. M. Hellerstein, and A. G. Parameswaran, "Operationalizing machine learning: An interview study," arXiv:2209.09125, 2022.
+
+[32] S. Karanam and J. Bhargav, "Microservice architecture patterns for scalable machine learning systems," arXiv:2603.13672, 2026.
+
+[33] V. Chernozhukov, D. Chetverikov, M. Demirer, E. Duflo, C. Hansen, W. Newey, and J. Robins, "Double/debiased machine learning for treatment and structural parameters," *The Econometrics Journal*, vol. 21, no. 1, pp. C1–C68, 2018, doi: 10.1111/ectj.12097.
+
+[34] S. Wager and S. Athey, "Estimation and inference of heterogeneous treatment effects using random forests," *Journal of the American Statistical Association*, vol. 113, no. 523, pp. 1228–1242, 2018, doi: 10.1080/01621459.2017.1319839.
+
 ## Research Plan and Timeline
 
 Research timeline: 16 weeks.
 
 | No. | Assignments | Timeline |
 |---|---|---|
-| 1 | – Consolidate the data pipeline and verify contiguity, session conventions and time-zone handling. <br> – Fix the evaluation protocol: temporal partition, per-axis metrics, multiple-testing procedure, and sealed-set policy. <br> – Reproduce all baseline results from a clean checkout. | Week 1–2 |
-| 2 | – Complete the pattern-discovery families remaining at the five- and twenty-session horizons. <br> – Apply superior predictive ability testing at the family level across all discovery branches. <br> – Document the enumerated hypothesis space in full. | Week 3–4 |
-| 3 | – Conduct minimum detectable effect size analysis for every negative finding. <br> – Validate the discovery funnel with negative controls and known-effect injection. <br> – Formalise the reporting template for power-bounded negative claims. | Week 5–6 |
-| 4 | – Address tail-risk failures for the two pairs that do not pass Value-at-Risk and Expected Shortfall backtests at the 99% level, using conditional and extreme-value approaches. <br> – Recalibrate the twenty-session horizon and re-measure calibration error. | Week 7–8 |
-| 5 | – Complete the exogenous and causal information layer: all-variable, validation-selected and causally-filtered ablation under an identical parameter budget. <br> – Report results separately on the direction, magnitude and risk axes. <br> – Screen candidates for cross-pair and cross-year stability. | Week 9–10 |
-| 6 | – Evaluate the end-to-end economic result after measured transaction costs and slippage. <br> – Accumulate the forecast journal and compute rolling calibration on issued forecasts. | Week 11 |
-| 7 | – Freeze the final configuration in writing, including variables, selection method, models, metrics and decision rules. <br> – Prepare the sealed-set evaluation record. | Week 12 |
-| 8 | – Open the sealed evaluation set exactly once and score the frozen configuration. <br> – Report results without modification and without retuning. | Week 13 |
+| 1 | – Consolidate the data pipeline and verify contiguity, session conventions and time-zone handling. <br> – Fix the evaluation protocol: temporal partition, per-axis metrics, multiple-testing procedure, and sealed-set policy. <br> – Reproduce all baseline results from a clean checkout. <br> – **Engineering:** verify the already-operating daily pipeline job and its `/health`/`/meta` diagnostics against the reproduced baseline; tag this state as the architecture's starting version. | Week 1–2 |
+| 2 | – Complete the pattern-discovery families remaining at the five- and twenty-session horizons. <br> – Apply superior predictive ability testing at the family level across all discovery branches. <br> – Document the enumerated hypothesis space in full. <br> – **Engineering:** register the newly completed discovery-family results in the model registry served by `/models`. | Week 3–4 |
+| 3 | – Conduct minimum detectable effect size analysis for every negative finding. <br> – Validate the discovery funnel with negative controls and known-effect injection. <br> – Formalise the reporting template for power-bounded negative claims. <br> – **Engineering:** extend `/calibration` with the minimum-detectable-effect-size figure for every negative finding, so the power-bounded claim is traceable through the same API as every other number. | Week 5–6 |
+| 4 | – Address tail-risk failures for the two pairs that do not pass Value-at-Risk and Expected Shortfall backtests at the 99% level, using conditional and extreme-value approaches. <br> – Recalibrate the twenty-session horizon and re-measure calibration error. <br> – **Engineering:** update the `/risk` endpoint's VaR/ES backtest fields for the two affected pairs and the `/forecast_next` twenty-session horizon. | Week 7–8 |
+| 5 | – Write up the completed exogenous/causal analysis for the thesis: the frozen all-variable/validation-selected/causally-filtered ablation and the five-method causal triangulation (Proposed Method, Causal Discovery Method) — this work is done, not scheduled to be run here. <br> – Report results separately on the direction, magnitude and risk axes, as already measured. <br> – No new causal-discovery hypotheses are introduced at this stage, consistent with the frozen evaluation protocol; the causal-conditioned forecast overlay tested and found not yet effective stays in Deferred / Future Work rather than being reopened. <br> – **Engineering:** expose the causal-validation provenance (which exogenous variable passed or failed the confounding check, and why) as a read-only diagnostic field in `/forecast`'s provenance metadata — explicitly not used to alter the forecast value, consistent with the causal layer's validation-only role today. | Week 9–10 |
+| 6 | – Evaluate the end-to-end economic result after measured transaction costs and slippage. <br> – Accumulate the forecast journal and compute rolling calibration on issued forecasts. <br> – **Engineering:** extend `/journal` with realised transaction-cost-adjusted performance and rolling calibration diagnostics. | Week 11 |
+| 7 | – Freeze the final configuration in writing, including variables, selection method, models, metrics and decision rules. <br> – Prepare the sealed-set evaluation record. <br> – **Engineering:** tag and freeze the API response schemas and forecast-artefact version alongside the written protocol freeze. | Week 12 |
+| 8 | – Open the sealed evaluation set exactly once and score the frozen configuration. <br> – Report results without modification and without retuning. <br> – **Engineering:** serve the sealed-set results through the same frozen `/forecast`, `/risk`, and `/calibration` endpoints used throughout — no separate reporting path. | Week 13 |
 | 9 | – Complete the system: computation layer, versioned forecast artefacts, application programming interface, and user interface with full provenance for every displayed quantity. <br> – Verify continuous daily operation. | Week 14 |
-| 10 | – Analyse model behaviour by volatility regime, by pair and by year. <br> – Examine representative failure cases and document limitations. | Week 15 |
+| 10 | – Analyse model behaviour by volatility regime, by pair and by year. <br> – Examine representative failure cases and document limitations. <br> – **Engineering:** add regime-, pair-, and year-conditional breakdowns to the web application's risk and calibration views. | Week 15 |
 | 11 | – Complete the thesis report. <br> – Revise content based on advisor feedback. <br> – Prepare for the final defence. | Week 16 |
+
+Software-architecture work therefore runs across Weeks 1–15, extending the already-operating API and web application (Proposed Method and System Architecture) one layer at a time as each research result is frozen, rather than being concentrated in a single week at the end.
+
+## Deferred / Future Work (Not Scheduled in This Thesis)
+
+Some directions surfaced by completed experiments are explicitly **not** part of the sixteen-week Research Plan above. Listing them here, rather than folding them into the Proposed Method section in a way that would imply they are being built during this thesis, keeps the timeline honest about what is actually committed:
+
+- **Causal-conditioned forecast overlay.** The VIX→volatility causal effect is real and robust (Double Machine Learning, 6/6 pairs significant after Holm correction; Proposed Method, Causal Discovery Method), but using it to directly adjust the production HAR forecast — tested both as a constant multiplicative overlay and as a Causal-Forest regime-conditional overlay — produced no statistically significant QLIKE improvement in any pair. Deferred pending either a better functional form for combining the causal signal with the HAR forecast, or acceptance that the baseline already absorbs it and no overlay is warranted.
+- **Contemporaneous causal edges (PCMCI+, τ_min = 0).** An exploratory run found several undirected or sign-ambiguous contemporaneous edges between implied-volatility variables and FX volatility, inconsistent in structure with the frozen lagged (τ ≥ 1) result. Resolving the directionality needs a larger sample or a nonlinear conditional-independence test; not attempted in this thesis.
+- **Cross-pair volatility spillover (DYNOTEARS).** A self-implemented DYNOTEARS network (the `causalnex` reference implementation does not support the project's Python version) detects contemporaneous spillover structure between pairs (e.g., AUD/USD↔USD/CAD, EUR/USD→USD/CHF), consistent with an independently run linear Diebold–Yilmaz spillover measure. Neither the linear benchmark nor the DYNOTEARS-derived edges, added as an extra HAR feature, improved test-set QLIKE (six-pair average 0.1281 without vs. 0.1285 with the added column). The structure appears real but is not yet forecastable at a daily horizon with the methods tried; revisiting with a different estimation window or a nonlinear specification is future work.
+- **Revisiting the exogenous/causal layer if FX-specific implied volatility becomes available.** The single most promising untested candidate, `EVZCLS` (EUR/USD-specific implied volatility), was discontinued by CBOE in March 2025 and is unavailable for the sample used here.
+
+None of the above blocks the sealed-set evaluation or the system hardening in Weeks 12–15: the production magnitude forecast for this thesis continues to rely on the extended-HAR baseline alone, with the causal layer contributing to feature-trust validation (implemented) but not to the forecast value itself (deferred).
 
 ## Work Assignment
 
-| Assignments | Member A | Member B |
-|---|---|---|
-| Review literature and define research scope | 50% | 50% |
-| Construct the data pipeline and realized measures | 50% | 50% |
-| Fix the evaluation protocol and sealed-set policy | 50% | 50% |
-| Develop and benchmark the volatility forecasting layer | 50% | 50% |
-| Develop the pattern-discovery and symbolic-representation branch | 50% | 50% |
-| Implement multiple-testing control and stability screening | 50% | 50% |
-| Conduct minimum detectable effect size and power analysis | 50% | 50% |
-| Develop the exogenous, textual and causal information layers | 50% | 50% |
-| Implement conformal prediction and calibration diagnostics | 50% | 50% |
-| Develop the risk layer: VaR/ES backtesting and position sizing | 50% | 50% |
-| Conduct the end-to-end economic evaluation | 50% | 50% |
-| Execute the sealed-set validation | 50% | 50% |
-| Implement the application programming interface and user interface | 50% | 50% |
-| Analyse failure cases and document limitations | 50% | 50% |
-| Write and revise the thesis report | 50% | 50% |
-| Prepare for the final defence | 50% | 50% |
+*(DRAFT SPLIT — TO BE CONFIRMED BY THE TWO STUDENTS BEFORE SUBMISSION. The advisor explicitly rejected an undifferentiated 50/50 split; the allocation below is a working draft aligned with the codebase's own module boundaries — Member A on the quantitative/statistical core, Member B on the systems/software side — and must be replaced with the two members' actual division of labour, not merely re-approved as written.)*
 
-Work is split evenly across all activities. Both members are jointly responsible for every stage rather than owning separate stages independently, consistent with the collaborative nature of the research.
+| Assignments | Member A (Nguyen Quoc Huy) | Member B (Huynh Tran Quoc Huy) |
+|---|---|---|
+| Review literature and define research scope | Lead | Support |
+| Construct the data pipeline and realized measures | Support | Lead |
+| Fix the evaluation protocol and sealed-set policy | Joint | Joint |
+| Develop and benchmark the volatility forecasting layer | Lead | Support |
+| Develop the pattern-discovery and symbolic-representation branch | Lead | Support |
+| Implement multiple-testing control and stability screening | Lead | Support |
+| Conduct minimum detectable effect size and power analysis | Lead | Support |
+| Develop the exogenous, causal (five-method triangulation), and cross-asset information layers | Lead | Support |
+| Implement conformal prediction and calibration diagnostics | Support | Lead |
+| Develop the risk layer: VaR/ES backtesting and position sizing | Lead | Support |
+| Conduct the end-to-end economic evaluation | Joint | Joint |
+| Execute the sealed-set validation | Joint | Joint |
+| Design and implement the data pipeline scheduling and module contracts | Support | Lead |
+| Implement the API layer (FastAPI routers, response schemas) | Support | Lead |
+| Implement the web application and its three deployment variants | Support | Lead |
+| Analyse failure cases and document limitations | Joint | Joint |
+| Write and revise the thesis report | Joint | Joint |
+| Prepare for the final defence | Joint | Joint |
+
+"Lead" denotes primary ownership and accountability for a task; "Support" denotes review, testing, and secondary contribution; "Joint" denotes tasks genuinely carried out together (protocol decisions, evaluation, writing, and defence) where a lead/support split would misrepresent how the work is actually done. Both members remain jointly responsible for the correctness of the full system regardless of individual lead assignments.
 
 <!-- KHOI-KY -->
 <!-- Bo sinh .docx (src/xuat_proposal.py) tu dung o ky hai cot tu day.
