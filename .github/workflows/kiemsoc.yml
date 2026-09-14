@@ -8,18 +8,16 @@
 # dự báo hôm nay đã bị vi phạm — xem collect/kiem_soc.py để biết chi tiết và
 # lý do chọn ngưỡng.
 #
-# HAI TẦNG, để không tốn credit Twelve Data hay CPU CI một cách vô ích:
+# HAI TẦNG, để không tốn CPU CI một cách vô ích:
 #   1. "kiemtra" — MỌI lần chạy (mỗi 15 phút): chỉ gọi /forecast (cache có
-#      sẵn, không tải gì mới) + 6 lượt gọi Twelve Data (rẻ, 1 credit/mã).
+#      sẵn, không tải gì mới) + MỘT lượt gọi TrueFX (webrates.truefx.com,
+#      lấy cả 6 cặp trong một request, KHÔNG cần đăng ký/khoá — đã đo 5 lần
+#      gọi liên tiếp đều HTTP 200, không bị giới hạn).
 #   2. "taitinh" — CHỈ chạy khi bước 1 báo sốc: lặp lại đúng các bước của
 #      capnhat.yml (tải dữ liệu, tự kiểm, ghi sổ, dựng lại, triển khai).
 #
-# CẦN BÍ MẬT (Settings → Secrets and variables → Actions), NGOÀI hai bí mật
-# đã có trong capnhat.yml:
-#   TWELVEDATA_TOKEN — https://twelvedata.com/pricing (miễn phí, gói basic:
-#                      8 credit/phút, 800 credit/ngày — ĐÃ đo thật, xem
-#                      collect/kiem_soc.py). Không có thì bước 1 tự bỏ qua,
-#                      không báo sốc — an toàn, hệ thống vẫn chạy như cũ.
+# KHÔNG CẦN THÊM BÍ MẬT NÀO ngoài hai bí mật đã có trong capnhat.yml
+# (VERCEL_TOKEN, FRED_TOKEN) — TrueFX không cần khoá.
 #
 # LƯU Ý NIÊM PHONG: giống capnhat.yml, việc này tải dữ liệu 2026 — nằm trong
 # tập khoá sổ của docs/KHOA_SO.md. Chỉ bật khi đã chốt cấu hình.
@@ -76,8 +74,6 @@ jobs:
       - name: Kiểm sốc
         id: soc
         continue-on-error: true
-        env:
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_TOKEN }}
         run: python collect/kiem_soc.py
 
       - name: Tóm tắt

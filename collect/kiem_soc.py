@@ -9,35 +9,35 @@ dung dung quy uoc da dung khap noi trong repo — xem rui_ro_gap.py, api/risk_lo
 va neu |z| vuot nguong thi kich hoat lai DUNG pipeline san xuat hien co
 (jobs/cap_nhat.py) SOM HON, khong doi cron 6 tieng.
 
-NGUON GIA HIEN TAI: Twelve Data (KHONG dung Yahoo interval=1m — da do 98,7%
-thanh Yahoo M1 la anh chup gia, khong phai OHLC that, xem collect/live_fx.py).
-Twelve Data can khoa mien phi: https://twelvedata.com/pricing
-    Windows :  setx TWELVEDATA_API_KEY "khoa_cua_ban"
-    bash    :  export TWELVEDATA_API_KEY=khoa_cua_ban
-    Actions :  Settings -> Secrets -> TWELVEDATA_TOKEN
-Khong co khoa thi script thoat sach, khong bao soc (an toan, giong quy uoc
-FRED_API_KEY).
+NGUON GIA HIEN TAI: TrueFX (webrates.truefx.com) — bao gia bid/ask THOI GIAN
+THUC, moc mili-giay, KHONG can dang ky/khoa. Da do truc tiep 14/09/2026: goi
+duoc CA 6 cap trong MOT lan HTTP, 5 lan goi lien tiep deu HTTP 200 khong bi
+chan, khong thay gioi han ro rang (khac Twelve Data — 8 credit/phut, 800/ngay,
+tung buoc ep phai kiem thua moi 15 phut). KHONG dung Yahoo interval=1m — da do
+98,7% thanh Yahoo M1 la anh chup gia, khong phai OHLC that, xem collect/live_fx.py.
 
-NGAN SACH CREDIT — DO THAT tren tai khoan free "basic" ngay 14/09/2026:
-  8 credit/phut, 800 credit/ngay. Moi ma = 1 credit, GOP NHIEU MA TRONG MOT
-  LAN GOI KHONG RE HON (da thu: 6 ma = 6 credit, khong giam). 6 cap kiem moi
-  15 phut = 6 x 96 = 576 credit/ngay — vua, con du ~220. KHONG duoc ha xuong
-  duoi ~12 phut/lan (6 x 120 = 720, sat tran; 10 phut = 864, VUOT tran).
+Dinh dang CSV TrueFX (9 cot, vi du that da do):
+    EUR/USD,1789395502988,1.15,361,1.15,363,1.15229,1.16041,1.15991
+    ma,timestamp_ms,bid_phan_nguyen,bid_pip,ask_phan_nguyen,ask_pip,high,low,open
+Gia = NOI CHUOI truc tiep phan_nguyen + pip (vi du "1.15"+"361"="1.15361") —
+cach nay dung DONG NHAT ca cap thuong (5 chu so) lan cap JPY (vi du
+"154."+"750"="154.750", da kiem chung).
 
 CAN API DANG CHAY (giong jobs/cap_nhat.py) de lay gia_moc + sigma^ da tinh
 san — KHONG goi lai collect/live_fx.py o day (do la buoc nang, dung Yahoo,
 danh cho pipeline day du).
 
 Chay:   python collect/kiem_soc.py
-Doc:    FXDSS_API (mac dinh http://127.0.0.1:8899), TWELVEDATA_API_KEY
+Doc:    FXDSS_API (mac dinh http://127.0.0.1:8899)
 Ghi:    output/kiem_soc_trangthai.json
-Thoat:  0 = khong soc (hoac bo qua vi thieu khoa/loi tam thoi)
+Thoat:  0 = khong soc (hoac bo qua vi loi tam thoi cua TrueFX/API)
         42 = CO SOC — workflow goi nen tai tinh toan bo ngay
 """
 import datetime as dt
 import json
 import os
 import sys
+import time
 
 import numpy as np
 import requests
@@ -45,20 +45,19 @@ import requests
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "output")
 API = os.environ.get("FXDSS_API", "http://127.0.0.1:8899")
-TD_KEY = os.environ.get("TWELVEDATA_API_KEY", "").strip()
 UA = {"User-Agent": "Mozilla/5.0 (compatible; fx-dss-thesis/1.0)"}
 
 PAIRS = ("EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF")
-TD_MA = {"EURUSD": "EUR/USD", "GBPUSD": "GBP/USD", "USDJPY": "USD/JPY",
+TF_MA = {"EURUSD": "EUR/USD", "GBPUSD": "GBP/USD", "USDJPY": "USD/JPY",
          "AUDUSD": "AUD/USD", "USDCAD": "USD/CAD", "USDCHF": "USD/CHF"}
 NGUONG_SOC = 1.5          # cung don vi k*sigma^ da dung cho stop-loss khap noi
 EPS = 1e-14
 
 
 def gia_va_sigma(pair):
-    """Goi API DANG CHAY (khong ton credit Twelve Data) de lay gia THAM CHIEU
-    va sigma^ da dung cho du bao hom nay — dung DUNG so API dang phuc vu, khong
-    tinh lai bang cong thuc khac (nguyen tac "mot nguon su that duy nhat").
+    """Goi API DANG CHAY de lay gia THAM CHIEU va sigma^ da dung cho du bao
+    hom nay — dung DUNG so API dang phuc vu, khong tinh lai bang cong thuc
+    khac (nguyen tac "mot nguon su that duy nhat").
 
     Dung /forecast (~0,05s SAU KHI cache am), KHONG dung /risk (~20-60s/cap —
     chay het backtest VaR Kupiec/Christoffersen/DQ moi lan goi, qua nang cho
@@ -73,26 +72,34 @@ def gia_va_sigma(pair):
     return float(d["gia"]), float(d["sigma_1_pip"]) * ps, str(d["ngay"])
 
 
-def gia_hien_tai_td(pair, thu=2):
-    """Gia dong cua nen M1 gan nhat tu Twelve Data — DA DO: Yahoo M1 la anh
-    chup gia (98,7% o=h=l=c), Twelve Data M1 la nen that (xem doc string)."""
-    u = "https://api.twelvedata.com/time_series"
+def gia_hien_tai_truefx(thu=3):
+    """Goi MOT LAN duy nhat lay ca 6 cap tu TrueFX — tra ve dict
+    {pair: (gia_giua, luc_truefx)}. Gia giua = (bid+ask)/2."""
+    u = "https://webrates.truefx.com/rates/connect.html"
+    ma_nguoc = {v: k for k, v in TF_MA.items()}
     for k in range(thu):
         try:
-            r = requests.get(u, params={"symbol": TD_MA[pair], "interval": "1min",
-                                        "outputsize": 1, "apikey": TD_KEY},
-                             headers=UA, timeout=15)
-            d = r.json()
-            if d.get("status") == "error":
-                if "credit" in str(d.get("message", "")).lower() or d.get("code") == 429:
-                    raise RuntimeError(f"hết credit phút này: {d.get('message')}")
-                raise RuntimeError(str(d.get("message")))
-            return float(d["values"][0]["close"]), str(d["values"][0]["datetime"])
-        except (requests.RequestException, KeyError, RuntimeError) as e:
+            r = requests.get(u, params={"f": "csv", "c": ",".join(TF_MA.values())},
+                             headers=UA, timeout=12)
+            r.raise_for_status()
+            ra = {}
+            for dong in r.text.strip().splitlines():
+                c = dong.strip().split(",")
+                if len(c) != 9 or c[0] not in ma_nguoc:
+                    continue
+                bid = float(c[2] + c[3])
+                ask = float(c[4] + c[5])
+                luc_ms = int(c[1])
+                luc = dt.datetime.utcfromtimestamp(luc_ms / 1000.0)
+                ra[ma_nguoc[c[0]]] = ((bid + ask) / 2.0, luc.isoformat() + "Z")
+            thieu = set(PAIRS) - set(ra)
+            if thieu:
+                raise RuntimeError(f"TrueFX thiếu cặp: {sorted(thieu)}")
+            return ra
+        except (requests.RequestException, ValueError, RuntimeError) as e:
             if k == thu - 1:
                 raise
-            import time as _t
-            _t.sleep(2)
+            time.sleep(2)
 
 
 def main():
@@ -101,14 +108,16 @@ def main():
     print(f"KIỂM SỐC GIỮA PHIÊN — {luc:%Y-%m-%d %H:%M} UTC")
     print("=" * 96)
 
-    if not TD_KEY:
-        print("Thiếu TWELVEDATA_API_KEY — bỏ qua, không báo sốc (an toàn).")
-        sys.exit(0)
-
     try:
         requests.get(f"{API}/health", timeout=8).raise_for_status()
     except Exception as e:
         print(f"API không phản hồi tại {API}: {e} — bỏ qua, không báo sốc.")
+        sys.exit(0)
+
+    try:
+        gia_hien_tai = gia_hien_tai_truefx()
+    except Exception as e:
+        print(f"TrueFX không phản hồi được: {e} — bỏ qua, không báo sốc.")
         sys.exit(0)
 
     ket_qua, co_soc, loi = {}, False, []
@@ -117,12 +126,12 @@ def main():
     for p in PAIRS:
         try:
             gia_moc, sig, ngay_dubao = gia_va_sigma(p)
-            gia_hnay, luc_td = gia_hien_tai_td(p)
+            gia_hnay, luc_tf = gia_hien_tai[p]
             z = float(np.log(max(gia_hnay, EPS) / max(gia_moc, EPS)) / max(sig, EPS))
             soc = abs(z) > NGUONG_SOC
             co_soc = co_soc or soc
             ket_qua[p] = dict(gia_moc=gia_moc, ngay_dubao=ngay_dubao,
-                              gia_hien_tai=gia_hnay, luc_twelvedata=luc_td,
+                              gia_hien_tai=gia_hnay, luc_truefx=luc_tf,
                               sigma=sig, z=round(z, 3), soc=soc)
             print(f"{p:<9}{gia_moc:>12.5f}{gia_hnay:>14.5f}{z:>10.3f}"
                   f"{NGUONG_SOC:>8.2f}{'CÓ' if soc else '—':>7}")
