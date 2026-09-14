@@ -1,0 +1,136 @@
+{
+ "USDJPY": {
+  "pair": "USDJPY",
+  "n_su_kien_trong_kiem_dinh": 4,
+  "n_ngay_can_thiep_trong_kiem_dinh": 24,
+  "muc": {
+   "0.05": {
+    "v0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.5961,
+     "dq_p": 0.8633
+    },
+    "noi_x1.5": {
+     "n_vi_pham": 27,
+     "ty_le_vi_pham": 0.0494,
+     "kupiec_p": 0.9451,
+     "chris_p": 0.7836,
+     "dq_p": 0.8576
+    },
+    "noi_x2.0": {
+     "n_vi_pham": 27,
+     "ty_le_vi_pham": 0.0494,
+     "kupiec_p": 0.9451,
+     "chris_p": 0.7836,
+     "dq_p": 0.8576
+    },
+    "noi_x3.0": {
+     "n_vi_pham": 25,
+     "ty_le_vi_pham": 0.0457,
+     "kupiec_p": 0.6401,
+     "chris_p": 0.9202,
+     "dq_p": 0.7872
+    }
+   },
+   "0.01": {
+    "v0": {
+     "n_vi_pham": 7,
+     "ty_le_vi_pham": 0.0128,
+     "kupiec_p": 0.5286,
+     "chris_p": 0.6698,
+     "dq_p": 0.9879
+    },
+    "noi_x1.5": {
+     "n_vi_pham": 7,
+     "ty_le_vi_pham": 0.0128,
+     "kupiec_p": 0.5286,
+     "chris_p": 0.6698,
+     "dq_p": 0.013
+    },
+    "noi_x2.0": {
+     "n_vi_pham": 5,
+     "ty_le_vi_pham": 0.0091,
+     "kupiec_p": 0.8376,
+     "chris_p": 0.7611,
+     "dq_p": 0.9985
+    },
+    "noi_x3.0": {
+     "n_vi_pham": 5,
+     "ty_le_vi_pham": 0.0091,
+     "kupiec_p": 0.8376,
+     "chris_p": 0.7611,
+     "dq_p": 0.9985
+    }
+   }
+  }
+ },
+ "USDCHF": {
+  "pair": "USDCHF",
+  "n_su_kien_trong_kiem_dinh": 0,
+  "n_ngay_can_thiep_trong_kiem_dinh": 0,
+  "muc": {
+   "0.05": {
+    "v0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    },
+    "noi_x1.5": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    },
+    "noi_x2.0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    },
+    "noi_x3.0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    }
+   },
+   "0.01": {
+    "v0": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    },
+    "noi_x1.5": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    },
+    "noi_x2.0": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    },
+    "noi_x3.0": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    }
+   }
+  }
+ }
+}

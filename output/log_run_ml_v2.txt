@@ -1,0 +1,45 @@
+====================================================================================================
+HỌC MÁY / HỌC SÂU CÓ THẮNG HAR KHÔNG?
+====================================================================================================
+bảng dài 24,894 hàng × 52 đặc trưng, 6 cặp gộp chung
+khớp lại đầu mỗi năm 2015–2026, cửa sổ mở rộng
+kiểm định 3,282 hàng, kiểm tra 3,288 hàng
+
+  OLS HAR (khớp năm)           hp=None               QLIKE kiểm định 0.1179   (0s)  [đã lưu]
+  → chọn hp=None
+
+  Ridge (toàn bộ đặc trưng)    hp=0.1                QLIKE kiểm định 0.1166   (0s)  [đã lưu]
+  Ridge (toàn bộ đặc trưng)    hp=1.0                QLIKE kiểm định 0.1166   (0s)  [đã lưu]
+  Ridge (toàn bộ đặc trưng)    hp=10.0               QLIKE kiểm định 0.1166   (0s)  [đã lưu]
+  Ridge (toàn bộ đặc trưng)    hp=100.0              QLIKE kiểm định 0.1165   (0s)  [đã lưu]
+  → chọn hp=100.0
+
+  Random Forest                hp=(8, 20)            QLIKE kiểm định 0.1313   (0s)  [đã lưu]
+  Random Forest                hp=(16, 20)           QLIKE kiểm định 0.1318   (0s)  [đã lưu]
+  Random Forest                hp=(None, 50)         QLIKE kiểm định 0.1348   (609s)
+  → chọn hp=(8, 20)
+
+  LightGBM (L2 trên log)       hp=(15, 0.03, 400)    QLIKE kiểm định 0.1187   (616s)
+  LightGBM (L2 trên log)       hp=(31, 0.05, 400)    QLIKE kiểm định 0.1235   (637s)
+  LightGBM (L2 trên log)       hp=(63, 0.05, 800)    QLIKE kiểm định 0.1364   (677s)
+  → chọn hp=(15, 0.03, 400)
+
+  LightGBM (QLIKE trực tiếp)   hp=(15, 0.03, 400)    QLIKE kiểm định 0.1164   (682s)
+  LightGBM (QLIKE trực tiếp)   hp=(31, 0.05, 400)    QLIKE kiểm định 0.1181   (701s)
+  → chọn hp=(15, 0.03, 400)
+
+  MLP                          hp=((64, 32), 0.0001) QLIKE kiểm định 0.1440   (747s)
+  MLP                          hp=((128, 64), 0.001) QLIKE kiểm định 0.1507   (833s)
+  → chọn hp=((64, 32), 0.0001)
+
+
+XẾP HẠNG TRÊN ĐOẠN KIỂM ĐỊNH (chưa mở kiểm tra)
+----------------------------------------------------------------------------------------------------
+  LightGBM (QLIKE trực tiếp)        0.1164   hp=(15, 0.03, 400)
+  Ridge (toàn bộ đặc trưng)         0.1165   hp=100.0
+  OLS HAR (khớp năm)                0.1179   hp=None
+  LightGBM (L2 trên log)            0.1187   hp=(15, 0.03, 400)
+  Random Forest                     0.1313   hp=(8, 20)
+  MLP                               0.1440   hp=((64, 32), 0.0001)
+----------------------------------------------------------------------------------------------------
+đã ghi output/_ml_pred.npz — run_ml_final.py sẽ chấm trên kiểm tra

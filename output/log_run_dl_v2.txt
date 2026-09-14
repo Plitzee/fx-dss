@@ -1,0 +1,21 @@
+====================================================================================================
+HỌC SÂU — LSTM / GRU / Transformer
+====================================================================================================
+chuỗi 24,894 × 22 phiên × 5 kênh, 20 đặc trưng tĩnh, 23,262 hàng đủ dữ liệu
+khớp lại đầu mỗi năm 2015–2026, dừng sớm trên 12% cuối của đoạn huấn luyện
+
+  LSTM                             hid=48   lr=0.002   QLIKE kiểm định 0.1141   epoch TB 15   (160s)
+  LSTM                             hid=96   lr=0.001   QLIKE kiểm định 0.1189   epoch TB 27   (602s)
+  GRU                              hid=48   lr=0.002   QLIKE kiểm định 0.1201   epoch TB 17   (802s)
+  GRU                              hid=96   lr=0.001   QLIKE kiểm định 0.1290   epoch TB 26   (1298s)
+  Transformer (PatchTST rút gọn)   hid=64   lr=0.001   QLIKE kiểm định 0.1230   epoch TB 11   (2421s)
+
+XẾP HẠNG TRÊN ĐOẠN KIỂM ĐỊNH
+----------------------------------------------------------------------------------------------------
+  LSTM h=48                             0.1141   hid=48, lr=0.002
+  LSTM h=96                             0.1189   hid=96, lr=0.001
+  GRU h=48                              0.1201   hid=48, lr=0.002
+  Transformer (PatchTST rút gọn) h=64    0.1230   hid=64, lr=0.001
+  GRU h=96                              0.1290   hid=96, lr=0.001
+----------------------------------------------------------------------------------------------------
+đã ghi output/_dl_pred.npz

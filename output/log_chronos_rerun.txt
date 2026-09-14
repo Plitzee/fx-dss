@@ -1,0 +1,53 @@
+============================================================================================================
+CHRONOS-BOLT (amazon/chronos-bolt-small) — mô hình nền chuỗi thời gian, đo THẬT
+cùng giao thức QLIKE với bảng 14 mô hình ở docs/ML_DL_VONG7.md
+============================================================================================================
+Đang tải trọng số…
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/143 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 20/143 [00:00<00:00, 179.82it/s]Loading weights: 100%|██████████| 143/143 [00:00<00:00, 1020.99it/s]
+  tải xong sau 2s — ZERO-SHOT, không khớp lại tham số riêng cho từng cặp
+
+tự kiểm cách đổi phân vị log-RV sang phương sai…
+  TB(exp(phân vị))      = 1.0160  ← cách dùng trong file này
+  exp(trung vị)          = 0.9618  ← cách SAI, lệch xuống
+  E[X] lý thuyết (log-normal) = 1.1331
+  lệch: TB(exp) 10.3%  vs  exp(trung vị) 15.1%  ĐẠT
+
+[EURUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 33s
+  kiem_dinh    n= 547  QLIKE 0.1247
+  kiem_tra     n= 548  QLIKE 0.1702
+
+[GBPUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 32s
+  kiem_dinh    n= 547  QLIKE 0.1322
+  kiem_tra     n= 548  QLIKE 0.1335
+
+[USDJPY] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 33s
+  kiem_dinh    n= 547  QLIKE 0.2787
+  kiem_tra     n= 548  QLIKE 0.3285
+
+[AUDUSD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 32s
+  kiem_dinh    n= 547  QLIKE 0.1024
+  kiem_tra     n= 548  QLIKE 0.1475
+
+[USDCAD] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 32s
+  kiem_dinh    n= 547  QLIKE 0.0842
+  kiem_tra     n= 548  QLIKE 0.1521
+
+[USDCHF] đang dự báo 1,095 phiên (kiểm định+kiểm tra), context tối đa 2048…
+  xong 32s
+  kiem_dinh    n= 547  QLIKE 0.1074
+  kiem_tra     n= 548  QLIKE 0.1790
+
+============================================================================================================
+TỔNG KẾT — gộp 6 cặp, đối chiếu bảng 14 mô hình đã có
+  đoạn            QLIKE Chronos-bolt   QLIKE HAR v7 (đã ghi)     chênh
+  kiem_dinh                   0.1383                  0.1162    +19.0%
+  kiem_tra                    0.1851                  0.1585    +16.8%
+→ output/chronos_raw.npz (dự báo + 9 phân vị thô, cho bảng MSE/MAE/CRPS)
+
+→ output/chronos.json · 216s

@@ -78,6 +78,54 @@ cho dấu ngược lại), kể cả 3 cặp không đạt ngưỡng thống kê
 
 ---
 
+## 2b. So sánh kiến trúc — thử Vision Transformer trên CÙNG ảnh, CÙNG quy mô tham số
+
+*Thêm 14/09/2026.* Văn liệu 2024-2026 (Stanford CS231n 2025 "Learning
+Predictive Candlestick Patterns: Vision Transformers for Technical
+Analysis"; arXiv 2605.00875 "Visual Chart Representations for
+Cryptocurrency Regime Prediction") báo cáo Vision Transformer (ViT) thường
+vượt CNN trên bài toán ảnh nến — cơ chế tự chú ý bắt được quan hệ XA giữa
+các nến (nến 1 và nến 10) mà tích chập cục bộ khó bắt trực tiếp.
+
+Script: [`src/kiem_vit_nen.py`](../src/kiem_vit_nen.py) — patch embedding
+4×4 + CLS + vị trí học được + 2 lớp Transformer Encoder, **20.865 tham số**
+(gần đúng bằng 21.393 tham số của CNN) để so sánh công bằng chỉ đổi kiến
+trúc, không đổi quy mô mô hình. Dùng lại NGUYÊN VẸN `dung_du_lieu()` và giao
+thức huấn luyện/chọn-epoch/báo cáo của `kiem_cnn_nen.py`.
+
+**Kết quả — ngược hẳn CNN:**
+
+| cặp | CNN chênh QLIKE | ViT chênh QLIKE | ViT DM p | ViT Holm+Bonferroni |
+|---|---|---|---|---|
+| AUDUSD | −2,44% (cải thiện) | **+1,63% (xấu đi)** | 0,0007 | **XẤU ĐI có ý nghĩa** |
+| EURUSD | −2,53% (cải thiện) | **+2,04% (xấu đi)** | 0,0006 | **XẤU ĐI có ý nghĩa** |
+| GBPUSD | −1,33% (cải thiện, ĐẠT) | +0,40% (xấu đi) | 0,1604 | không đáng kể |
+| USDCAD | −2,41% (cải thiện, ĐẠT) | +1,03% (xấu đi) | 0,0654 | không đáng kể (biên) |
+| USDCHF | −1,69% (cải thiện) | **+2,11% (xấu đi)** | 0,0003 | **XẤU ĐI có ý nghĩa** |
+| USDJPY | −0,09% (gần như không đổi) | **+2,52% (xấu đi)** | 0,0000 | **XẤU ĐI có ý nghĩa** |
+
+**6/6 cặp ViT làm QLIKE XẤU ĐI về hướng, 4/6 xấu đi CÓ Ý NGHĨA** sau cả Holm
+và Bonferroni — trong khi CNN (cùng quy mô tham số, cùng dữ liệu, cùng giao
+thức) cải thiện ở 6/6 cặp và đạt ý nghĩa ở 3/6. Đây là kết quả **hoàn toàn
+ngược** với xu hướng báo cáo trong văn liệu 2024-2026.
+
+**Diễn giải hợp lý nhất:** với chỉ ~3.100 cửa sổ huấn luyện/cặp, kiên kiến
+trúc tự chú ý (không có thiên kiến quy nạp về TÍNH CỤC BỘ KHÔNG GIAN như
+tích chập) cần NHIỀU dữ liệu hơn để học đúng, hoặc cần huấn luyện trước
+(pretrain) trên tập lớn — đúng như thực tế đã biết rộng rãi trong thị giác
+máy tính (ViT gốc, Dosovitskiy et al. 2021, cũng chỉ vượt CNN khi có
+pretrain quy mô lớn). Các bài báo 2024-2026 báo cáo ViT thắng CNN thường
+dùng trọng số pretrain trên ImageNet rồi tinh chỉnh — ở đây huấn luyện ViT
+TỪ ĐẦU (không pretrain, vì ảnh nến 2 kênh trừu tượng không phải ảnh tự
+nhiên nên đặc trưng ImageNet chưa chắc chuyển giao được) trên dữ liệu ít.
+
+**Kết luận cho hệ thống:** ở quy mô dữ liệu và thiết kế hiện tại, **CNN là
+lựa chọn tốt hơn ViT** cho bài toán mã hoá ảnh nến — không phải vì CNN
+"hiện đại hơn" mà vì thiên kiến quy nạp của nó (cục bộ, bất biến tịnh tiến)
+phù hợp hơn với lượng dữ liệu sẵn có. Đây là minh chứng cụ thể cho nguyên
+tắc "phương pháp hiện đại hơn không tự động tốt hơn" — phải kiểm bằng số,
+không suy luận từ danh tiếng kiến trúc.
+
 ## 3. Vì sao CHƯA đưa vào sản xuất — chưa đạt ngưỡng đóng băng của chính dự án
 
 Tiêu chí độ vững đã dùng xuyên suốt Pha3B (`do_vung`, `pha3b_granger.py`)

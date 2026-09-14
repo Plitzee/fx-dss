@@ -1,0 +1,23 @@
+{
+ "n_train": 15012,
+ "n_bao_cao": 3282,
+ "cart": {
+  "max_depth": 3,
+  "min_samples_leaf": 200,
+  "n_la": 8,
+  "bss": 0.00661,
+  "dm_vs_khihauhoc_p": 0.03545
+ },
+ "rulefit": {
+  "max_rules": 30,
+  "tree_size": 4,
+  "bss": -0.02271,
+  "dm_vs_khihauhoc_p": 0.00011
+ },
+ "rulefit_vs_cart": {
+  "dm_t": -8.1712,
+  "dm_p": 0.0,
+  "chenh_bss": -0.02931
+ },
+ "ket_luan": "CART thắng RuleFit có ý nghĩa"
+}

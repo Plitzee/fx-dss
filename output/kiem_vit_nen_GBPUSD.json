@@ -1,0 +1,13 @@
+{
+ "pair": "GBPUSD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "n_tham_so": 20865,
+ "qlike_har": -9.351319,
+ "qlike_har_vit": -9.313749,
+ "chenh_phan_tram": 0.4018,
+ "dm_t": -1.4036,
+ "dm_p": 0.1604,
+ "ket_luan": "không cải thiện có ý nghĩa so với mốc HAR"
+}

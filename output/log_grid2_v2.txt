@@ -1,0 +1,113 @@
+lưới đầy đủ: 80 tổ hợp × 7 lambda = 560 cấu hình
+chấm trên KIỂM ĐỊNH 2021-10-13 → 2023-11-17 (547 phiên)
+
+   20/80 tổ hợp (20s)
+   40/80 tổ hợp (29s)
+   60/80 tổ hợp (38s)
+   80/80 tổ hợp (59s)
+
+  chuỗi tổn thất kiểm định: 547 phiên × 560 cấu hình
+
+CẤU HÌNH GỐC (volfc.py hiện tại): QLIKE kiểm định 0.1281
+
+20 cấu hình tốt nhất trên KIỂM ĐỊNH
+--------------------------------------------------------------------------------------------------------
+  # deseason  chéo  sự kiện cửa sổ  hiệu chuẩn  lambda   QLIKE kđ   so gốc  phức tạp
+--------------------------------------------------------------------------------------------------------
+  1 none         0   capday    exp         off    0.70     0.1156    -9.7%         4
+  2 none         0   capday    exp         off    0.50     0.1157    -9.7%         4
+  3 none         1   capday    exp         off    0.70     0.1157    -9.7%         5
+  4 none         1   capday    exp         off    1.00     0.1157    -9.7%         5
+  5 none         0   capday    exp         off    1.00     0.1158    -9.6%         4
+  6 none         0   capday    exp         off    0.30     0.1158    -9.6%         4
+  7 none         1   capday    exp         off    0.50     0.1158    -9.6%         5
+  8 none         0   capday    exp         off    0.20     0.1159    -9.5%         4
+  9 wd           0   capday    exp         off    0.50     0.1159    -9.5%         5
+ 10 wd           1   capday    exp         off    0.70     0.1160    -9.5%         6
+ 11 wd           0   capday    exp         off    0.70     0.1160    -9.5%         5
+ 12 wd           0   capday    exp         off    0.30     0.1160    -9.5%         5
+ 13 wd           1   capday    exp         off    1.00     0.1160    -9.5%         6
+ 14 wd           0   capday    exp         off    0.20     0.1160    -9.4%         5
+ 15 none         0   capday    exp         off    0.10     0.1161    -9.4%         4
+ 16 wd           1   capday    exp         off    0.50     0.1161    -9.4%         6
+ 17 none         1   capday  r2000         off    1.00     0.1161    -9.4%         6
+ 18 none         1   capday    exp         off    0.30     0.1161    -9.4%         5
+ 19 wd           0   capday    exp         off    0.10     0.1161    -9.4%         5
+ 20 none         0   capday  r2000         off    0.70     0.1161    -9.3%         5
+--------------------------------------------------------------------------------------------------------
+
+ẢNH HƯỞNG RIÊNG TỪNG TRỤC (QLIKE kiểm định)
+
+  deseason:
+    wd       trung bình 0.1201   tốt nhất 0.1159
+    none     trung bình 0.1212   tốt nhất 0.1156
+
+  crosspair:
+    0        trung bình 0.1206   tốt nhất 0.1156
+    1        trung bình 0.1208   tốt nhất 0.1157
+
+  event:
+    capday   trung bình 0.1170   tốt nhất 0.1156
+    cap      trung bình 0.1175   tốt nhất 0.1162
+    cbonly   trung bình 0.1181   tốt nhất 0.1170
+    chung    trung bình 0.1235   tốt nhất 0.1214
+    off      trung bình 0.1272   tốt nhất 0.1241
+
+  window:
+    exp      trung bình 0.1202   tốt nhất 0.1156
+    r2000    trung bình 0.1211   tốt nhất 0.1161
+
+  recal:
+    off      trung bình 0.1202   tốt nhất 0.1156
+    mz       trung bình 0.1211   tốt nhất 0.1164
+
+  lam:
+    0.7      trung bình 0.1204   tốt nhất 0.1156
+    0.5      trung bình 0.1204   tốt nhất 0.1157
+    1.0      trung bình 0.1205   tốt nhất 0.1157
+    0.3      trung bình 0.1206   tốt nhất 0.1158
+    0.2      trung bình 0.1207   tốt nhất 0.1159
+    0.1      trung bình 0.1209   tốt nhất 0.1161
+    0.0      trung bình 0.1211   tốt nhất 0.1162
+
+
+MODEL CONFIDENCE SET trên 40 cấu hình đầu (alpha=0,10, bootstrap khối 20)
+  40/40 cấu hình SỐNG SÓT — không phân biệt được về mặt thống kê
+
+  Trong tập MCS, xếp theo ĐỘ PHỨC TẠP rồi mới tới QLIKE:
+  ------------------------------------------------------------------------------------------------
+  deseason  chéo  sự kiện cửa sổ  hiệu chuẩn  lambda  phức tạp   QLIKE kđ
+  ------------------------------------------------------------------------------------------------
+  none         0   capday    exp         off    0.00         3     0.1162
+  none         0      cap    exp         off    0.70         3     0.1163
+  none         0      cap    exp         off    0.50         3     0.1164
+  none         0   capday    exp         off    0.70         4     0.1156
+  none         0   capday    exp         off    0.50         4     0.1157
+  none         0   capday    exp         off    1.00         4     0.1158
+  none         0   capday    exp         off    0.30         4     0.1158
+  none         0   capday    exp         off    0.20         4     0.1159
+  none         0   capday    exp         off    0.10         4     0.1161
+  wd           0   capday    exp         off    0.00         4     0.1162
+  none         1      cap    exp         off    1.00         4     0.1163
+  wd           0      cap    exp         off    0.50         4     0.1163
+  ------------------------------------------------------------------------------------------------
+
+========================================================================================================
+CẤU HÌNH CHỐT (đơn giản nhất trong tập MCS trên đoạn kiểm định):
+  deseason=none  crosspair=0  event=capday  window=exp  recal=off  lambda=0.0
+  QLIKE kiểm định 0.1162  so với gốc 0.1281  (-9.3%)
+  (cấu hình QLIKE nhỏ nhất là 0.1156 — chênh 0.0006, nằm trong sai số)
+
+  QLIKE kiểm định theo từng cặp:
+    EURUSD  0.0993   gốc 0.1162   (-14.6%)
+    GBPUSD  0.1144   gốc 0.1220   (-6.2%)
+    USDJPY  0.2292   gốc 0.2467   (-7.1%)
+    AUDUSD  0.0905   gốc 0.0989   (-8.6%)
+    USDCAD  0.0763   gốc 0.0829   (-8.0%)
+    USDCHF  0.0876   gốc 0.1019   (-14.1%)
+
+  trung bình 6 cặp     0.1162
+  trung bình 5 cặp (bỏ USDJPY) 0.0936
+========================================================================================================
+
+đã ghi output/cauhinh_chot.pkl — run_final7.py sẽ đọc file này

@@ -1,0 +1,13 @@
+{
+ "pair": "USDJPY",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 328,
+ "n_tham_so": 20865,
+ "qlike_har": -9.25535,
+ "qlike_har_vit": -9.022002,
+ "chenh_phan_tram": 2.5212,
+ "dm_t": -4.4153,
+ "dm_p": 0.0,
+ "ket_luan": "không cải thiện có ý nghĩa so với mốc HAR"
+}

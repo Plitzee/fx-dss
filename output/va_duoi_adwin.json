@@ -1,0 +1,110 @@
+{
+ "USDJPY": {
+  "pair": "USDJPY",
+  "sd_z_huan_luyen": 1.0137,
+  "n_diem_doi_adwin_trong_kiem_dinh": 0,
+  "ngay_diem_doi_dau_tien": null,
+  "muc": {
+   "0.05": {
+    "v0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.5961,
+     "dq_p": 0.8633
+    },
+    "ewma_thich_nghi": {
+     "n_vi_pham": 24,
+     "ty_le_vi_pham": 0.0439,
+     "kupiec_p": 0.5025,
+     "chris_p": 0.146,
+     "dq_p": 0.3692
+    },
+    "adwin_reset": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.5961,
+     "dq_p": 0.8633
+    }
+   },
+   "0.01": {
+    "v0": {
+     "n_vi_pham": 7,
+     "ty_le_vi_pham": 0.0128,
+     "kupiec_p": 0.5286,
+     "chris_p": 0.6698,
+     "dq_p": 0.9879
+    },
+    "ewma_thich_nghi": {
+     "n_vi_pham": 8,
+     "ty_le_vi_pham": 0.0146,
+     "kupiec_p": 0.3091,
+     "chris_p": 0.6257,
+     "dq_p": 0.9228
+    },
+    "adwin_reset": {
+     "n_vi_pham": 7,
+     "ty_le_vi_pham": 0.0128,
+     "kupiec_p": 0.5286,
+     "chris_p": 0.6698,
+     "dq_p": 0.9879
+    }
+   }
+  }
+ },
+ "USDCHF": {
+  "pair": "USDCHF",
+  "sd_z_huan_luyen": 1.0519,
+  "n_diem_doi_adwin_trong_kiem_dinh": 0,
+  "ngay_diem_doi_dau_tien": null,
+  "muc": {
+   "0.05": {
+    "v0": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    },
+    "ewma_thich_nghi": {
+     "n_vi_pham": 43,
+     "ty_le_vi_pham": 0.0786,
+     "kupiec_p": 0.0045,
+     "chris_p": 0.3423,
+     "dq_p": 0.0014
+    },
+    "adwin_reset": {
+     "n_vi_pham": 30,
+     "ty_le_vi_pham": 0.0548,
+     "kupiec_p": 0.6085,
+     "chris_p": 0.0189,
+     "dq_p": 0.0656
+    }
+   },
+   "0.01": {
+    "v0": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    },
+    "ewma_thich_nghi": {
+     "n_vi_pham": 13,
+     "ty_le_vi_pham": 0.0238,
+     "kupiec_p": 0.006,
+     "chris_p": 0.3074,
+     "dq_p": 0.0012
+    },
+    "adwin_reset": {
+     "n_vi_pham": 12,
+     "ty_le_vi_pham": 0.0219,
+     "kupiec_p": 0.0154,
+     "chris_p": 0.2563,
+     "dq_p": 0.0031
+    }
+   }
+  }
+ }
+}

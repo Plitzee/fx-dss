@@ -1,0 +1,18 @@
+{
+ "n_train": 15018,
+ "n_bao_cao": 3282,
+ "hedge": {
+  "bss": 0.0106,
+  "dm_vs_khihauhoc_p": 0.00221
+ },
+ "stacking": {
+  "bss": 0.00907,
+  "dm_vs_khihauhoc_p": 0.01566
+ },
+ "stacking_vs_hedge": {
+  "dm_t": -2.1818,
+  "dm_p": 0.02912,
+  "chenh_bss": -0.00153
+ },
+ "ket_luan": "Hedge thắng Stacking có ý nghĩa"
+}

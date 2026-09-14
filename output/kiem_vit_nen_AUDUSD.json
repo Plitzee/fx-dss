@@ -1,0 +1,13 @@
+{
+ "pair": "AUDUSD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "n_tham_so": 20865,
+ "qlike_har": -8.869413,
+ "qlike_har_vit": -8.724708,
+ "chenh_phan_tram": 1.6315,
+ "dm_t": -3.4018,
+ "dm_p": 0.0007,
+ "ket_luan": "không cải thiện có ý nghĩa so với mốc HAR"
+}

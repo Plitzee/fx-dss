@@ -4,4 +4,7 @@ volbake.npy
 cvar_results.json
 pdv.npy
 data/live/
+catboost_info/
+output/_*
+output/cauhinh_chot.pkl
 
