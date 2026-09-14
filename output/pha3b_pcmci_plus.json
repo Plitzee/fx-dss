@@ -1,0 +1,111 @@
+{
+ "AUDUSD": {
+  "n": 3050,
+  "canh_dong_thoi_vao_y": [
+   {
+    "bien": "VIXCLS_lv",
+    "mac_pcmciplus": "x-x",
+    "r_mci": 0.108,
+    "p": 2.580939272961908e-09,
+    "q_fdr": 2.580939272961908e-09,
+    "dinh_huong_vao_y": false
+   },
+   {
+    "bien": "GVZCLS_lv",
+    "mac_pcmciplus": "-->",
+    "r_mci": 0.0841,
+    "p": 3.576967360382284e-06,
+    "q_fdr": 3.576967360382284e-06,
+    "dinh_huong_vao_y": true
+   }
+  ],
+  "canh_tre_vao_y": [
+   {
+    "bien": "m_har",
+    "tau": 1,
+    "mac_pcmciplus": "-->",
+    "r_mci": 0.0689,
+    "p": 0.0014445844152214521,
+    "q_fdr": 0.013890234761744733
+   },
+   {
+    "bien": "VIXCLS_lv",
+    "tau": 3,
+    "mac_pcmciplus": "-->",
+    "r_mci": -0.066,
+    "p": 0.0023304471027023716,
+    "q_fdr": 0.019420392522519765
+   },
+   {
+    "bien": "DFII10_lv",
+    "tau": 1,
+    "mac_pcmciplus": "-->",
+    "r_mci": 0.0409,
+    "p": 0.13272635811055408,
+    "q_fdr": 0.6751250589865679
+   }
+  ]
+ },
+ "EURUSD": {
+  "n": 3050,
+  "canh_dong_thoi_vao_y": [
+   {
+    "bien": "VIXCLS_lv",
+    "mac_pcmciplus": "<--",
+    "r_mci": 0.0892,
+    "p": 8.646038683458195e-07,
+    "q_fdr": 8.646038683458195e-07,
+    "dinh_huong_vao_y": false
+   },
+   {
+    "bien": "GVZCLS_lv",
+    "mac_pcmciplus": "<--",
+    "r_mci": 0.074,
+    "p": 4.5614848840978004e-05,
+    "q_fdr": 4.5614848840978004e-05,
+    "dinh_huong_vao_y": false
+   }
+  ],
+  "canh_tre_vao_y": [
+   {
+    "bien": "m_har",
+    "tau": 3,
+    "mac_pcmciplus": "-->",
+    "r_mci": 0.0832,
+    "p": 4.117637212163796e-05,
+    "q_fdr": 0.00036764617965748177
+   }
+  ]
+ },
+ "USDJPY": {
+  "n": 3050,
+  "canh_dong_thoi_vao_y": [
+   {
+    "bien": "VIXCLS_lv",
+    "mac_pcmciplus": "x-x",
+    "r_mci": 0.103,
+    "p": 1.3163396148193457e-08,
+    "q_fdr": 1.3163396148193457e-08,
+    "dinh_huong_vao_y": false
+   },
+   {
+    "bien": "GVZCLS_lv",
+    "mac_pcmciplus": "<--",
+    "r_mci": 0.052,
+    "p": 0.004202275580570204,
+    "q_fdr": 0.004202275580570204,
+    "dinh_huong_vao_y": false
+   }
+  ],
+  "canh_tre_vao_y": [
+   {
+    "bien": "m_har",
+    "tau": 1,
+    "mac_pcmciplus": "-->",
+    "r_mci": 0.0389,
+    "p": 0.22286006559916685,
+    "q_fdr": 0.5977447695707125
+   }
+  ]
+ }
+}

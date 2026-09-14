@@ -1,0 +1,26 @@
+Đang dựng bảng 9 biến (6 cặp log-RV + 3 ngoại sinh)...
+n=3600 phiên chung (huấn luyện+kiểm định) · d=9 biến: EURUSD_lrv, GBPUSD_lrv, USDJPY_lrv, AUDUSD_lrv, USDCAD_lrv, USDCHF_lrv, VIXCLS_lv, GVZCLS_lv, DFII10_lv
+h(W) cuối (phải ~0 nếu phi chu trình đạt) = 9.34e-09
+
+Cạnh ĐỒNG THỜI sống sót (|W|>=0.05): 12
+    EURUSD_lrv -> USDCHF_lrv    w=+0.5879
+    AUDUSD_lrv -> USDCAD_lrv    w=+0.5288
+    AUDUSD_lrv -> EURUSD_lrv    w=+0.3375
+    EURUSD_lrv -> GBPUSD_lrv    w=+0.3219
+    USDCHF_lrv -> USDJPY_lrv    w=+0.2092
+    USDCAD_lrv -> EURUSD_lrv    w=+0.2038
+    AUDUSD_lrv -> USDJPY_lrv    w=+0.1855
+     GVZCLS_lv -> AUDUSD_lrv    w=+0.1746
+    AUDUSD_lrv -> GBPUSD_lrv    w=+0.1535
+     VIXCLS_lv -> AUDUSD_lrv    w=+0.1344
+    EURUSD_lrv -> USDJPY_lrv    w=+0.1026
+    GBPUSD_lrv -> USDJPY_lrv    w=+0.0598
+
+Cạnh TRỄ 1 phiên sống sót (|A1|>=0.05): 5
+    EURUSD_lrv -> GBPUSD_lrv    w=-0.0913
+     DFII10_lv -> AUDUSD_lrv    w=+0.0821
+    EURUSD_lrv -> USDJPY_lrv    w=-0.0626
+    USDCHF_lrv -> GBPUSD_lrv    w=-0.0623
+    AUDUSD_lrv -> USDJPY_lrv    w=-0.0523
+
+Đã ghi C:\Users\ASUS\Downloads\dukascopy_downloader\fx-dss\output\dynotears_tuviet.json

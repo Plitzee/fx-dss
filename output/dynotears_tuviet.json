@@ -1,0 +1,107 @@
+{
+ "n": 3600,
+ "bien": [
+  "EURUSD_lrv",
+  "GBPUSD_lrv",
+  "USDJPY_lrv",
+  "AUDUSD_lrv",
+  "USDCAD_lrv",
+  "USDCHF_lrv",
+  "VIXCLS_lv",
+  "GVZCLS_lv",
+  "DFII10_lv"
+ ],
+ "lambda_w": 0.05,
+ "lambda_a": 0.05,
+ "nguong": 0.05,
+ "h_cuoi": 9.34152488696327e-09,
+ "canh_dong_thoi": [
+  {
+   "tu": "EURUSD_lrv",
+   "den": "USDCHF_lrv",
+   "trong_so": 0.5879
+  },
+  {
+   "tu": "AUDUSD_lrv",
+   "den": "USDCAD_lrv",
+   "trong_so": 0.5288
+  },
+  {
+   "tu": "AUDUSD_lrv",
+   "den": "EURUSD_lrv",
+   "trong_so": 0.3375
+  },
+  {
+   "tu": "EURUSD_lrv",
+   "den": "GBPUSD_lrv",
+   "trong_so": 0.3219
+  },
+  {
+   "tu": "USDCHF_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": 0.2092
+  },
+  {
+   "tu": "USDCAD_lrv",
+   "den": "EURUSD_lrv",
+   "trong_so": 0.2038
+  },
+  {
+   "tu": "AUDUSD_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": 0.1855
+  },
+  {
+   "tu": "GVZCLS_lv",
+   "den": "AUDUSD_lrv",
+   "trong_so": 0.1746
+  },
+  {
+   "tu": "AUDUSD_lrv",
+   "den": "GBPUSD_lrv",
+   "trong_so": 0.1535
+  },
+  {
+   "tu": "VIXCLS_lv",
+   "den": "AUDUSD_lrv",
+   "trong_so": 0.1344
+  },
+  {
+   "tu": "EURUSD_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": 0.1026
+  },
+  {
+   "tu": "GBPUSD_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": 0.0598
+  }
+ ],
+ "canh_tre_1phien": [
+  {
+   "tu": "EURUSD_lrv",
+   "den": "GBPUSD_lrv",
+   "trong_so": -0.0913
+  },
+  {
+   "tu": "DFII10_lv",
+   "den": "AUDUSD_lrv",
+   "trong_so": 0.0821
+  },
+  {
+   "tu": "EURUSD_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": -0.0626
+  },
+  {
+   "tu": "USDCHF_lrv",
+   "den": "GBPUSD_lrv",
+   "trong_so": -0.0623
+  },
+  {
+   "tu": "AUDUSD_lrv",
+   "den": "USDJPY_lrv",
+   "trong_so": -0.0523
+  }
+ ]
+}

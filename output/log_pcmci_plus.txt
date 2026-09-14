@@ -1,0 +1,26 @@
+Đang dựng bảng mục tiêu (dùng lại pha3b_granger.dung_bang)...
+
+=== AUDUSD (n=3050) ===
+  [tau=0, dong thoi]
+       VIXCLS_lv  x-x y_bien_do  r_MCI=+0.1080  q(FDR)=2.58e-09
+       GVZCLS_lv   -> y_bien_do  r_MCI=+0.0841  q(FDR)=3.58e-06
+  [tau>=1, tre — doi chieu voi ban tau_min=1]
+           m_har -> y_bien_do @ tau=1  r_MCI=+0.0689  q(FDR)=1.39e-02
+       VIXCLS_lv -> y_bien_do @ tau=3  r_MCI=-0.0660  q(FDR)=1.94e-02
+       DFII10_lv -> y_bien_do @ tau=1  r_MCI=+0.0409  q(FDR)=6.75e-01
+
+=== EURUSD (n=3050) ===
+  [tau=0, dong thoi]
+       VIXCLS_lv  <-- y_bien_do  r_MCI=+0.0892  q(FDR)=8.65e-07
+       GVZCLS_lv  <-- y_bien_do  r_MCI=+0.0740  q(FDR)=4.56e-05
+  [tau>=1, tre — doi chieu voi ban tau_min=1]
+           m_har -> y_bien_do @ tau=3  r_MCI=+0.0832  q(FDR)=3.68e-04
+
+=== USDJPY (n=3050) ===
+  [tau=0, dong thoi]
+       VIXCLS_lv  x-x y_bien_do  r_MCI=+0.1030  q(FDR)=1.32e-08
+       GVZCLS_lv  <-- y_bien_do  r_MCI=+0.0520  q(FDR)=4.20e-03
+  [tau>=1, tre — doi chieu voi ban tau_min=1]
+           m_har -> y_bien_do @ tau=1  r_MCI=+0.0389  q(FDR)=5.98e-01
+
+Đã ghi C:\Users\ASUS\Downloads\dukascopy_downloader\fx-dss\output\pha3b_pcmci_plus.json
