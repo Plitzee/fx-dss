@@ -61,7 +61,8 @@ Each item below is labelled **(implemented)** or **(proposed)**; nothing is a fi
 - **Direction/probability — online expert combination.** *(implemented)* Hedge-style combination [13] of four sub-models, re-weighted every session; challenged by linear, tree, recurrent, attention, and foundation-model alternatives.
 - **Causal discovery.** *(implemented — validation role)* Five triangulated methods decide which exogenous variable is trusted; using the effect to adjust the forecast directly was tested and found not yet effective (Deferred / Future Work).
 - **Calibration — Mondrian-stratified ACI.** *(implemented)* [19], [20], 1.2-point maximum deviation vs. 2.4–3.2 for alternatives. *(proposed)* PID-controller online update [30] for below-target coverage during drawdown.
-- **Risk/decision.** *(implemented)* Empirical-quantile VaR/ES with Kupiec [21], Christoffersen [22], dynamic-quantile [23] backtests and a consistent scoring function [24]; Kelly-derived sizing [25] capped by ruin probability. *(proposed)* Portfolio-correlation adjustment and a measured slippage coefficient.
+- **Risk/decision.** *(implemented)* Empirical-quantile VaR/ES with Kupiec [21], Christoffersen [22], dynamic-quantile [23] backtests and a consistent scoring function [24]; Kelly-derived sizing [25] capped by ruin probability. *(proposed)* Two pair-specific tail-risk recalibrations, each diagnosed but not yet frozen: covariate-shift-weighted conformal/EVT quantiles for USD/JPY's confirmed distribution drift, and change-point-isolated exclusion of USD/CHF's 2015 SNB shock window; plus a portfolio-correlation adjustment and a measured slippage coefficient.
+- **Meta-labeling confidence layer.** *(proposed)* A secondary model that decides sizing/confidence rather than re-predicting direction [35]. After removing a circular-feature leak, preliminary skill (Brier skill score) is positive in 3/6 pairs, rising to 5/6 when the feature set is augmented with an exogenous implied-volatility index — a candidate risk-layer addition, integration not yet finalized.
 
 ### Causal Discovery Method
 
@@ -194,6 +195,8 @@ The daily job never recomputes through a second code path — it calls the API a
 
 [34] S. Wager and S. Athey, "Estimation and inference of heterogeneous treatment effects using random forests," *JASA*, vol. 113, no. 523, pp. 1228–1242, 2018, doi: 10.1080/01621459.2017.1319839.
 
+[35] M. López de Prado, *Advances in Financial Machine Learning*. Hoboken, NJ, USA: John Wiley & Sons, 2018.
+
 ## Research Plan and Timeline
 
 Research timeline: 16 weeks. Every week pairs a research task with an **Engineering** deliverable, so the API/web application is extended continuously rather than only at the end.
@@ -205,7 +208,7 @@ Research timeline: 16 weeks. Every week pairs a research task with an **Engineer
 | 3 | – MDES analysis for every negative finding; validate the funnel with negative controls. <br> – **Eng:** add MDES to `/calibration`. | Week 5–6 |
 | 4 | – Address tail-risk failures (two pairs, 99% VaR/ES); recalibrate h=20. <br> – **Eng:** update `/risk` and `/forecast_next` fields. | Week 7–8 |
 | 5 | – Write up the completed exogenous/causal analysis, per axis. <br> – **Eng:** expose causal-validation provenance as a read-only `/forecast` field. | Week 9–10 |
-| 6 | – End-to-end economic result after costs/slippage; accumulate the forecast journal. <br> – **Eng:** extend `/journal` with rolling calibration. | Week 11 |
+| 6 | – End-to-end economic result after costs/slippage; evaluate the meta-labeling confidence layer as a candidate sizing adjustment. <br> – **Eng:** extend `/journal` with rolling calibration. | Week 11 |
 | 7 | – Freeze the final configuration in writing; prepare the sealed-set record. <br> – **Eng:** tag and freeze API schemas and the artefact version. | Week 12 |
 | 8 | – Open the sealed set once; score without retuning. <br> – **Eng:** serve results through the same frozen endpoints. | Week 13 |
 | 9 | – Complete the system: computation layer, versioned artefacts, API, UI with full provenance; verify continuous operation. | Week 14 |
