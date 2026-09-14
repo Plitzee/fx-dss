@@ -91,18 +91,7 @@ Four independently authored methods, different assumptions, converging on one va
 
 **The two deployment targets are a stated trade-off, not an inconsistency.** The local/CI deployment runs the full FastAPI process and is the only place risk numbers are *computed*; Vercel's serverless size limit cannot host that stack, so a daily job pre-computes once-a-day numbers as static JSON while a lightweight function handles only intraday chart data — practice consistent with scaling ML-serving systems under heterogeneous constraints [31], [32].
 
-**Module contract**, enforced in code, not an informal call:
-
-| From | To | Via | Format |
-|---|---|---|---|
-| `collect/*.py` | `data/` | direct write | fixed columns |
-| `data/` | `api/cache.py` | fixed-path read | `Date, open, …, rv5` |
-| `src/*.py` | `api/cache.py` | in-process call | DataFrame, no serialisation |
-| `api/cache.py` | `api/routers/*.py` | in-memory dict | `pan`, `xs`, `sig`, … |
-| `api/routers/*.py` | web client | HTTP JSON | `response_model` |
-| daily job | static site data | HTTP call to API | identical JSON, never recomputed |
-
-The daily job never recomputes through a second code path — it calls the API and snapshots the response, the discipline [31] that keeps the static and live deployments from diverging, applied to every module added under the Research Plan.
+**Each layer boundary carries an explicit contract rather than an informal call**: the pipeline writes fixed-schema files, the computation layer reads and joins them in-process with no serialisation step, and the API exposes every downstream consumer — including the daily job that supplies the static site — through the same typed response models. That last link is enforced most strictly: the daily job never recomputes through a second code path, it calls the API and snapshots the response, the discipline [31] that keeps the static and live deployments from diverging, applied to every module added under the Research Plan.
 
 ## Research Methodology
 
