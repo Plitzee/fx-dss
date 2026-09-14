@@ -298,7 +298,7 @@ def do_bang_long(o, hang):
                 p = doan_trong(c[j], dau=dau_o); dau_o = False
                 p.paragraph_format.space_after = Pt(1)
                 p.alignment = (WD_ALIGN_PARAGRAPH.CENTER
-                               if re.fullmatch(r"\d+%?|Week .*|\d+|Lead|Support|Joint", d)
+                               if re.fullmatch(r"\d+%?|Week .*|\d+", d)
                                else WD_ALIGN_PARAGRAPH.LEFT)
                 viet(p, d, co=CO_BANG, dam_het=(k == 0))
     # Word BAT BUOC co mot doan sau bang long (khong co thi bang dinh lien o
