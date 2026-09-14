@@ -1,0 +1,206 @@
+{
+ "EURUSD": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.5319,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.1353,
+  "brier_mohinh": 0.1252,
+  "brier_khihauhoc": 0.11821,
+  "bss": -0.0591,
+  "auc": 0.5358,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "sd_z_20",
+    0.2472
+   ],
+   [
+    "sd_z_60",
+    0.2091
+   ],
+   [
+    "kurt_z_60",
+    0.2023
+   ],
+   [
+    "kurt_z_20",
+    0.1638
+   ],
+   [
+    "soi_giam_60",
+    0.0817
+   ]
+  ]
+ },
+ "GBPUSD": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.6034,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.0804,
+  "brier_mohinh": 0.07876,
+  "brier_khihauhoc": 0.07436,
+  "bss": -0.0591,
+  "auc": 0.5597,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "kurt_z_60",
+    0.3178
+   ],
+   [
+    "sd_z_20",
+    0.1965
+   ],
+   [
+    "kurt_z_20",
+    0.161
+   ],
+   [
+    "sd_z_60",
+    0.1536
+   ],
+   [
+    "soi_giam_60",
+    0.0593
+   ]
+  ]
+ },
+ "USDJPY": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.6395,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.1261,
+  "brier_mohinh": 0.14021,
+  "brier_khihauhoc": 0.1109,
+  "bss": -0.2643,
+  "auc": 0.5419,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "sd_z_20",
+    0.2647
+   ],
+   [
+    "sd_z_60",
+    0.2633
+   ],
+   [
+    "kurt_z_20",
+    0.1733
+   ],
+   [
+    "kurt_z_60",
+    0.172
+   ],
+   [
+    "soi_giam_60",
+    0.041
+   ]
+  ]
+ },
+ "AUDUSD": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.522,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.1225,
+  "brier_mohinh": 0.10935,
+  "brier_khihauhoc": 0.10798,
+  "bss": -0.0127,
+  "auc": 0.5436,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "kurt_z_20",
+    0.2399
+   ],
+   [
+    "kurt_z_60",
+    0.2351
+   ],
+   [
+    "sd_z_60",
+    0.2137
+   ],
+   [
+    "sd_z_20",
+    0.1384
+   ],
+   [
+    "dow",
+    0.0598
+   ]
+  ]
+ },
+ "USDCAD": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.5594,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.1005,
+  "brier_mohinh": 0.09424,
+  "brier_khihauhoc": 0.09044,
+  "bss": -0.042,
+  "auc": 0.5237,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "kurt_z_20",
+    0.2608
+   ],
+   [
+    "sd_z_60",
+    0.1947
+   ],
+   [
+    "kurt_z_60",
+    0.189
+   ],
+   [
+    "sd_z_20",
+    0.1852
+   ],
+   [
+    "soi_giam_60",
+    0.0518
+   ]
+  ]
+ },
+ "USDCHF": {
+  "n_huanluyen": 2443,
+  "n_kiemdinh": 547,
+  "nguong_az": 1.5265,
+  "ty_le_vipham_huanluyen": 0.1003,
+  "ty_le_vipham_kiemdinh": 0.0969,
+  "brier_mohinh": 0.09104,
+  "brier_khihauhoc": 0.08752,
+  "bss": -0.0403,
+  "auc": 0.5292,
+  "dat_H_META": false,
+  "dac_trung_quan_trong_nhat": [
+   [
+    "sd_z_20",
+    0.2478
+   ],
+   [
+    "kurt_z_20",
+    0.2333
+   ],
+   [
+    "kurt_z_60",
+    0.2268
+   ],
+   [
+    "sd_z_60",
+    0.1424
+   ],
+   [
+    "dow",
+    0.0392
+   ]
+  ]
+ }
+}

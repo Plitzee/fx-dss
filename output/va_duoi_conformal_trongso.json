@@ -1,0 +1,35 @@
+{
+ "pair": "USDJPY",
+ "n_kiemdinh": 547,
+ "trong_so_hieu_dung": 395.1,
+ "student_t": {
+  "khong_trongso": {
+   "nu": 7.264,
+   "scale": 0.93833
+  },
+  "co_trongso": {
+   "nu": 5.698,
+   "scale": 0.90268
+  }
+ },
+ "muc": {
+  "0.9": {
+   "thucnghiem_khong_trongso": 1.7558,
+   "thucnghiem_co_trongso": 1.8005,
+   "studentt_khong_trongso": 1.7681,
+   "studentt_co_trongso": 1.7708
+  },
+  "0.95": {
+   "thucnghiem_khong_trongso": 2.1096,
+   "thucnghiem_co_trongso": 2.2149,
+   "studentt_khong_trongso": 2.2026,
+   "studentt_co_trongso": 2.2374
+  },
+  "0.99": {
+   "thucnghiem_khong_trongso": 3.5273,
+   "thucnghiem_co_trongso": 3.5273,
+   "studentt_khong_trongso": 3.2434,
+   "studentt_co_trongso": 3.4206
+  }
+ }
+}
