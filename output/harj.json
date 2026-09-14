@@ -1,0 +1,35 @@
+{
+ "tong": {
+  "B0 mốc": {
+   "qlike_vd": 0.1162136526436316,
+   "qlike_kt": 0.15850593773849408,
+   "dm_p": null,
+   "cap_duong": 0
+  },
+  "B0+HARJ": {
+   "qlike_vd": 0.11660883670153456,
+   "qlike_kt": 0.1587923301992512,
+   "dm_p": 0.17670849386860965,
+   "cap_duong": 1
+  },
+  "HARJ thay SHAR": {
+   "qlike_vd": 0.11675277545411517,
+   "qlike_kt": 0.15891841170794002,
+   "dm_p": 0.4574078810093303,
+   "cap_duong": 3
+  },
+  "HARJ riêng": {
+   "qlike_vd": 0.11919672676875498,
+   "qlike_kt": 0.16069476355302065,
+   "dm_p": 0.01182586547428044,
+   "cap_duong": 1
+  }
+ },
+ "chon_kiem_dinh": "B0+HARJ",
+ "dk": {
+  "dk1": false,
+  "dk2": false,
+  "dk3": true
+ },
+ "phan_quyet": "am"
+}

@@ -314,11 +314,13 @@ chịu trách nhiệm luận văn nên tự xác nhận lại cách đếm ở n
 4) VÀ quyết định cách viết cho phát hiện SPA ở dòng 56 trước khi coi bảng
 tổng kết bên dưới là số liệu cuối cùng để ký mục 4.6.
 
+| 57 | 14/09/2026 | **HAR-J — tách liên tục/nhảy bằng BIPOWER THẬT** (`kiem_harj.py`) — Andersen, Bollerslev & Diebold (2007), *Review of Economics and Statistics* 89(4):701–720. Đính chính một lỗi của chính phiên trước: `BCL_TIEUCHI.md` (dòng 49) từng viết sai mốc sản xuất "vốn tách C/J bằng bipower" — đọc lại `volfc2.py::thiet_ke()` xác nhận cột `bpv5` **chưa từng** được tham chiếu trong STHARQ/HARQ/SHAR, chỉ dùng ở tầng ML riêng. Giả thuyết H14, 4 cấu hình, tiêu chí phủ định CHỐT TRƯỚC ở `docs/HARJ_TIEUCHI.md`. Tái tạo ĐÚNG cơ chế tổ hợp sản xuất (khớp OLS cửa sổ mở rộng từng mô hình con, trung bình cộng log-dự báo — công thức `g=L.mean(0)` thật của `du_bao_san_xuat`), không dùng khung hồi quy đơn giản hoá như các ablation trước | **3** | **ÂM cho dự báo, nhưng cơ chế đúng lý thuyết ở cả 6/6 cặp.** ĐK1 (thắng kiểm tra p<0,0167) TRƯỢT (+0,18%, p=0,177); ĐK2 (≥5/6 cặp) TRƯỢT (1/6); **ĐK3 (dấu hệ số) ĐẠT 6/6** — `log(C)` dương (+0,27 đến +0,41), `log(1+J/C)` âm (−0,05 đến −0,23) ở mọi cặp, đúng phát hiện chuẩn HAR-J (phần liên tục dai, phần nhảy không) và cùng hình mẫu "chiết khấu phần ngoại suy thừa" đã thấy ở S4 (`PHA2_KETQUA.md` 3b) và `hhi` (cùng tài liệu, mục 3d). Nguyên nhân dự báo không tốt lên: tương quan +0,70–0,72 giữa tỉ trọng nhảy và số hạng quarticity `lq` đã có sẵn trong STHARQ/HARQ — thông tin đã hấp thụ gián tiếp qua đường vòng, lần thứ ba lặp lại hình mẫu này trong dự án. **Không đưa vào sản xuất.** Xem `docs/HARJ_TIEUCHI.md` Phụ lục A |
+
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.334** (1.322 đến dòng 51 + 6 dòng 53 lớp phủ DML + 6 dòng 55 CNN nến) |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.337** (1.322 đến dòng 51 + 6 dòng 53 lớp phủ DML + 6 dòng 55 CNN nến + **3 dòng 57 HAR-J**) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu quy luật (MDES, lực 80%) | lift **1,20** |

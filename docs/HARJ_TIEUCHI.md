@@ -135,3 +135,65 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 > Dòng ký để trống có chủ đích — người chịu trách nhiệm luận văn ký, không
 > phải công cụ điền hộ.
+
+---
+
+# PHỤ LỤC A — KẾT QUẢ (14/09/2026, chạy SAU khi mục 1–9 đã chốt)
+
+*Tái lập: `python src/kiem_harj.py`. Kết quả: `output/harj.json`.*
+
+Tự kiểm ĐẠT cả 6 cặp: `C_t ≤ RV_t`, `J_t ≥ 0` mọi phiên.
+
+| cấu hình | QLIKE kiểm định | QLIKE kiểm tra | so B0 | DM p | cặp cải thiện |
+|---|---|---|---|---|---|
+| B0 mốc | 0,1162 | 0,1585 | — | — | — |
+| **B0+HARJ** *(tốt nhất trên kiểm định)* | 0,1166 | 0,1588 | +0,18% | 0,177 | 1/6 |
+| HARJ thay SHAR | 0,1168 | 0,1589 | +0,26% | 0,457 | 3/6 |
+| HARJ riêng | 0,1192 | 0,1607 | +1,38% | 0,012 | 1/6 |
+
+## Phán quyết — **ÂM**, hai trong ba điều kiện trượt
+
+| điều kiện | kết quả | |
+|---|---|---|
+| ĐK1 thắng kiểm tra, p<0,0167 | **TRƯỢT** | +0,18%, p=0,177 |
+| ĐK2 ≥5/6 cặp | **TRƯỢT** | 1/6 |
+| **ĐK3 dấu hệ số đúng H14** | **ĐẠT** | **6/6** |
+
+## Điều đáng ghi nhất: dấu hệ số đúng lý thuyết ở cả 6 cặp, nhưng dự báo không tốt lên
+
+| cặp | log(C) | log(1+J/C) |
+|---|---|---|
+| EURUSD | **+0,286** | **−0,207** |
+| GBPUSD | +0,313 | −0,054 |
+| USDJPY | +0,408 | −0,166 |
+| AUDUSD | +0,363 | −0,229 |
+| USDCAD | +0,273 | −0,208 |
+| USDCHF | +0,283 | −0,099 |
+
+**`log(C)` dương, `log(1+J/C)` âm — cả 6/6 cặp, nhất quán tuyệt đối.** Đây
+đúng là phát hiện cốt lõi của văn liệu HAR-J: phần liên tục có tính **dai**
+(persistent), phần nhảy thì **không** — ở đây còn đi xa hơn: sau khi đã có
+STHARQ/HARQ/SHAR, phần *thêm* của thành phần nhảy mang dấu **âm**, tức nó
+hoạt động như **chiết khấu phần RV bị thổi phồng bởi cú nhảy**, không phải
+tín hiệu báo biến động cao hơn — **cùng hình mẫu đã thấy ở S4** (Pha 2,
+`PHA2_KETQUA.md` mục 3b) và ở `hhi` (Tầng 2, cùng `PHA2_KETQUA.md` mục 3d).
+
+**Nhưng cơ chế đúng không đủ để cải thiện dự báo — vì thông tin đã bị hấp
+thụ trước.** Đo trực tiếp: tương quan giữa **tỉ trọng nhảy** (`J/RV`) và số
+hạng `lq` (điều chỉnh theo realized quarticity, đã có sẵn trong STHARQ/HARQ)
+là **+0,72 (EURUSD) và +0,70 (USDJPY)** — gần giống hệt tương quan +0,742 đã
+đo giữa `hhi` và tỉ trọng nhảy ở Tầng 2 đêm qua. `HARQ` không đo trực tiếp
+thành phần nhảy, nhưng quarticity — thước đo "độ gồ ghề" của lợi suất trong
+ngày — tương quan rất cao với nó, nên phần lớn thông tin mà HARJ mang tới
+**đã có mặt gián tiếp** trong tổ hợp qua đường vòng của HARQ.
+
+## Kết luận cho luận văn
+
+> *Tách liên tục/nhảy bằng bipower (HAR-J, Andersen–Bollerslev–Diebold 2007)
+> — dù dấu hệ số khớp đúng lý thuyết ở cả 6 cặp (phần liên tục dai, phần
+> nhảy không) — **không cải thiện được** tổ hợp sản xuất đã có điều chỉnh
+> quarticity (HARQ) và bất đối xứng (SHAR): tương quan +0,70–0,72 giữa tỉ
+> trọng nhảy và số hạng quarticity cho thấy phần lớn thông tin đó **đã có
+> mặt gián tiếp**. Đây là lần thứ ba trong dự án cùng một hình mẫu lặp lại —
+> một đặc trưng "mới" hoá ra là biến thể của thứ mô hình sản xuất đã nắm
+> được, chỉ qua một con đường khác.*
