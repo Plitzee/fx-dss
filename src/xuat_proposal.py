@@ -48,8 +48,8 @@ def dat_font(doc):
     st.font.size = Pt(CO)
     st.element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
     pf = st.paragraph_format
-    pf.space_after = Pt(6)
-    pf.line_spacing = 1.15
+    pf.space_after = Pt(5)
+    pf.line_spacing = 1.1
 
 
 def vien(bang, ngoai=True, trong_ngang=True, trong_doc=False, mau="000000",
@@ -70,7 +70,7 @@ def vien(bang, ngoai=True, trong_ngang=True, trong_doc=False, mau="000000",
     pr.append(b)
 
 
-def dem_o(bang, tren=80, duoi=80, trai=110, phai=110):
+def dem_o(bang, tren=50, duoi=50, trai=90, phai=90):
     """Dem trong o — khung sat chu qua thi xau."""
     pr = bang._tbl.tblPr
     m = OxmlElement("w:tblCellMar")
@@ -271,7 +271,7 @@ def do_bang_long(o, hang):
     t = o.add_table(rows=0, cols=nc)
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     vien(t, ngoai=True, trong_ngang=True, trong_doc=True)
-    dem_o(t, 40, 40, 80, 80)
+    dem_o(t, 25, 25, 60, 60)
     # Be rong theo VAI TRO cua cot, nhan qua tieu de — de Word tu chia thi cot
     # "No." rong bang cot "Assignments", nhin rat lech.
     # Tong be rong = be rong LONG trong khung ngoai, de bang lap day khung
@@ -350,6 +350,9 @@ def dung_khung(doc, dau, sinh_vien, muc):
         o = hang_moi()
         p = doan_trong(o)
         p.paragraph_format.space_after = Pt(5)
+        # dinh tieu de muc VAO doan ngay sau no — khong de tieu de troi mot
+        # minh cuoi trang roi noi dung nhay sang trang ke, nhin rat hut hang.
+        p.paragraph_format.keep_with_next = True
         r = p.add_run(ten + ":"); r.bold = True
         r.font.name = FONT; r.font.size = Pt(CO)
 
@@ -360,6 +363,7 @@ def dung_khung(doc, dau, sinh_vien, muc):
                 q = o.add_paragraph()
                 q.paragraph_format.space_before = Pt(7)
                 q.paragraph_format.space_after = Pt(3)
+                q.paragraph_format.keep_with_next = True
                 r = q.add_run(noi_dung)
                 r.bold = True
                 r.italic = True
@@ -386,7 +390,7 @@ def dung_o_ky(doc, sinh_vien):
     t = doc.add_table(rows=1, cols=2)
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     vien(t, ngoai=True, trong_ngang=False, trong_doc=True)
-    dem_o(t, 110, 110, 110, 110)
+    dem_o(t, 70, 70, 90, 90)
     dat_rong(t, [7.8, 8.0])
     # O ky KHONG duoc xe doi qua trang — ten thay va ten sinh vien phai nam
     # cung mot trang voi dong "Advisor's approval".
@@ -404,15 +408,15 @@ def dung_o_ky(doc, sinh_vien):
         return p
 
     d(trai, "Advisor's approval", dam=True, dau=True)
-    d(trai, "(Signature and full name)", ngh=True, cach=52)
+    d(trai, "(Signature and full name)", ngh=True, cach=38)
     d(trai, "NGUYEN DINH THUAN", dam=True)
 
     d(phai, "Ho Chi Minh City, ... / ... / ......", dau=True)
     d(phai, "Students", dam=True)
-    d(phai, "(Signatures and full names)", ngh=True, cach=44)
+    d(phai, "(Signatures and full names)", ngh=True, cach=32)
     for k, sv in enumerate(sinh_vien):
         ten = sv.split("–")[0].split("-")[0].strip()
-        d(phai, ten, dam=True, cach=34 if k == 0 else 6)
+        d(phai, ten, dam=True, cach=26 if k == 0 else 6)
 
 
 def main():
@@ -423,8 +427,8 @@ def main():
     doc = Document()
     dat_font(doc)
     for s in doc.sections:
-        s.top_margin = Cm(1.8)
-        s.bottom_margin = Cm(1.8)
+        s.top_margin = Cm(1.4)
+        s.bottom_margin = Cm(1.4)
         s.left_margin = Cm(2.2)
         s.right_margin = Cm(1.8)
 
