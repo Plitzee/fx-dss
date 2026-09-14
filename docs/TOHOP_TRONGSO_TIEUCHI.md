@@ -186,3 +186,57 @@ Việc còn treo (chưa làm, ngoài phạm vi ba thí nghiệm này): kiểm tr
 xem chính phép hiệu chỉnh log-chuẩn (`s2_tu_huan_luyen`/hiệu chỉnh
 `exp(fit+0,5s²)`) có thiên lệch hay không — đó mới là biến khác duy nhất
 giữa khung BCL và khung tổ hợp thật chưa được cô lập.
+
+---
+
+# PHỤ LỤC B — chẩn đoán thêm (14/09/2026): thử cô lập chính khung đo BCL A4
+
+*Không phải thí nghiệm mới, không đếm cấu hình — chẩn đoán để đóng nốt câu
+hỏi "log_rv(t) sửa cái gì" nêu ở cuối Phụ lục A.*
+
+Dựng lại `log_rv(t)` **đúng, không rò rỉ** (kiểm tra tường minh): mỗi hàng
+`kiem_bcl.dung_bang()` là một ngày liên tục, không trùng lặp `(pair, ngày)`,
+không có khoảng trống — `log_rv(t)` = `y_bien_do` của **đúng hàng liền trước**
+trong cùng cặp (`groupby("pair")["y_bien_do"].shift(1)`, đã kiểm không lẫn
+với hàng đầu mỗi cặp).
+
+**Kết quả: −63,30%** — không phải −7,78% đã ghi ở Phụ lục A đêm qua.
+
+| | R² huấn luyện | QLIKE trung vị (kiểm tra) | QLIKE p90 | QLIKE tối đa |
+|---|---|---|---|---|
+| B0 | 0,535 | 0,0526 | 0,262 | 41,1 |
+| B0 + log_rv(t) đúng | 0,585 | 0,0262 | 0,118 | 6,9 |
+
+Đáng chú ý: **R² chỉ tăng khiêm tốn** (0,535→0,585, tức phương sai phần dư
+chỉ giảm ~11%) trong khi **QLIKE trung vị giảm hơn một nửa**. Hai đại lượng
+lệch nhau mạnh như vậy là dấu hiệu số hạng hiệu chỉnh log-chuẩn toàn cục
+`exp(0,5·s²)` — tính MỘT LẦN từ phương sai phần dư trên huấn luyện rồi áp
+đều cho mọi phiên kiểm tra — đang khuếch đại một thay đổi nhỏ ở `s²` thành
+một thay đổi lớn ở QLIKE, chứ không phải bằng chứng cho một cải thiện dự báo
+thật cỡ đó. Tương quan `m_har` và `log_rv(t)` là 0,81 (cao nhưng không suy
+biến, điều kiện số ma trận thiết kế 268 — không bệnh lý số học); tương quan
+riêng lẻ với mục tiêu gần như bằng nhau (0,732 và 0,721) — tức hai biến mang
+lượng thông tin tương đương, không phải một biến "vượt trội" bù đắp lỗ hổng
+lớn của biến kia.
+
+## Kết luận cuối cho cả nhánh BCL/HAR-J/trọng số
+
+**Chính khung đo dùng để chẩn đoán "khoảng cách 7,78%" là không ổn định**:
+dựng lại đúng cùng ý tưởng (log RV ngày gần nhất, không rò rỉ, đã kiểm) hai
+lần cho hai con số khác nhau tới **một bậc độ lớn** (−7,78% và −63,30%).
+Cộng với việc ba giả thuyết cơ chế độc lập (tách nhảy bằng ngưỡng, tách nhảy
+bằng bipower, trọng số tổ hợp thích ứng) đều **không tái tạo được bất kỳ cải
+thiện nào gần mức đó** khi kiểm trong đúng cơ chế `du_bao_san_xuat()` sản
+xuất thật, kết luận hợp lý nhất là: **con số ở Phụ lục A của `BCL_TIEUCHI.md`
+không đáng tin, và không nên trích dẫn trong luận văn dưới bất kỳ hình thức
+nào** — kể cả con số cụ thể lẫn phát biểu định tính "tầng 2 để lại 8-10%
+QLIKE trên bàn". Đây là một hạn chế về **phương pháp chẩn đoán** (khung hồi
+quy một phương trình + hiệu chỉnh log-chuẩn toàn cục dễ khuếch đại sai số),
+không phải một phát hiện về hệ thống.
+
+**Điều còn đứng vững, không bị ảnh hưởng bởi đính chính này**: `|gap|`
+(dòng 47 `KHOA_SO.md`), phán quyết BCL (dòng 49), phán quyết HAR-J (dòng 57)
+và phán quyết trọng số (dòng 58) đều đã chấm QLIKE trực tiếp trên `rv5` thật
+qua công thức `du_bao_san_xuat()`/khung tổ hợp trung thực — không đi qua
+bước hồi quy một phương trình có vấn đề này. Chỉ riêng phát biểu về "khoảng
+cách 7,78%" và diễn giải nguyên nhân của nó là cần rút lại.
