@@ -1,0 +1,12 @@
+{
+ "pair": "AUDUSD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "qlike_har": -8.869413,
+ "qlike_har_cnn": -9.085866,
+ "chenh_phan_tram": -2.4404,
+ "dm_t": 7.4484,
+ "dm_p": 0.0,
+ "ket_luan": "CNN cải thiện có ý nghĩa (p<0,05)"
+}

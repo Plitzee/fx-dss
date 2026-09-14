@@ -1,0 +1,97 @@
+{
+ "AUDUSD": {
+  "pair": "AUDUSD",
+  "n": 3050,
+  "he_so": 0.18579,
+  "se": 0.01802,
+  "t": 10.3076,
+  "p": 6.511943151077706e-25,
+  "ci_95": [
+   0.15046,
+   0.22112
+  ],
+  "q_holm": 0.0,
+  "song_sot_holm": true
+ },
+ "EURUSD": {
+  "pair": "EURUSD",
+  "n": 3050,
+  "he_so": 0.09335,
+  "se": 0.01884,
+  "t": 4.9555,
+  "p": 7.214845015132934e-07,
+  "ci_95": [
+   0.05643,
+   0.13027
+  ],
+  "q_holm": 0.0,
+  "song_sot_holm": true
+ },
+ "GBPUSD": {
+  "pair": "GBPUSD",
+  "n": 3050,
+  "he_so": 0.12492,
+  "se": 0.01773,
+  "t": 7.045,
+  "p": 1.8547405506578785e-12,
+  "ci_95": [
+   0.09017,
+   0.15967
+  ],
+  "q_holm": 0.0,
+  "song_sot_holm": true
+ },
+ "USDJPY": {
+  "pair": "USDJPY",
+  "n": 3050,
+  "he_so": 0.08507,
+  "se": 0.02332,
+  "t": 3.6477,
+  "p": 0.0002645559637048193,
+  "ci_95": [
+   0.03936,
+   0.13078
+  ],
+  "q_holm": 0.00026,
+  "song_sot_holm": true
+ },
+ "USDCAD": {
+  "pair": "USDCAD",
+  "n": 3050,
+  "he_so": 0.12644,
+  "se": 0.01666,
+  "t": 7.5917,
+  "p": 3.157155863774015e-14,
+  "ci_95": [
+   0.0938,
+   0.15908
+  ],
+  "q_holm": 0.0,
+  "song_sot_holm": true
+ },
+ "USDCHF": {
+  "pair": "USDCHF",
+  "n": 3050,
+  "he_so": 0.06958,
+  "se": 0.01815,
+  "t": 3.834,
+  "p": 0.00012606515418142053,
+  "ci_95": [
+   0.03401,
+   0.10515
+  ],
+  "q_holm": 0.00025,
+  "song_sot_holm": true
+ },
+ "_tong_ket": {
+  "dieu_tri": "VIXCLS_lv",
+  "kiem_soat": [
+   "m_har",
+   "GVZCLS_lv",
+   "DFII10_lv"
+  ],
+  "n_song_sot_holm": 6,
+  "n_cap": 6,
+  "ket_luan": "6/6 cặp có hiệu ứng nhân quả VIX→biến_động sống sót sau Holm — ĐẠT ngưỡng độ vững ≥5/6 của Pha3B"
+ }
+}

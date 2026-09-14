@@ -1,0 +1,12 @@
+{
+ "pair": "GBPUSD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "qlike_har": -9.351319,
+ "qlike_har_cnn": -9.475317,
+ "chenh_phan_tram": -1.326,
+ "dm_t": 3.6369,
+ "dm_p": 0.0003,
+ "ket_luan": "CNN cải thiện có ý nghĩa (p<0,05)"
+}

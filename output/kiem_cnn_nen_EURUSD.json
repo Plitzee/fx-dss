@@ -1,0 +1,12 @@
+{
+ "pair": "EURUSD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "qlike_har": -9.581324,
+ "qlike_har_cnn": -9.824053,
+ "chenh_phan_tram": -2.5334,
+ "dm_t": 1.6512,
+ "dm_p": 0.0987,
+ "ket_luan": "không cải thiện có ý nghĩa so với mốc HAR"
+}

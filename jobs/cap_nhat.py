@@ -1,10 +1,16 @@
 """VIEC DINH KY — cap nhat du lieu va dung lai giao dien.
 
-Bon buoc, chay theo thu tu:
+Nam buoc, chay theo thu tu:
   1. tai du lieu hien hanh   (collect/live_fx.py)
+  1b. KIEM TRA DO MOI du lieu vua tai — chan lai TRUOC khi tinh lai cache
+      neu du lieu tro nen cu hon/rong hon truoc, tranh tinh ca cache tren
+      du lieu tai loi/rong ma khong ai biet
   2. tinh lai sigma + xac suat  (goi /refresh cua API neu no dang chay)
   3. chup mot ban tinh        (web/ui_data.json) tu chinh API — de ban tinh va
-                               ban truc tiep KHONG BAO GIO lech nhau
+                               ban truc tiep KHONG BAO GIO lech nhau. Ghi ra
+                               THU MUC TAM roi doi ten NGUYEN KHOI (atomic) —
+                               tranh web/data/ o trang thai nua-cu-nua-moi
+                               neu tien trinh bi ngat giua chung khi dang chup
   4. dung lai hai trang       (web/build.py)
 
 Chay tay:      python jobs/cap_nhat.py
@@ -18,19 +24,28 @@ LUU Y NIEM PHONG: buoc 1 tai du lieu 2026, ma toan bo 2026 nam trong tap khoa
 so cua docs/KHOA_SO.md. Chi chay viec nay khi da chot cau hinh va ghi bien ban.
 """
 import datetime as dt
+import glob
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
 
+import pandas as pd
 import requests
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(ROOT, "web")
+LIVE = os.path.join(ROOT, "data", "live")
 API = os.environ.get("FXDSS_API", "http://127.0.0.1:8899")
 PY = sys.executable
 HS = ("1", "5", "20")
+
+
+class LoiBuoc(SystemExit):
+    """Loi co CHU DICH o mot buoc cu the — de thong bao luon ro buoc nao
+    hong va trang thai du lieu bi bo lai la gi, thay vi mot traceback tho."""
 
 
 def buoc(n, ten):
@@ -41,7 +56,54 @@ def buoc(n, ten):
 def chay(*a):
     r = subprocess.run([PY, *a], cwd=ROOT, env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     if r.returncode != 0:
-        raise SystemExit(f"thất bại: {' '.join(a)}")
+        raise LoiBuoc(f"thất bại: {' '.join(a)} (mã thoát {r.returncode})")
+
+
+def kiem_tra_du_lieu_moi(ngay_truoc):
+    """Sau khi tai (buoc 1), xac nhan data/live/*.csv MOI HON hoac BANG ngay
+    da co truoc do — chan lai buoc 2 neu du lieu vua tai bi rong/loi/cu hon,
+    thay vi am tham tinh lai cache tren du lieu hong. KHONG doi hanh vi neu
+    moi thu binh thuong; chi la MOT lop chan an toan."""
+    f_hien_tai = {}
+    for f in glob.glob(os.path.join(LIVE, "*_d1.csv")):
+        pair = os.path.basename(f).replace("_d1.csv", "")
+        try:
+            d = pd.read_csv(f, usecols=["Date"], parse_dates=["Date"])
+            f_hien_tai[pair] = (d.Date.max(), len(d))
+        except Exception as e:
+            raise LoiBuoc(f"  data/live/{pair}_d1.csv đọc lỗi ngay sau khi tải: {e}\n"
+                          f"  DỪNG trước bước 2 — không tính lại cache trên dữ liệu hỏng.")
+
+    if not f_hien_tai:
+        raise LoiBuoc("  data/live/ rỗng sau bước tải — collect/live_fx.py có vẻ đã "
+                      "không ghi được gì. DỪNG trước bước 2.")
+
+    canh_bao = []
+    for pair, (ngay_moi, n) in f_hien_tai.items():
+        if n < 5:
+            canh_bao.append(f"{pair}: chỉ {n} dòng — nghi ngờ dữ liệu rỗng/lỗi")
+        cu = ngay_truoc.get(pair)
+        if cu is not None and ngay_moi < cu:
+            canh_bao.append(f"{pair}: ngày mới nhất LÙI từ {cu.date()} về {ngay_moi.date()}")
+
+    if canh_bao:
+        raise LoiBuoc("  Dữ liệu vừa tải trông bất thường, DỪNG trước bước 2:\n    "
+                      + "\n    ".join(canh_bao))
+    print(f"  ĐẠT — {len(f_hien_tai)} cặp, dữ liệu mới hơn hoặc bằng lần chạy trước")
+
+
+def _ngay_moi_nhat_hien_co():
+    """Chup nhanh ngay moi nhat cua data/live/ TRUOC khi tai — de doi chieu
+    sau buoc 1. Tra ve {} neu chua co gi (lan chay dau tien)."""
+    ra = {}
+    for f in glob.glob(os.path.join(LIVE, "*_d1.csv")):
+        pair = os.path.basename(f).replace("_d1.csv", "")
+        try:
+            d = pd.read_csv(f, usecols=["Date"], parse_dates=["Date"])
+            ra[pair] = d.Date.max()
+        except Exception:
+            pass
+    return ra
 
 
 def api_song():
@@ -64,11 +126,20 @@ def chup_ban_tinh(day_du=True):
 
     Dung CHINH API lam nguon, khong tinh lai bang duong khac — de ban tinh va
     ban truc tiep khong the lech nhau.
+
+    GHI NGUYEN KHOI (atomic): moi file ghi vao `data_new/` truoc; chi khi
+    TOAN BO cap + meta.json thanh cong moi doi ten `data/` hien co thanh
+    `data_prev/` (du phong 1 buoc) roi doi `data_new/` thanh `data/`. Neu
+    tien trinh bi ngat giua chung (mat mang, crash), `web/data/` cu VAN CON
+    NGUYEN — nguoi dung khong bao gio thay trang o trang thai nua-cu-nua-moi.
     """
     g = lambda p: requests.get(API + p, timeout=600).json()
     N = 6000 if day_du else 1500
     meta = g("/meta")
-    thu_muc = os.path.join(WEB, "data")
+    thu_muc_cu = os.path.join(WEB, "data")
+    thu_muc = os.path.join(WEB, "data_new")
+    if os.path.isdir(thu_muc):
+        shutil.rmtree(thu_muc)          # don ban _new dang do tu lan chay hong truoc
     os.makedirs(thu_muc, exist_ok=True)
 
     M = {"cap": meta["cap"], "valid_tu": meta["valid_tu"], "test_tu": meta["test_tu"],
@@ -133,6 +204,15 @@ def chup_ban_tinh(day_du=True):
     print(f"  meta.json {os.path.getsize(fm)/1024:,.0f} KB · tổng {tong/1024:,.1f} MB "
           f"(gzip trên đường truyền còn ~1/6)")
 
+    # ── doi ten NGUYEN KHOI: data/ -> data_prev/ (du phong), data_new/ -> data/ ──
+    thu_muc_prev = os.path.join(WEB, "data_prev")
+    if os.path.isdir(thu_muc_cu):
+        if os.path.isdir(thu_muc_prev):
+            shutil.rmtree(thu_muc_prev)
+        os.rename(thu_muc_cu, thu_muc_prev)
+    os.rename(thu_muc, thu_muc_cu)
+    print(f"  đã đổi tên nguyên khối data_new/ -> data/ (bản trước đó giữ ở data_prev/)")
+
 
 def so_du_bao():
     """Ghi du bao cho phien CHUA MO CUA, roi cham nhung phien da du ket cuc.
@@ -185,8 +265,11 @@ def main():
     print("=" * 72)
 
     if tai:
+        ngay_truoc = _ngay_moi_nhat_hien_co()
         buoc(1, "Tải dữ liệu hiện hành (Yahoo 1h→D1 + 5m→rv5)")
         chay("collect/live_fx.py")
+        buoc("1b", "Kiểm tra độ mới dữ liệu vừa tải")
+        kiem_tra_du_lieu_moi(ngay_truoc)
     else:
         buoc(1, "Tải dữ liệu — BỎ QUA (--khong-tai)")
 
@@ -195,13 +278,13 @@ def main():
         r = requests.post(f"{API}/refresh", timeout=600).json()
         print(f"  đã tính lại: {', '.join(r['da_tinh_lai'])}")
     else:
-        raise SystemExit(f"  API không chạy ở {API}.\n"
-                         f"  Khởi động: python -m uvicorn api.main:app --port 8899")
+        raise LoiBuoc(f"  API không chạy ở {API}.\n"
+                      f"  Khởi động: python -m uvicorn api.main:app --port 8899")
 
     buoc(3, "Ghi sổ dự báo cho phiên kế tiếp, rồi chấm những phiên đã đủ kết cục")
     so_du_bao()
 
-    buoc(4, "Chụp bản tĩnh từ chính API")
+    buoc(4, "Chụp bản tĩnh từ chính API (ghi nguyên khối — xem chup_ban_tinh)")
     chup_ban_tinh()
 
     buoc(5, "Dựng lại hai trang")
@@ -214,4 +297,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except LoiBuoc as e:
+        print(f"\n{'!'*72}\nDỪNG GIỮA CHỪNG — {e}\n"
+              f"Dữ liệu/trang từ lần chạy TRƯỚC vẫn còn nguyên (bước 4 ghi nguyên "
+              f"khối), chỉ có thể thiếu bản cập nhật của lần chạy này.\n{'!'*72}")
+        raise

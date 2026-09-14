@@ -1,0 +1,19 @@
+{
+ "khong_gian": 18,
+ "du_khop": 3,
+ "tho": 8,
+ "wy": 6,
+ "sau_dieu_kien": 0,
+ "sau_lopo": 0,
+ "xac_nhan": 0,
+ "quy_luat": [],
+ "cac_K": [
+  2,
+  3,
+  4
+ ],
+ "tu_kiem": {
+  "loc_vs_lamtron": 4.284350652028479e-13,
+  "nhan_qua": 0.0
+ }
+}

@@ -1,0 +1,27 @@
+{
+ "khong_gian": 24,
+ "du_khop": 8,
+ "tho": 17,
+ "wy": 0,
+ "sau_dieu_kien": 0,
+ "sau_lopo": 0,
+ "xac_nhan": 0,
+ "quy_luat": [],
+ "so_la": 8,
+ "max_depth": 3,
+ "min_samples_leaf": 200,
+ "dac_trung": [
+  "σ̂",
+  "ATR phân vị",
+  "RSI",
+  "ADX",
+  "Bollinger %B",
+  "khoảng cách EMA50",
+  "Supertrend chiều",
+  "MACD hist",
+  "|z| hôm nay",
+  "z hôm nay",
+  "TSMOM 20",
+  "tính dai vol"
+ ]
+}

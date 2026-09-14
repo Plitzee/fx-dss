@@ -1,0 +1,154 @@
+Sao lưu baseline h=1×P gốc trước khi bắt đầu...
+  sao lưu quyluat.json -> quyluat_BACKUP_h1_P_goc.json
+  sao lưu h2_motif.json -> h2_motif_BACKUP_h1_P_goc.json
+  sao lưu h3_rulelist.json -> h3_rulelist_BACKUP_h1_P_goc.json
+  sao lưu h5_chedo.json -> h5_chedo_BACKUP_h1_P_goc.json
+  sao lưu h6_hmm.json -> h6_hmm_BACKUP_h1_P_goc.json
+  sao lưu h7_matrixprofile.json -> h7_matrixprofile_BACKUP_h1_P_goc.json
+  sao lưu h8_tintuc.json -> h8_tintuc_BACKUP_h1_P_goc.json
+  sao lưu h8b_embedding.json -> h8b_embedding_BACKUP_h1_P_goc.json
+  sao lưu h8c_chude.json -> h8c_chude_BACKUP_h1_P_goc.json
+  sao lưu h8e_llm.json -> h8e_llm_BACKUP_h1_P_goc.json
+  sao lưu spa_ho2.json -> spa_ho2_BACKUP_h1_P_goc.json
+
+##########################################################################################
+BẮT ĐẦU 5 tổ hợp — 2026-09-14 01:22:04
+
+==========================================================================================
+TỔ HỢP h=1 target=R — bắt đầu 01:22:04
+  [OK] run_quyluat.py  (194s) -> quyluat_h1_R.json
+  [OK] run_h2_motif.py  (30s) -> h2_motif_h1_R.json
+  [OK] run_h3_rulelist.py  (21s) -> h3_rulelist_h1_R.json
+  [OK] run_h5_chedo.py  (618s) -> h5_chedo_h1_R.json
+  [OK] run_h6_hmm.py  (30s) -> h6_hmm_h1_R.json
+  [OK] run_h7_matrixprofile.py  (48s) -> h7_matrixprofile_h1_R.json
+  [OK] run_h8_tintuc.py  (17s) -> h8_tintuc_h1_R.json
+  [OK] run_h8b_embedding.py  (50s) -> h8b_embedding_h1_R.json
+  [OK] run_h8c_chude.py  (12s) -> h8c_chude_h1_R.json
+  [OK] run_h8e_llm.py  (15s) -> h8e_llm_h1_R.json
+  [OK] run_spa_ho2.py  (104s) -> spa_ho2_h1_R.json
+TỔ HỢP h=1 target=R — xong 01:41:01
+
+==========================================================================================
+TỔ HỢP h=5 target=R — bắt đầu 01:41:01
+  [OK] run_quyluat.py  (140s) -> quyluat_h5_R.json
+  [OK] run_h2_motif.py  (19s) -> h2_motif_h5_R.json
+  [OK] run_h3_rulelist.py  (13s) -> h3_rulelist_h5_R.json
+  [OK] run_h5_chedo.py  (460s) -> h5_chedo_h5_R.json
+  [OK] run_h6_hmm.py  (32s) -> h6_hmm_h5_R.json
+  [OK] run_h7_matrixprofile.py  (48s) -> h7_matrixprofile_h5_R.json
+  [OK] run_h8_tintuc.py  (15s) -> h8_tintuc_h5_R.json
+  [OK] run_h8b_embedding.py  (33s) -> h8b_embedding_h5_R.json
+  [OK] run_h8c_chude.py  (12s) -> h8c_chude_h5_R.json
+  [OK] run_h8e_llm.py  (15s) -> h8e_llm_h5_R.json
+  [OK] run_spa_ho2.py  (136s) -> spa_ho2_h5_R.json
+TỔ HỢP h=5 target=R — xong 01:56:24
+
+==========================================================================================
+TỔ HỢP h=5 target=P — bắt đầu 01:56:24
+  [OK] run_quyluat.py  (138s) -> quyluat_h5_P.json
+  [OK] run_h2_motif.py  (19s) -> h2_motif_h5_P.json
+  [OK] run_h3_rulelist.py  (13s) -> h3_rulelist_h5_P.json
+  [OK] run_h5_chedo.py  (507s) -> h5_chedo_h5_P.json
+  [OK] run_h6_hmm.py  (43s) -> h6_hmm_h5_P.json
+  [OK] run_h7_matrixprofile.py  (74s) -> h7_matrixprofile_h5_P.json
+  [OK] run_h8_tintuc.py  (21s) -> h8_tintuc_h5_P.json
+  [OK] run_h8b_embedding.py  (43s) -> h8b_embedding_h5_P.json
+  [OK] run_h8c_chude.py  (17s) -> h8c_chude_h5_P.json
+  [OK] run_h8e_llm.py  (20s) -> h8e_llm_h5_P.json
+  [OK] run_spa_ho2.py  (133s) -> spa_ho2_h5_P.json
+TỔ HỢP h=5 target=P — xong 02:13:33
+
+==========================================================================================
+TỔ HỢP h=20 target=R — bắt đầu 02:13:33
+  [OK] run_quyluat.py  (180s) -> quyluat_h20_R.json
+  [OK] run_h2_motif.py  (17s) -> h2_motif_h20_R.json
+  [OK] run_h3_rulelist.py  (10s) -> h3_rulelist_h20_R.json
+  [OK] run_h5_chedo.py  (461s) -> h5_chedo_h20_R.json
+  [OK] run_h6_hmm.py  (27s) -> h6_hmm_h20_R.json
+  [OK] run_h7_matrixprofile.py  (44s) -> h7_matrixprofile_h20_R.json
+  [OK] run_h8_tintuc.py  (11s) -> h8_tintuc_h20_R.json
+  [OK] run_h8b_embedding.py  (29s) -> h8b_embedding_h20_R.json
+  [OK] run_h8c_chude.py  (9s) -> h8c_chude_h20_R.json
+  [OK] run_h8e_llm.py  (11s) -> h8e_llm_h20_R.json
+Sao lưu baseline h=1×P gốc trước khi bắt đầu...
+
+##########################################################################################
+BẮT ĐẦU 5 tổ hợp — 2026-09-14 02:31:53
+
+==========================================================================================
+TỔ HỢP h=1 target=R — bắt đầu 02:31:53
+  [BỎ QUA — đã có] run_quyluat.py -> quyluat_h1_R.json
+  [BỎ QUA — đã có] run_h2_motif.py -> h2_motif_h1_R.json
+  [BỎ QUA — đã có] run_h3_rulelist.py -> h3_rulelist_h1_R.json
+  [BỎ QUA — đã có] run_h5_chedo.py -> h5_chedo_h1_R.json
+  [BỎ QUA — đã có] run_h6_hmm.py -> h6_hmm_h1_R.json
+  [BỎ QUA — đã có] run_h7_matrixprofile.py -> h7_matrixprofile_h1_R.json
+  [BỎ QUA — đã có] run_h8_tintuc.py -> h8_tintuc_h1_R.json
+  [BỎ QUA — đã có] run_h8b_embedding.py -> h8b_embedding_h1_R.json
+  [BỎ QUA — đã có] run_h8c_chude.py -> h8c_chude_h1_R.json
+  [BỎ QUA — đã có] run_h8e_llm.py -> h8e_llm_h1_R.json
+  [BỎ QUA — đã có] run_spa_ho2.py -> spa_ho2_h1_R.json
+TỔ HỢP h=1 target=R — xong 02:31:53
+
+==========================================================================================
+TỔ HỢP h=5 target=R — bắt đầu 02:31:53
+  [BỎ QUA — đã có] run_quyluat.py -> quyluat_h5_R.json
+  [BỎ QUA — đã có] run_h2_motif.py -> h2_motif_h5_R.json
+  [BỎ QUA — đã có] run_h3_rulelist.py -> h3_rulelist_h5_R.json
+  [BỎ QUA — đã có] run_h5_chedo.py -> h5_chedo_h5_R.json
+  [BỎ QUA — đã có] run_h6_hmm.py -> h6_hmm_h5_R.json
+  [BỎ QUA — đã có] run_h7_matrixprofile.py -> h7_matrixprofile_h5_R.json
+  [BỎ QUA — đã có] run_h8_tintuc.py -> h8_tintuc_h5_R.json
+  [BỎ QUA — đã có] run_h8b_embedding.py -> h8b_embedding_h5_R.json
+  [BỎ QUA — đã có] run_h8c_chude.py -> h8c_chude_h5_R.json
+  [BỎ QUA — đã có] run_h8e_llm.py -> h8e_llm_h5_R.json
+  [BỎ QUA — đã có] run_spa_ho2.py -> spa_ho2_h5_R.json
+TỔ HỢP h=5 target=R — xong 02:31:53
+
+==========================================================================================
+TỔ HỢP h=5 target=P — bắt đầu 02:31:53
+  [BỎ QUA — đã có] run_quyluat.py -> quyluat_h5_P.json
+  [BỎ QUA — đã có] run_h2_motif.py -> h2_motif_h5_P.json
+  [BỎ QUA — đã có] run_h3_rulelist.py -> h3_rulelist_h5_P.json
+  [BỎ QUA — đã có] run_h5_chedo.py -> h5_chedo_h5_P.json
+  [BỎ QUA — đã có] run_h6_hmm.py -> h6_hmm_h5_P.json
+  [BỎ QUA — đã có] run_h7_matrixprofile.py -> h7_matrixprofile_h5_P.json
+  [BỎ QUA — đã có] run_h8_tintuc.py -> h8_tintuc_h5_P.json
+  [BỎ QUA — đã có] run_h8b_embedding.py -> h8b_embedding_h5_P.json
+  [BỎ QUA — đã có] run_h8c_chude.py -> h8c_chude_h5_P.json
+  [BỎ QUA — đã có] run_h8e_llm.py -> h8e_llm_h5_P.json
+  [BỎ QUA — đã có] run_spa_ho2.py -> spa_ho2_h5_P.json
+TỔ HỢP h=5 target=P — xong 02:31:53
+
+==========================================================================================
+TỔ HỢP h=20 target=R — bắt đầu 02:31:53
+  [BỎ QUA — đã có] run_quyluat.py -> quyluat_h20_R.json
+  [BỎ QUA — đã có] run_h2_motif.py -> h2_motif_h20_R.json
+  [BỎ QUA — đã có] run_h3_rulelist.py -> h3_rulelist_h20_R.json
+  [BỎ QUA — đã có] run_h5_chedo.py -> h5_chedo_h20_R.json
+  [BỎ QUA — đã có] run_h6_hmm.py -> h6_hmm_h20_R.json
+  [BỎ QUA — đã có] run_h7_matrixprofile.py -> h7_matrixprofile_h20_R.json
+  [BỎ QUA — đã có] run_h8_tintuc.py -> h8_tintuc_h20_R.json
+  [BỎ QUA — đã có] run_h8b_embedding.py -> h8b_embedding_h20_R.json
+  [BỎ QUA — đã có] run_h8c_chude.py -> h8c_chude_h20_R.json
+  [BỎ QUA — đã có] run_h8e_llm.py -> h8e_llm_h20_R.json
+  [OK] run_spa_ho2.py  (184s) -> spa_ho2_h20_R.json
+TỔ HỢP h=20 target=R — xong 02:34:57
+
+==========================================================================================
+TỔ HỢP h=20 target=P — bắt đầu 02:34:57
+  [OK] run_quyluat.py  (186s) -> quyluat_h20_P.json
+  [OK] run_h2_motif.py  (22s) -> h2_motif_h20_P.json
+  [OK] run_h3_rulelist.py  (15s) -> h3_rulelist_h20_P.json
+  [OK] run_h5_chedo.py  (634s) -> h5_chedo_h20_P.json
+  [OK] run_h6_hmm.py  (57s) -> h6_hmm_h20_P.json
+  [OK] run_h7_matrixprofile.py  (65s) -> h7_matrixprofile_h20_P.json
+  [OK] run_h8_tintuc.py  (20s) -> h8_tintuc_h20_P.json
+  [OK] run_h8b_embedding.py  (111s) -> h8b_embedding_h20_P.json
+  [OK] run_h8c_chude.py  (14s) -> h8c_chude_h20_P.json
+  [OK] run_h8e_llm.py  (17s) -> h8e_llm_h20_P.json
+  [OK] run_spa_ho2.py  (125s) -> spa_ho2_h20_P.json
+TỔ HỢP h=20 target=P — xong 02:56:04
+
+XONG TẤT CẢ 5 tổ hợp — tổng 24.2 phút

@@ -1,0 +1,83 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.615,
+  "T_SPA": 1.318428229840646,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "motif L=10 cụm 0",
+  "dbar_tot": 0.0015260426006714486
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 7,
+  "n_va": 3282,
+  "p": 0.66,
+  "T_SPA": 1.0814605803498778,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "lá CART #4",
+  "dbar_tot": 0.0007606007181232816
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.935,
+  "T_SPA": 2.305992020219261,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "khoảng cách EMA50 cao & TSMOM 20 cao [tự-tương-quan dương]",
+  "dbar_tot": 0.0016409085865773995
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 0.346,
+  "T_SPA": 0.7186247960754635,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "HMM K=2 trạng thái 1",
+  "dbar_tot": 0.0005795852137551725
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=20 cao",
+  "dbar_tot": -0.00029631224738640646
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.197,
+  "T_SPA": 2.0952837877846577,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "thay đổi câu chữ vừa [5 phiên sau]",
+  "dbar_tot": 0.0015646413508130382
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.878,
+  "T_SPA": 0.6324088188449377,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 vừa [1 phiên sau]",
+  "dbar_tot": 2.6857692896294147e-05
+ },
+ "H8c_chude_FOMC": {
+  "n_ung_vien": 3,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "chủ đề việc làm [5 phiên sau]",
+  "dbar_tot": -4.5325267585710016e-05
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 0.694,
+  "T_SPA": 0.8608575363504345,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "điều hướng=hon_hop [5 phiên sau]",
+  "dbar_tot": 0.0006740316396376825
+ }
+}

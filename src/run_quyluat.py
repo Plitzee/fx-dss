@@ -63,7 +63,13 @@ from volfc import merge_thin_days                          # noqa: E402
 
 H = 1
 NPERM = 1000
-KHOI = 5                    # do dai khoi cho hoan vi — giu tinh dai
+# do dai khoi cho hoan vi — giu tinh dai. O h=1, cua so muc tieu khong chong
+# lan nen KHOI=5 (tuan giao dich) la du. O h=5/20, cac cua so r_h[t]/r_h[t+1]
+# CHONG LAN h-1 ngay, tao tu tuong quan MA(h-1) manh hon — khoi qua ngan se
+# lam null hoan vi khong con giu dung tinh dai, phong dai sai lam loai I.
+# Tang KHOI theo h (toi thieu bang h) khi QUYLUAT_H > 1 — quyet dinh phuong
+# phap luan, doc them trong bao cao dieu tra h=5/h=20 (phien 14/09/2026).
+KHOI = max(5, int(os.environ.get("QUYLUAT_H", "1")))
 MIN_KHOP = 100              # so lan khop toi thieu (REPLAN muc 3.5)
 LIFT_LOPO = 1.15            # nguong lift tren cap bi giu lai
 MIN_CAP_DUONG = 4           # so cap phai duong / 6
@@ -403,15 +409,39 @@ def nhan_to_usd(Ms, dts):
     return [nt.reindex(pd.DatetimeIndex(d)).values for d in dts]
 
 
+def _h_muc_tieu_tu_moi_truong():
+    """Doc tam han/muc tieu tu bien moi truong QUYLUAT_H / QUYLUAT_TARGET —
+    mac dinh h=1, target=P giu NGUYEN hanh vi cu cho moi lenh goi
+    `nap_du_lieu()` khong doi (9 script H2/H3/H5/H6/H7/H8x/spa_ho2 deu goi
+    khong tham so). Dung bien moi truong thay vi doi chu ky ham de KHONG
+    phai sua lai ca 9 file goi ham nay."""
+    h = int(os.environ.get("QUYLUAT_H", "1"))
+    mt = os.environ.get("QUYLUAT_TARGET", "P")
+    assert h in (1, 5, 20), f"QUYLUAT_H phai la 1/5/20, dang la {h}"
+    assert mt in ("P", "R"), f"QUYLUAT_TARGET phai la P/R, dang la {mt}"
+    return h, mt
+
+
 def nap_du_lieu():
     """Nap toan bo du lieu + bo kiem soat dung chung cho Giai doan 2.
 
     Tach ra tu main() de cac ho H2/H3/H5 (run_h2_*.py, run_h3_*.py, run_h5_*.py)
     dung LAI dung mot lan nap, khong copy-paste — tranh sai lech giao thuc giua
     cac ho. Tra ve dict voi moi thu can de tu dung dac_trung/roi_rac/vet_can/
-    westfall_young/doi_chung cho MOT khong gian gia thuyet MOI."""
+    westfall_young/doi_chung cho MOT khong gian gia thuyet MOI.
+
+    QUAN TRONG — chong ro ri khi tam han (h) khac 1: dac trung `zs` (dung de
+    dung vi tu — dac_trung(), cua so motif, tim analog Matrix Profile) LUON
+    tinh o h=1, BAT KE tam han cua NHAN (y) la bao nhieu. Neu dung chung mot
+    loi goi B.dung_muc_tieu(d, h, tr) cho ca hai thi voi h=5/20, dac trung se
+    "nhin thay" h-1 ngay tuong lai (vi T["z"] la loi suat CHUAN HOA cua CUA SO
+    [t, t+h-1]) — day chinh la loi ro ri da duoc kiem_h3.py:muc_tieu() tranh
+    tu truoc bang cach tach rieng loi goi cho nhan; ham nay ap dung dung mau
+    do cho toan bo Giai doan 2."""
     from api.main import noi_chuoi
     import optimal_stop as OS
+
+    h, muc_tieu = _h_muc_tieu_tu_moi_truong()
 
     Ms, sigs, zs, ys, caps, dts = [], [], [], [], [], []
     for p in B.PAIRS:
@@ -423,11 +453,13 @@ def nap_du_lieu():
         zt[1:] = np.log(c[1:] / np.maximum(c[:-1], EPS)) / np.maximum(sig[1:], EPS)
         d["zT"] = zt
         tr = doan(d.Date.values) == 0
-        T = B.dung_muc_tieu(d, H, tr)
-        # DICH mot phien: dac trung cua ngay t noi ve lop cua ngay t+1
+        T1 = B.dung_muc_tieu(d, 1, tr)          # dac trung zs — LUON h=1
+        Th = T1 if h == 1 else B.dung_muc_tieu(d, h, tr)   # nhan y — tam han yeu cau
+        yy = Th["yP"] if muc_tieu == "P" else Th["yR"]
+        # DICH mot phien: dac trung cua ngay t noi ve lop cua ngay t+1..t+h
         yv = np.full(len(m), -1)
-        yv[:-1] = T["yP"][1:]
-        Ms.append(m); sigs.append(sig); zs.append(T["z"]); ys.append(yv)
+        yv[:-1] = yy[1:]
+        Ms.append(m); sigs.append(sig); zs.append(T1["z"]); ys.append(yv)
         caps.append(np.full(len(m), p)); dts.append(d.Date.values)
 
     y = np.concatenate(ys)

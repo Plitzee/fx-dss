@@ -1,0 +1,12 @@
+{
+ "pair": "USDCAD",
+ "n_train": 3124,
+ "n_chon_epoch": 328,
+ "n_bao_cao": 329,
+ "qlike_har": -9.858022,
+ "qlike_har_cnn": -10.096004,
+ "chenh_phan_tram": -2.4141,
+ "dm_t": 4.5166,
+ "dm_p": 0.0,
+ "ket_luan": "CNN cải thiện có ý nghĩa (p<0,05)"
+}

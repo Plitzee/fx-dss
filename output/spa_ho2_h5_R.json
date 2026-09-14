@@ -1,0 +1,83 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.002,
+  "T_SPA": 3.8513768014493626,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "motif L=5 cụm 1",
+  "dbar_tot": 0.00479992096859619
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 7,
+  "n_va": 3282,
+  "p": 0.003,
+  "T_SPA": 3.513732968624958,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "lá CART #6",
+  "dbar_tot": 0.012697365401801209
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.02,
+  "T_SPA": 4.2370930596233105,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "ATR phân vị cao [tự-tương-quan dương]",
+  "dbar_tot": 0.008386012457401695
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 0.007,
+  "T_SPA": 2.8084900585789625,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "HMM K=4 trạng thái 1",
+  "dbar_tot": 0.0042958112847192136
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 0.0,
+  "T_SPA": 4.4706633619705665,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=20 thấp",
+  "dbar_tot": 0.015180512691096524
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.049,
+  "T_SPA": 2.732559283501764,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "thay đổi câu chữ vừa [5 phiên sau]",
+  "dbar_tot": 0.003336769426718652
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.051,
+  "T_SPA": 2.7557961777972557,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 thấp [5 phiên sau]",
+  "dbar_tot": 0.004375001410005411
+ },
+ "H8c_chude_FOMC": {
+  "n_ung_vien": 3,
+  "n_va": 3282,
+  "p": 0.039,
+  "T_SPA": 2.3439897686901814,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "chủ đề lạm phát [5 phiên sau]",
+  "dbar_tot": 0.004114706379882621
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 0.056,
+  "T_SPA": 2.552358374722067,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "phụ thuộc dữ liệu=manh [5 phiên sau]",
+  "dbar_tot": 0.0038197401718236324
+ }
+}

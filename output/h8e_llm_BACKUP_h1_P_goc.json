@@ -1,0 +1,37 @@
+{
+ "khong_gian": 51,
+ "du_khop": 17,
+ "tho": 4,
+ "wy": 0,
+ "sau_dieu_kien": 0,
+ "sau_lopo": 0,
+ "xac_nhan": 0,
+ "quy_luat": [],
+ "n_nhan": 129,
+ "cua_so": [
+  1,
+  5
+ ],
+ "schema": {
+  "dieu_huong": [
+   "dieu_hau",
+   "bo_cau",
+   "trung_lap",
+   "hon_hop"
+  ],
+  "bat_dinh": [
+   "thap",
+   "trung_binh",
+   "cao"
+  ],
+  "thay_doi_lap_truong": [
+   "co",
+   "khong"
+  ],
+  "phu_thuoc_du_lieu": [
+   "manh",
+   "vua",
+   "yeu"
+  ]
+ }
+}

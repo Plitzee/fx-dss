@@ -1,0 +1,154 @@
+{
+ "ma": "ECB",
+ "phan_ung": "EURUSD",
+ "hiep_bien": "USDCAD",
+ "pre_n": 30,
+ "post_n": 3,
+ "ket_qua": [
+  {
+   "ngay": "2021-06-10",
+   "hieu_ung_trung_binh": 0.0882,
+   "p_gia_tri": 0.3037,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2021-07-22",
+   "hieu_ung_trung_binh": 0.0347,
+   "p_gia_tri": 0.4086,
+   "q_fdr": 0.4459,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2021-09-09",
+   "hieu_ung_trung_binh": -0.1039,
+   "p_gia_tri": 0.2867,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2021-10-28",
+   "hieu_ung_trung_binh": 0.6608,
+   "p_gia_tri": 0.0,
+   "q_fdr": 0.0,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2021-12-16",
+   "hieu_ung_trung_binh": 0.0077,
+   "p_gia_tri": 0.4875,
+   "q_fdr": 0.4875,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2022-02-03",
+   "hieu_ung_trung_binh": 0.7441,
+   "p_gia_tri": 0.0,
+   "q_fdr": 0.0,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2022-03-10",
+   "hieu_ung_trung_binh": 0.4005,
+   "p_gia_tri": 0.0519,
+   "q_fdr": 0.1298,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2022-04-14",
+   "hieu_ung_trung_binh": -0.1642,
+   "p_gia_tri": 0.2268,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2022-06-09",
+   "hieu_ung_trung_binh": 0.3395,
+   "p_gia_tri": 0.02,
+   "q_fdr": 0.0571,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2022-07-21",
+   "hieu_ung_trung_binh": 0.5386,
+   "p_gia_tri": 0.001,
+   "q_fdr": 0.0033,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2022-09-08",
+   "hieu_ung_trung_binh": 0.4696,
+   "p_gia_tri": 0.001,
+   "q_fdr": 0.0033,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2022-10-27",
+   "hieu_ung_trung_binh": -0.085,
+   "p_gia_tri": 0.2727,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2022-12-15",
+   "hieu_ung_trung_binh": 0.037,
+   "p_gia_tri": 0.4236,
+   "q_fdr": 0.4459,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2023-02-02",
+   "hieu_ung_trung_binh": 0.4636,
+   "p_gia_tri": 0.0,
+   "q_fdr": 0.0,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2023-03-16",
+   "hieu_ung_trung_binh": -0.0603,
+   "p_gia_tri": 0.3856,
+   "q_fdr": 0.4459,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2023-05-04",
+   "hieu_ung_trung_binh": 0.1022,
+   "p_gia_tri": 0.3307,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2023-06-15",
+   "hieu_ung_trung_binh": 0.2617,
+   "p_gia_tri": 0.1768,
+   "q_fdr": 0.3929,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2023-07-27",
+   "hieu_ung_trung_binh": 0.8613,
+   "p_gia_tri": 0.001,
+   "q_fdr": 0.0033,
+   "co_y_nghia_fdr": true
+  },
+  {
+   "ngay": "2023-09-14",
+   "hieu_ung_trung_binh": 0.1097,
+   "p_gia_tri": 0.3207,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  },
+  {
+   "ngay": "2023-10-26",
+   "hieu_ung_trung_binh": 0.1512,
+   "p_gia_tri": 0.2527,
+   "q_fdr": 0.4134,
+   "co_y_nghia_fdr": false
+  }
+ ],
+ "tom_tat": {
+  "n": 20,
+  "n_y_nghia_fdr": 6,
+  "n_cung_chieu_duong": 6
+ }
+}

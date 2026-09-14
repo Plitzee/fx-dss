@@ -1,0 +1,17 @@
+{
+ "khong_gian": 54,
+ "du_khop": 18,
+ "tho": 11,
+ "wy": 0,
+ "sau_dieu_kien": 0,
+ "sau_lopo": 0,
+ "xac_nhan": 0,
+ "quy_luat": [],
+ "n_thong_cao": 129,
+ "cua_so": [
+  1,
+  5
+ ],
+ "mo_hinh": "sentence-transformers/all-MiniLM-L6-v2",
+ "n_pc": 3
+}

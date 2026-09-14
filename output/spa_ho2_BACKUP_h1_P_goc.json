@@ -1,0 +1,83 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.99,
+  "T_SPA": 0.49534958276858454,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "motif L=20 cụm 0",
+  "dbar_tot": 0.0005560320224756378
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 8,
+  "n_va": 3282,
+  "p": 0.59,
+  "T_SPA": 0.9990731695550126,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "lá CART #6",
+  "dbar_tot": 0.0008488022209427646
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.872,
+  "T_SPA": 2.4673898851449176,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "|z| hôm nay cao & tính dai vol thấp [trung tính]",
+  "dbar_tot": 0.0010994495308226599
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "HMM K=3 trạng thái 2",
+  "dbar_tot": 0.0
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 0.972,
+  "T_SPA": 0.1022161396619179,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=10 cao",
+  "dbar_tot": 8.420067336317886e-05
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.162,
+  "T_SPA": 2.106795944880266,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "giọng điệu vừa [1 phiên sau]",
+  "dbar_tot": 0.0005568608143366791
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.861,
+  "T_SPA": 0.7240443580874028,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 vừa [1 phiên sau]",
+  "dbar_tot": 9.603682764087113e-05
+ },
+ "H8c_chude_FOMC": {
+  "n_ung_vien": 3,
+  "n_va": 3282,
+  "p": 0.669,
+  "T_SPA": 0.13120459501579598,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "chủ đề việc làm [5 phiên sau]",
+  "dbar_tot": 2.887171156604695e-05
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 1.0,
+  "T_SPA": 0.0,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "điều hướng=bo_cau [1 phiên sau]",
+  "dbar_tot": 0.0
+ }
+}

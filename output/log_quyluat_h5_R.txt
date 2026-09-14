@@ -1,0 +1,15 @@
+================================================================================================================
+GIAI ĐOẠN 2 — KHAI PHÁ QUY LUẬT
+================================================================================================================
+bộ kiểm soát: σ̂ (9 biến giả phân vị × mỗi cặp), TSMOM 20, nhân tố đô-la, carry — 25,858/25,978 hàng đủ cả bốn
+6 cặp · 25,978 hàng
+KHÔNG GIAN GIẢ THUYẾT: 630 vị từ × 3 lớp = 1,890 giả thuyết — liệt kê đầy đủ, biết trước
+phát hiện 18,306 hàng · xác nhận 4,336 hàng
+
+[1/4] Westfall–Young, 1000 hoán vị, null khối 5 ngày…
+      ngưỡng max|z| null khối: 90% 4.89 · 95% 5.24 · 99% 5.78
+      583/630 vị từ đủ 100 lần khớp
+      sống sót W-Y p<0,05: 0 / thô p<0,05: 273 (nếu toàn nhiễu kỳ vọng 87)
+
+→ KHÔNG vị từ nào sống sót hiệu chỉnh bội.
+TỰ KIỂM ĐẠT

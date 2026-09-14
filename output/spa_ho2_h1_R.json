@@ -1,0 +1,83 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.0,
+  "T_SPA": 3.967436096671123,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "motif L=10 cụm 3",
+  "dbar_tot": 0.004722325574142092
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 8,
+  "n_va": 3282,
+  "p": 0.0,
+  "T_SPA": 4.193871550153834,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "lá CART #5",
+  "dbar_tot": 0.009860289186800845
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.054,
+  "T_SPA": 3.899108003460903,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "σ̂ cao [trung tính]",
+  "dbar_tot": 0.005612406069987434
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 0.001,
+  "T_SPA": 3.9773645956336656,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "HMM K=4 trạng thái 1",
+  "dbar_tot": 0.005586044662633348
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 0.0,
+  "T_SPA": 5.189215563656176,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "khoảng cách analog gần nhất L=20 thấp",
+  "dbar_tot": 0.014120183081432227
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.184,
+  "T_SPA": 2.1738136574042612,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "giọng điệu cao [5 phiên sau]",
+  "dbar_tot": 0.0030730761887064182
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.113,
+  "T_SPA": 2.293779457627065,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 thấp [5 phiên sau]",
+  "dbar_tot": 0.003597195133234127
+ },
+ "H8c_chude_FOMC": {
+  "n_ung_vien": 3,
+  "n_va": 3282,
+  "p": 0.045,
+  "T_SPA": 2.2303698844533075,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "chủ đề lạm phát [5 phiên sau]",
+  "dbar_tot": 0.003484974491161872
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 0.1,
+  "T_SPA": 2.311598546293584,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "phụ thuộc dữ liệu=manh [5 phiên sau]",
+  "dbar_tot": 0.003635829522145547
+ }
+}

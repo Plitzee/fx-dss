@@ -210,6 +210,16 @@ kiểm định. Bảng dưới đây đếm đến ngày chốt 08/09/2026.
 | 44 | 12/09/2026 | **Pha 3B — CAUSALITY-AWARE đầy đủ theo `03_PHASE_3_CAUSALITY_AWARE.md`** (`collect/ngoai_sinh.py`, `src/pha3b_{dactrung,granger,ablation,mdes}.py`): 11 biến / 6 họ, 9 chuỗi FRED theo **NGÀY**, 6 biến đổi × lag {1,2,5} = 186 đặc trưng; Level 1 hữu ích dự báo → Level 2 Granger (W-Y maxT từng bước, null khối 5, 1.000 hoán vị) → Level 3 PCMCI rút gọn; ablation B0/E1/E2/E3/E4 trên **cả ba trục**. Biến, không gian giả thuyết, tiêu chí phán quyết, khai báo lực, và quyết định niêm phong CHỐT TRƯỚC ở `docs/PHA3B_TIEUCHI.md` (commit e88ae66) | **594 giả thuyết + 5 cấu hình** | **PHÁN QUYẾT TÁCH ĐÔI.** (a) Week 2 **DƯƠNG** — **14/594 sống sót Westfall–Young VÀ màn lọc độ vững** (6/6 cặp, 12/12 năm cùng dấu), lần đầu trong toàn dự án; hệ số thổi phồng đo được **7,1 lần** (214 thô so kỳ vọng 30). Toàn bộ 14 nằm trên **trục biên độ**; trục hướng 0/198 (p W-Y tốt nhất 1,000), trục rủi ro 0/198. (b) Week 3 **ÂM** — không cấu hình nào thắng B0 trên kiểm tra: E1 +19,9% (p<0,0001), E2 +4,0% (p=0,032), E3 +0,8% (p=0,746), E4 +0,2%. (c) **Câu hỏi trung tâm DƯƠNG**: E3 (lọc nhân quả) hơn E2 (chọn thường) **−3,07%, DM p=0,0010**; giảm một nửa độ trôi kiểm định→kiểm tra (10,1 → 5,0 điểm). Cơ chế đã đo: E2 chọn biến vĩ mô đang **trôi** (DGS2 lệch **4,54 sd** giữa hai đoạn), màn lọc độ vững loại chúng. (d) MDES **≈1,0% QLIKE** (lực 91,3% qua cửa W-Y thật), đối chứng âm 0,0%. Kiểm hiệu đính ALFRED: VIXCLS **có** 4/3.914 giá trị bị sửa (0,102%, dưới ngưỡng) — bác giả định "chuỗi thị trường không hiệu đính". Kiểm cắt tương lai 0/3.148.236. **KHÔNG mở niêm phong** (quy tắc chốt trước: chỉ mở nếu DƯƠNG). Xem `docs/PHA3B_KETQUA.md` |
 
 | 44b | 12/09/2026 | **Chẩn đoán** tách `su_kien_phi_nhtw` thành NFP và phần còn lại (chẩn đoán của biến ĐÃ KHAI BÁO, cùng quy ước `run_m2_vung.py`) | **0** (không cấu hình mới) | Phần vững duy nhất là **NFP dùng ngày công bố THẬT** thay cho quy tắc "thứ Sáu đầu tháng" của B0: **−0,43% QLIKE kiểm tra, DM p<0,0001**, tốt hơn trên cả kiểm định lẫn kiểm tra. Các công bố khác NFP thắng kiểm định (0,1525) nhưng **thua kiểm tra** (+2,29%). Đây là bản vá **chất lượng dữ liệu** cho B0, không phải thông tin ngoại sinh mới — đúng như `KEHOACH_2026Q4.md` dự đoán trước khi có dữ liệu |
+
+> **Ghi chú chuẩn bị ký (thêm 14/09/2026, không đổi nội dung nào ở trên):**
+> bốn dòng tiếp theo (48–51), ngày 13/09/2026, nằm SAU ngày chốt 08/09/2026 ở
+> mục 4.6 — về bản chất đều là "thay đổi sau ngày chốt theo quy tắc 3" giống
+> các dòng 45–47 và mục (1)–(4) bên dưới, dù xuất hiện TRƯỚC tiêu đề đó trong
+> bảng vì được thêm vào trình tự đánh số liên tục thay vì chèn sau tiêu đề.
+> Đã gộp đúng vào bảng tổng kết hiệu chỉnh bội cuối trang (dòng "~1.322").
+> Xem mục (5) bổ sung bên dưới mục (4) để có tường thuật đầy đủ cho cả bốn
+> dòng này trước khi ký.
+
 | 48 | 13/09/2026 | **Vá đuôi — HƯỚNG THỨ NĂM: EVT/POT** (`va_duoi_evt.py`), sơ đồ McNeil & Frey (2000) *J. Empirical Finance* 7(3–4):271–300 — lọc HAR rồi khớp GPD cho phần vượt ngưỡng của z. Giả thuyết H10, 5 biến thể, **quy tắc chọn LIÊN TỤC** (vì mục 5e đã chứng minh đạt/KHÔNG bị mù) và tiêu chí phủ định CHỐT TRƯỚC ở `docs/DUOI_EVT.md` (commit afa284a). Tự kiểm GPD lệch 0,38–0,46% so nghiệm giải tích | **5** | **KHÔNG đổi sản xuất — nhưng là hướng duy nhất trong năm làm dịch chuyển được đuôi.** (a) **H10 BỊ BÁC BỎ**: ξ > 0 chỉ **2/6** cặp (EURUSD −0,055 · USDJPY −0,039 · AUDUSD −0,110 · USDCAD −0,107). Phát hiện: sau chuẩn hoá bằng σ̂ của HAR, đuôi dưới của z **gần hàm số (ξ≈0), không phải luỹ thừa** — phần “đuôi dày” của FX phần lớn là co cụm biến động, HAR đã hút hết. (b) Kiểm định: **cả 4 biến thể EVT thắng mốc** (S: V0 0,3722 → E2 0,2308), điều kiện mở kiểm tra thoả → mở **một lần** bằng cờ tường minh `--mo-kiem-tra`. (c) Phán quyết: ĐK1 ĐẠT (8/12) · **ĐK2 TRƯỢT** (E2 làm hỏng USDCHF α=5%) · **ĐK3 TRƯỢT** (ξ 2/6) → không đủ điều kiện dương. (d) Nhưng trên **đúng hai ô đang hỏng**: USDJPY α=1% Kupiec **0,005 → 0,198** (E3), tỷ lệ ES 0,813 → 0,937; USDCHF tỷ lệ ES **1,131 → 1,008** (E1/E2). **DQ vẫn bác bỏ cả hai** — xác nhận chẩn đoán 5e bằng cơ chế độc lập: khiếm khuyết là **động học đuôi**, ước lượng đuôi tốt hơn không sửa được. (e) Theo thước đo liên tục EVT thắng **cả trên kiểm tra** (V0 0,4913 → E3 0,2749, giảm 44%). (f) **Khai báo lỗi của chính văn bản chốt trước**: mục 5 lập luận nhị phân bị mù nhưng mục 6 lại viết ĐK1/ĐK2 bằng đếm nhị phân — không nhất quán nội tại. Vẫn giữ phán quyết theo đúng chữ của mục 6; không sửa tiêu chí sau khi thấy số. (g) Cơ chế thật khác cơ chế chốt trước: lợi ích đến từ **giảm phương sai ước lượng** (251 điểm vượt ngưỡng so ~7 thống kê thứ tự), không từ ngoại suy đuôi dày — giải thích vì sao 4 hướng trước, đều chỉ đổi cửa sổ, không hướng nào ăn tiền. (h) Lần thứ **tư** chọn-trên-kiểm-định chọn sai: E2 nhất kiểm định nhưng **E3** mới vá được USDJPY. Kèm đính chính `CHISO_DANHGIA.md` mục 5e (ghi sai V1 thành cấu hình sản xuất; thực tế là V0). Xem `docs/DUOI_EVT.md` |
 | 49 | 13/09/2026 | **Bộ lọc chu kỳ nội tuần BCL** (`xay_bcl.py` + `kiem_bcl.py`) — Boudt, Croux & Laurent (2011) *J. Empirical Finance* 18(2):353–367, dựng từ 34,9tr nến M1; hệ số chu kỳ 2.016 ô (7×288) ước **chỉ trên huấn luyện**. Giả thuyết H11, **điều kiện ghi công H11b** (phải hơn đối chứng không lọc) và tiêu chí phủ định CHỐT TRƯỚC ở `docs/BCL_TIEUCHI.md`. Gồm 4 cấu hình chốt trước + **5 cấu hình chẩn đoán thêm sau khi thấy số** (khai báo ở Phụ lục A3/A5) | **9** | **ÂM cho BCL — nhưng phát hiện một khiếm khuyết của chính khung so sánh.** (a) Chu kỳ **có thật**: biên độ max/min 4,06–7,28 ở cả 6 cặp; tự kiểm rò rỉ 0/2016 hệ số đổi. Bộ lọc hoạt động đúng mô tả (phát hiện **ít** nhảy hơn ngưỡng thô: 2,3–3,1 so 4,3–5,9/ngày). (b) **H11b BỊ BÁC BỎ**: P1 có lọc (−6,97%) **kém hơn** P2 không lọc (−8,59%) → **BCL không được ghi công**. (c) **−8,59% là giả**: đối chứng còn thiếu — chỉ thêm `log rv5(t)` thô đã cho **−7,78%**. Gần như toàn bộ cải thiện là "đưa RV ngày t vào hồi quy", không phải tách nhảy. Đã loại trừ rò rỉ trước đó: `rv_kiem` khớp `rv5` panel (trung vị tỉ lệ **1,000**, corr log-log 0,9969), không lệch ngày, đặc trưng không tương quan bất thường với mục tiêu. (d) **PHÁT HIỆN CHÍNH**: khung `log rv(t+1) ~ log h_HAR` — dùng cho **mọi** ablation của dự án (`hhi`, mẫu hình nến, `|gap|`, Pha 3, B0 của Pha 3B) — **thiếu một số hạng đáng ~8% QLIKE** (−7,78% so khung, **−9,78%** so HAR sản xuất chấm trực tiếp). Mọi phát biểu "X cải thiện 0,x%" trước đây đều đo so với mốc tự nó lệch ~8%. (e) **Kiểm lại dưới mốc đã sửa (B1 = B0 + log rv(t))**: `|gap|` **MẠNH LÊN** — −1,20%, **DM p=0,0027** (so −0,67%, p=0,0445 ở khung cũ) → nó **không** là biến đại diện cho RV ngày t mà là thông tin cộng thêm thật. Tách C/J thô **sụp** (−0,48%, p=0,657); C/J BCL **tệ hơn mốc** (+1,35%). (f) **Kỷ luật**: (e) **KHÔNG** đảo phán quyết của `NEN_TIEUCHI.md` — đó là phép thử trong khung KHÁC, đếm là cấu hình mới, phát biểu là bằng chứng **bổ sung**, không cho điểm lại. Nó củng cố khuyến nghị đưa `|gap|` vào danh sách chốt của lần mở niêm phong cuối. Xem `docs/BCL_TIEUCHI.md` Phụ lục A |
 | 50 | 13/09/2026 | **Xếp hạng chéo sáu đồng tiền** (`xep_hang_cheo.py`) — hướng `KEHOACH_2026Q4.md` mục 1.3 ghi "repo chưa thử lần nào", đã xác minh bằng grep toàn repo: **không một dòng mã nào**. Quy đổi 6 cặp về lợi suất đồng X so USD, **khử trung bình ngang mỗi phiên** để triệt tiêu nhân tố đô-la (ρ=0,443). 6 tín hiệu, **cửa chi phí spread đặt TRƯỚC**, tiêu chí phủ định và khai báo lực CHỐT TRƯỚC ở `docs/XEPHANG_TIEUCHI.md`. Văn liệu: Menkhoff, Sarno, Schmeling & Schrimpf (2012) *JFE* 106(3); Lustig, Roussanov & Verdelhan (2011) *RFS* 24(11) | **6** | **ÂM — nhánh thứ 14 cho kết luận âm trên trục hướng, và là nhánh duy nhất đo hướng TƯƠNG ĐỐI.** Tự kiểm rò rỉ 0 giá trị đổi. Tín hiệu được chọn (`mom_12m`) cho rank IC kiểm tra **+0,0121 (t=0,58)** và **lỗ ròng 2,02 bp/phiên** sau chi phí. Không tín hiệu nào có lãi ròng dương đạt ý nghĩa. (a) **`mom_12m` là ca overfit kiểm định mẫu mực**: đạt p=0,024 trên kiểm định (IC 0,0458, t=2,21) rồi sụp còn t=0,58 trên kiểm tra — đúng điều ngẫu nhiên phải tạo ra với 6 giả thuyết. (b) **Dấu của H12 bị bác bỏ ở tầm hạn ngắn**: `mom_1m` cho IC **âm** nhất quán cả hai đoạn (−0,029 / −0,038, t=−1,78) — tức **đảo chiều**, không phải động lượng; nhưng lỗ nhiều nhất (−3,20 bp) vì vòng quay cao. (c) **Cửa chi phí làm đúng việc**: `mom_12m` có IC dương mà vẫn lỗ ròng — không đặt cửa trước thì bảng sẽ bị đọc thành "có tín hiệu yếu" thay vì "không dùng được". Giới hạn đã khai báo trước: chỉ 6 đồng → ngưỡng phát hiện IC ≈ 0,038; kết luận âm **không** phát biểu được thành "động lượng tiền tệ không tồn tại". Xem `docs/XEPHANG_TIEUCHI.md` Phụ lục A |
@@ -272,20 +282,58 @@ văn bản, SPA p càng cao** — thứ tự đơn điệu, nhất quán với g
 tín hiệu nào để bắt (xem `PHA2_TINTUC.md` mục 8b), trả lời RQ5 của roadmap
 Pha 2: không đại diện văn bản nào trong bốn cách mang lại giá trị đo được.
 
+**(5) Bốn nhánh bổ sung 13/09/2026 — dòng 48–51.** Tất cả SAU ngày chốt
+08/09/2026, không cấu hình nào đổi sản xuất, đều đã đếm vào tổng ~1.322:
+
+| dòng | nhánh | giả thuyết/cấu hình | kết quả |
+|---|---|---|---|
+| 48 | EVT/POT cho đuôi VaR/ES (`va_duoi_evt.py`) | 5 | H10 bác bỏ (ξ 2/6); vá được 2 ô hỏng riêng lẻ nhưng trượt ĐK2/ĐK3 gộp — không đổi sản xuất, ứng viên cho lần mở niêm phong cuối |
+| 49 | Bộ lọc chu kỳ nội tuần BCL (`xay_bcl.py`) | 9 | H11b bác bỏ; phát hiện phụ quan trọng hơn: khung mốc `log rv(t+1)~log h_HAR` dùng cho MỌI ablation trước đó lệch ~8% QLIKE — không đổi phán quyết các nhánh trước (đếm là bằng chứng bổ sung trong khung khác) |
+| 50 | Xếp hạng chéo 6 đồng tiền (`xep_hang_cheo.py`) | 6 | ÂM — nhánh thứ 14 cho kết luận âm trên trục hướng; `mom_12m` là ca overfit kiểm định mẫu mực (p=0,024 kiểm định → t=0,58 kiểm tra) |
+| 51 | ML trực tiếp trên đại lượng rủi ro (`ruiro_ml.py`) | 4 | Không đưa vào sản xuất; phát hiện phụ: `decision_record.p_cham_stop` đang chạy sản xuất có ECE tệ hơn hằng số 18 lần — cần người chịu trách nhiệm quyết có vá hay không TRƯỚC khi ký mục 4.6 (xem mục kiểm tra trước khi ký bên dưới) |
+
+Tổng bốn dòng: **24 giả thuyết/cấu hình mới**, không dòng nào đổi cấu hình sản
+xuất ở mục 4. Dòng 51(b) là phát hiện duy nhất trong nhóm này ảnh hưởng tới
+một con số ĐANG HIỂN THỊ cho người dùng — cần quyết định trước khi khoá.
+
+| 52 | 14/09/2026 | **Tam giác hoá nhân quả bằng thư viện gốc** — PCMCI thật (`tigramite`, `pha3b_pcmci_doclap.py`), Double ML (`doubleml`, `pha3b_dml_causal.py`), Causal Forest (`econml`, `pha3b_causal_forest.py`). Cả ba chạy trên biến **ĐÃ khai báo** trong Pha3B (VIXCLS/GVZCLS/DFII10, 11 biến gốc mục 2a của `PHA3B_TIEUCHI.md`) — không đề xuất biến mới, không mở lại không gian giả thuyết 594 đã đóng | **0 cấu hình mới** (chẩn đoán/tam giác hoá trên biến đã khai báo, cùng quy ước dòng 40/44b) | PCMCI thật xác nhận VIX trên 3/3 cặp thử độc lập với Level 2/3; minh hoạ confounding cụ thể (GVZCLS mất ý nghĩa khi điều kiện trên VIXCLS). Double ML: **6/6 cặp** hiệu ứng VIX vững qua Holm — mạnh và nhất quán nhất trong mọi phép tam giác hoá. Causal Forest: hiệu ứng có đổi theo chế độ nhưng **không** theo một khuôn mẫu chung (4/6 cặp CATE tăng theo chế độ căng thẳng). Xem `docs/PHA3B_TAMGIAC_NHANQUA.md` |
+| 53 | 14/09/2026 | **Lớp phủ nhân quả DML trên dự báo sản xuất** (`pha3b_dml_tichhop.py`) — ĐỀ XUẤT MỚI, không phải chẩn đoán: θ ước trên huấn luyện, đóng băng, áp lên σ̂_HAR trên kiểm định (chưa từng thấy), 6 cặp | **6** (1 cấu hình lớp phủ × 6 cặp) | **ÂM.** 4/6 cặp cải thiện QLIKE về hướng, **0/6 có ý nghĩa sau Holm**. Hiệu ứng nhân quả có thật (dòng 52) nhưng mốc HAR đã hấp thụ phần lớn qua chính cấu trúc tự hồi quy — **không đưa vào sản xuất** |
+| 54 | 14/09/2026 | **CausalImpact sự kiện ECB** (`pycausalimpact`, `su_kien_causalimpact.py`, Brodersen et al. 2015) — thí điểm phương pháp thứ ba cho hạng mục "sự kiện theo từng cặp" đã hứa ở đề cương, KHÔNG phải quyết định Pha3B | **20** (20 phiên họp ECB gần nhất, huấn luyện+kiểm định) | 6/20 (30%) có hiệu ứng tăng biến động có ý nghĩa sau FDR-BH, toàn bộ cùng chiều dương. Giới hạn tự khai báo: USDCAD (hiệp biến) không tách biệt hoàn toàn khỏi ECB — thí điểm phương pháp, chưa phải kết luận đóng |
+| 55 | 14/09/2026 | **Nhánh pattern-discovery thứ 14 — CNN mã hoá nến thành ảnh** (`kiem_cnn_nen.py`, Chen & Tsai 2020, *Financial Innovation* 6:26) — khác 13 nhánh trước (đặc trưng số): học trực tiếp trên hình dạng không gian của cửa sổ 10 nến. θ/trọng số CNN khớp trên huấn luyện, epoch chọn trên NỬA ĐẦU kiểm định, báo cáo trên NỬA SAU (chưa từng thấy) — sau khi phát hiện và sửa một lỗi rò rỉ ở lần chạy đầu (chọn epoch và báo cáo dùng chung một đoạn) | **6** (1 kiến trúc × 6 cặp) | **3/6 cặp (AUDUSD, GBPUSD, USDCAD) sống sót Holm VÀ Bonferroni** — nhánh pattern-discovery ĐẦU TIÊN trong toàn dự án (14 nhánh: 12 quy luật + mẫu hình nến K1-K4 + CNN nến, 8.652+600+6=9.258 giả thuyết) vượt qua hiệu chỉnh đa kiểm định trên bất kỳ cặp nào. **Chưa đạt ngưỡng ≥5/6 cặp** mà chính Pha3B/NEN_TIEUCHI đặt ra cho "quan hệ vững" → **chưa đưa vào sản xuất**, ghi nhận là hướng đáng theo đuổi nhất, cần thêm seed/kiến trúc/LOPO trước khi cân nhắc lại. Xem `docs/NEN_CNN_ANH.md` |
+| 56 | 14/09/2026 | **Khai phá quy luật ở h=5, h=20 và mục tiêu R** (`run_giaidoan2_tamhan.py`) — đóng nốt hạng mục Assignment 2 còn treo từ đề cương. Sửa một lỗi rò rỉ trước khi chạy: `nap_du_lieu()` trước đây dùng CHUNG một lời gọi `dung_muc_tieu(d,H,tr)` cho cả đặc trưng lẫn nhãn — với h>1, đặc trưng sẽ nhìn thấy h−1 ngày tương lai. Đã tách riêng (đặc trưng LUÔN h=1, theo đúng mẫu có sẵn ở `kiem_h3.py`), kiểm chứng bằng số, và tăng khối hoán vị theo h | **7.941–7.950/tổ hợp × 5 tổ hợp mới (h1×R, h5×R, h5×P, h20×R, h20×P)** | **0/6 tổ hợp có quy luật sống sót Westfall-Young** — không đổi kết luận sản xuất. NHƯNG Hansen SPA bác bỏ ở **5/54 phép kiểm sau Holm, TOÀN BỘ ở mục tiêu R** (0 ở mục tiêu P, kể cả h=1×P gốc) — câu chữ tiêu chí dừng mục 10.4 REPLAN không thoả mãn tuyệt đối trên mục tiêu R. Cơ chế khả dĩ: mốc "chỉ σ̂" suy biến thành khí hậu học trên R (đúng thiết kế đã ghi ở REPLAN mục 3a), khiến SPA (màn lọc mềm hơn W-Y) nhạy hơn với mốc yếu. Độ lớn kinh tế nhỏ (dbar 0,0047–0,0152) ở cả 5 trường hợp. **Cần người chịu trách nhiệm quyết cách viết** trước khi ký mục 4.6 — xem `docs/GIAIDOAN2_TAMHAN_KETQUA.md` mục 4 |
+
+**Ghi chú của phiên làm việc 14/09/2026 (không phải người chịu trách nhiệm
+luận văn):** năm dòng 52–56 trên do một phiên trợ lý AI thực hiện theo yêu
+cầu "làm cho phần nhân quả hiệu quả và chủ chốt hơn" và "hoàn tất khai phá
+quy luật h=5/h=20". Đã áp dụng đúng kỷ luật đã có của tài liệu này (tách
+huấn luyện/báo cáo, hiệu chỉnh đa kiểm định, không mở lại quyết định đã
+đóng băng) nhưng **KHÔNG có văn bản _TIEUCHI.md chốt trước** cho các dòng
+này như phần lớn các nhánh khác — đây là công việc thăm dò trong phiên,
+không phải giả thuyết đăng ký trước theo đúng nghĩa Westfall-Young. Người
+chịu trách nhiệm luận văn nên tự xác nhận lại cách đếm ở năm dòng này (cột
+4) VÀ quyết định cách viết cho phát hiện SPA ở dòng 56 trước khi coi bảng
+tổng kết bên dưới là số liệu cuối cùng để ký mục 4.6.
+
 ### Tổng kết cho phần hiệu chỉnh bội của luận văn
 
 | khoản | số lượng |
 |---|---|
-| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.322** (685 đến 08/09 + 580 bổ sung 09–11/09 + 7 dòng 42 + 7 dòng 43 + 5 dòng 44 + 4 dòng 45 + 2 dòng 46 + **8 dòng 47**) + **5 dòng 48** | + 9 dòng 49 + 6 dòng 50 + **4 dòng 51** |
+| Cấu hình **mô hình** đã thử trên tập phát triển | **~1.334** (1.322 đến dòng 51 + 6 dòng 53 lớp phủ DML + 6 dòng 55 CNN nến) |
 | Giả thuyết **quy luật** đã liệt kê và kiểm định | **8.652** (12 nhánh độc lập) |
 | Quy luật sống sót toàn bộ phễu bốn cửa | **0** |
 | Lực phát hiện của phễu quy luật (MDES, lực 80%) | lift **1,20** |
 | Dương tính giả trên nhiễu thuần (đối chứng âm) | **0,0 / 1.890** |
 | **Giả thuyết NHÂN QUẢ** đã liệt kê và kiểm định (Pha 3B, dòng 44) | **594** (11 biến × 3 lag × 6 cặp × 3 trục) |
-| **Giả thuyết MẪU HÌNH NẾN** đã liệt kê và kiểm định (dòng 47) | **600** (25 đặc trưng × 2 lag × 6 cặp × 2 trục) |
-| Mẫu hình nến **có tên** sống sót phễu | **0 / 360** |
+| **Giả thuyết MẪU HÌNH NẾN** — cổ điển K1-K4 (dòng 47) + CNN ảnh (dòng 55) | **606** (600 + 6) — nâng tổng lên **14 nhánh** pattern-discovery |
+| Mẫu hình nến **có tên (K3)** sống sót phễu | **0 / 360** |
+| Mẫu hình nến **CNN ảnh** sống sót Holm+Bonferroni | **3 / 6 cặp** — chưa đạt ngưỡng ≥5/6, chưa đưa vào sản xuất |
 | **Quan hệ nhân quả sống sót** W-Y **và** màn lọc độ vững | **14** — toàn bộ trên trục biên độ |
 | Lực phát hiện của phễu nhân quả (MDES, lực 80%) | ≈ **1,0% QLIKE** |
+| Tam giác hoá nhân quả bằng thư viện gốc (dòng 52) | PCMCI 3/3 cặp, **Double ML 6/6 cặp** — hiệu ứng VIX vững nhất trong mọi phép đo |
+| CausalImpact sự kiện ECB, thí điểm (dòng 54, ngoài phễu chính) | 6/20 sự kiện có ý nghĩa sau FDR-BH |
+| **Giả thuyết quy luật bổ sung** — h=5/h=20 và mục tiêu R (dòng 56) | **39.735** (5 tổ hợp × ~7.947, 12 nhánh mỗi tổ hợp) |
+| Quy luật sống sót W-Y ở 5 tổ hợp bổ sung | **0 / 39.735** |
+| Hansen SPA bác bỏ sau Holm, toàn bộ 54 phép kiểm (6 tổ hợp × 9 họ) | **5 / 54 — TOÀN BỘ ở mục tiêu R, 0 ở mục tiêu P** |
 
 Hai con số phải đọc TÁCH NHAU: 8.652 là giả thuyết **quy luật** (phễu khai phá,
 0 sống sót); 594 là giả thuyết **nhân quả** (phễu Pha 3B, 14 sống sót). Chúng
@@ -293,8 +341,35 @@ dùng hai phễu khác nhau, hai loại mục tiêu khác nhau, nên cộng lạ
 
 Con số 8.652 giả thuyết là con số **biết trước và liệt kê đầy đủ**, không phải
 đếm ngược sau khi chạy — đó là điều kiện để Westfall–Young có nghĩa. Con số
-~1.265 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
+~1.334 cấu hình mô hình là lý do mọi kết luận về **mô hình** đều chỉ được phát
 biểu trên đoạn kiểm định, và vì sao tập khoá sổ tồn tại.
+
+*(Sửa 14/09/2026: con số ở đoạn này từng ghi "~1.265", lệch với bảng tổng kết
+ở trên — đã đồng bộ lại. Không có thay đổi nội dung nào khác từ việc sửa này.)*
+
+---
+
+## 6. DANH SÁCH KIỂM TRA TRƯỚC KHI KÝ MỤC 4.6
+
+*Thêm 14/09/2026 theo yêu cầu chuẩn bị biên bản sẵn sàng để ký — KHÔNG tự ý
+ký thay hay mở tập khoá sổ. Đánh dấu ✅/❌ là việc của người chịu trách nhiệm
+luận văn, không phải của phiên làm việc này.*
+
+| # | Điều kiện | Trạng thái tại 14/09/2026 | Bằng chứng |
+|---|---|---|---|
+| 1 | Mục 4 (cấu hình chốt) không còn thay đổi sản xuất nào đang chờ quyết định | ⚠️ **Cần xác nhận** | Dòng 51(b): `decision_record.p_cham_stop` đang chạy sản xuất có ECE tệ hơn hằng số 18 lần — cần người chịu trách nhiệm quyết có vá trước khi khoá hay ghi nhận như giới hạn |
+| 2 | Khai phá quy luật đã đóng đúng tiêu chí dừng ở CẢ BA tầm hạn (h=1, h=5, h=20) | ⚠️ **Một phần — cần quyết định cách viết** | Đã chạy đủ 6 tổ hợp (h×mục tiêu), 0/6 sống sót Westfall-Young — nhưng Hansen SPA bác bỏ ở 5/54 phép kiểm sau Holm, TOÀN BỘ ở mục tiêu R (0 ở mục tiêu P). Câu chữ tiêu chí dừng mục 10.4 REPLAN ("cả năm họ không bác bỏ SPA... trên CẢ HAI mục tiêu") không thoả mãn tuyệt đối. Xem `docs/GIAIDOAN2_TAMHAN_KETQUA.md` mục 4 — cần người chịu trách nhiệm quyết cách viết trước khi ký |
+| 3 | Mọi cấu hình/giả thuyết đã thử trên tập phát triển được đếm vào mục 5 | ✅ Đã cập nhật đến dòng 55 | Bảng tổng kết ở trên, ~1.334 cấu hình + 9.258 giả thuyết pattern + 594 giả thuyết nhân quả |
+| 4 | Không còn ý định "thử thêm rồi mở lại" tập khoá sổ | ⚠️ **Cần xác nhận bằng lời** | Quy tắc 2, mục 3 — đây là cam kết của người ký, không kiểm chứng được bằng code |
+| 5 | Dòng ký ở mục 4.6 còn để trống đúng như chủ đích | ✅ Đúng | Mục 4.6 — chưa có chữ ký |
+| 6 | Tập khoá sổ (`histdata_seal/`) chưa bị bất kỳ script nào chạm | ✅ Đúng tại 14/09/2026 | Không phiên làm việc nào (kể cả phiên hiện tại) đã đọc/copy dữ liệu từ `histdata_seal/` |
+
+**Sau khi cả 6 mục trên đều ✅, và chỉ khi đó**, người chịu trách nhiệm luận
+văn ký vào mục 4.6, rồi mới chạy lệnh mở niêm phong ở mục 2 ("Vị trí trên
+đĩa"). Không có bước nào trong danh sách này được thực hiện thay bởi công cụ
+tự động — đây là các quyết định thuộc về con người theo đúng thiết kế ban
+đầu của biên bản này (mục 4.6: *"người chịu trách nhiệm luận văn ký, không
+phải công cụ điền hộ"*).
 
 ---
 

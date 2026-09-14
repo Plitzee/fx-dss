@@ -1,0 +1,83 @@
+{
+ "H2_motif": {
+  "n_ung_vien": 24,
+  "n_va": 3282,
+  "p": 0.028,
+  "T_SPA": 3.121069134311442,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "motif L=5 cụm 0",
+  "dbar_tot": 0.003773245121816689
+ },
+ "H3_rulelist": {
+  "n_ung_vien": 5,
+  "n_va": 3282,
+  "p": 0.026,
+  "T_SPA": 2.667919004213022,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "lá CART #4",
+  "dbar_tot": 0.00782316849584075
+ },
+ "H5_chedo": {
+  "n_ung_vien": 630,
+  "n_va": 3282,
+  "p": 0.027,
+  "T_SPA": 4.18530890096016,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "Supertrend chiều cao [tự-tương-quan âm]",
+  "dbar_tot": 0.006495446672777858
+ },
+ "H6_hmm": {
+  "n_ung_vien": 6,
+  "n_va": 3282,
+  "p": 0.456,
+  "T_SPA": 0.3839106336521619,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "HMM K=4 trạng thái 1",
+  "dbar_tot": 0.0006551965061746905
+ },
+ "H7_matrixprofile": {
+  "n_ung_vien": 36,
+  "n_va": 3282,
+  "p": 0.018,
+  "T_SPA": 3.1505896169658048,
+  "bac_bo": true,
+  "ung_vien_tot_nhat": "tỷ lệ analog → giảm L=20 cao",
+  "dbar_tot": 0.010012133269084093
+ },
+ "H8_tintuc_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.52,
+  "T_SPA": 1.4631332260315169,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "thay đổi câu chữ vừa [5 phiên sau]",
+  "dbar_tot": 0.0008373711788090268
+ },
+ "H8b_embedding_FOMC": {
+  "n_ung_vien": 18,
+  "n_va": 3282,
+  "p": 0.67,
+  "T_SPA": 1.0270227222159745,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "embedding pc2 vừa [1 phiên sau]",
+  "dbar_tot": 0.00014490424624952525
+ },
+ "H8c_chude_FOMC": {
+  "n_ung_vien": 3,
+  "n_va": 3282,
+  "p": 0.208,
+  "T_SPA": 1.4055874227914094,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "chủ đề việc làm [5 phiên sau]",
+  "dbar_tot": 0.0011126452459640941
+ },
+ "H8e_llm_FOMC": {
+  "n_ung_vien": 17,
+  "n_va": 3282,
+  "p": 0.883,
+  "T_SPA": 0.5957598315471173,
+  "bac_bo": false,
+  "ung_vien_tot_nhat": "điều hướng=hon_hop [5 phiên sau]",
+  "dbar_tot": 0.0007162187856785093
+ }
+}

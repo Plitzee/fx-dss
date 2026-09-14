@@ -1,0 +1,86 @@
+{
+ "AUDUSD": {
+  "pair": "AUDUSD",
+  "theta_huan_luyen": 0.18827,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -8.79317,
+  "qlike_lop_phu": -8.788937,
+  "chenh_phan_tram": 0.0481,
+  "dm_t": -1.2193,
+  "dm_p": 0.2227,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "EURUSD": {
+  "pair": "EURUSD",
+  "theta_huan_luyen": 0.09193,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -9.45702,
+  "qlike_lop_phu": -9.459741,
+  "chenh_phan_tram": -0.0288,
+  "dm_t": 1.2555,
+  "dm_p": 0.2093,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "GBPUSD": {
+  "pair": "GBPUSD",
+  "theta_huan_luyen": 0.14043,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -9.226563,
+  "qlike_lop_phu": -9.235136,
+  "chenh_phan_tram": -0.0929,
+  "dm_t": 0.8298,
+  "dm_p": 0.4067,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "USDJPY": {
+  "pair": "USDJPY",
+  "theta_huan_luyen": 0.10479,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -9.146985,
+  "qlike_lop_phu": -9.17295,
+  "chenh_phan_tram": -0.2839,
+  "dm_t": 1.1483,
+  "dm_p": 0.2508,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "USDCAD": {
+  "pair": "USDCAD",
+  "theta_huan_luyen": 0.15393,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -9.754352,
+  "qlike_lop_phu": -9.752253,
+  "chenh_phan_tram": 0.0215,
+  "dm_t": -0.7238,
+  "dm_p": 0.4692,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "USDCHF": {
+  "pair": "USDCHF",
+  "theta_huan_luyen": 0.06886,
+  "n_train": 2503,
+  "n_valid": 547,
+  "qlike_har": -9.389961,
+  "qlike_lop_phu": -9.39109,
+  "chenh_phan_tram": -0.012,
+  "dm_t": 0.7114,
+  "dm_p": 0.4769,
+  "q_holm": 1.0,
+  "song_sot_holm": false
+ },
+ "_tong_ket": {
+  "n_cai_thien_huong": 4,
+  "n_cap": 6,
+  "n_song_sot_holm": 0,
+  "ket_luan": "4/6 cặp cải thiện QLIKE về HƯỚNG; 0/6 cải thiện CÓ Ý NGHĨA sau Holm"
+ }
+}
