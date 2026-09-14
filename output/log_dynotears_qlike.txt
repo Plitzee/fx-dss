@@ -1,0 +1,30 @@
+====================================================================================================
+DYNOTEARS -> CỘT NGOẠI SINH CHO HAR — đo QLIKE trên đoạn KIỂM ĐỊNH
+(cùng khung đánh giá với spillover_dy.py, đã kiểm D1 lẫn H1 trước đó)
+====================================================================================================
+
+Trọng số cạnh chéo cặp (khớp CHỈ trên huấn luyện):
+             EURUSD   GBPUSD   USDJPY   AUDUSD   USDCAD   USDCHF
+EURUSD        0.000    0.000    0.000    0.000    0.000    0.582
+GBPUSD        0.124    0.000    0.091    0.315    0.084    0.000
+USDJPY        0.148    0.000    0.000    0.000    0.063    0.076
+AUDUSD        0.226    0.000    0.344    0.000    0.494    0.031
+USDCAD        0.145    0.000    0.000    0.000    0.000    0.028
+USDCHF        0.000    0.001    0.000    0.000    0.000    0.000
+
+  EURUSD   (có cạnh chéo cặp vào: True)  không thêm cột=0.1162  spillover DYNOTEARS=0.1163
+
+  GBPUSD   (có cạnh chéo cặp vào: False)  không thêm cột=0.1220  spillover DYNOTEARS=0.1221
+
+  USDJPY   (có cạnh chéo cặp vào: True)  không thêm cột=0.2467  spillover DYNOTEARS=0.2470
+
+  AUDUSD   (có cạnh chéo cặp vào: True)  không thêm cột=0.0989  spillover DYNOTEARS=0.0990
+
+  USDCAD   (có cạnh chéo cặp vào: True)  không thêm cột=0.0829  spillover DYNOTEARS=0.0849
+
+  USDCHF   (có cạnh chéo cặp vào: True)  không thêm cột=0.1019  spillover DYNOTEARS=0.1015
+
+  TRUNG BÌNH 6 CẶP: không thêm cột 0.1281  ·  spillover DYNOTEARS 0.1285
+  → chênh lệch trung bình +0.000348 — quá nhỏ để gọi là cải thiện, không đủ để thay đổi cấu hình sản xuất
+
+đã ghi output/dynotears_qlike.json · 6s
