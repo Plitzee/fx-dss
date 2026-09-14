@@ -175,6 +175,25 @@ def _idx(K, ngay):
     return i
 
 
+def gia_theo_ngay(K, ngay_arr):
+    """Gia dong CUA K['m'] tuong ung tung ngay trong ngay_arr — tra theo
+    NGAY, KHONG dung chung chi so voi K['pan'].
+
+    K['m'] la gia tho DAY DU tu 2010; K['pan'] la panel nghien cuu tu
+    2012-02-14 (552 dong it hon). Hai mang cung KET THUC o mot ngay nhung
+    KHAC DIEM BAT DAU, nen mot chi so hop le cua pan (vi du chi so cuoi cung
+    3777) tra ve mot ngay HOAN TOAN KHAC neu ap thang vao m (da do: ra ngay
+    2024-07-24 thay vi 2026-09-11 — lech hon 2 nam). Ham nay thay cho kieu
+    dung "K['m'].close.values[i]" voi i tinh tu _idx(K, ...)/pan — chi dung
+    an toan khi lay dong CUOI CUNG (m.close.values[-1], hai mang cung ket
+    thuc mot ngay nen -1 luon dung), con lay theo vi tri BAT KY thi PHAI qua
+    ham nay."""
+    m_ngay = K["m"].Date.values
+    idx = np.searchsorted(m_ngay, np.asarray(ngay_arr, dtype="datetime64[ns]"))
+    idx = np.clip(idx, 0, len(m_ngay) - 1)
+    return K["m"].close.values[idx]
+
+
 def nap_khung(pair, tf):
     """Nen cho MOT khung thoi gian.
 

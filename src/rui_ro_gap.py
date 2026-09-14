@@ -170,18 +170,21 @@ def main():
 
     # theo tung cap — gap cuoi tuan
     print("\n[4] GAP CUỐI TUẦN THEO TỪNG CẶP (|gap|/σ̂)")
-    print(f"  {'cặp':<9}{'n':>6}{'trung vị':>10}{'p99':>9}{'P(>1,5σ̂)':>11}")
-    print("  " + "-" * 47)
+    print(f"  {'cặp':<9}{'n':>6}{'trung vị':>10}{'p99':>9}{'P(>1,5σ̂)':>11}{'trượt thêm TB':>16}")
+    print("  " + "-" * 63)
     theo_cap = {}
     for p in sorted(df.pair.unique()):
         z = df.z_gap[(df.pair == p) & ct].values
         if len(z) < 50:
             continue
+        qua15 = z > 1.5
+        truot_1_5 = float(np.mean(z[qua15] - 1.5)) if qua15.any() else 0.0
         theo_cap[p] = dict(n=int(len(z)), trung_vi=float(np.median(z)),
                            p99=float(np.percentile(z, 99)),
-                           p_qua_1_5=float((z > 1.5).mean()))
+                           p_qua_1_5=float(qua15.mean()),
+                           truot_them_1_5=truot_1_5)
         print(f"  {p:<9}{len(z):>6}{np.median(z):>10.3f}"
-              f"{np.percentile(z,99):>9.3f}{100*(z>1.5).mean():>10.2f}%")
+              f"{np.percentile(z,99):>9.3f}{100*qua15.mean():>10.2f}%{truot_1_5:>15.3f}σ̂")
 
     os.makedirs(OUT, exist_ok=True)
     json.dump(dict(do_lon_gap=g, stop=s, thanh_khoan=tk, theo_cap=theo_cap,

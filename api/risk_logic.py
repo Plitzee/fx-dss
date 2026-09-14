@@ -158,3 +158,22 @@ def xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer):
              "chi_so": [("không cắt", "73,6%", "xác suất phá sản khi mở 6 lệnh cùng "
                          "chiều USD mà không thu nhỏ — thay vì 1%")]},
         ]}
+
+
+def gap_cuoi_tuan(pair):
+    """RUI RO GAP CUOI TUAN — stop-loss khong bao ve duoc qua cuoi tuan/le.
+
+    Doc tu output/rui_ro_gap.json (docs/RUI_RO_GAP.md — phep do mo ta, da
+    dong bang 13/09/2026). Tra ve None neu file/cap khong co, de goi noi
+    khong phai tu kiem tra ton tai truoc."""
+    import json
+    f = os.path.join(ROOT, "output", "rui_ro_gap.json")
+    if not os.path.exists(f):
+        return None
+    C = json.load(open(f, encoding="utf-8"))
+    tc = (C.get("theo_cap") or {}).get(pair)
+    if not tc:
+        return None
+    return {"p_qua_1_5sigma": round(float(tc["p_qua_1_5"]), 4),
+            "truot_them_1_5sigma": round(float(tc["truot_them_1_5"]), 3),
+            "n_cuoi_tuan": int(tc["n"])}

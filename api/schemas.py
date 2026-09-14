@@ -65,6 +65,7 @@ class ForecastResponse(BaseModel):
     pair: str
     h: int
     ngay: str
+    gia: float
     p_giam: float
     p_ngang: float
     p_tang: float

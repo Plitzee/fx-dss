@@ -8,7 +8,7 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 
 from api.config import HS, KY_NANG_THEO_H, NEN_THEO_H, PAIRS, ROOT, TEST_TU, V2, VALID_TU
-from api.cache import _idx, _phien_ke_tiep, lay
+from api.cache import _idx, _phien_ke_tiep, gia_theo_ngay, lay
 from api.schemas import ForecastResponse
 from api.utils import _py, _tap_conformal, pip_size, sang_pip
 
@@ -23,11 +23,12 @@ def forecast(pair: str = Query(...), h: int = Query(1), ngay: str = Query(None))
     i = _idx(K, ngay)
     X = K["xs"][h]
     pan = K["pan"]
-    gia_i = float(K["m"].close.values[min(i, len(K["m"]) - 1)])
+    gia_i = float(gia_theo_ngay(K, [pan.Date.values[i]])[0])
     P = X["P"][i]
     nen12 = float(pd.Series(X["P"][:, 1]).rolling(252, min_periods=60).mean().iloc[i])
     return {
         "pair": pair, "h": h, "ngay": str(pan.Date.values[i])[:10],
+        "gia": gia_i,
         "p_giam": round(float(P[0]), 4), "p_ngang": round(float(P[1]), 4),
         "p_tang": round(float(P[2]), 4),
         "dai_pip": round(float(sang_pip(X["b"][i], gia_i, pair)), 2),
@@ -53,7 +54,7 @@ def forecast_series(pair: str = Query(...), n: int = Query(1500)):
     pan = K["pan"]
     n = min(n, len(pan))
     sl = slice(len(pan) - n, len(pan))
-    _gia = K["m"].close.values[: len(pan)][sl]
+    _gia = gia_theo_ngay(K, pan.Date.values[sl])
     ra = {"pair": pair, "pip": ps,
           "ngay": [str(x)[:10] for x in pan.Date.values[sl]],
           "che_do": [int(v) for v in K["che_do"][sl]],

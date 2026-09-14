@@ -1,0 +1,168 @@
+# Kiểm sốc giữa phiên — tái tính SỚM HƠN lịch 4 lần/ngày khi giá đã đi xa
+# hơn dự báo hôm nay, thay vì chờ tới lượt cron kế tiếp (tối đa ~6 tiếng).
+#
+# KHÔNG PHẢI mô hình dự báo mới trong phiên — toàn bộ dự án đã chứng minh kỹ
+# năng chỉ tồn tại ở tầm NGÀY (hạ phễu xuống H1 vẫn 0 quy luật sống sót).
+# Việc này chỉ TÁI CHẠY ĐÚNG pipeline sản xuất hiện có (collect/live_fx.py +
+# jobs/cap_nhat.py) sớm hơn, khi một phép kiểm rẻ tiền cho thấy giả định của
+# dự báo hôm nay đã bị vi phạm — xem collect/kiem_soc.py để biết chi tiết và
+# lý do chọn ngưỡng.
+#
+# HAI TẦNG, để không tốn credit Twelve Data hay CPU CI một cách vô ích:
+#   1. "kiemtra" — MỌI lần chạy (mỗi 15 phút): chỉ gọi /forecast (cache có
+#      sẵn, không tải gì mới) + 6 lượt gọi Twelve Data (rẻ, 1 credit/mã).
+#   2. "taitinh" — CHỈ chạy khi bước 1 báo sốc: lặp lại đúng các bước của
+#      capnhat.yml (tải dữ liệu, tự kiểm, ghi sổ, dựng lại, triển khai).
+#
+# CẦN BÍ MẬT (Settings → Secrets and variables → Actions), NGOÀI hai bí mật
+# đã có trong capnhat.yml:
+#   TWELVEDATA_TOKEN — https://twelvedata.com/pricing (miễn phí, gói basic:
+#                      8 credit/phút, 800 credit/ngày — ĐÃ đo thật, xem
+#                      collect/kiem_soc.py). Không có thì bước 1 tự bỏ qua,
+#                      không báo sốc — an toàn, hệ thống vẫn chạy như cũ.
+#
+# LƯU Ý NIÊM PHONG: giống capnhat.yml, việc này tải dữ liệu 2026 — nằm trong
+# tập khoá sổ của docs/KHOA_SO.md. Chỉ bật khi đã chốt cấu hình.
+
+name: Kiểm sốc giữa phiên
+
+on:
+  schedule:
+    # Moi 15 phut. KHONG duoc day nhanh hon — 6 cap x kiem moi 15 phut da la
+    # 576/800 credit Twelve Data mot ngay (da do that o collect/kiem_soc.py);
+    # 10 phut la 864, VUOT tran.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # CHUNG nhom voi capnhat.yml co chu dich — hai workflow cung tai/commit/
+  # trien khai thi KHONG duoc chay chong len nhau.
+  group: capnhat
+  cancel-in-progress: false
+
+jobs:
+  kiemtra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      soc: ${{ steps.soc.outputs.soc }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Cài phụ thuộc (nhẹ — không cần scipy đầy đủ để đọc cache)
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet \
+            numpy pandas scipy requests fastapi "uvicorn[standard]"
+
+      - name: Khởi động API bằng dữ liệu ĐÃ CÓ (không tải lại)
+        run: |
+          nohup python -m uvicorn api.main:app --host 127.0.0.1 --port 8899 \
+            --log-level warning > /tmp/api.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf --max-time 3 http://127.0.0.1:8899/health >/dev/null && exit 0
+            sleep 2
+          done
+          echo "API không lên được:"; cat /tmp/api.log; exit 1
+
+      - name: Kiểm sốc
+        id: soc
+        continue-on-error: true
+        env:
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_TOKEN }}
+        run: python collect/kiem_soc.py
+
+      - name: Tóm tắt
+        if: always()
+        run: |
+          echo "### Kiểm sốc $(date -u +%Y-%m-%d\ %H:%M) UTC — sốc=${{ steps.soc.outputs.soc }}" >> $GITHUB_STEP_SUMMARY
+          [ -f output/kiem_soc_trangthai.json ] && cat output/kiem_soc_trangthai.json >> $GITHUB_STEP_SUMMARY || true
+
+  taitinh:
+    needs: kiemtra
+    if: needs.kiemtra.outputs.soc == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Cài phụ thuộc
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet \
+            numpy pandas scipy requests fastapi "uvicorn[standard]"
+
+      - name: Tự kiểm trước khi chạy
+        run: |
+          python src/chibao.py
+          python src/so_dubao.py
+          python src/diem3.py
+
+      - name: Tải dữ liệu hiện hành
+        run: python collect/live_fx.py
+
+      - name: Cập nhật lịch sự kiện (FRED)
+        if: ${{ env.FRED_API_KEY != '' }}
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_TOKEN }}
+        run: |
+          python collect/lich_su_kien.py
+          python src/sukien_profile.py
+
+      # Job rieng nen tien trinh rieng — khong lien quan gi den uvicorn cua
+      # job "kiemtra"; khoi dong SAU khi da tai du lieu moi o buoc tren.
+      - name: Khởi động API
+        run: |
+          nohup python -m uvicorn api.main:app --host 127.0.0.1 --port 8899 \
+            --log-level warning > /tmp/api.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf --max-time 3 http://127.0.0.1:8899/health >/dev/null && exit 0
+            sleep 2
+          done
+          echo "API không lên được:"; cat /tmp/api.log; exit 1
+
+      - name: Ghi sổ dự báo, chấm điểm, dựng lại
+        run: python jobs/cap_nhat.py --khong-tai
+
+      - name: Dựng gói triển khai
+        run: python deploy/build.py
+
+      - name: Lưu sổ dự báo vào repo
+        run: |
+          git config user.name  "fx-dss bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f data/so_dubao/ output/kiem_soc_trangthai.json || true
+          if git diff --cached --quiet; then
+            echo "sổ không đổi — không commit"
+          else
+            git commit -m "Tái tính do sốc giữa phiên: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
+
+      - name: Triển khai Vercel
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm i -g vercel@latest
+          cd deploy
+          vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Tóm tắt
+        if: always()
+        run: |
+          echo "### ⚡ Tái tính do sốc — $(date -u +%Y-%m-%d\ %H:%M) UTC" >> $GITHUB_STEP_SUMMARY
+          [ -f output/kiem_soc_trangthai.json ] && cat output/kiem_soc_trangthai.json >> $GITHUB_STEP_SUMMARY || true
