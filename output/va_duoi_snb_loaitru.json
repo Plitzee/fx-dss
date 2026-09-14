@@ -1,0 +1,38 @@
+{
+ "pair": "USDCHF",
+ "n_huanluyen": 2503,
+ "n_snb": 61,
+ "studentt": {
+  "co_snb": {
+   "nu": 7.257,
+   "scale": 0.79933
+  },
+  "loai_tru": {
+   "nu": 9.856,
+   "scale": 0.82414
+  }
+ },
+ "muc": {
+  "0.9": {
+   "thucnghiem_co_snb": 1.5265,
+   "thucnghiem_loai_tru": 1.5205,
+   "studentt_co_snb": 1.5064,
+   "studentt_loai_tru": 1.4959,
+   "doi_studentt_%": -0.7
+  },
+  "0.95": {
+   "thucnghiem_co_snb": 1.8191,
+   "thucnghiem_loai_tru": 1.8191,
+   "studentt_co_snb": 1.8766,
+   "studentt_loai_tru": 1.8399,
+   "doi_studentt_%": -2.0
+  },
+  "0.99": {
+   "thucnghiem_co_snb": 2.6693,
+   "thucnghiem_loai_tru": 2.6284,
+   "studentt_co_snb": 2.7638,
+   "studentt_loai_tru": 2.6205,
+   "doi_studentt_%": -5.2
+  }
+ }
+}

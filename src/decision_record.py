@@ -85,10 +85,44 @@ def p_cham_stop(k_sigma, z_train, horizon=1):
     """P(gia cham stop dat cach k_sigma lan do lech chuan) trong 'horizon' phien.
 
     Nguyen ly phan xa: P(min_{t<=T} X_t <= -b) = 2 P(X_T <= -b) voi buoc di
-    doi xung. Duoi t-Student khop tren tap huan luyen, khong phai Gauss."""
+    doi xung. Duoi t-Student khop tren tap huan luyen, khong phai Gauss.
+
+    DA DO SAI HIEU CHUAN (RUIRO_ML.md muc A2, 13/09/2026): cong thuc nay gia
+    dinh buoc di DOC LAP cung phan phoi, nhung loi suat FX chuan hoa co co
+    cum bien dong THAT — vi pham gia dinh do lap. Do tren du lieu giu rieng:
+    du bao TB 45,25% so thuc te 33,64% — VUOT UOC 11,6 diem %, ECE cao gap
+    18 lan mot hang so ngay tho (khi hau hoc). Day la sai DAC TA MO HINH,
+    khong sua duoc bang khop lai tham so. HAM NAY GIU NGUYEN, KHONG SUA —
+    cac script nghien cuu (run_final_eval2.py, ruiro_ml.py) da dung no cho
+    nhung con so DA BAO CAO/DONG BANG, sua thang se lam doi so lieu da cong
+    bo ma khong ai biet. Dung ham p_cham_stop_thucnghiem() ben duoi cho MOI
+    dung moi (vi du tang phuc vu API) — xem RUIRO_ML.md muc A2 ve quyet dinh
+    nay va vi sao "can nguoi chiu trach nhiem quyet, khong phai cong cu tu
+    doi"."""
     nu, _, sc = stats.t.fit(np.asarray(z_train, float), floc=0)
     nu = float(np.clip(nu, 2.5, 40))
     return float(min(1.0, 2.0 * stats.t.cdf(-k_sigma / (sc * np.sqrt(horizon)), nu)))
+
+
+def p_cham_stop_thucnghiem(k_sigma, z_train, horizon=1):
+    """P(cham stop) UOC THUC NGHIEM — thay the an toan cho p_cham_stop() o
+    tang phuc vu (API), KHONG dung gia dinh phan phoi hay do lap nao. Dem
+    truc tiep tren HUAN LUYEN: voi moi diem bat dau i, gia co CHAM nguong
+    -k_sigma tai bat ky luc nao trong 'horizon' phien lien tiep khong (min
+    cua duong di luy tich), roi lay ty le. Day chinh la cach vá RUIRO_ML.md
+    muc A2 da do: Brier 0,236 -> 0,221, ECE 0,123 -> 0,007, mot tham so,
+    khong mo hinh moi (mo phong thay cong thuc giai tich, khong doi dinh
+    nghia dich)."""
+    z = np.asarray(z_train, float)
+    n = len(z)
+    if n <= horizon:
+        return float("nan")
+    if horizon <= 1:
+        return float(np.mean(z <= -k_sigma))
+    cham = np.empty(n - horizon + 1, dtype=bool)
+    for i in range(n - horizon + 1):
+        cham[i] = np.cumsum(z[i:i + horizon]).min() <= -k_sigma
+    return float(np.mean(cham))
 
 
 # ───────────────────── khoang conformal phan tang ─────────────────────

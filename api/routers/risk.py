@@ -18,7 +18,7 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
     kiem dinh; viec cua endpoint nay chi la truy vet tung thanh phan de nguoi
     dung thay don bay khuyen nghi den TU DAU, va rang buoc nao dang buoc."""
     from position_sizing import PositionSizer, k_danh_muc
-    from decision_record import p_cham_stop
+    from decision_record import p_cham_stop_thucnghiem
     from scipy import stats as _st
 
     K = lay(pair)
@@ -36,12 +36,19 @@ def risk(pair: str = Query(...), dd: float = Query(0.0),
     cr = float(np.median(O.carry_ngay(pair, pan.Date.values[-260:])))
     ex = sizer.explain(sg, abs(cr), nu, dd=dd, so_vi_the=so_vi_the)
 
-    # P(cham stop) theo tam han — bang ma docs/TANG6_TAMHAN.md canh bao
+    # P(cham stop) theo tam han — bang ma docs/TANG6_TAMHAN.md canh bao.
+    # Dung p_cham_stop_thucnghiem (mo phong duong di that), KHONG dung
+    # p_cham_stop cong thuc giai tich cu — da do sai hieu chuan nang
+    # (RUIRO_ML.md A2: du bao 45,25% so thuc te 33,64%). Xem ghi chu trong
+    # decision_record.py. QUAN TRONG: KHONG con nhan sigma^ voi can(h) truoc
+    # — ham moi tu mo phong tong luy tich qua ca 'h' phien (dung nhu
+    # src/ruiro_ml.py da do), nhan them can(h) se tinh nhan doi hieu ung
+    # tam han.
     tam = []
     for h in (1, 5, 10, 20):
-        sh = sg * np.sqrt(h)
         tam.append({"h": h,
-                    "p_cham": round(float(p_cham_stop(stop_sigma * sg / sh, z_tr)), 4)})
+                    "p_cham": round(float(p_cham_stop_thucnghiem(
+                        stop_sigma * sg, z_tr * sg, horizon=h)), 4)})
 
     # do nhay theo sut giam
     nhay = []

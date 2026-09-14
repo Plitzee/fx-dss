@@ -1,0 +1,74 @@
+{
+ "EURUSD": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.5319,
+  "ty_le_nong": 0.499,
+  "do_phu_tinh": 0.8647,
+  "do_phu_dong": 0.9031,
+  "be_rong_tb_tinh": 1.5319,
+  "be_rong_tb_dong": 1.6466,
+  "do_phu_tinh_khinong": 0.8645,
+  "do_phu_dong_khinong": 0.9414,
+  "gan_muc_danh_nghia_hon": true
+ },
+ "GBPUSD": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.6034,
+  "ty_le_nong": 0.497,
+  "do_phu_tinh": 0.9196,
+  "do_phu_dong": 0.9305,
+  "be_rong_tb_tinh": 1.6034,
+  "be_rong_tb_dong": 1.723,
+  "do_phu_tinh_khinong": 0.9154,
+  "do_phu_dong_khinong": 0.9375,
+  "gan_muc_danh_nghia_hon": false
+ },
+ "USDJPY": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.6395,
+  "ty_le_nong": 0.499,
+  "do_phu_tinh": 0.8739,
+  "do_phu_dong": 0.8921,
+  "be_rong_tb_tinh": 1.6395,
+  "be_rong_tb_dong": 1.7622,
+  "do_phu_tinh_khinong": 0.8791,
+  "do_phu_dong_khinong": 0.9158,
+  "gan_muc_danh_nghia_hon": true
+ },
+ "AUDUSD": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.522,
+  "ty_le_nong": 0.499,
+  "do_phu_tinh": 0.8775,
+  "do_phu_dong": 0.9013,
+  "be_rong_tb_tinh": 1.522,
+  "be_rong_tb_dong": 1.6359,
+  "do_phu_tinh_khinong": 0.8901,
+  "do_phu_dong_khinong": 0.9377,
+  "gan_muc_danh_nghia_hon": true
+ },
+ "USDCAD": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.5594,
+  "ty_le_nong": 0.499,
+  "do_phu_tinh": 0.8995,
+  "do_phu_dong": 0.9141,
+  "be_rong_tb_tinh": 1.5594,
+  "be_rong_tb_dong": 1.6762,
+  "do_phu_tinh_khinong": 0.9194,
+  "do_phu_dong_khinong": 0.9487,
+  "gan_muc_danh_nghia_hon": false
+ },
+ "USDCHF": {
+  "n_kiemdinh": 547,
+  "nua_be_rong_goc": 1.5265,
+  "ty_le_nong": 0.499,
+  "do_phu_tinh": 0.9031,
+  "do_phu_dong": 0.9177,
+  "be_rong_tb_tinh": 1.5265,
+  "be_rong_tb_dong": 1.6408,
+  "do_phu_tinh_khinong": 0.8938,
+  "do_phu_dong_khinong": 0.9231,
+  "gan_muc_danh_nghia_hon": false
+ }
+}
