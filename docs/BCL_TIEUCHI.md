@@ -47,8 +47,19 @@ Diebold 2007). Mục tiêu giữ nguyên `log rv5(t+1)`, nên QLIKE so sánh đ�
 ## 4. Giả thuyết CHỐT TRƯỚC
 
 > **H11.** Tách C/J bằng ngưỡng **đã lọc chu kỳ nội tuần** cho dự báo biến động
-> tốt hơn mốc HAR sản xuất (vốn tách C/J bằng **bipower**, bất biến với thứ tự
-> thời gian trong ngày).
+> tốt hơn mốc HAR sản xuất.
+>
+> **ĐÍNH CHÍNH 14/09/2026.** Bản đầu viết mốc *"vốn tách C/J bằng bipower, bất
+> biến với thứ tự thời gian"* — **sai**. Đọc lại nguyên văn
+> `volfc2.py::thiet_ke()`: cột `bpv5` có trong dữ liệu (`rv_adv.csv`) nhưng
+> **không được tham chiếu ở bất kỳ đâu** trong ba ma trận thiết kế
+> STHARQ/HARQ/SHAR. Bipower/jump chỉ dùng ở tầng ML riêng (`ml_data.py`:
+> `lbpv`, `ljump`), **chưa từng vào tổ hợp HAR sản xuất**. Không đổi kết luận
+> của chính thí nghiệm này (P1/P2 dưới đây vẫn thêm C/J như đặc trưng MỚI so
+> với mốc thật, phép so vẫn đúng) — nhưng câu mô tả mốc là sai, và nó để lộ
+> một thí nghiệm HOÀN TOÀN CHƯA LÀM: HAR-J (Andersen–Bollerslev–Diebold 2007)
+> — tách C/J bằng chính bipower đã có sẵn — chưa từng được thử làm regressor
+> cho tổ hợp sản xuất. Xem `docs/HARJ_TIEUCHI.md`.
 >
 > **H11b — điều kiện ghi công.** P1 (có lọc) phải tốt hơn **P2 (cùng phép tách,
 > KHÔNG lọc chu kỳ)**. Nếu P2 cũng thắng tương đương thì thứ ăn tiền là *phát
