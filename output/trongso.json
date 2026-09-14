@@ -1,0 +1,34 @@
+{
+ "tong": {
+  "B0 mốc": {
+   "qlike_vd": 0.1162136526436316,
+   "qlike_kt": 0.15850593773849408,
+   "dm_p": null,
+   "cap_duong": 0
+  },
+  "B0+LV": {
+   "qlike_vd": 0.11669345392583783,
+   "qlike_kt": 0.15876971271710194,
+   "dm_p": 0.44053536093293033,
+   "cap_duong": 2
+  },
+  "B0 Hedge": {
+   "qlike_vd": 0.1164006953726928,
+   "qlike_kt": 0.15811299680914365,
+   "dm_p": 0.5513743864221339,
+   "cap_duong": 4
+  },
+  "B0+LV Hedge": {
+   "qlike_vd": 0.11647416996563359,
+   "qlike_kt": 0.15814440576427485,
+   "dm_p": 0.5831084601139802,
+   "cap_duong": 4
+  }
+ },
+ "chon_kiem_dinh": "B0 Hedge",
+ "dk": {
+  "dk1": false,
+  "dk2": false
+ },
+ "phan_quyet": "am"
+}

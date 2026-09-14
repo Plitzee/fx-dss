@@ -122,3 +122,67 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 > Dòng ký để trống có chủ đích — người chịu trách nhiệm luận văn ký, không
 > phải công cụ điền hộ.
+
+---
+
+# PHỤ LỤC A — KẾT QUẢ (14/09/2026, chạy SAU khi mục 1–8 đã chốt)
+
+*Tái lập: `python src/kiem_trongso.py`. Kết quả: `output/trongso.json`.*
+
+| cấu hình | QLIKE kiểm định | QLIKE kiểm tra | so B0 | DM p | cặp cải thiện |
+|---|---|---|---|---|---|
+| B0 mốc | 0,1162 | 0,1585 | — | — | — |
+| B0+LV | 0,1167 | 0,1588 | +0,17% | 0,441 | 2/6 |
+| **B0 Hedge** *(tốt nhất trên kiểm định)* | 0,1164 | **0,1581** | **−0,25%** | 0,551 | 4/6 |
+| B0+LV Hedge | 0,1165 | 0,1581 | −0,23% | 0,583 | 4/6 |
+
+## Phán quyết — **ÂM**
+
+| điều kiện | kết quả | |
+|---|---|---|
+| ĐK1 thắng kiểm tra, p<0,0167 | **TRƯỢT** | −0,25%, p=0,551 |
+| ĐK2 ≥5/6 cặp | **TRƯỢT** | 4/6 |
+
+## Điều quan trọng nhất: giả thuyết loại trừ thứ ba cũng thất bại — phải xét lại chính chẩn đoán ban đầu
+
+Không cấu hình nào tách khỏi nhiễu, và quan trọng hơn: **không cấu hình nào
+tiệm cận mức 7,78%** mà chẩn đoán ở `BCL_TIEUCHI.md` mục A4 đã đo được khi
+thêm `log rv5(t)` thô vào mốc. Mức tốt nhất ở đây chỉ **−0,25%**.
+
+Đây là lần **thứ ba liên tiếp** một giả thuyết nhắm đúng vào khoảng cách đó
+thất bại:
+
+| giả thuyết | kết quả |
+|---|---|
+| Thiếu tách nhảy bằng ngưỡng (BCL) | không đóng được khoảng cách |
+| Thiếu tách nhảy bằng bipower thật (HAR-J) | không cải thiện, dù cơ chế đúng |
+| **Trọng số tổ hợp dưới tối ưu (ở đây)** | **không cải thiện, dù đổi cả thành viên lẫn cách tổ hợp** |
+
+**Phải đọc lại đúng phát hiện ban đầu.** Ba giả thuyết đều nhắm vào việc
+*sửa cách tổ hợp ra dự báo σ̂*, và cả ba đều thất bại khi kiểm trong đúng cơ
+chế tổ hợp thật (`du_bao_san_xuat`). Trong khi đó, con số 7,78% ở
+`BCL_TIEUCHI.md` được đo trong **một khung khác hẳn**: hồi quy MỘT phương
+trình `log_rv(t+1) ~ log(h_HAR đã hiệu chỉnh log-chuẩn) + log_rv(t)` — tức
+`log(h_HAR)` ở đó là **đầu ra cuối cùng đã qua hiệu chỉnh log-normal**
+(`exp(fit + 0,5·s²)`), không phải trung bình log-dự báo thô của ba mô hình
+con. Khả năng cao nhất: `log_rv(t)` trong khung BCL đang sửa cho **sai lệch
+của chính phép hiệu chỉnh log-chuẩn** (hoặc một hiệu ứng thuộc về khung hồi
+quy một phương trình đó), **không phải** một khoảng trống thông tin trong
+cách ba mô hình con định trọng số ngày.
+
+## Kết luận cho luận văn
+
+> *Ba hướng độc lập nhắm vào khoảng cách QLIKE ~7,78% được chẩn đoán khi làm
+> đối chứng cho một thí nghiệm khác (tách nhảy bằng ngưỡng, tách nhảy bằng
+> bipower, và trọng số tổ hợp thích ứng) đều **không tái tạo được cải thiện
+> đó** khi kiểm trong đúng cơ chế tổ hợp sản xuất thật. Kết luận thận trọng:
+> con số 7,78% phản ánh đặc thù của khung so sánh dùng để chẩn đoán nó (hồi
+> quy một phương trình trên đầu ra đã hiệu chỉnh log-chuẩn), không phải một
+> khiếm khuyết có thể sửa được trong cách tổ hợp ba mô hình con hiện tại. Nên
+> rút lại phát biểu "tầng 2 để lại ~8-10% QLIKE trên bàn" cho tới khi có bằng
+> chứng trực tiếp hơn.*
+
+Việc còn treo (chưa làm, ngoài phạm vi ba thí nghiệm này): kiểm trực tiếp
+xem chính phép hiệu chỉnh log-chuẩn (`s2_tu_huan_luyen`/hiệu chỉnh
+`exp(fit+0,5s²)`) có thiên lệch hay không — đó mới là biến khác duy nhất
+giữa khung BCL và khung tổ hợp thật chưa được cô lập.
