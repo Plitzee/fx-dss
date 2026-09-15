@@ -48,7 +48,8 @@ def main():
             goi = {"meta": {k: M[k] for k in ("cap", "valid_tu", "test_tu",
                                               "canh_bao", "cap_nhat_luc",
                                               "mo_hinh", "rui_ro",
-                                              "ky_nang_theo_h") if k in M},
+                                              "ky_nang_theo_h",
+                                              "rv_rao_chan") if k in M},
                    "cap": {}, "su_kien": M.get("su_kien", []),
                    "hieu_chuan": M.get("hieu_chuan", {}),
                    "so_dubao": M.get("so_dubao", {})}

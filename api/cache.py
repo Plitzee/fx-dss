@@ -18,6 +18,55 @@ from api.config import CF, CF_CUA_SO, D, LIVE, MOC_NOI, NEN_THEO_H, PAIRS, B, V2
 
 HS = (1, 5, 20)
 
+# ── RAO CHAN RV5 THAT (them 15/09/2026)
+#
+# HAR can phuong sai thuc hien 5 phut. Nguon hien hanh (Yahoo) chi phuc vu
+# thanh 5 phut trong ~60 ngay gan nhat; ngoai cua so do `live_fx.py` UOC rv5
+# tu thanh gio bang mot he so quy doi va danh dau `rv_uoc=1`.
+#
+# DA DO 15/09/2026 — hai cua so, hai muc rui ro khac han:
+#
+#   `lm` = trung binh cuon 22 phien cua log-RV, VAO THANG ma tran thiet ke cua
+#   ca ba mo hinh con. RV uoc lot vao day lam lech du bao TRUC TIEP.
+#   Do duoc: 0/22 hang cuoi la rv_uoc=1 — cua so nay dang SACH.
+#
+#   `WIN_Z` = 250 phien, chi de chuan hoa bien chuyen che do G = sigmoid(z).
+#   Do duoc: 120/250 = 48% la rv_uoc=1 — cua so nay KHONG sach. Nhung do
+#   nhay: nhieu rv5 cua cac hang uoc di +-20% chi lam sigma^ hom nay doi toi
+#   da 0,10% (6/6 cap) — z-score qua sigmoid nuot gan het sai so.
+#
+# Nen rao chan dat o cua so 22, khong phai 250. Docstring cua `live_fx.py`
+# viet "rv_uoc khong nuoi du bao" la KHONG chinh xac (no co nuoi, qua WIN_Z)
+# nhung he qua khong dang ke — da dinh chinh tai cho.
+HAR_TRE = 22           # cua so cuon dai nhat vao thang ma tran thiet ke (volfc2.thiet_ke)
+DEM_CANH_BAO = 15      # ~3 tuan giao dich du tru truoc khi cham nguong chan
+
+
+def kiem_rv_that(d):
+    """Trang thai RV5 that cua chuoi DA NOI. Khong nem loi — chi bao cao.
+
+    `n_that_lien_tiep` la so phien RV5 THAT lien tiep tinh nguoc tu cuoi
+    chuoi. Do la dai luong quyet dinh, khong phai tong so hang that: mot
+    khoang RV uoc chen vao giua se cat cua so 22 du tong co lon bao nhieu.
+    """
+    if "rv_uoc" not in d:
+        return dict(har_tre=HAR_TRE, n_that_lien_tiep=None, dem=None,
+                    chan=False, canh_bao=False, thieu_cot=True)
+    u = d.rv_uoc.fillna(0).astype(int).values.astype(bool)
+    n_that = 0
+    for v in u[::-1]:
+        if v:
+            break
+        n_that += 1
+    uoc_trong_har = int(u[-HAR_TRE:].sum()) if len(u) >= HAR_TRE else int(u.sum())
+    return dict(har_tre=HAR_TRE, n_that_lien_tiep=int(n_that),
+                uoc_trong_cua_so_har=uoc_trong_har,
+                dem=int(n_that - HAR_TRE),
+                chan=bool(uoc_trong_har > 0),
+                canh_bao=bool(uoc_trong_har == 0
+                              and n_that < HAR_TRE + DEM_CANH_BAO),
+                thieu_cot=False)
+
 # `_bo_nho` la cache toan cuc TRONG MOT TIEN TRINH: tinh mot lan cho moi cap,
 # dung lai cho moi request sau. `_khoa` chi bao dam hai request dong thoi
 # khong cung tinh lai mot cap.
@@ -66,6 +115,17 @@ def tinh(p):
     """Tinh sigma + ba xac suat cho MOT cap. Ket qua duoc nho lai."""
     d = noi_chuoi(p)
     m = merge_thin_days(d)
+    rv = kiem_rv_that(m)
+    if rv["chan"]:
+        # Tha KHONG tra so con hon tra so sai am tham. Trieu ly cua du an:
+        # moi con so hien thi phai truy duoc ve mot phep do cu the.
+        raise HTTPException(
+            503,
+            f"{p}: cua so HAR {HAR_TRE} phien co {rv['uoc_trong_cua_so_har']} "
+            f"phien dung RV UOC (rv_uoc=1) thay vi RV5 that. Du bao se lech va "
+            f"KHONG duoc phuc vu. Nguyen nhan thuong gap: nguon 5 phut ngung "
+            f"phuc vu, hoac collect/live_fx.py khong chay du lau. "
+            f"Chay lai `python collect/live_fx.py` va kiem `/health`.")
     sig2 = V2.du_bao_san_xuat(m, p)                     # phuong sai du bao
     sig = np.sqrt(np.maximum(sig2, 0.0))
 

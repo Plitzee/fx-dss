@@ -19,9 +19,24 @@ van lam: lay thanh GIO roi tu gop len ngay. Sau khi doi: 0 thanh khong hop le,
 lech trung vi 3,40 pip, tuong quan 0,9999855.
 
 RV5 THAT CHO DU BAO HOM NAY. HAR can phuong sai thuc hien 5 phut. Thanh 5 phut
-cua Yahoo phu 60 ngay, ma do tre dai nhat cua HAR la 22 phien — nen du bao cho
-hom nay dung RV5 THAT hoan toan. Doan 2026-01 -> truoc cua so 60 ngay chi dung
-de VE BIEU DO va duoc uoc tu thanh gio (danh dau `rv_uoc=1`), khong nuoi du bao.
+cua Yahoo phu 60 ngay, ma cua so cuon dai nhat VAO THANG ma tran thiet ke la 22
+phien (`lm` trong volfc2.thiet_ke) — nen du bao cho hom nay dung RV5 THAT hoan
+toan. Doan 2026-01 -> truoc cua so 60 ngay duoc uoc tu thanh gio (`rv_uoc=1`).
+
+DINH CHINH 15/09/2026 — ban truoc cua doan nay viet RV uoc "khong nuoi du bao".
+KHONG chinh xac. Ngoai `lm` 22 phien, STHARQ con co bien chuyen che do
+G = sigmoid(z) voi z chuan hoa tren cua so WIN_Z = 250 phien; do duoc tren chuoi
+da noi ngay 15/09/2026: 0/22 hang cuoi la rv_uoc=1 (cua so HAR SACH) nhung
+120/250 = 48% cua so WIN_Z la rv_uoc=1. Tuc RV uoc CO vao du bao, qua duong do.
+
+He qua thi khong dang ke — da do bang do nhay: nhieu rv5 cua cac hang uoc di
++-20% chi lam sigma^ hom nay doi toi da 0,10% tren ca 6/6 cap, vi z-score qua
+sigmoid nuot gan het sai so. Nen ket luan "du bao hom nay dung RV5 that" van
+dung ve thuc chat, chi phat bieu la sai.
+
+Cho NGUY HIEM that su la khi so phien RV5 that LIEN TIEP tut xuong duoi 22:
+luc do `lm` vao thang hoi quy, khong co z-score che. Rao chan o cuoi ham main()
+va o `api/cache.py::kiem_rv_that` chan dung truong hop do.
 
 VI SAO PHAI DO MOI NOI. `docs/KHOA_SO.md` tung tu choi va du lieu bang nguon
 thu hai vi "va se cay mot moi noi giua hai nha cung cap vao giua chuoi". O day
@@ -34,6 +49,7 @@ import datetime as dt
 import io
 import json
 import os
+import sys
 import time
 
 import numpy as np
@@ -56,6 +72,8 @@ PIP = {"USDJPY": 0.01}
 MIN_GIO_NGAY = 18      # ngay du thanh gio moi coi la phien day du
 MIN_M5_NGAY = 100      # ngay du thanh 5 phut moi tinh rv5 that
 EPS = 1e-14
+HAR_TRE = 22           # cua so cuon dai nhat vao thang thiet ke — giu bang api/cache.py
+DEM_CANH_BAO = 15      # ~3 tuan giao dich du tru truoc khi cham nguong chan
 
 
 def pip_size(p):
@@ -275,6 +293,31 @@ def main():
     print("repo cho 0,350 pip — con số ở đây lớn hơn vì Yahoo là báo giá chỉ dẫn,")
     print("không phải dữ liệu tick. Chuỗi < 2026-01-01 là HistData, từ đó là Yahoo.")
     print(f"\nđã ghi {OUT}")
+
+    # ── RAO CHAN RV5 THAT (them 15/09/2026, cung nguong voi api/cache.py)
+    #
+    # Nguon 5 phut chi phu ~60 ngay. Neu no ngung phuc vu, moi thu o tren van
+    # chay binh thuong — van ghi du lieu, van ra so — chi khac la rv5 thanh so
+    # UOC tu thanh gio. Cua so HAR 22 phien vao THANG ma tran thiet ke nen du
+    # bao se lech ma khong co gi bao. Day la cho kiem.
+    thieu = {p: v["n_rv5_that"] for p, v in bc["cap"].items()
+             if v["n_rv5_that"] < HAR_TRE + DEM_CANH_BAO}
+    if thieu:
+        nang = {p: n for p, n in thieu.items() if n < HAR_TRE}
+        print("\n" + "!" * 100)
+        if nang:
+            print(f"CHẶN: {', '.join(f'{p} ({n} phiên)' for p, n in nang.items())} "
+                  f"có dưới {HAR_TRE} phiên RV5 THẬT.")
+            print("Cửa sổ HAR bị nhiễm RV ước — API sẽ từ chối phục vụ dự báo (503).")
+        else:
+            print(f"CẢNH BÁO: {', '.join(f'{p} ({n} phiên)' for p, n in thieu.items())} "
+                  f"còn dưới {HAR_TRE + DEM_CANH_BAO} phiên RV5 thật.")
+            print(f"Dự báo vẫn hợp lệ (cửa sổ HAR {HAR_TRE} phiên còn sạch) nhưng đệm đang mỏng.")
+        print("Nguyên nhân thường gặp: nguồn 5 phút đổi/ngừng phục vụ, hoặc job không chạy đủ lâu.")
+        print("!" * 100)
+        if nang:
+            sys.exit(1)
+
     print("TỰ KIỂM ĐẠT")
 
 

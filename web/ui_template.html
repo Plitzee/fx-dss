@@ -334,6 +334,8 @@ code{font-family:var(--f-m);font-size:.88em;background:var(--panel2);padding:1px
     <button data-p="about">Về hệ thống</button>
   </div>
 
+  <div id="rvbanner"></div>
+
   <div class="page on" id="p-tq"></div>
   <div class="page" id="p-chart">
     <div class="wrap">
@@ -2053,6 +2055,32 @@ function paintEv(){
     <div class="tw"><table><thead><tr><th class="n">ngày</th><th>ngân hàng</th><th class="n">σ̂ (pip)</th><th class="n">dải ±b</th><th class="n">P(đi ngang)</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
+/* Rào chắn RV5 thật — xem api/cache.py::kiem_rv_that.
+   HAR cần phương sai thực hiện 5 phút. Nguồn hiện hành chỉ phục vụ thanh 5 phút
+   trong ~60 ngày; ngoài cửa sổ đó rv5 được ƯỚC từ thanh giờ. Nếu số phiên RV5
+   thật liên tiếp tụt xuống dưới 22 thì cửa sổ HAR bị nhiễm và dự báo lệch —
+   API chặn cứng (503). Vùng 22..36 là đệm: vẫn phục vụ, nhưng phải nói ra. */
+function paintRvBanner(){
+  const el = $("#rvbanner"); if(!el) return;
+  const R = (DATA.meta||{}).rv_rao_chan;
+  if(!R || !R.cap_xau || !Object.keys(R.cap_xau).length){ el.innerHTML = ""; return; }
+  const cap = Object.entries(R.cap_xau);
+  const ten = a => a.map(([p,v])=>`${p} (${v.lien_tiep} phiên)`).join(", ");
+  const chan = cap.filter(([,v])=>v.chan);
+  const nhe = cap.filter(([,v])=>!v.chan);
+  el.innerHTML = chan.length
+    ? `<div class="card sec"><div class="tqcanh do"><b>⚠ Dữ liệu biến động không đủ chuẩn — dự báo đã bị dừng.</b>
+       Mô hình HAR cần phương sai thực hiện đo từ thanh 5 phút cho ${R.har_tre} phiên gần nhất.
+       Các cặp <b>${ten(chan)}</b> không đủ, phần thiếu đang là số <b>ước từ thanh giờ</b> chứ không phải đo thật.
+       Hệ thống <b>từ chối trả dự báo</b> cho những cặp đó, thay vì trả một con số lệch mà không báo.
+       ${nhe.length?`Sắp tới lượt: ${ten(nhe)}. `:""}Khắc phục: chạy lại
+       <code>collect/live_fx.py</code> rồi kiểm <code>/health</code>.</div></div>`
+    : `<div class="card sec"><div class="tqcanh"><b>Đệm dữ liệu biến động sắp hết.</b>
+       Dự báo vẫn <b>hợp lệ</b> — cửa sổ ${R.har_tre} phiên của HAR còn dùng RV5 đo thật hoàn toàn.
+       Nhưng lượng dự trữ đang mỏng: ${ten(nhe)}. Dưới ${R.har_tre} phiên thì hệ thống sẽ tự dừng dự báo.
+       Nên kiểm nguồn dữ liệu 5 phút trước khi chạm ngưỡng.</div></div>`;
+}
+
 function paintAbout(){
   const cb = (DATA.meta.canh_bao||[]).map(x=>`<li>${x}</li>`).join("");
   const M = (DATA.meta||{}).mo_hinh||{}, Q = M.quy_luat||{};
@@ -2160,6 +2188,7 @@ function boot(){
 
   $("#theme").onclick = async ()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark");
     buildChart(); await paintChart(); paintBoxes(); veCuaSo(); };
+  paintRvBanner();
   if(DATA.meta.cap_nhat_luc)
     $("#capnhat").textContent = "cập nhật " + DATA.meta.cap_nhat_luc.slice(0,16).replace("T"," ") + "Z";
   document.body.classList.add("ndt");        // mặc định: chế độ nhà đầu tư

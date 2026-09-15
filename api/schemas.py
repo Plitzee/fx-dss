@@ -20,12 +20,19 @@ class CapHealth(BaseModel):
     rv5_that_ngay: Optional[int] = None
     tre_ngay: Optional[int] = None
     loi: Optional[str] = None
+    # rao chan RV5 that — xem api/cache.py::kiem_rv_that
+    rv_that_lien_tiep: Optional[int] = None
+    rv_dem: Optional[int] = None
+    rv_chan: Optional[bool] = None
+    rv_canh_bao: Optional[bool] = None
 
 
 class HealthResponse(BaseModel):
     ok: bool
     gio_utc: str
     cap: dict[str, CapHealth]
+    rv_chan: Optional[bool] = None
+    rv_canh_bao: Optional[bool] = None
 
 
 class KyNangMuc(BaseModel):
@@ -43,6 +50,8 @@ class MetaResponse(BaseModel):
     test_tu: str
     # noi tu moi_noi.json, hinh dang khong do api nay kiem soat
     moi_noi: Optional[Any] = None
+    # rao chan RV5 that — xem api/cache.py::kiem_rv_that
+    rv_rao_chan: Optional[Any] = None
     canh_bao: list[str]
 
 

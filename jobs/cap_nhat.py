@@ -144,6 +144,9 @@ def chup_ban_tinh(day_du=True):
 
     M = {"cap": meta["cap"], "valid_tu": meta["valid_tu"], "test_tu": meta["test_tu"],
          "moc_noi": meta["moc_noi_nguon"], "canh_bao": meta["canh_bao"],
+         # rao chan RV5 that — ban tinh phai mang theo, neu khong banner canh bao
+         # se khong bao gio hien tren Vercel (xem web/ui_template.html::paintRvBanner)
+         "rv_rao_chan": meta.get("rv_rao_chan"),
          "cap_nhat_luc": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
          "su_kien": g("/events?tu=2018-01-01").get("su_kien", []),
          "hieu_chuan": g("/calibration").get("bang", {}),
