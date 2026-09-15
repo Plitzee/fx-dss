@@ -160,6 +160,58 @@ thức" nhất về mặt lý thuyết.
 **Sửa kèm khi xây tầng này**: phát hiện lỗi lệch giá trong `/forecast` và
 `/forecast_series` — xem mục 6.
 
+## 4b. Rào chắn RV5 thật (thêm 15/09/2026)
+
+*Trả lời câu hỏi "có nên lấy nến trực tiếp từ TradingView / các sàn để hệ thống
+tái phân tích liên tục không" — và vá một lỗi âm thầm phát hiện khi trả lời.*
+
+**Vì sao không đổi sang feed liên tục.** Mục 4 đã nói: kỹ năng dự báo chỉ tồn
+tại ở tầm ngày, hạ phễu xuống H1 với 592.343 thanh vẫn 0 quy luật. Dữ liệu dày
+hơn không mua thêm kỹ năng dự báo. TradingView ngoài ra không có đường hợp lệ —
+không mở API dữ liệu, dữ liệu là mua lại nên không có quyền phát tán tiếp, và
+điều khoản cấm cào; quan trọng hơn với luận văn là **không khai được nguồn gốc**,
+thứ mà cả `KHOA_SO.md` dựng lên trên đó.
+
+**Nhưng có một khiếm khuyết thật mà dữ liệu tốt hơn sẽ vá.** HAR cần phương sai
+thực hiện 5 phút. Yahoo chỉ phục vụ thanh 5 phút trong ~60 ngày; ngoài cửa sổ đó
+`live_fx.py` **ước** rv5 từ thanh giờ (`rv_uoc=1`). Đo ngày 15/09/2026:
+
+| cửa sổ | vai trò | nhiễm RV ước |
+|---|---|---|
+| `lm` = 22 phiên | vào **thẳng** ma trận thiết kế cả ba mô hình con | **0/22 — sạch** |
+| `WIN_Z` = 250 phiên | chỉ chuẩn hoá biến chế độ `G = sigmoid(z)` | **120/250 = 48%** |
+
+Nên câu trong docstring `live_fx.py` — "RV ước không nuôi dự báo" — **không
+chính xác**: nó có nuôi, qua đường `WIN_Z`. Đã đính chính tại chỗ. Hệ quả thì
+không đáng kể, đã đo bằng độ nhạy: nhiễu rv5 các hàng ước đi **±20%** chỉ làm
+σ̂ hôm nay đổi **tối đa 0,10%** trên cả 6/6 cặp — z-score qua sigmoid nuốt gần
+hết sai số.
+
+**Chỗ nguy hiểm thật là khi số phiên RV5 thật *liên tiếp* tụt xuống dưới 22**:
+lúc đó `lm` vào thẳng hồi quy, không có z-score che. Trước 15/09/2026 con số này
+được **hiển thị** (`/health`, cờ `rv_uoc` trên giao diện) nhưng **không có một
+assert nào** — nguồn 5 phút ngừng phục vụ thì mọi thứ vẫn chạy, vẫn ra số, chỉ
+là số lệch và không ai biết.
+
+Rào chắn (`api/cache.py::kiem_rv_that`, `collect/live_fx.py`):
+
+```
+< 22 phiên thật liên tiếp  → CHẶN CỨNG, /forecast trả 503, không phục vụ dự báo
+22 .. 36                   → cảnh báo, vẫn phục vụ, banner vàng trên giao diện
+>= 37                      → lành
+```
+
+Đại lượng quyết định là số phiên thật **liên tiếp tính từ cuối**, không phải
+tổng: một khoảng ước chèn sát cuối vẫn cắt cửa sổ 22 dù tổng rất lớn.
+
+Trạng thái tại 15/09/2026: **59 phiên liên tiếp, đệm 37** — không chặn, không
+cảnh báo. Rào chắn không đổi hành vi nào hiện tại; nó chỉ đảm bảo lần hỏng sau
+là hỏng **ồn ào** thay vì âm thầm.
+
+Nếu về sau muốn bỏ hẳn vách 60 ngày này thì đường đúng là broker có hợp đồng
+(OANDA v20, Saxo, IG) hoặc Dukascopy `.bi5` — chứ không phải để chạy lại mô
+hình mỗi giây.
+
 ## 5. Việc đã dọn trong lần rà soát này
 
 - Tách `api/main.py` (928 dòng monolithic) thành package `config/cache/
