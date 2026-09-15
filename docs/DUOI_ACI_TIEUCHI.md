@@ -258,3 +258,104 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 > Dòng ký để trống có chủ đích — người chịu trách nhiệm luận văn ký, không phải
 > công cụ điền hộ.
+
+---
+
+# Phụ lục A — KẾT QUẢ trên KIỂM ĐỊNH (15/09/2026)
+
+**Đoạn kiểm tra CHƯA mở.** Theo mục 5, đoạn kiểm định ở đây dùng cho đúng hai
+việc đã khai báo: kiểm chứng cài đặt, và đối chiếu độ phủ với cận. Nó **không**
+được dùng để chọn giữa A1/A2/A3 — A1 đã chốt ở mục 4 trước khi có số.
+
+## A1. Ba tự kiểm — ĐẠT
+
+| tự kiểm | kết quả |
+|---|---|
+| 1 nhân quả | cắt 800 phiên cuối → **0** giá trị `q_t` đổi ở tiền tố |
+| 2 dịch chuyển phân phối | ACI **0,0503 / 0,0118** so với đích 0,05 / 0,01; phân vị **tĩnh** trượt về **0,1406 / 0,0990** (thiếu phủ ~3× và ~10×) |
+| 3 cận | trong cận ở cả hai mức; `α_t` chạm sàn 0,1% và 0,5% phiên |
+
+Tự kiểm 2 là phép đo trực tiếp cho cơ chế đã tuyên bố ở mục 2: dưới dịch chuyển
+phân phối **biết trước**, vòng phản hồi giữ được độ phủ trong khi ước lượng
+tĩnh thì không. Đây là bằng chứng về cơ chế, độc lập với dữ liệu FX thật.
+
+## A2. Kết quả gộp trên kiểm định — 12 ô (2 mức α × 6 cặp)
+
+| phương án | Kupiec bác bỏ | **DQ bác bỏ** | \|tỷ lệ ES−1\| > 0,10 | ac1 > 0 (dồn cụm) |
+|---|---|---|---|---|
+| V0 (mốc sản xuất) | 2/12 | **3/12** | 2/12 | 3/12 |
+| **A1 ACI γ=0,01 (đề xuất)** | **0/12** | **0/12** | 1/12 | 4/12 |
+| A3 AgACI | 0/12 | 0/12 | 1/12 | 4/12 |
+
+**H17a ĐẠT** trên kiểm định: A1 và A3 cho Kupiec không bác bỏ ở **6/6** cặp tại
+cả hai mức (V0: 5/6). A2 đạt 6/6 ở α=5% nhưng 5/6 ở α=1%.
+
+## A3. Hai ô V0 đang hỏng — cả hai được vá, kể cả DQ
+
+| | V0 | **A1** |
+|---|---|---|
+| **USDCHF α=1%** vi phạm | 2,19% | **1,28%** |
+| Kupiec | **0,015** (bác bỏ) | **0,529** |
+| **DQ** | **0,003** (bác bỏ) | **0,879** |
+| tỷ lệ ES | 1,329 | **0,954** |
+| ac1 | **+0,063** (dồn cụm) | −0,013 |
+| **USDCAD α=1%** DQ | **0,049** (bác bỏ) | **0,984** |
+
+Đây là **lần đầu trong dự án một hướng vá đuôi làm DQ không bác bỏ** ở những ô
+đang hỏng. Bảy hướng trước, kể cả EVT — hướng gần nhất — đều vá được tần suất
+mà không chạm được DQ (`DUOI_EVT.md` A4(d)).
+
+**Cảnh báo mục 3 KHÔNG kích hoạt.** Chiều của khiếm khuyết đảo đúng hướng mong
+muốn: `ac1` của USDCHF đi từ **+0,063** (vi phạm dồn cụm — đúng khiếm khuyết
+đang có) về **−0,013**, tức gần bằng không, **không** phải tự tương quan âm
+lớn. `Σb_trễ` cũng từ +0,088 về −0,030. Nếu DQ đạt nhờ đẩy `ac1` xuống âm mạnh
+thì theo mục 3 phải ghi là thất bại của H17b; số liệu cho thấy không phải vậy.
+
+## A4. Điều PHẢI nói rõ — vì sao đây CHƯA phải bằng chứng quyết định
+
+Đoạn kiểm định chính là nơi bảy hướng trước cũng đều trông ổn. Kết quả 12/12 ở
+trên **tự nó** không phân biệt được hướng này với bảy hướng kia — đúng như mục
+1 đã lập luận. Ba thứ mới thật sự là:
+
+1. **A1 được chỉ định trước**, không chọn ra từ bảng này. Nếu bảng này được
+   dùng để chọn thì hướng thứ tám đã rơi lại vào đúng cái bẫy của bảy hướng
+   trước.
+2. **Cơ chế được kiểm độc lập với dữ liệu FX** (tự kiểm 2), nên "vì sao nó hoạt
+   động" không phải suy ra từ chính bảng kết quả.
+3. **Cận lý thuyết ở T này vẫn lỏng** (0,176–0,183 so với α = 0,05 và 0,01 —
+   đo được ở bảng độ phủ). Nên phần đóng góp của định lý là nhỏ; phần lớn là
+   hành vi hữu hạn mẫu, đúng như mục 8 đã khai báo trước.
+
+Nói thẳng hệ quả của (3): **không được viết "định lý bảo đảm nên nó sẽ đạt trên
+kiểm tra"**. Định lý bảo đảm phương pháp không cần đoạn kiểm định để *hợp lệ
+hoá*; nó không bảo đảm một kết quả cụ thể trên 729 phiên.
+
+## A5. Một quan sát về A2, không phải kết luận
+
+A2 (bám quantile trực tiếp) gần như trùng V0 ở nhiều ô — USDCHF α=1% vẫn
+Kupiec 0,015 / DQ 0,003, y hệt mốc. Cơ chế khả dĩ: bước η = 0,01·sd(z) cố định
+theo **thang z tuyệt đối**, trong khi A1 điều khiển trên **mức α** rồi đọc
+phân vị, nên tự co giãn theo hình dạng đuôi thực nghiệm. Đây là quan sát ghi
+lại, **không** dùng để chọn lại và **không** dùng để đề xuất biến thể A2 mới —
+mục 4 đã đóng danh sách cấu hình.
+
+## A6. Trạng thái và việc cần người chịu trách nhiệm quyết
+
+- Đoạn kiểm tra **chưa mở**. Mở bằng `python src/va_duoi_aci.py --mo-kiem-tra`,
+  chấm **một lần**, A1 là cấu hình đề xuất đã chốt.
+- Nhắc lại quy tắc 4 mục 5 trước khi mở: nếu A3 tốt hơn A1 trên kiểm tra, đó là
+  **quan sát được báo cáo**, không được đọc ngược thành "đáng lẽ chọn A3".
+- Việc tồn riêng, đã vá code nhưng **chưa quyết**: số liệu kiểm tra của
+  `DUOI_EVT.md` (`KHOA_SO.md` dòng 48) đã chấm khi đoạn kiểm tra còn lẫn
+  **24,6%** dữ liệu niêm phong (đo 15/09/2026, commit ea96cee). Chạy lại là
+  **lần mở thứ hai** — được phép theo `KHOA_SO.md` quy tắc 3 vì là lỗi code chứ
+  không phải kết quả xấu, nhưng phải ghi vào mục 5.
+
+## A7. Tái lập
+
+```bash
+python src/va_duoi_aci.py --tu-kiem      # ba tự kiểm, không chạm dữ liệu thật
+python src/va_duoi_aci.py                # chấm kiểm định
+```
+
+Kết quả: `output/va_duoi_aci.json`. Thời gian chạy ~48 giây.
