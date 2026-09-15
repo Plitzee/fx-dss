@@ -52,13 +52,19 @@ DAM = 750          # so quan sat toi thieu truoc khi duoc phep uoc phan vi
 CUON = 500         # do dai cua so cuon cho V2
 EPS = 1e-12
 TEN_DOAN = ("huấn luyện", "kiểm định", "kiểm tra")
+HET_PHAT_TRIEN = "2025-12-31"   # KHOA_SO muc 2 danh rieng 2026-01..08 cho niem phong
 
 
 def nap():
+    """`noi_chuoi` noi them du lieu live toi 2026-09, ma KHOA_SO muc 2 danh rieng
+    2026-01..08 cho bo niem phong — cat tai HET_PHAT_TRIEN truoc khi cham, neu
+    khong ~24,6% doan kiem tra se la du lieu niem phong (do 15/09/2026, viec ton
+    khai o RUIRO_ML.md A4). `va_duoi_evt.py` dung chung ham nay nen duoc vá theo."""
     from api.main import noi_chuoi
     ra = {}
     for p in B.PAIRS:
         m = merge_thin_days(noi_chuoi(p))
+        m = m[pd.DatetimeIndex(m.Date) <= pd.Timestamp(HET_PHAT_TRIEN)].reset_index(drop=True)
         sig = np.sqrt(np.maximum(V2.du_bao_san_xuat(m, p), 0.0))
         c = m.close.values
         z = np.full(len(m), np.nan)
