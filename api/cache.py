@@ -84,15 +84,51 @@ def _nap_lich_su(p):
     return d
 
 
-def _nap_hien_hanh(p):
-    f = os.path.join(LIVE, f"{p}_d1.csv")
+COT_HH = ["Date", "open", "high", "low", "close", "rv5", "rq5", "bpv5",
+          "rsp", "rsn", "n5", "rv_uoc", "nguon"]
+
+
+def _doc_hien_hanh(f, nhan):
     if not os.path.exists(f):
         return None
     d = pd.read_csv(f, parse_dates=["Date"])
     d = d.rename(columns={"rsp5": "rsp", "rsn5": "rsn"})
-    d["nguon"] = "yahoo"
-    return d[["Date", "open", "high", "low", "close", "rv5", "rq5", "bpv5",
-              "rsp", "rsn", "n5", "rv_uoc", "nguon"]]
+    d["nguon"] = nhan
+    thieu = [c for c in COT_HH if c not in d]
+    if thieu:
+        return None
+    return d[COT_HH]
+
+
+def _nap_hien_hanh(p):
+    """Chuoi hien hanh, UU TIEN Dukascopy (doi tu 15/09/2026).
+
+    VI SAO DOI. Do duoc tren doan 2025-10..12 (truoc moi noi, 65 phien EURUSD /
+    63 USDJPY): nen M1 Dukascopy khop HistData |lech| gia dong trung vi 0,00
+    pip va ty le rv5 1,0000 o CA p25, trung vi VA p75. Tuc Dukascopy la phan
+    TIEP NOI cua chinh chuoi HistData, khong phai nha cung cap thu hai.
+
+    Yahoo thi lech: rv5 cao hon goc +10,5% (EURUSD) o ngay co nen 5 phut that,
+    va +1,9% den +73,8% tuy cap o ngay phai uoc tu thanh gio. Nen uu tien
+    Dukascopy XOA mot moi noi dang ton tai, khong phai tao them moi noi moi.
+    Chi tiet: `docs/KIEN_TRUC_HE_THONG.md` muc 4c.
+
+    DAO NGUOC DUOC: xoa/doi ten `{PAIR}_d1_dukas.csv` la ve nguyen Yahoo.
+
+    Cot `nguon` ghi theo TUNG DONG: ngay nao Dukascopy khong co thi roi ve
+    Yahoo va danh dau dung nhu vay — khong gop chung mot nhan cho ca chuoi.
+    """
+    dk = _doc_hien_hanh(os.path.join(LIVE, f"{p}_d1_dukas.csv"), "dukascopy")
+    yh = _doc_hien_hanh(os.path.join(LIVE, f"{p}_d1.csv"), "yahoo")
+    if dk is None:
+        return yh
+    if yh is None:
+        return dk
+    bu = yh[~yh.Date.isin(set(dk.Date))]
+    if bu.empty:
+        return dk
+    return (pd.concat([dk, bu], ignore_index=True)
+            .sort_values("Date").reset_index(drop=True))
 
 
 def noi_chuoi(p):

@@ -41,6 +41,9 @@ LIVE = os.path.join(ROOT, "data", "live")
 API = os.environ.get("FXDSS_API", "http://127.0.0.1:8899")
 PY = sys.executable
 HS = ("1", "5", "20")
+# Moc noi lich su/hien hanh — PHAI bang api.config.MOC_NOI. Khong import de job
+# nay khong keo ca goi api vao, nen co test giu dong bo (tests/test_cap_nhat.py).
+MOC_NOI = "2026-01-01"
 
 
 class LoiBuoc(SystemExit):
@@ -65,18 +68,17 @@ def kiem_tra_du_lieu_moi(ngay_truoc):
     thay vi am tham tinh lai cache tren du lieu hong. KHONG doi hanh vi neu
     moi thu binh thuong; chi la MOT lop chan an toan."""
     f_hien_tai = {}
-    for f in glob.glob(os.path.join(LIVE, "*_d1.csv")):
-        pair = os.path.basename(f).replace("_d1.csv", "")
+    for nhan, f in _tep_hien_hanh():
         try:
             d = pd.read_csv(f, usecols=["Date"], parse_dates=["Date"])
-            f_hien_tai[pair] = (d.Date.max(), len(d))
+            f_hien_tai[nhan] = (d.Date.max(), len(d))
         except Exception as e:
-            raise LoiBuoc(f"  data/live/{pair}_d1.csv đọc lỗi ngay sau khi tải: {e}\n"
+            raise LoiBuoc(f"  {os.path.relpath(f, ROOT)} đọc lỗi ngay sau khi tải: {e}\n"
                           f"  DỪNG trước bước 2 — không tính lại cache trên dữ liệu hỏng.")
 
     if not f_hien_tai:
-        raise LoiBuoc("  data/live/ rỗng sau bước tải — collect/live_fx.py có vẻ đã "
-                      "không ghi được gì. DỪNG trước bước 2.")
+        raise LoiBuoc("  data/live/ rỗng sau bước tải — cả collect/dukas_m1.py lẫn "
+                      "collect/live_fx.py đều không ghi được gì. DỪNG trước bước 2.")
 
     canh_bao = []
     for pair, (ngay_moi, n) in f_hien_tai.items():
@@ -92,15 +94,31 @@ def kiem_tra_du_lieu_moi(ngay_truoc):
     print(f"  ĐẠT — {len(f_hien_tai)} cặp, dữ liệu mới hơn hoặc bằng lần chạy trước")
 
 
+def _tep_hien_hanh():
+    """[(nhan, duong_dan)] cho CA hai nguon hien hanh.
+
+    Phai gom ca hai: tu 15/09/2026 Dukascopy la nguon chinh (`*_d1_dukas.csv`)
+    con Yahoo (`*_d1.csv`) chi bu ngay thieu. Chi kiem mot ben thi lop chan do
+    moi du lieu se mu doi voi dung cai nguon dang nuoi du bao.
+
+    Luu y `*_d1.csv` KHONG khop `*_d1_dukas.csv`, nen hai lan glob khong trung.
+    """
+    ra = []
+    for f in sorted(glob.glob(os.path.join(LIVE, "*_d1_dukas.csv"))):
+        ra.append((os.path.basename(f).replace("_d1_dukas.csv", "") + " (dukascopy)", f))
+    for f in sorted(glob.glob(os.path.join(LIVE, "*_d1.csv"))):
+        ra.append((os.path.basename(f).replace("_d1.csv", "") + " (yahoo)", f))
+    return ra
+
+
 def _ngay_moi_nhat_hien_co():
     """Chup nhanh ngay moi nhat cua data/live/ TRUOC khi tai — de doi chieu
     sau buoc 1. Tra ve {} neu chua co gi (lan chay dau tien)."""
     ra = {}
-    for f in glob.glob(os.path.join(LIVE, "*_d1.csv")):
-        pair = os.path.basename(f).replace("_d1.csv", "")
+    for nhan, f in _tep_hien_hanh():
         try:
             d = pd.read_csv(f, usecols=["Date"], parse_dates=["Date"])
-            ra[pair] = d.Date.max()
+            ra[nhan] = d.Date.max()
         except Exception:
             pass
     return ra
@@ -269,9 +287,20 @@ def main():
 
     if tai:
         ngay_truoc = _ngay_moi_nhat_hien_co()
-        buoc(1, "Tải dữ liệu hiện hành (Yahoo 1h→D1 + 5m→rv5)")
-        chay("collect/live_fx.py")
-        buoc("1b", "Kiểm tra độ mới dữ liệu vừa tải")
+        # Dukascopy la nguon CHINH tu 15/09/2026 (KIEN_TRUC_HE_THONG muc 4c:
+        # khop HistData ty le rv5 1,0000, tuc noi lien chuoi goc). Bo nho dem
+        # lam moi lan chay lai chi tai phan ngay MOI — dat ca khoang tu moi noi.
+        buoc(1, "Tải dữ liệu hiện hành — Dukascopy M1 (nguồn chính)")
+        chay("collect/dukas_m1.py", "--tu", MOC_NOI, "--den",
+             dt.date.today().isoformat())
+        # Yahoo van chay: no BU nhung ngay Dukascopy khong co (xem
+        # api/cache.py::_nap_hien_hanh — nhan `nguon` ghi theo tung dong).
+        buoc("1b", "Tải Yahoo — dự phòng, chỉ dùng cho ngày Dukascopy thiếu")
+        try:
+            chay("collect/live_fx.py")
+        except LoiBuoc as e:
+            print(f"  Yahoo lỗi ({e}) — BỎ QUA, không dừng: Dukascopy là nguồn chính.")
+        buoc("1c", "Kiểm tra độ mới dữ liệu vừa tải")
         kiem_tra_du_lieu_moi(ngay_truoc)
     else:
         buoc(1, "Tải dữ liệu — BỎ QUA (--khong-tai)")
