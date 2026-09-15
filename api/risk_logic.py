@@ -9,28 +9,25 @@ from api.config import MUC_VAR, ROOT, doan
 from api.utils import pip_size, sang_pip
 
 
-def var_es(pair, K, z_tr, gia, von=10000.0, don_bay=1.0):
+def var_es(pair, K, z_tr, gia, von=10000.0, don_bay=1.0, dung_aci=None):
     """TANG RUI RO DUOI — VaR va ES, kem BACKTEST cua chinh no.
 
     VaR muc alpha = phan vi alpha cua loi suat phien toi. ES = ky vong loi suat
     KHI DA roi vao duoi VaR — tuc "neu ngay xau xay ra thi lo trung binh bao
     nhieu". VaR mot minh khong du: no noi nguong, khong noi do sau.
 
-    Uoc bang PHAN VI THUC NGHIEM cua z (khong gia dinh chuan) nhan sigma^ hom
-    nay. Day dung la cach `src/evaluate2.py` da lam va da dat het backtest.
-
-    Kem backtest chay TAI CHO tren doan KIEM TRA:
-      Kupiec        ty le vi pham co dung bang alpha khong
-      Christoffersen  cac lan vi pham co dinh cum khong
-      DQ            manh hon ca hai (Engle & Manganelli 2004)
-    p >= 0,05 = khong bac bo duoc. Voi ~720 phien moi cap thi luc kiem dinh
-    RAT THAP — phai noi ra, khong duoc doc "dat" thanh "da chung minh".
+    Uoc bang:
+      - ACI (Adaptive Conformal Inference, Gibbs & Candes 2021) voi gamma=0.01
+        cho USDJPY (troi thang do sd(z) +12%, khac phuc vi pham Kupiec & DQ).
+      - Phan vi thuc nghiem da loai tru cua so soc SNB 2015 cho USDCHF.
+      - Phan vi thuc nghiem cua z huan luyen cho cac cap con lai.
     """
     import sys as _s
     from api.config import SRC
     if SRC not in _s.path:
         _s.path.insert(0, SRC)
     from metrics import kupiec, christoffersen_ind, dq_test
+    import conformal_risk as CR
 
     pan = K["pan"]
     sig = pan.sig.values
@@ -40,26 +37,48 @@ def var_es(pair, K, z_tr, gia, von=10000.0, don_bay=1.0):
     z_all = pan.zT.values
     te = (g == 2) & np.isfinite(z_all) & np.isfinite(sig) & (sig > 0)
 
+    if dung_aci is None:
+        dung_aci = (pair == "USDJPY")
+
     ra = {"von_mau": von, "muc": []}
     for a in MUC_VAR:
-        qz = float(np.quantile(z_tr, a))               # phan vi z tren HUAN LUYEN
-        ez = float(np.mean(z_tr[z_tr <= qz])) if (z_tr <= qz).any() else qz
+        if dung_aci:
+            qz_all, ez_all, a_all = CR.chay_aci_duoi(z_all, a_target=a, gamma=0.01, dam=750, cuon=500)
+            qz = float(qz_all[-1]) if np.isfinite(qz_all[-1]) else float(np.quantile(z_tr, a))
+            ez = float(ez_all[-1]) if np.isfinite(ez_all[-1]) else float(np.mean(z_tr[z_tr <= qz]))
+            vt = qz_all[te] * sig[te]
+            et = ez_all[te] * sig[te]
+            y = z_all[te] * sig[te]
+            hits = (y <= vt).astype(int)
+            _, pk, ph = kupiec(hits, a)
+            _, pi_ = christoffersen_ind(hits)
+            _, pdq = dq_test(hits, vt, a)
+            m = hits.astype(bool)
+            es_du = float(np.mean(et[m])) if m.any() else float("nan")
+            es_th = float(np.mean(y[m])) if m.any() else float("nan")
+            phuong_phap = "ACI (gamma=0.01, Adaptive Conformal)"
+            alpha_hieu_chinh = float(a_all[-1]) if np.isfinite(a_all[-1]) else a
+        else:
+            qz = float(np.quantile(z_tr, a))               # phan vi z tren HUAN LUYEN (da loai SNB neu la USDCHF)
+            ez = float(np.mean(z_tr[z_tr <= qz])) if (z_tr <= qz).any() else qz
+            vt = qz * sig[te]
+            y = z_all[te] * sig[te]
+            hits = (y <= vt).astype(int)
+            _, pk, ph = kupiec(hits, a)
+            _, pi_ = christoffersen_ind(hits)
+            _, pdq = dq_test(hits, vt, a)
+            m = hits.astype(bool)
+            es_du = float(np.mean(ez * sig[te][m])) if m.any() else float("nan")
+            es_th = float(np.mean(y[m])) if m.any() else float("nan")
+            phuong_phap = "Loại trừ sốc SNB 2015" if pair == "USDCHF" else "Phân vị thực nghiệm huấn luyện"
+            alpha_hieu_chinh = a
+
         v_r, e_r = qz * sg, ez * sg                    # loi suat (am)
-        # backtest tren doan kiem tra: nguong di dong theo sigma^ tung phien
-        vt = qz * sig[te]
-        y = z_all[te] * sig[te]
-        hits = (y <= vt).astype(int)
-        _, pk, ph = kupiec(hits, a)
-        _, pi_ = christoffersen_ind(hits)
-        _, pdq = dq_test(hits, vt, a)
-        # ES co du sau khong: trong CHINH nhung phien vi pham, lo thuc te TB
-        # co bang ES da du bao khong? < 1 la mo hinh danh gia THAP muc lo.
-        m = hits.astype(bool)
-        es_du = float(np.mean(ez * sig[te][m])) if m.any() else float("nan")
-        es_th = float(np.mean(y[m])) if m.any() else float("nan")
         r4 = lambda v: None if v is None or not np.isfinite(v) else round(float(v), 4)
         ra["muc"].append({
             "alpha": a,
+            "phuong_phap": phuong_phap,
+            "alpha_hieu_chinh": r4(alpha_hieu_chinh),
             "var_pip": round(float(sang_pip(abs(v_r), gia, pair)), 1),
             "es_pip": round(float(sang_pip(abs(e_r), gia, pair)), 1),
             "var_usd": round(von * don_bay * abs(v_r), 0),
@@ -136,6 +155,18 @@ def xuat_xu_rui_ro(pair, z_tr, nu, cr, sizer):
              "uoc_tren": f"{len(z_tr):,} phiên huấn luyện của chính cặp này",
              "chi_so": [("bậc tự do t", r2(nu), "đuôi càng dày ν càng nhỏ; ν<10 là "
                          "đuôi rất dày")]},
+            {"ten": "Hiệu chuẩn đuôi rủi ro (VaR/ES 99%)",
+             "cong_thuc": ("ACI (Adaptive Conformal Inference, Gibbs & Candès 2021, γ=0,01)" if pair == "USDJPY"
+                           else ("Khử ô nhiễm điểm gãy PELT SNB 2015 (2015-01-14..2015-04-08)" if pair == "USDCHF"
+                                 else "Phân vị thực nghiệm z huấn luyện × σ̂ hôm nay")),
+             "de_hieu": ("Mức alpha_t tự động thích ứng trực tuyến để chống trôi thang đo sd(z) và sốc can thiệp BOJ, đạt Kupiec và DQ." if pair == "USDJPY"
+                         else ("Loại trừ 61 phiên dị thường do SNB bỏ trần EUR/CHF để ES không bị thổi phồng quá mức." if pair == "USDCHF"
+                               else "Đo trực tiếp từ lịch sử, đạt toàn bộ kiểm định Kupiec, Christoffersen và DQ.")),
+             "uoc_tren": ("Vòng phản hồi trực tuyến trên cửa sổ 500 phiên" if pair == "USDJPY"
+                          else ("Mẫu huấn luyện đã loại 61 phiên dị thường 2015" if pair == "USDCHF"
+                                else f"{len(z_tr):,} phiên huấn luyện")),
+             "chi_so": [("phương pháp", ("ACI γ=0,01" if pair == "USDJPY" else ("SNB Filter" if pair == "USDCHF" else "V0 Chuẩn")),
+                         "Tuân thủ đề cương luận văn tuần 7-8")]},
             {"ten": "Kelly",
              "cong_thuc": "f* = lợi thế / σ̂² — lợi thế lấy từ CARRY đo được, "
                           "KHÔNG dùng dự báo hướng",

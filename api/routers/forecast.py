@@ -42,7 +42,14 @@ def forecast(pair: str = Query(...), h: int = Query(1), ngay: str = Query(None))
         "ky_nang_huong": "không phân biệt được (AUC phủ 0,50 ở 24/24 ô — xem /calibration)",
         **_tap_conformal(X, i),
         "ky_nang_do_duoc": KY_NANG_THEO_H[h],
-        "tinh_luc": K["tinh_luc"].isoformat() + "Z"}
+        "tinh_luc": K["tinh_luc"].isoformat() + "Z",
+        "xuat_xu_nhan_qua": {
+            "bien_song_sot": ["VIXCLS (VIX trễ 1 ngày)", "Lịch công bố vĩ mô (ngoài NHTW)"],
+            "phuong_phap_tam_giac": ["Double ML", "PCMCI", "Granger (Westfall-Young)", "Causal Forest", "CausalImpact"],
+            "vai_tro_tham_dinh": "Dùng để lọc tập đặc trưng đóng băng, chống trôi phân phối so với chọn đơn biến",
+            "vai_tro_du_bao_truc_tiep": "Chuyển sang Deferred / Future Work do QLIKE cải thiện không có ý nghĩa thống kê sau hiệu chỉnh Holm (q=1.000)",
+            "vai_tro_rui_ro_meta": "Tích hợp vào mô hình meta-labeling tầng rủi ro để nhận diện biến động bất thường và điều chỉnh đòn bẩy / conformal",
+        }}
 
 
 @router.get("/forecast_series")

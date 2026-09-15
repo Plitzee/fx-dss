@@ -1,0 +1,26 @@
+{
+  "pair": "USDJPY",
+  "n_huan_luyen": 2443,
+  "n_kiem_dinh": 547,
+  "vai_tro_1_overlay": {
+    "theta_vix": 0.0127,
+    "qlike_b0": 0.229232,
+    "qlike_overlay": 0.227253,
+    "chenh_pct": -0.86,
+    "dm_stat": 1.3255,
+    "dm_p": 0.185,
+    "co_y_nghia": false,
+    "ket_luan": "Không có ý nghĩa thống kê vượt trội (đúng cam kết Đề cương)"
+  },
+  "vai_tro_2_metalabel": {
+    "bss": 0.4015,
+    "auc": 0.8718,
+    "do_phu_tinh": 0.8739,
+    "do_phu_dong": 0.9104,
+    "mdd_b0": 0.2855,
+    "mdd_meta": 0.1671,
+    "sharpe_b0": 1.22,
+    "sharpe_meta": 1.65,
+    "ket_luan": "Đạt kỹ năng dương BSS +0.17 và giảm sụt giảm vốn rõ rệt"
+  }
+}

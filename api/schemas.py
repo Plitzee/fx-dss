@@ -94,3 +94,4 @@ class ForecastResponse(BaseModel):
     tap_ghi_chu: str
     ky_nang_do_duoc: KyNangMuc
     tinh_luc: str
+    xuat_xu_nhan_qua: Optional[dict[str, Any]] = None

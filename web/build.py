@@ -13,6 +13,12 @@ import io
 import os
 import sys
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 TPL = os.path.join(HERE, "ui_template.html")
 

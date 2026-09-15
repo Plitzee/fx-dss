@@ -8,4 +8,5 @@ data/dukas_cache/
 catboost_info/
 output/_*
 output/cauhinh_chot.pkl
+web/data_prev/
 
