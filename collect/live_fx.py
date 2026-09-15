@@ -73,7 +73,6 @@ import datetime as dt
 import io
 import json
 import os
-import sys
 import time
 
 import numpy as np
@@ -324,23 +323,26 @@ def main():
     # chay binh thuong — van ghi du lieu, van ra so — chi khac la rv5 thanh so
     # UOC tu thanh gio. Cua so HAR 22 phien vao THANG ma tran thiet ke nen du
     # bao se lech ma khong co gi bao. Day la cho kiem.
+    # Tu 15/09/2026 Yahoo la nguon BU, khong con la nguon chinh — Dukascopy
+    # (collect/dukas_m1.py) cho RV5 that moi phien. Nen rao chan o day chi CANH
+    # BAO ve chat luong phan bu; no KHONG con dong nghia voi "du bao se sai".
+    # Rao chan that su nam o `api/cache.py::kiem_rv_that`, chay tren chuoi DA
+    # NOI — voi Dukascopy thi moi hang deu rv_uoc=0 nen no khong kich hoat.
     thieu = {p: v["n_rv5_that"] for p, v in bc["cap"].items()
              if v["n_rv5_that"] < HAR_TRE + DEM_CANH_BAO}
     if thieu:
         nang = {p: n for p, n in thieu.items() if n < HAR_TRE}
+        ds = nang if nang else thieu
+        nguong = HAR_TRE if nang else HAR_TRE + DEM_CANH_BAO
         print("\n" + "!" * 100)
-        if nang:
-            print(f"CHẶN: {', '.join(f'{p} ({n} phiên)' for p, n in nang.items())} "
-                  f"có dưới {HAR_TRE} phiên RV5 THẬT.")
-            print("Cửa sổ HAR bị nhiễm RV ước — API sẽ từ chối phục vụ dự báo (503).")
-        else:
-            print(f"CẢNH BÁO: {', '.join(f'{p} ({n} phiên)' for p, n in thieu.items())} "
-                  f"còn dưới {HAR_TRE + DEM_CANH_BAO} phiên RV5 thật.")
-            print(f"Dự báo vẫn hợp lệ (cửa sổ HAR {HAR_TRE} phiên còn sạch) nhưng đệm đang mỏng.")
-        print("Nguyên nhân thường gặp: nguồn 5 phút đổi/ngừng phục vụ, hoặc job không chạy đủ lâu.")
+        print(f"CẢNH BÁO chất lượng nguồn BÙ (Yahoo): "
+              f"{', '.join(f'{p} ({n} phiên)' for p, n in ds.items())} "
+              f"có dưới {nguong} phiên RV5 thật.")
+        print("Những ngày đó rv5 là số ƯỚC từ thanh giờ (đo được: cao hơn nguồn gốc")
+        print("1,9–73,8% tuỳ cặp). Chúng CHỈ được dùng cho ngày Dukascopy thiếu.")
+        print("Nếu Dukascopy phủ đủ thì cảnh báo này không ảnh hưởng dự báo —")
+        print("kiểm bằng `/health` (trường rv_chan / rv_canh_bao) hoặc cột `nguon`.")
         print("!" * 100)
-        if nang:
-            sys.exit(1)
 
     print("TỰ KIỂM ĐẠT")
 
