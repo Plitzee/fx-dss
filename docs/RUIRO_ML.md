@@ -210,3 +210,17 @@ Việc cần làm (chưa làm): rà cả ba, xác định đoạn kiểm tra c�
 và nếu có chấm trên 2026 thì ghi rõ trong tài liệu tương ứng. Không phải lỗi
 nghiêm trọng — nguồn live khác tệp niêm phong — nhưng nó làm mờ đúng cái ranh
 giới mà biên bản khoá sổ dựng lên.
+
+> **ĐÃ ĐÓNG 15/09/2026** (commit ea96cee). Đã rà cả ba:
+>
+> | script | kết luận | xử lý |
+> |---|---|---|
+> | `va_duoi.py` | **có rò rỉ** — đo được **179–180/729 phiên mỗi cặp, 24,6%** đoạn kiểm tra là dữ liệu niêm phong | đã vá tại `nap()`, cắt ở `HET_PHAT_TRIEN = 2025-12-31` |
+> | `va_duoi_evt.py` | **có rò rỉ**, cùng nguyên nhân (import chung `nap()`) | vá theo tự động; số liệu kiểm tra cũ đã đính chính ở `DUOI_EVT.md` Phụ lục A |
+> | `shadow_tohop.py` | **không** rò rỉ | nó sinh dự báo THẬT cho sổ dự báo, không chấm điểm trên đoạn nào — dùng dữ liệu live ở đây là đúng mục đích, không phải nhầm lẫn |
+>
+> Chạy lại `va_duoi.py` sau khi vá: `output/va_duoi.json` **không đổi** — xác
+> nhận bản vá chỉ chạm đoạn kiểm tra, không động tới số liệu chọn-trên-kiểm-định
+> đã báo cáo. Ước lượng ban đầu ở đoạn trên ("không phải lỗi nghiêm trọng") là
+> **đúng về hệ quả nhưng nhẹ hơn thực tế về quy mô**: một phần tư đoạn kiểm tra
+> là con số đáng ghi, kể cả khi nó không đổi phán quyết nào.

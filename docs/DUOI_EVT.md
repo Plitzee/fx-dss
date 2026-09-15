@@ -148,6 +148,31 @@ Họ tên: ______________________  Ngày: ____________  Ký: ___________________
 
 # PHỤ LỤC A — KẾT QUẢ (13/09/2026, chạy SAU khi mục 1–9 đã chốt)
 
+> ## ⚠ ĐÍNH CHÍNH 15/09/2026 — mọi số liệu ĐOẠN KIỂM TRA dưới đây bị nhiễm bẩn
+>
+> Phụ lục này được chấm **trước** khi vá lỗi rò rỉ niêm phong (commit ea96cee).
+> `va_duoi_evt.py` dùng `nap()` của `va_duoi.py`, vốn gọi `api.main.noi_chuoi`
+> nối dữ liệu live tới 2026-09 — mà `KHOA_SO.md` mục 2 dành riêng 2026-01→08
+> cho bộ niêm phong. Vì `TEST_TU` = 2023-11-20, **toàn bộ** phần 2026 rơi vào
+> nhãn `g==2`, tức đoạn "kiểm tra".
+>
+> **Đo ngày 15/09/2026: 179–180/729 phiên mỗi cặp, tức 24,6% đoạn kiểm tra,
+> là dữ liệu niêm phong.** Mọi con số kiểm tra dưới đây — gồm "V0 0,4913 →
+> E3 0,2749 (giảm 44%)", "USDJPY α=1% Kupiec 0,005 → 0,198", "USDCHF tỷ lệ ES
+> 1,131 → 1,008", và phán quyết ĐK1/ĐK2/ĐK3 ở mục A5 — phải đọc kèm ghi chú này.
+>
+> **Số liệu ĐOẠN KIỂM ĐỊNH không bị ảnh hưởng**: đoạn kiểm định kết thúc
+> 2023-11-20, trước mọi dữ liệu niêm phong. Phán quyết "EVT thắng trên kiểm
+> định, điều kiện mở kiểm tra thoả" vì vậy vẫn nguyên giá trị.
+>
+> **Quyết định 15/09/2026: KHÔNG chạy lại.** Chạy lại là **lần mở thứ hai** —
+> được phép theo `KHOA_SO.md` quy tắc 3 vì đây là lỗi code chứ không phải kết
+> quả xấu, nhưng phán quyết của hướng này vốn đã **ÂM** (trượt ĐK2 và ĐK3) và
+> EVT **không đổi sản xuất**, nên số liệu sạch hơn không đổi kết luận nào.
+> Ghi chú thay vì tiêu một lần mở. Xem `KHOA_SO.md` dòng 59 và dòng "—" kế đó.
+>
+> Code đã vá, nên mọi lần chạy từ 15/09/2026 trở đi tự động sạch.
+
 *Tái lập: `python src/va_duoi_evt.py` (chỉ kiểm định) rồi
 `python src/va_duoi_evt.py --mo-kiem-tra`. Kết quả: `output/va_duoi_evt.json`.*
 
