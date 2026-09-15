@@ -1001,12 +1001,10 @@ function bangCoSo(i){
     "Xếp theo tam phân vị σ̂ 12 tháng gần nhất, ngưỡng chốt sẵn trên dữ liệu huấn luyện — không đoán theo cảm tính."]);
 
   if(P.nguon){
-    const ng = P.nguon[i], uoc = P.rv_uoc ? P.rv_uoc[i] : 0;
-    hang.push([ng==="yahoo"?"mid":"ok", "Nguồn giá của phiên này",
-      `<b>${ng==="yahoo"?"Yahoo (báo giá chỉ dẫn)":"HistData (tick thật)"}</b>`
+    const ng = P.nguon[i], uoc = P.rv_uoc ? P.rv_uoc[i] : 0, N = TEN_NGUON(ng);
+    hang.push([N.cl, "Nguồn giá của phiên này", `<b>${N.ten}</b>`
         + (uoc ? " · biến động ước từ thanh giờ" : " · biến động thật từ thanh 5 phút"),
-      ng==="yahoo" ? "Nguồn không chính thức, không có cam kết dịch vụ — đủ cho luận văn/bản trình diễn, hệ thống chạy thật nên dùng nhà cung cấp có hợp đồng."
-                   : "Dữ liệu tick chính thức đã kiểm chứng, độ trễ bằng 0."]);
+      N.giai_thich]);
   }
 
   if(NM){
@@ -1155,12 +1153,12 @@ function paintFoot(i){
   if(ev.length) rows.push(`<span class="chip chi-phan-tich"><span class="dot mid"></span>Hôm nay có họp ngân hàng trung ương: <b>${ev[0].nhan.join(", ")}</b>. Ngày họp và ngày kế tiếp đã nằm trong mô hình biến động (vòng 7, +8% QLIKE).</span>`);
   const cheDo = ["bình tĩnh","vừa","căng thẳng"][P.che_do[i]];
   if(P.nguon){
-    const ng = P.nguon[i], uoc = P.rv_uoc ? P.rv_uoc[i] : 0;
+    const ng = P.nguon[i], uoc = P.rv_uoc ? P.rv_uoc[i] : 0, N = TEN_NGUON(ng);
     const cuoi = P.ngay[P.ngay.length-1];
-    rows.push(`<span class="chip"><span class="dot ${ng==="yahoo"?"mid":"ok"}"></span>`
-      + `Nguồn ngày này: <b>${ng==="yahoo"?"Yahoo (báo giá chỉ dẫn)":"HistData (tick)"}</b>`
-      + (uoc? ` · rv5 <b>ước từ thanh giờ</b>, không nuôi dự báo hôm nay` : ` · rv5 thật từ thanh 5 phút`)
-      + ` · chuỗi đến ${cuoi}. Mối nối hai nhà cung cấp lệch trung vị 0,20–3,40 pip tuỳ cặp.</span>`);
+    rows.push(`<span class="chip"><span class="dot ${N.cl}"></span>`
+      + `Nguồn ngày này: <b>${N.ten}</b>`
+      + (uoc? ` · rv5 <b>ước từ thanh giờ</b>` : ` · rv5 thật từ thanh 5 phút`)
+      + ` · chuỗi đến ${cuoi}. ${N.moi_noi}</span>`);
   }
   rows.push(`<h4 class="chi-phan-tich" style="font-family:var(--f-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:4px 0 0">Vì sao ra con số này</h4>`);
   rows.push(`<ul class="why chi-phan-tich">
@@ -2053,6 +2051,25 @@ function paintEv(){
     <div class="note"><b>Phạm vi trung thực.</b> Hệ thống có lịch sự kiện <em>có kế hoạch</em>. Nó <b>không</b> có kho tin tức lịch sử có dấu thời gian, nên chưa phản ứng được với tin thuế quan hay xung đột. Khi có, cách làm đã thiết kế là <em>nghiên cứu sự kiện</em>: tra phân phối phản ứng đã đo kèm cỡ mẫu, rồi đề xuất về <b>dải, cỡ vị thế và giờ vào lệnh</b> — không bao giờ đề xuất hướng. Xem <code>docs/REPLAN_2026.md</code> mục 6.</div>
     <p class="lead" style="margin-top:10px">Nhật ký dưới đây là toàn bộ sự kiện đã hẹn trước trùng ngày có dữ liệu ${ten} (60 ngày gần nhất). Dòng tô sáng = có ít nhất một ngân hàng liên quan trực tiếp tới ${ten}.</p>
     <div class="tw"><table><thead><tr><th class="n">ngày</th><th>ngân hàng</th><th class="n">σ̂ (pip)</th><th class="n">dải ±b</th><th class="n">P(đi ngang)</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+/* Nhãn nguồn dữ liệu — MỘT chỗ định nghĩa, dùng cho mọi nơi hiển thị.
+   Trước 15/09/2026 chỗ này là điều kiện nhị phân "yahoo hay không", nên khi
+   thêm nguồn thứ ba nó sẽ gán nhãn sai. Đo được (KIEN_TRUC_HE_THONG mục 4c):
+   Dukascopy khớp HistData tỷ lệ rv5 1,0000 — cùng một dữ liệu, nên cùng mô tả. */
+function TEN_NGUON(ng){
+  if(ng === "yahoo") return {
+    cl: "mid", ten: "Yahoo (báo giá chỉ dẫn)",
+    giai_thich: "Nguồn không chính thức, không có cam kết dịch vụ. Chỉ dùng để bù những ngày nguồn chính thiếu. Đo được: rv5 cao hơn nguồn gốc 1,9–73,8% tuỳ cặp.",
+    moi_noi: "Đây là ngày phải bù bằng nguồn phụ."};
+  if(ng === "dukascopy") return {
+    cl: "ok", ten: "Dukascopy (tick thật)",
+    giai_thich: "Nguồn chính từ 15/09/2026. Nến M1 dựng từ tick; đo trên đoạn chồng lấn cho tỷ lệ rv5 1,0000 so với HistData — cùng một dữ liệu, nên không có bước nhảy ở mối nối.",
+    moi_noi: "Nối liền chuỗi HistData: lệch giá đóng trung vị 0,00 pip, tỷ lệ rv5 1,0000."};
+  return {
+    cl: "ok", ten: "HistData (tick thật)",
+    giai_thich: "Dữ liệu tick chính thức đã kiểm chứng, độ trễ bằng 0.",
+    moi_noi: "Đoạn lịch sử gốc, không qua mối nối nào."};
 }
 
 /* Rào chắn RV5 thật — xem api/cache.py::kiem_rv_that.
