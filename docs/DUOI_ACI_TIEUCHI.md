@@ -48,11 +48,11 @@ inference under distribution shift*, NeurIPS 34:1660–1672) không ước phân
 q_t     = phân vị mức α_t của z trong cửa sổ hiệu chuẩn
 ```
 
-Tính chất quyết định (Gibbs & Candès 2021, Mệnh đề 4.1): với `α_t` bị chặn,
-sai lệch độ phủ dài hạn thoả
+Tính chất quyết định (Gibbs & Candès 2021, Mệnh đề 4.1): cộng dồn phép cập
+nhật cho `(1/T)·Σ err_t − α = (α_1 − α_{T+1})/(T·γ)`, nên
 
 ```
-| (1/T)·Σ_t err_t  −  α |  ≤  (α_1 + γ) / (T·γ)   →  0  khi T → ∞
+| (1/T)·Σ_t err_t  −  α |  ≤  (max{α_1, 1−α_1} + γ) / (T·γ)   →  0  khi T → ∞
 ```
 
 **với MỌI chuỗi phân phối, kể cả đối kháng** — không giả định dừng, không giả
@@ -218,17 +218,34 @@ vọng ở α = 1% và ~36 ở α = 5%.
   từng cặp riêng lẻ.
 - **DQ**: dùng toàn bộ chuỗi vi phạm nên có lực cao hơn cho đúng câu hỏi "có
   động học không" — đây là lý do DQ là mục tiêu chính.
-- **Cận ACI**: với γ=0,01, α₁=0,01, T=729 thì cận là (0,01+0,01)/(729·0,01) =
-  **0,274**, tức cận lý thuyết ở α=1% **lỏng hơn chính α**. Nói thẳng: trên
-  một đoạn 729 phiên, định lý ACI **chưa siết được gì** ở mức 1% — bảo đảm là
-  tiệm cận, và T ở đây chưa đủ để cận có nghĩa.
+- **Cận ACI**: với γ=0,01 và T=729, cận là (0,99+0,01)/(729·0,01) = **0,137** ở
+  α=1%, và (0,95+0,01)/(729·0,01) = **0,132** ở α=5%. Cả hai **lỏng hơn chính
+  α**. Nói thẳng: trên một đoạn 729 phiên, định lý ACI **chưa siết được gì** —
+  bảo đảm là tiệm cận, và T ở đây chưa đủ để cận có nghĩa.
 
 **Hệ quả phải ghi trước, không được lờ đi:** nếu ACI đạt ở α=1%, phần đóng góp
 của **định lý** là nhỏ; phần lớn đến từ **hành vi hữu hạn mẫu** của vòng phản
-hồi. Ở α=5% cận là (0,05+0,01)/(729·0,01) = 0,823 — cũng lỏng. Vì vậy mục 2
-**không** được trích dẫn như "đã chứng minh sẽ đạt trên dữ liệu này"; nó chỉ
-chứng minh phương pháp không cần đoạn kiểm định để **hợp lệ hoá**, và đó vẫn là
-điểm mới thật so với bảy hướng trước.
+hồi. Vì vậy mục 2 **không** được trích dẫn như "đã chứng minh sẽ đạt trên dữ
+liệu này"; nó chỉ chứng minh phương pháp không cần đoạn kiểm định để **hợp lệ
+hoá**, và đó vẫn là điểm mới thật so với bảy hướng trước.
+
+### 8a. KHAI BÁO SỬA CÔNG THỨC CẬN — 15/09/2026, trước mọi số liệu thật
+
+Bản đầu của mục 2 và mục 8 viết cận là `(α₁ + γ)/(T·γ)`, cho 0,274 ở α=1%. Đó
+là bản **một phía**, chỉ đúng cho chiều thiếu phủ. Cận hai phía đúng dùng
+`max{α₁, 1−α₁}` vì `α_{T+1}` có thể trôi về phía trên.
+
+Lỗi bị **tự kiểm 3 bắt trên dữ liệu mô phỏng**, trước khi chạm bất kỳ số liệu
+thật nào — nên đây là sửa văn bản chốt trước ở trạng thái còn hợp lệ, không
+phải sửa tiêu chí sau khi thấy số. Kết luận định tính của mục 8 **không đổi**
+và trên thực tế còn mạnh hơn: cận lỏng hơn α ở **cả hai** mức, không chỉ mức 1%.
+
+**Giả thiết bị vi phạm, phải ghi kèm.** Phép dẫn giả định `α_t` không bị chặn.
+Cài đặt này — và cả `conformal.py::chay_aci` đang chạy sản xuất — chặn `α_t`
+vào [10⁻⁴, 1−10⁻⁴] vì không lấy được phân vị ở mức âm. Khi `α_t` chạm sàn,
+đẳng thức cộng dồn không còn đúng chính xác. Vì vậy mọi dòng "trong cận" phải
+đọc kèm **tỷ lệ phiên `α_t` chạm sàn**, và con số đó được báo cáo cùng kết quả.
+Đo trên mô phỏng của tự kiểm 3: chạm sàn 0,1% phiên ở α=5% và 0,5% ở α=1%.
 
 ## 9. Chữ ký
 
