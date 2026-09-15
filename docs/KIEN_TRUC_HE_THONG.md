@@ -152,10 +152,77 @@ thật). Twelve Data cho nến M1 sạch nhưng cần khoá + giới hạn 800
 credit/ngày (ép tần suất kiểm tối đa ~15 phút/lần với 6 cặp). TrueFX cho
 giá bid/ask thời gian thực, không cần đăng ký, không thấy giới hạn rõ
 ràng (đã thử 5 lần gọi liên tiếp, đều HTTP 200) — hợp cho việc CHỈ cần
-giá hiện tại, không cần nến dựng sẵn. Dukascopy đã thử, hạ tầng
+giá hiện tại, không cần nến dựng sẵn. ~~Dukascopy đã thử, hạ tầng
 `datafeed.dukascopy.com` hiện không phản hồi ổn định (503/504/timeout,
-đo trực tiếp 14/09/2026) — không dùng được, dù đây mới là nguồn "chính
-thức" nhất về mặt lý thuyết.
+đo trực tiếp 14/09/2026) — không dùng được~~ — **câu này SAI, xem đính
+chính ở mục 4c**.
+
+## 4c. Đính chính về Dukascopy (15/09/2026)
+
+Câu gạch bỏ ở mục 4 rút ra kết luận về **nguồn** từ một lỗi về **cách gọi**.
+Đo lại ngày 15/09/2026:
+
+| cách gọi | kết quả |
+|---|---|
+| 20 request liên tục, không nghỉ | **9/20**, trễ trung vị 14,2s |
+| nghỉ 5–6s giữa các lần | lấy đều, gần như không hỏng |
+| đợt 8 request rồi nghỉ (tải 40 ngày × 2 cặp) | **80/80, không một lỗi nào** |
+
+Đây là **siết hạn mức**, không phải hạ tầng chết. Chính `../dukas/dukas_v3.py`
+đã ghi điều này từ 26/08/2026: *"Dukascopy cho khoảng 15-20 request rồi mới
+siết"*. Và ngay trong `collect/`, `finish_dataset.py` vẫn **đang dùng**
+Dukascopy thật (khối lượng D1, spread H1) với lùi bậc thang 3s→60s viết đúng
+cho trường hợp này, còn `probe_aggregates.py` đã dò xong các endpoint nến gộp
+từ trước. Tức khẳng định "không dùng được" mâu thuẫn với code cùng thư mục tại
+chính thời điểm nó được viết.
+
+**Hệ quả thật, không chỉ là sửa câu chữ.** Vách 60 ngày của thanh 5 phút Yahoo
+— và toàn bộ rào chắn `kiem_rv_that` ở mục 4b dựng lên để canh nó — là thứ có
+thể tránh được ngay từ đầu: nến M1 Dukascopy có từ **2003**, một file cho một
+ngày, không cần khoá.
+
+### Dukascopy và HistData là **cùng một dữ liệu** — đo trên 2025-10..12
+
+Phép so quyết định không phải Dukascopy với Yahoo, mà với **HistData** — nguồn
+mô hình sản xuất được khớp trên đó. Kết quả (65 phiên EURUSD, 63 phiên USDJPY,
+đoạn trước mối nối 2026-01-01):
+
+| | EURUSD | USDJPY |
+|---|---|---|
+| \|lệch\| giá đóng, trung vị | **0,00 pip** | **0,00 pip** |
+| rv5 Dukascopy/HistData, trung vị | **1,0000** | **1,0000** |
+| — cùng chỉ số ở p25 và p75 | 1,0000 | 1,0000 |
+| số nến M5/ngày | 287 / 287 | 287 / 287 |
+
+Khớp tới bốn chữ số ở cả tứ phân vị. Nói thẳng: **Dukascopy là phần tiếp nối
+của chính chuỗi HistData**, không phải nhà cung cấp thứ hai.
+
+Hệ quả đảo ngược lập luận thường gặp: đổi sang Dukascopy **xoá** mối nối đang
+có chứ không tạo thêm mối nối mới. Kẻ lạc loài là Yahoo.
+
+| nguồn | RV5 so với gốc (tick / HistData) |
+|---|---|
+| nến M1 Dukascopy | **0,0%** |
+| Yahoo, ngày có nến 5 phút thật | **+10,5%** (EURUSD) · +1,7% (USDJPY) |
+| Yahoo, ngày phải ước từ thanh giờ (`rv_uoc=1`) | **+2% đến +74%** tuỳ cặp |
+| EODHD | **+12,2%** (EURUSD) |
+
+Cột cuối cùng đo trên 543–548 phiên chồng lấn. Tệ nhất là **USDCAD +73,8%** —
+hệ số quy đổi thanh-giờ-sang-M5 sai nhiều ở cặp này.
+
+**Nhưng nó vẫn không làm lệch dự báo**, và điều đó đã được kiểm ở đúng độ lớn
+sai số thật (không phải mức giả định): chia các hàng `rv_uoc=1` về mức HistData
+rồi tính lại σ̂ hôm nay thì đổi **0,01%–0,15%** trên cả 6 cặp. Lý do vẫn như
+mục 4b: RV ước chỉ vào qua cửa sổ chuẩn hoá `WIN_Z`, nơi z-score nuốt sai số
+thang đo. Đây là bằng chứng thứ hai, mạnh hơn, cho cùng kết luận — và nó xác
+nhận rào chắn ở mục 4b đặt **đúng chỗ** (cửa sổ 22 phiên), vì đó mới là nơi sai
+số đi thẳng vào hồi quy.
+
+**Chưa đổi nguồn trong lần rà soát này** — đó là thay đổi chạm số sản xuất và
+cần người chịu trách nhiệm quyết. Nhưng bằng chứng nghiêng hẳn về một phía:
+Dukascopy nối liền chuỗi gốc, phủ từ 2003, miễn phí, không cần khoá, và xoá
+luôn vách 60 ngày cùng rào chắn dựng ra để canh nó. Tái lập:
+`python collect/dukas_m1.py --doi-chung` và `python collect/probe_nguon.py`.
 
 **Sửa kèm khi xây tầng này**: phát hiện lỗi lệch giá trong `/forecast` và
 `/forecast_series` — xem mục 6.
@@ -186,6 +253,13 @@ chính xác**: nó có nuôi, qua đường `WIN_Z`. Đã đính chính tại ch
 không đáng kể, đã đo bằng độ nhạy: nhiễu rv5 các hàng ước đi **±20%** chỉ làm
 σ̂ hôm nay đổi **tối đa 0,10%** trên cả 6/6 cặp — z-score qua sigmoid nuốt gần
 hết sai số.
+
+*(Bổ sung 15/09/2026 — phép đo trên dùng ±20% là mức **giả định**. Sau đó đã đo
+được sai số THẬT của RV ước bằng cách so với HistData trên 543–548 phiên chồng
+lấn: từ +1,9% đến **+73,8%** tuỳ cặp, tệ nhất ở USDCAD. Chạy lại độ nhạy ở đúng
+mức đó — sửa các hàng `rv_uoc=1` về mức HistData rồi tính lại σ̂ — cho **0,01%
+đến 0,15%**. Kết luận không đổi, nhưng nay dựa trên sai số đo được chứ không
+phải sai số đoán. Chi tiết ở mục 4c.)*
 
 **Chỗ nguy hiểm thật là khi số phiên RV5 thật *liên tiếp* tụt xuống dưới 22**:
 lúc đó `lm` vào thẳng hồi quy, không có z-score che. Trước 15/09/2026 con số này

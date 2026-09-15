@@ -2,15 +2,39 @@
 
 Boi canh. Du lieu goc cua repo la HistData M1 -> H1 -> D1, dung o 2025-12-31.
 `docs/DONGBO_SANXUAT.md` da ghi cho tac nghen: HistData phat hanh THEO NAM nen
-khong dung cap nhat hang ngay duoc, con bo tai Dukascopy `.bi5` thi chua ai
-viet. Da do tu may nay:
+khong dung cap nhat hang ngay duoc. Da do tu may nay:
 
-  * Dukascopy  KHONG truy cap duoc (timeout 15-21s, moi lan thu)
+  * Dukascopy  xem DINH CHINH ben duoi — muc nay tung ghi SAI
   * Stooq      tra ve trang kiem tra bot (proof-of-work) — khong vuot
   * FRED       duoc, chinh thuc, nhung tre ~1 tuan va la gia trua NY, khong OHLC
   * Yahoo      duoc, co OHLC + thanh 5 phut. KHONG CHINH THUC, khong cam ket
                dich vu. Du cho luan van va ban trinh dien; he thong chay that
                nen mua nha cung cap co hop dong.
+
+DINH CHINH 15/09/2026 — HAI CAU TRONG MUC TREN LA SAI.
+
+(1) "bo tai Dukascopy `.bi5` thi chua ai viet" — SAI ngay luc viet. Cung thu
+muc nay da co `finish_dataset.py` DANG dung Dukascopy that (khoi luong D1 theo
+nam, spread H1 BID/ASK rieng; co lui bac thang 3s-9s-27s-60s cho dung truong
+hop nay) va `probe_aggregates.py` da do xong cac endpoint nen gop, ghi chu M1
+1-file/ngay la "(dang dung)". Ngoai ra ../dukas/ co bon ban bo tai.
+
+(2) "Dukascopy KHONG truy cap duoc (timeout 15-21s, moi lan thu)" — SAI ve
+NGUYEN NHAN, va vi the sai ve ket luan. Do lai 15/09/2026:
+
+    ban 20 request lien tuc, khong nghi -> 9/20 duoc, tre trung vi 14,2s
+    co nghi 5-6s giua cac lan            -> lay deu, gan nhu khong hong
+    tai 40 ngay x 2 cap, dot 8 request roi nghi -> 80/80, KHONG mot loi nao
+
+Day la SIET HAN MUC, khong phai ha tang chet. `../dukas/dukas_v3.py` da ghi
+dung dieu nay tu 26/08/2026: "Dukascopy cho khoang 15-20 request roi moi siet".
+Phep do cu ban lien tuc nen gap dung co che siet, roi doc thanh "khong truy cap
+duoc" — mot ket luan ve NGUON rut ra tu mot loi ve CACH GOI.
+
+Hau qua that: vach 60 ngay cua thanh 5 phut Yahoo, va toan bo rao chan
+`api/cache.py::kiem_rv_that` dung de bao ve quanh no, la thu co the tranh duoc
+ngay tu dau. Xem `collect/dukas_m1.py` (nen M1 tu 2003, 1 file/ngay) va
+`collect/probe_nguon.py` (phep do chat luong, tai lap duoc).
 
 BAI HOC DA TRA GIA TRONG CHINH FILE NAY. Ban dau lay thang `interval=1d` cua
 Yahoo. Sai: 37,1% so ngay co `close == open` va `high < open` — thanh nen KHONG
